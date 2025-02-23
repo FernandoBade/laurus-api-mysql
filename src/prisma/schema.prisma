@@ -1,0 +1,46 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Log {
+    id              String      @id @default(uuid())
+    tipo            String
+    operacao        String?
+    categoria       String?
+    detalhe         String
+    usuarioId       String?
+    usuario         Usuario?    @relation(fields: [usuarioId], references: [id])
+    timestamp       DateTime    @default(now())
+}
+
+model Usuario {
+    id             String       @id @default(uuid())
+    nome           String
+    sobrenome      String
+    email          String       @unique
+    telefone       String?
+    senha          String
+    dataNascimento DateTime?
+    ativo          Boolean      @default(true)
+    dataCadastro   DateTime     @default(now())
+    aparencia      String?
+    idioma         String?
+    moeda          String?
+    formatoData    String?
+    contas         Conta[]
+    logs           Log[]
+}
+
+model Conta {
+    id             String       @id @default(uuid())
+    nome           String
+    banco          String
+    tipo           String
+    usuario        Usuario      @relation(fields: [usuarioId], references: [id])
+    usuarioId      String
+}
