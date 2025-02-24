@@ -131,7 +131,7 @@ class UsuarioController {
             }
 
             responderAPI(res, HTTPStatus.OK, { id: usuarioId }, "Usuário excluído com sucesso");
-            return registrarLog(TiposDeLog.SUCESSO, Operacoes.EXCLUSAO, CategoriasDeLog.USUARIO, JSON.stringify({ tipo: "Usuário", id: usuarioId }), undefined);
+            return registrarLog(TiposDeLog.SUCESSO, Operacoes.EXCLUSAO, CategoriasDeLog.USUARIO, JSON.stringify({ id: usuarioId }), undefined);
 
         } catch (erro) {
             await registrarLog(TiposDeLog.ERRO, Operacoes.EXCLUSAO, CategoriasDeLog.USUARIO, JSON.stringify(erro), usuarioId, next);

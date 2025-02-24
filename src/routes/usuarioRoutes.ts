@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { TiposDeLog, Operacoes, HTTPStatus, CategoriasDeLog } from '../utils/enums';
-import { registrarLog, responderAPI } from '../utils/commons';
+import { registrarLog } from '../utils/commons';
 import UsuarioController from '../controllers/usuarioController';
 const router = Router();
 
