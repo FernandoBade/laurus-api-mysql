@@ -7,6 +7,7 @@ import { criarUsuarioSchema, atualizarUsuarioSchema } from '../utils/validator';
 class UsuarioController {
     static async criarUsuario(req: Request, res: Response, next: NextFunction) {
         const dadosUsuario = req.body;
+        const usuarioService = new UsuarioService();
 
         try {
             const resultadoParse = criarUsuarioSchema.safeParse(dadosUsuario);
@@ -15,7 +16,7 @@ class UsuarioController {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, { erros: mensagensDeErro });
             }
 
-            const usuarioCriado = await UsuarioService.criarUsuario(resultadoParse.data);
+            const usuarioCriado = await usuarioService.criarUsuario(resultadoParse.data);
 
             if (usuarioCriado && 'erro' in usuarioCriado) {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, { erro: usuarioCriado.erro });
@@ -32,7 +33,8 @@ class UsuarioController {
 
     static async listarUsuarios(req: Request, res: Response, next: NextFunction) {
         try {
-            const usuarios = await UsuarioService.listarUsuarios();
+            const usuarioService = new UsuarioService();
+            const usuarios = await usuarioService.listarUsuarios();
 
             return responderAPI(res, HTTPStatus.OK, usuarios);
 
@@ -50,7 +52,8 @@ class UsuarioController {
         }
 
         try {
-            const usuario = await UsuarioService.obterUsuarioPorId(usuarioId);
+            const usuarioService = new UsuarioService();
+            const usuario = await usuarioService.obterUsuarioPorId(Number(usuarioId));
 
             if (usuario && 'erro' in usuario) {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, { mensagem: usuario.erro });
@@ -64,14 +67,16 @@ class UsuarioController {
         }
     }
 
-    static async obterUsuariosPorEmail(termoBuscado: string, req: Request, res: Response, next: NextFunction) {
+    static async obterUsuariosPorEmail(req: Request, res: Response, next: NextFunction) {
+        const termoBuscado = req.query.email as string;
+
         if (!termoBuscado || termoBuscado.length < 3) {
             return responderAPI(res, HTTPStatus.BAD_REQUEST, [], "O termo de busca deve ter pelo menos 3 caracteres");
         }
 
         try {
-
-            const usuarios = await UsuarioService.obterUsuariosPorEmail(termoBuscado);
+            const usuarioService = new UsuarioService();
+            const usuarios = await usuarioService.obterUsuariosPorEmail(termoBuscado);
 
             if (!usuarios.total) {
                 return responderAPI(res, HTTPStatus.OK, [], "Nenhum usuário encontrado");
@@ -87,6 +92,12 @@ class UsuarioController {
 
     static async atualizarUsuario(req: Request, res: Response, next: NextFunction) {
         const dadosAtualizados = req.body;
+        const usuarioId = req.params.id;
+        const usuarioService = new UsuarioService();
+
+        if (!usuarioId) {
+            return responderAPI(res, HTTPStatus.BAD_REQUEST, null, 'ID do usuário não informado');
+        }
 
         if (!dadosAtualizados) {
             return responderAPI(res, HTTPStatus.BAD_REQUEST, null, 'Dados inválidos');
@@ -99,32 +110,32 @@ class UsuarioController {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, { erros: mensagensDeErro });
             }
 
-            const { ...dadosParaAtualizar } = resultadoParse.data;
-            const usuarioAtualizado = await UsuarioService.atualizarUsuario(req.params.id, dadosParaAtualizar);
+            const usuarioAtualizado = await usuarioService.atualizarUsuario(Number(usuarioId), resultadoParse.data);
 
             if (usuarioAtualizado && 'erro' in usuarioAtualizado) {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, { mensagem: usuarioAtualizado.erro });
             }
 
             responderAPI(res, HTTPStatus.OK, usuarioAtualizado);
-            await registrarLog(TiposDeLog.SUCESSO, Operacoes.ATUALIZACAO, CategoriasDeLog.USUARIO, JSON.stringify(dadosAtualizados), req.params.id);
+            await registrarLog(TiposDeLog.SUCESSO, Operacoes.ATUALIZACAO, CategoriasDeLog.USUARIO, JSON.stringify(dadosAtualizados), usuarioId);
             return;
 
         } catch (erro) {
-            await registrarLog(TiposDeLog.ERRO, Operacoes.ATUALIZACAO, CategoriasDeLog.USUARIO, JSON.stringify(erro), req.params.id, next);
+            await registrarLog(TiposDeLog.ERRO, Operacoes.ATUALIZACAO, CategoriasDeLog.USUARIO, JSON.stringify(erro), usuarioId, next);
             return responderAPI(res, HTTPStatus.INTERNAL_SERVER_ERROR, { erro: "Erro ao atualizar usuário" });
         }
     }
 
     static async excluirUsuario(req: Request, res: Response, next: NextFunction) {
         const usuarioId = req.params.id;
+        const usuarioService = new UsuarioService();
 
         if (!usuarioId) {
             return responderAPI(res, HTTPStatus.BAD_REQUEST, "Nenhum ID de usuário informado");
         }
 
         try {
-            const resultado = await UsuarioService.excluirUsuario(usuarioId);
+            const resultado = await usuarioService.excluirUsuario(Number(usuarioId));
 
             if (resultado && 'erro' in resultado) {
                 return responderAPI(res, HTTPStatus.BAD_REQUEST, resultado, "Erro ao excluir usuário");

@@ -1,6 +1,7 @@
 // commons/db.ts
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import { executarQuery } from './commons';
 
 dotenv.config();
 
@@ -14,22 +15,6 @@ const db = mysql.createPool({
     queueLimit: 0,
 });
 
-
-/**
- * Executa uma query SQL de forma encapsulada.
- * @param {string} query - A query SQL.
- * @param {Array<any>} [params=[]] - Os parâmetros da query.
- * @returns {Promise<any>} - Resultado da execução.
- */
-export async function executarQuery(query: string, params: any[] = []): Promise<any> {
-    const conexao = await db.getConnection();
-    try {
-        const [resultado] = await conexao.execute(query, params);
-        return resultado;
-    } finally {
-        conexao.release();
-    }
-}
 
 interface ColunaEsperada {
   nome: string;

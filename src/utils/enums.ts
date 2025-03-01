@@ -50,3 +50,9 @@ export enum Operacoes {
     LOGOUT = 'logout',
     EXCLUSAO = 'exclusao'
 }
+
+export enum NomeDaTabela {
+    USUARIO = 'Usuario',
+    CONTA = 'Conta',
+    LOG = 'Log',
+}

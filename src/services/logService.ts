@@ -1,4 +1,5 @@
-import { executarQuery } from '../utils/db';
+import { NomeDaTabela } from '../utils/enums';
+import { buscarPorId, salvarRegistro, executarQuery, excluirRegistro, consultarDados } from '../utils/commons';
 import { TiposDeLog, Operacoes, CategoriasDeLog } from '../utils/enums';
 import { registrarLog } from '../utils/commons';
 
@@ -13,46 +14,58 @@ export class LogService {
     let usuario = null;
 
     if (usuarioId) {
-      const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE id = ?", [usuarioId]);
-      if (usuarios.length > 0) {
-        usuario = usuarios[0];
+      const usuarioEncontrado = await buscarPorId(NomeDaTabela.USUARIO, Number(usuarioId));
+      if (!('erro' in usuarioEncontrado)) {
+        usuario = usuarioEncontrado;
       }
     }
 
     if (tipo !== TiposDeLog.DEBUG) {
-      await executarQuery(
-        "INSERT INTO Log (tipo, operacao, detalhe, categoria, usuarioId, timestamp) VALUES (?, ?, ?, ?, ?, NOW())",
-        [tipo, operacao, detalhe, categoria, usuario ? usuario.id : null]
-      );
+      await salvarRegistro(NomeDaTabela.LOG, {
+        tipo,
+        operacao,
+        detalhe,
+        categoria,
+        usuarioId: usuario ? usuario.id : null,
+        timestamp: new Date(), // MySQL salvará corretamente
+      });
     }
   }
 
+  /**
+   * Remove logs mais antigos que 120 dias.
+   * @returns O número de registros excluídos.
+   */
   static async esvaziarLogsAntigos() {
     const dataLimite = new Date();
     dataLimite.setDate(dataLimite.getDate() - 120);
-    const dataLimiteFormatted = dataLimite.toISOString().slice(0, 19).replace('T', ' ');
+    const dataLimiteFormatada = dataLimite.toISOString().slice(0, 19).replace('T', ' ');
 
+    // Exclui diretamente os logs antigos com a query
     const resultado: any = await executarQuery(
-      "DELETE FROM Log WHERE timestamp < ?",
-      [dataLimiteFormatted]
+      `DELETE FROM ${NomeDaTabela.LOG} WHERE timestamp < ?`,
+      [dataLimiteFormatada]
     );
 
-    const count = resultado.affectedRows ?? 0;
+    const total = resultado.affectedRows ?? 0;
 
     await registrarLog(
       TiposDeLog.INFO,
       Operacoes.EXCLUSAO,
       CategoriasDeLog.LOG,
-      `Total de logs deletados: ${count}`
+      `Total de logs deletados: ${total}`
     );
-    return count;
+
+    return total;
   }
 
+  /**
+   * Busca logs de um usuário específico.
+   * @param usuarioId - ID do usuário.
+   * @returns Lista de logs encontrados.
+   */
   static async buscarLogsPorUsuario(usuarioId: string) {
-    const logs: any = await executarQuery(
-      "SELECT * FROM Log WHERE usuarioId = ? ORDER BY timestamp DESC",
-      [usuarioId]
-    );
-    return logs;
+    return await consultarDados(NomeDaTabela.LOG, "usuarioId", usuarioId);
   }
 }
+

@@ -1,79 +1,65 @@
-// services/usuarioService.ts
-import { executarQuery } from '../utils/db';
+import { NomeDaTabela } from '../utils/enums';
 import bcrypt from 'bcrypt';
+import {
+    buscarPorId,
+    salvarRegistro,
+    atualizarRegistro,
+    excluirRegistro,
+    consultarDados,
+    executarQuery
+} from '../utils/commons';
 
 export class UsuarioService {
-    static async criarUsuario(dados: { nome: string; sobrenome: string; email: string; senha: string; dataNascimento?: string }) {
+    private tabela = NomeDaTabela.USUARIO;
+
+    /**
+     * Cria um novo usuário garantindo e-mail único e senha criptografada.
+     */
+    async criarUsuario(dados: { nome: string; sobrenome: string; email: string; senha: string; dataNascimento?: string }) {
         dados.email = dados.email.trim().toLowerCase();
 
-        const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE email = ?", [dados.email]);
+        const usuarios = await consultarDados(this.tabela, 'email', dados.email);
         if (usuarios.length > 0) {
             return { erro: 'O e-mail já está em uso' };
         }
 
-        const senhaCrypto = await bcrypt.hash(dados.senha, 10);
-        const dataNascimento = dados.dataNascimento ? new Date(dados.dataNascimento) : null;
+        dados.senha = await bcrypt.hash(dados.senha, 10);
 
-        const resultado: any = await executarQuery(
-            "INSERT INTO Usuario (nome, sobrenome, email, senha, dataNascimento) VALUES (?, ?, ?, ?, ?)",
-            [dados.nome, dados.sobrenome, dados.email, senhaCrypto, dataNascimento]
-        );
-
-        const insertId = resultado.insertId;
-        return { id: insertId, ...dados, senha: senhaCrypto, dataNascimento };
+        return await salvarRegistro(this.tabela, dados);
     }
 
-    static async listarUsuarios() {
-        return await executarQuery("SELECT * FROM Usuario");
+    async listarUsuarios() {
+        return await consultarDados(this.tabela);
     }
 
-    static async obterUsuarioPorId(id: string) {
-        const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE id = ?", [id]);
-        if (usuarios.length === 0) {
-            return { erro: "Usuário não encontrado" };
-        }
-        return usuarios[0];
+    async obterUsuarioPorId(id: number) {
+        return await buscarPorId(this.tabela, id);
     }
 
-    static async obterUsuariosPorEmail(emailTermo: string) {
+    /**
+     * Busca usuários pelo e-mail (parcialmente, usando LIKE).
+     */
+    async obterUsuariosPorEmail(emailTermo: string) {
         const termo = `%${emailTermo}%`;
-        const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE email LIKE ?", [termo]);
+        const usuarios: any = await executarQuery(`SELECT * FROM ${this.tabela} WHERE email LIKE ?`, [termo]);
         return { total: usuarios.length, usuarios };
     }
 
-    static async atualizarUsuario(id: string, dadosParaAtualizar: { nome?: string; email?: string; senha?: string }) {
-        const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE id = ?", [id]);
-        if (usuarios.length === 0) {
-            return { erro: "Usuário não encontrado" };
+    /**
+     * Atualiza um usuário e recriptografa a senha se for alterada.
+     */
+    async atualizarUsuario(id: number, dados: { nome?: string; email?: string; senha?: string }) {
+        const usuario = await buscarPorId(this.tabela, id);
+        if ('erro' in usuario) return usuario;
+
+        if (dados.senha) {
+            dados.senha = await bcrypt.hash(dados.senha, 10);
         }
 
-        if (dadosParaAtualizar.senha) {
-            dadosParaAtualizar.senha = await bcrypt.hash(dadosParaAtualizar.senha, 10);
-        }
-
-        const campos = [];
-        const valores = [];
-
-        for (const key of Object.keys(dadosParaAtualizar) as (keyof typeof dadosParaAtualizar)[]) {
-            campos.push(`${key} = ?`);
-            valores.push(dadosParaAtualizar[key]);
-        }
-        valores.push(id);
-
-        const query = `UPDATE Usuario SET ${campos.join(', ')} WHERE id = ?`;
-
-        await executarQuery(query, valores);
-
-        const usuarioAtualizado: any = await executarQuery("SELECT * FROM Usuario WHERE id = ?", [id]);
-        return usuarioAtualizado[0];
+        return await atualizarRegistro(this.tabela, id, dados);
     }
 
-    static async excluirUsuario(id: string) {
-        const usuarios: any = await executarQuery("SELECT * FROM Usuario WHERE id = ?", [id]);
-        if (usuarios.length === 0) {
-            return { erro: "Usuário não encontrado" };
-        }
-        await executarQuery("DELETE FROM Usuario WHERE id = ?", [id]);
-        return { id };
+    async excluirUsuario(id: number) {
+        return await excluirRegistro(this.tabela, id);
     }
 }

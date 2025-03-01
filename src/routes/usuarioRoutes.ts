@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/buscar', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UsuarioController.obterUsuariosPorEmail(req.query.email as string, req, res, next);
+        await UsuarioController.obterUsuariosPorEmail(req, res, next);
     } catch (erro) {
         await registrarLog(TiposDeLog.DEBUG, Operacoes.BUSCA, CategoriasDeLog.USUARIO, JSON.stringify(erro), undefined, next);
     }
