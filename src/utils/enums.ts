@@ -39,7 +39,7 @@ export enum Moeda {
 
 export enum FormatoData {
     DD_MM_AAAA = 'DD/MM/AAAA',
-    MM_DD_YYYY = 'MM/DD/YYYY',
+    MM_DD_AAAA = 'MM/DD/AAAA',
 }
 
 export enum Operacoes {

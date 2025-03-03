@@ -1,9 +1,10 @@
 import { HTTPStatus, TiposDeLog, Operacoes, CategoriasDeLog, NomeDaTabela } from './enums';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction } from 'express';
+import db, { executarQuery } from './db';
 import { LogService } from '../services/logService';
 import { Response } from 'express';
-import db from './db';
+import { ZodError, ZodIssue } from 'zod';
 
 //#region 🔹 Logger
 const logsCustomizados = {
@@ -50,16 +51,19 @@ const logger = createLogger({
  * @param usuarioId - ID do usuário associado ao log (opcional).
  * @param next - Função do Express para continuar o fluxo (opcional).
  */
-export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, categoria: CategoriasDeLog, detalhe: string, usuarioId?: string, next?: NextFunction) {
+export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, categoria: CategoriasDeLog, detalhe: any, usuarioId?: number, next?: NextFunction) {
+    const mensagemLog = typeof detalhe === "object" && Object.keys(detalhe).length === 0
+        ? "Erro desconhecido"
+        : JSON.stringify(detalhe);
 
-    logger.log(tipoDeLog, `[${operacao}][${categoria}]: ${detalhe}`);
+    logger.log(tipoDeLog, `[${operacao}][${categoria}]: ${mensagemLog}`);
 
     if (tipoDeLog === TiposDeLog.ERRO) {
-        next?.(new Error(detalhe));
+        next?.(new Error(mensagemLog));
     }
 
-    if (![TiposDeLog.DEBUG].includes(tipoDeLog)) {
-        await LogService.registrarLog(tipoDeLog, operacao, categoria, detalhe, usuarioId);
+    if (tipoDeLog !== TiposDeLog.DEBUG) {
+        await LogService.registrarLog(tipoDeLog, operacao, categoria, mensagemLog, usuarioId);
     }
 }
 
@@ -69,7 +73,7 @@ export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, c
  * @param usuarioId - ID do usuário cujos logs devem ser buscados.
  * @returns Uma lista de logs associados ao usuário.
  */
-export async function buscarLogsPorUsuario(usuarioId: string) {
+export async function buscarLogsPorUsuario(usuarioId: number) {
     try {
         const logs = await LogService.buscarLogsPorUsuario(usuarioId);
         return logs;
@@ -88,6 +92,7 @@ export async function buscarLogsPorUsuario(usuarioId: string) {
 // #endregion 🔹 Logger
 
 // #region 🔹 Tratamentos gerais de respostas e erros
+
 /**
  * Responde a uma requisição com uma estrutura padrão.
  *
@@ -97,44 +102,66 @@ export async function buscarLogsPorUsuario(usuarioId: string) {
  * @param mensagem - A mensagem a ser retornada (opcional).
  */
 export function responderAPI(res: Response, status: HTTPStatus, dados?: any, mensagem?: string) {
-    let response: any = {
-        sucesso: status === HTTPStatus.OK || status === HTTPStatus.CREATED,
-        mensagem: mensagem || (status === HTTPStatus.OK || status === HTTPStatus.CREATED
-            ? 'Requisição realizada com sucesso.'
-            : 'Ocorreu um erro na requisição'),
-        dados: dados ?? null,
+    const sucesso = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
+    const resposta: any = {
+        sucesso,
+        ...(mensagem && { mensagem }),
+        ...(dados !== undefined && dados !== null ? { dados } : {})
     };
 
-    try {
-        response.dados = JSON.parse(JSON.stringify(response.dados));
-    } catch (erro) {
-        response.dados = null;
-    }
-
     if (!res.headersSent) {
-        return res.status(status).json(response);
+        return res.status(status).json(resposta);
     }
+}
+
+/**
+ * Formata os erros de validação do Zod para um formato padronizado e traduzido para PT-BR.
+ *
+ * @param erro - O erro gerado pelo Zod.
+ * @returns Lista formatada de erros.
+ */
+export function formatarErrosDeValidacao(erro: ZodError) {
+    return erro.errors.map((e: ZodIssue) => {
+        let mensagemTraduzida = e.message;
+        let valorRecebido = "received" in e ? `Valor recebido: '${e.received}'` : "";
+        let opcoesValidas = "options" in e ? `Valores aceitos: ${e.options.join(', ')}` : "";
+
+        switch (e.code) {
+            case "invalid_enum_value":
+                mensagemTraduzida = `Valor inválido para '${e.path.join('.')}'. ${valorRecebido} | ${opcoesValidas}`;
+                break;
+            case "invalid_type":
+                mensagemTraduzida = `O campo '${e.path.join('.')}' espera um valor do tipo '${(e as any).expected}', mas recebeu '${(e as any).received}'`;
+                break;
+            case "too_small":
+                mensagemTraduzida = `O campo '${e.path.join('.')}' deve ter no mínimo ${(e as any).minimum} caracteres. ${valorRecebido}`;
+                break;
+            case "too_big":
+                mensagemTraduzida = `O campo '${e.path.join('.')}' deve ter no máximo ${(e as any).maximum} caracteres. ${valorRecebido}`;
+                break;
+            case "unrecognized_keys":
+                mensagemTraduzida = `O campo '${(e as any).keys.join(", ")}' é desconhecido e não deve fazer parte desta requisição.`;
+                break;
+            case "invalid_date":
+                mensagemTraduzida = `O campo '${e.path.join('.')}' deve ser uma data válida. ${valorRecebido}`;
+                break;
+            case "custom":
+                mensagemTraduzida = e.message;
+                break;
+            default:
+                mensagemTraduzida = `${e.message} ${valorRecebido}`.trim();
+        }
+
+        return {
+            propriedade: e.path.join('.') || 'desconhecida',
+            erro: mensagemTraduzida
+        };
+    });
 }
 
 // #endregion 🔹 Tratamentos gerais de respostas e erros
 
 // #region 🔹 Métodos para CRUD
-
-/**
- * Executa uma query SQL de forma encapsulada.
- * @param {string} query - A query SQL.
- * @param {Array<any>} [params=[]] - Os parâmetros da query.
- * @returns {Promise<any>} - Resultado da execução.
- */
-export async function executarQuery(query: string, params: any[] = []): Promise<any> {
-    const conexao = await db.getConnection();
-    try {
-        const [resultado] = await conexao.execute(query, params);
-        return resultado;
-    } finally {
-        conexao.release();
-    }
-}
 
 /**
  * Busca um registro pelo ID em qualquer tabela.
@@ -188,14 +215,16 @@ export async function excluirRegistro(tabela: NomeDaTabela, id: number) {
  */
 export async function consultarDados(tabela: NomeDaTabela, coluna?: string, valor?: any) {
     let query = `SELECT * FROM ${tabela}`;
-    const params: any[] = [];
+    const parametros: any[] = [];
 
     if (coluna && valor !== undefined) {
         query += ` WHERE ${coluna} = ?`;
-        params.push(valor);
+        parametros.push(valor);
     }
 
-    return await executarQuery(query, params);
+    return await executarQuery(query, parametros);
 }
 
+
+export { executarQuery };
 // #endregion
