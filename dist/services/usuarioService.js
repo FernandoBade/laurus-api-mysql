@@ -13,66 +13,98 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioService = void 0;
-const client_1 = require("@prisma/client");
+const enums_1 = require("../utils/enums");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const prisma = new client_1.PrismaClient();
+const db_1 = require("../utils/db");
+const commons_1 = require("../utils/commons");
 class UsuarioService {
-    static cadastrarUsuario(dados) {
+    constructor() {
+        this.tabela = enums_1.NomeDaTabela.USUARIO;
+    }
+    /**
+     * Cria um novo usuário garantindo que o e-mail seja único e criptografando a senha.
+     * @param dados - Dados do usuário a ser criado.
+     * @returns Retorna o usuário criado ou um erro se o e-mail já estiver em uso.
+     */
+    criarUsuario(dados) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                dados.email = dados.email.trim().toLowerCase();
-                const usuarioExistente = yield prisma.usuario.findUnique({
-                    where: { email: dados.email },
-                });
-                if (usuarioExistente) {
-                    throw new Error('O e-mail já está em uso. Por favor, escolha outro.');
-                }
-                const senhaCrypto = yield bcrypt_1.default.hash(dados.senha, 10);
-                return yield prisma.usuario.create({
-                    data: Object.assign(Object.assign({}, dados), { senha: senhaCrypto }),
-                });
+            dados.email = dados.email.trim().toLowerCase();
+            const usuarios = yield (0, commons_1.consultarDados)(this.tabela, 'email', dados.email);
+            if (usuarios.length > 0) {
+                return { erro: 'O e-mail já está em uso' };
             }
-            catch (erro) {
-                throw new Error('Erro ao criar usuário. Verifique os dados fornecidos.');
+            dados.senha = yield bcrypt_1.default.hash(dados.senha, 10);
+            const novoUsuario = yield (0, commons_1.salvarRegistro)(this.tabela, dados);
+            const usuarioCompleto = yield (0, commons_1.buscarPorId)(this.tabela, novoUsuario.id);
+            return usuarioCompleto;
+        });
+    }
+    /**
+     * Lista todos os usuários cadastrados.
+     * @returns Retorna um array de usuários.
+     */
+    listarUsuarios() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const usuarios = yield (0, commons_1.consultarDados)(this.tabela);
+            return { total: usuarios.length, usuarios };
+        });
+    }
+    /**
+     * Obtém um usuário pelo ID.
+     * @param id - ID do usuário.
+     * @returns Retorna o usuário encontrado ou um erro caso não exista.
+     */
+    obterUsuarioPorId(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const usuario = yield (0, commons_1.buscarPorId)(this.tabela, id);
+            return 'erro' in usuario ? { erro: 'Usuário não encontrado' } : usuario;
+        });
+    }
+    /**
+     * Busca usuários pelo e-mail (parcialmente, usando LIKE).
+     * @param emailTermo - Termo de busca para o e-mail.
+     * @returns Retorna uma lista de usuários que correspondem ao termo de busca.
+     */
+    obterUsuariosPorEmail(emailTermo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const termo = `%${emailTermo}%`;
+            const usuarios = yield (0, db_1.executarQuery)(`SELECT * FROM ${this.tabela} WHERE email LIKE ?`, [termo]);
+            return { total: usuarios.length, usuarios };
+        });
+    }
+    /**
+     * Atualiza um usuário pelo ID e recriptografa a senha se for alterada.
+     * @param id - ID do usuário a ser atualizado.
+     * @param dados - Dados a serem atualizados.
+     * @returns Retorna o usuário atualizado ou um erro caso não seja encontrado.
+     */
+    atualizarUsuario(id, dados) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const usuario = yield (0, commons_1.buscarPorId)(this.tabela, id);
+            if ('erro' in usuario) {
+                return { erro: 'Usuário não encontrado' };
             }
-        });
-    }
-    static listarUsuarios() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return prisma.usuario.findMany();
-        });
-    }
-    static obterUsuarioPorId(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return prisma.usuario.findUnique({ where: { id } });
-        });
-    }
-    static obterUsuariosPorEmail(emailTermo) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const where = {};
-            if (emailTermo) {
-                where.email = {
-                    contains: emailTermo,
-                    mode: 'insensitive'
-                };
+            if (dados.senha) {
+                dados.senha = yield bcrypt_1.default.hash(dados.senha, 10);
             }
-            const usuarios = yield prisma.usuario.findMany({
-                where,
-            });
-            return usuarios;
+            yield (0, commons_1.atualizarRegistro)(this.tabela, id, dados);
+            const usuarioAtualizado = yield (0, commons_1.buscarPorId)(this.tabela, id);
+            return usuarioAtualizado;
         });
     }
-    static atualizarUsuario(id, dadosParaAtualizar) {
+    /**
+     * Exclui um usuário pelo ID.
+     * @param id - ID do usuário a ser excluído.
+     * @returns Retorna o ID do usuário excluído ou um erro caso não seja encontrado.
+     */
+    excluirUsuario(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.usuario.update({
-                where: { id },
-                data: Object.assign({}, dadosParaAtualizar),
-            });
-        });
-    }
-    static excluirUsuario(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return prisma.usuario.delete({ where: { id } });
+            const usuario = yield (0, commons_1.buscarPorId)(this.tabela, id);
+            if ('erro' in usuario) {
+                return { erro: 'Usuário não encontrado' };
+            }
+            yield (0, commons_1.excluirRegistro)(this.tabela, id);
+            return { id };
         });
     }
 }

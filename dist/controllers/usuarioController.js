@@ -8,116 +8,149 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const usuarioService_1 = require("../services/usuarioService");
 const commons_1 = require("../utils/commons");
 const enums_1 = require("../utils/enums");
 const validator_1 = require("../utils/validator");
 class UsuarioController {
-    static cadastrarUsuario(req, res, next) {
+    /**
+     * Cria um novo usuário.
+     * @param req - Requisição contendo os dados do usuário.
+     * @param res - Resposta da API.
+     * @param next - Middleware para tratamento de erros.
+     */
+    static criarUsuario(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            const usuarioService = new usuarioService_1.UsuarioService();
+            const dadosUsuario = req.body;
             try {
-                const dadosUsuario = req.body;
-                const parseResult = validator_1.criarUsuarioSchema.safeParse(dadosUsuario);
-                if (!parseResult.success) {
-                    const mensagensDeErro = parseResult.error.errors.map(err => err.message.replace(/"/g, "'"));
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, { erros: mensagensDeErro });
+                const resultadoParse = validator_1.criarUsuarioSchema.safeParse(dadosUsuario);
+                if (!resultadoParse.success) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, (0, commons_1.formatarErrosDeValidacao)(resultadoParse.error), "Erro de validação");
                 }
-                const novoUsuario = yield usuarioService_1.UsuarioService.cadastrarUsuario(parseResult.data);
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.CREATED, novoUsuario);
-                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.SUCESSO, `Usuário cadastrado: ${JSON.stringify(parseResult.data)}`);
+                const novoUsuario = yield usuarioService.criarUsuario(resultadoParse.data);
+                if ('erro' in novoUsuario) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, novoUsuario.erro);
+                }
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.SUCESSO, enums_1.Operacoes.CRIACAO, enums_1.CategoriasDeLog.USUARIO, novoUsuario, novoUsuario.id);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.CREATED, novoUsuario);
             }
             catch (erro) {
-                if (erro instanceof Error && erro.message.includes('O e-mail já está em uso')) {
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, erro.message);
-                }
-                (0, commons_1.tratarErro)('Erro ao cadastrar usuário', erro, next);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.CRIACAO, enums_1.CategoriasDeLog.USUARIO, JSON.stringify(erro), undefined, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao criar usuário");
             }
         });
     }
+    /**
+     * Lista todos os usuários cadastrados.
+     */
     static listarUsuarios(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const usuarios = yield usuarioService_1.UsuarioService.listarUsuarios();
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuarios);
+                const usuarioService = new usuarioService_1.UsuarioService();
+                const usuariosEncontrados = yield usuarioService.listarUsuarios();
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuariosEncontrados, usuariosEncontrados.usuarios.length ? undefined : "Nenhum usuário encontrado");
             }
             catch (erro) {
-                (0, commons_1.tratarErro)('Erro ao listar usuários', erro, next);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.BUSCA, enums_1.CategoriasDeLog.USUARIO, JSON.stringify(erro), undefined, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao listar usuários");
             }
         });
     }
+    /**
+     * Obtém um usuário específico pelo ID.
+     */
     static obterUsuarioPorId(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            const usuarioId = Number(req.params.id);
+            if (isNaN(usuarioId) || usuarioId <= 0) {
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, "Nenhum ID de usuário válido foi informado");
+            }
             try {
-                const { id } = req.params;
-                const usuario = yield usuarioService_1.UsuarioService.obterUsuarioPorId(id);
-                if (!usuario) {
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.NOT_FOUND, undefined, "Usuário não encontrado");
+                const usuarioService = new usuarioService_1.UsuarioService();
+                const usuario = yield usuarioService.obterUsuarioPorId(usuarioId);
+                if ('erro' in usuario) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, usuario);
                 }
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuario);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuario);
             }
             catch (erro) {
-                (0, commons_1.tratarErro)('Erro ao obter usuário por ID', erro, next);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.BUSCA, enums_1.CategoriasDeLog.USUARIO, JSON.stringify(erro), usuarioId, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao obter usuário");
             }
         });
     }
+    /**
+     * Busca usuários pelo e-mail (parcialmente, usando LIKE).
+     */
     static obterUsuariosPorEmail(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            const termoBuscado = req.query.email;
+            if (!termoBuscado || termoBuscado.length < 3) {
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, "O termo de busca deve ter pelo menos 3 caracteres");
+            }
             try {
-                const { email } = req.query;
-                const usuarios = yield usuarioService_1.UsuarioService.obterUsuariosPorEmail(email);
-                if (usuarios.length === 0) {
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.NOT_FOUND, { mensagem: "Nenhum usuário encontrado." });
-                }
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuarios);
+                const usuarioService = new usuarioService_1.UsuarioService();
+                const usuariosEncontrados = yield usuarioService.obterUsuariosPorEmail(termoBuscado);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuariosEncontrados, usuariosEncontrados.usuarios.length ? undefined : "Nenhum usuário encontrado");
             }
             catch (erro) {
-                (0, commons_1.tratarErro)('Erro ao obter usuários por e-mail', erro, next);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.BUSCA, enums_1.CategoriasDeLog.USUARIO, JSON.stringify(erro), undefined, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao obter usuário");
             }
         });
     }
+    /**
+     * Atualiza os dados de um usuário pelo ID.
+     */
     static atualizarUsuario(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            const usuarioId = Number(req.params.id);
+            if (isNaN(usuarioId) || usuarioId <= 0) {
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, "Nenhum ID de usuário válido foi informado");
+            }
             try {
-                const dadosAtualizados = req.body;
-                const parseResult = validator_1.atualizarUsuarioSchema.safeParse(dadosAtualizados);
-                if (!parseResult.success) {
-                    const mensagensDeErro = parseResult.error.errors.map(err => err.message.replace(/"/g, "'"));
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, { erros: mensagensDeErro });
+                const resultadoParse = validator_1.atualizarUsuarioSchema.safeParse(req.body);
+                if (!resultadoParse.success) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, (0, commons_1.formatarErrosDeValidacao)(resultadoParse.error), "Erro de validação");
                 }
-                const _a = parseResult.data, { id } = _a, dadosParaAtualizar = __rest(_a, ["id"]);
-                const usuarioAtualizado = yield usuarioService_1.UsuarioService.atualizarUsuario(id, dadosParaAtualizar);
-                if (!usuarioAtualizado) {
-                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.NOT_FOUND, { mensagem: "Usuário não encontrado." });
+                const usuarioService = new usuarioService_1.UsuarioService();
+                const usuarioAtualizado = yield usuarioService.atualizarUsuario(usuarioId, resultadoParse.data);
+                if ('erro' in usuarioAtualizado) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, usuarioAtualizado);
                 }
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuarioAtualizado);
-                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.INFO, `Usuário atualizado: ${JSON.stringify(dadosAtualizados)}`);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.SUCESSO, enums_1.Operacoes.ATUALIZACAO, enums_1.CategoriasDeLog.USUARIO, usuarioAtualizado, usuarioAtualizado.id);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, usuarioAtualizado);
             }
             catch (erro) {
-                (0, commons_1.tratarErro)('Erro ao atualizar usuário', erro, next);
+                const mensagemErro = erro instanceof Error ? erro.message : JSON.stringify(erro) || "Erro desconhecido";
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.ATUALIZACAO, enums_1.CategoriasDeLog.USUARIO, mensagemErro, usuarioId, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao atualizar usuário");
             }
         });
     }
+    /**
+     * Exclui um usuário pelo ID.
+     */
     static excluirUsuario(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            const usuarioId = Number(req.params.id);
+            if (isNaN(usuarioId) || usuarioId <= 0) {
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, "Nenhum ID de usuário válido foi informado");
+            }
             try {
-                yield usuarioService_1.UsuarioService.excluirUsuario(req.params.id);
-                (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, undefined, "Usuário excluído com sucesso");
-                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.INFO, `Usuário excluído: ${req.params.id}`);
+                const usuarioService = new usuarioService_1.UsuarioService();
+                const resultado = yield usuarioService.excluirUsuario(usuarioId);
+                if ('erro' in resultado) {
+                    return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.BAD_REQUEST, undefined, resultado.erro);
+                }
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.SUCESSO, enums_1.Operacoes.EXCLUSAO, enums_1.CategoriasDeLog.USUARIO, resultado, usuarioId, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.OK, { id: usuarioId });
             }
             catch (erro) {
-                (0, commons_1.tratarErro)('Erro ao excluir usuário', erro, next);
+                yield (0, commons_1.registrarLog)(enums_1.TiposDeLog.ERRO, enums_1.Operacoes.EXCLUSAO, enums_1.CategoriasDeLog.USUARIO, JSON.stringify(erro), usuarioId, next);
+                return (0, commons_1.responderAPI)(res, enums_1.HTTPStatus.INTERNAL_SERVER_ERROR, undefined, "Erro ao excluir usuário");
             }
         });
     }

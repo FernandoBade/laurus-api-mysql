@@ -3,12 +3,13 @@ export enum TiposDeLog {
     ALERTA = 'alerta',
     SUCESSO = 'sucesso',
     INFO = 'info',
-    DEBUG = 'debug',
+    DEBUG = 'debug'
 }
 
 export enum CategoriasDeLog {
     USUARIO = 'usuario',
-    LOG = "LOG",
+    LOG = "log",
+    BancoDeDados = "bancoDeDados",
 }
 
 export enum HTTPStatus {

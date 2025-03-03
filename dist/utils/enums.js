@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatoData = exports.Moeda = exports.Aparencia = exports.Idioma = exports.HTTPStatus = exports.TiposDeLog = void 0;
+exports.NomeDaTabela = exports.Operacoes = exports.FormatoData = exports.Moeda = exports.Aparencia = exports.Idioma = exports.HTTPStatus = exports.CategoriasDeLog = exports.TiposDeLog = void 0;
 var TiposDeLog;
 (function (TiposDeLog) {
     TiposDeLog["ERRO"] = "erro";
@@ -9,6 +9,12 @@ var TiposDeLog;
     TiposDeLog["INFO"] = "info";
     TiposDeLog["DEBUG"] = "debug";
 })(TiposDeLog || (exports.TiposDeLog = TiposDeLog = {}));
+var CategoriasDeLog;
+(function (CategoriasDeLog) {
+    CategoriasDeLog["USUARIO"] = "usuario";
+    CategoriasDeLog["LOG"] = "log";
+    CategoriasDeLog["BancoDeDados"] = "bancoDeDados";
+})(CategoriasDeLog || (exports.CategoriasDeLog = CategoriasDeLog = {}));
 var HTTPStatus;
 (function (HTTPStatus) {
     HTTPStatus[HTTPStatus["OK"] = 200] = "OK";
@@ -38,5 +44,20 @@ var Moeda;
 var FormatoData;
 (function (FormatoData) {
     FormatoData["DD_MM_AAAA"] = "DD/MM/AAAA";
-    FormatoData["MM_DD_YYYY"] = "MM/DD/YYYY";
+    FormatoData["MM_DD_AAAA"] = "MM/DD/AAAA";
 })(FormatoData || (exports.FormatoData = FormatoData = {}));
+var Operacoes;
+(function (Operacoes) {
+    Operacoes["CRIACAO"] = "criacao";
+    Operacoes["BUSCA"] = "busca";
+    Operacoes["ATUALIZACAO"] = "atualizacao";
+    Operacoes["LOGIN"] = "login";
+    Operacoes["LOGOUT"] = "logout";
+    Operacoes["EXCLUSAO"] = "exclusao";
+})(Operacoes || (exports.Operacoes = Operacoes = {}));
+var NomeDaTabela;
+(function (NomeDaTabela) {
+    NomeDaTabela["USUARIO"] = "Usuario";
+    NomeDaTabela["CONTA"] = "Conta";
+    NomeDaTabela["LOG"] = "Log";
+})(NomeDaTabela || (exports.NomeDaTabela = NomeDaTabela = {}));

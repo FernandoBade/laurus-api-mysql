@@ -1,187 +1,172 @@
-
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import { registrarLog } from './commons';
+import { CategoriasDeLog, Operacoes, TiposDeLog } from './enums';
 
 dotenv.config();
 
-
-/**
- * Executa uma query SQL de forma encapsulada.
- * @param {string} query - A query SQL.
- * @param {Array<any>} [parametros=[]] - Os parâmetros da query.
- * @returns {Promise<any>} - Resultado da execução.
- */
-export async function executarQuery(query: string, parametros: any[] = []): Promise<any> {
-    const conexao = await db.getConnection();
-    try {
-        const [resultado] = await conexao.execute(query, parametros);
-        console.log(resultado)
-        return resultado;
-    } finally {
-        conexao.release();
-    }
-}
-
-const db = mysql.createPool({
-    host: process.env.DB_URL,
-    user: process.env.DB_USUARIO,
-    password: process.env.DB_SENHA,
-    database: process.env.DB_NOME,
+const bd = mysql.createPool({
+    host: process.env.BD_URL,
+    user: process.env.BD_USUARIO,
+    password: process.env.BD_SENHA,
+    database: process.env.BD_NOME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
 });
 
+export default bd;
 
-interface ColunaEsperada {
-    nome: string;
-    definicao: string;
+/**
+ * Executa uma query SQL de forma segura.
+ */
+export async function executarQuery(query: string, parametros: any[] = []): Promise<any> {
+    const conexao = await bd.getConnection();
+    try {
+        const [resultado] = await conexao.execute(query, parametros);
+        return resultado;
+    } catch (erro) {
+        throw erro;
+    } finally {
+        if (conexao) {
+            conexao.release();
+        }
+    }
 }
 
-async function atualizarTabela(tabela: string, colunasEsperadas: ColunaEsperada[]) {
+
+/**
+ * Verifica se uma tabela existe no banco.
+ */
+async function tabelaExiste(nome: string): Promise<boolean> {
+    const resultado: any = await executarQuery(`SHOW TABLES LIKE '${nome}'`);
+    return resultado.length > 0;
+}
+
+/**
+ * Atualiza colunas da tabela se necessário.
+ */
+async function atualizarTabela(tabela: string, colunas: { nome: string; definicao: string }[]) {
     try {
         const colunasAtuais: any[] = await executarQuery(`SHOW COLUMNS FROM ${tabela}`);
-        const nomesColunasAtuais = colunasAtuais.map(c => c.Field);
-        const colunasMapeadas = colunasAtuais.reduce((acc, col) => {
-            acc[col.Field] = col;
-            return acc;
-        }, {} as Record<string, any>);
+        const chavesPrimarias: any[] = await executarQuery(`SHOW KEYS FROM ${tabela} WHERE Key_name = 'PRIMARY'`);
+        const chavesPrimariasExistentes = new Set(chavesPrimarias.map(c => c.Column_name));
 
-        for (const coluna of colunasEsperadas) {
-            if (!nomesColunasAtuais.includes(coluna.nome)) {
-                const alterQuery = `ALTER TABLE ${tabela} ADD COLUMN ${coluna.nome} ${coluna.definicao}`;
-                await executarQuery(alterQuery);
-                console.log(`Coluna ${coluna.nome} adicionada à tabela ${tabela}.`);
+        let alteracoes: any[] = [];
+
+        for (const { nome, definicao } of colunas) {
+            const colunaAtual = colunasAtuais.find(c => c.Field === nome);
+
+            if (!colunaAtual) {
+                await executarQuery(`ALTER TABLE ${tabela} ADD COLUMN ${nome} ${definicao}`);
+                alteracoes.push({ coluna: nome, acao: "adicionada" });
             } else {
-                if (!colunasMapeadas[coluna.nome].Default && coluna.definicao.includes("DEFAULT")) {
-                    const alterQuery = `ALTER TABLE ${tabela} MODIFY COLUMN ${coluna.nome} ${coluna.definicao}`;
-                    await executarQuery(alterQuery);
-                    console.log(`Coluna ${coluna.nome} atualizada na tabela ${tabela}.`);
+                if (definicao.includes("PRIMARY KEY") && chavesPrimariasExistentes.has(nome)) {
+                    continue;
+                }
+
+                const tipoAtual = colunaAtual.Type.toUpperCase()
+                    .replace(/INT\(\d+\)/, "INT")
+                    .replace("TINYINT", "BOOLEAN");
+
+                const tipoNovo = definicao.split(" ")[0].toUpperCase()
+                    .replace(/INT\(\d+\)/, "INT")
+                    .replace("BOOLEAN", "BOOLEAN");
+
+                if (tipoAtual !== tipoNovo) {
+                    await executarQuery(`ALTER TABLE ${tabela} MODIFY COLUMN ${nome} ${definicao}`);
+                    alteracoes.push({ coluna: nome, acao: "tipo alterado", antigoTipo: tipoAtual, novoTipo: tipoNovo });
+                }
+
+                const defaultAtual = colunaAtual.Default;
+                const defaultNovo = definicao.match(/DEFAULT\s+'(.+?)'/)?.[1];
+
+                if (defaultNovo && defaultAtual !== defaultNovo) {
+                    await executarQuery(`ALTER TABLE ${tabela} MODIFY COLUMN ${nome} ${definicao}`);
+                    alteracoes.push({ coluna: nome, acao: "default alterado", antigoDefault: defaultAtual, novoDefault: defaultNovo });
                 }
             }
         }
-    } catch (erro) {
-        console.error(`Erro ao atualizar a tabela ${tabela}:`, erro);
+
+        if (alteracoes.length > 0) {
+            await registrarLog(TiposDeLog.SUCESSO, Operacoes.ATUALIZACAO, CategoriasDeLog.BancoDeDados,
+                { tabela, alteracoes }, undefined);
+        }
+    } catch (erro: any) {
+        await registrarLog(TiposDeLog.ERRO, Operacoes.ATUALIZACAO, CategoriasDeLog.BancoDeDados,
+            { tabela, erro: erro.message }, undefined);
         throw erro;
     }
 }
 
 
+/**
+ *  Cria tabelas caso não existam ou atualiza as existentes. Para novas tabelas, adicionar abaixo seguindo o mesmo padrão.
+ */
 export async function criarTabelas() {
-    const usuarioColunas: ColunaEsperada[] = [
-        { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
-        { nome: 'nome', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'sobrenome', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'email', definicao: 'VARCHAR(255) NOT NULL UNIQUE' },
-        { nome: 'telefone', definicao: 'VARCHAR(255)' },
-        { nome: 'senha', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'dataNascimento', definicao: 'DATETIME' },
-        { nome: 'ativo', definicao: 'BOOLEAN NOT NULL DEFAULT TRUE' },
-        { nome: 'dataCadastro', definicao: 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP' },
-        { nome: 'aparencia', definicao: `VARCHAR(255) NOT NULL DEFAULT 'dark'` },
-        { nome: 'idioma', definicao: `VARCHAR(255) NOT NULL DEFAULT 'pt-BR'` },
-        { nome: 'moeda', definicao: `VARCHAR(255) NOT NULL DEFAULT 'BRL'` },
-        { nome: 'formatoData', definicao: `VARCHAR(255) NOT NULL DEFAULT 'DD/MM/AAAA'` }
+    const tabelas = [
+        {
+            nome: "Usuario",
+            colunas: [
+                { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
+                { nome: 'nome', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'sobrenome', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'email', definicao: 'VARCHAR(255) NOT NULL UNIQUE' },
+                { nome: 'telefone', definicao: 'VARCHAR(255)' },
+                { nome: 'senha', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'dataNascimento', definicao: 'DATETIME' },
+                { nome: 'ativo', definicao: 'BOOLEAN NOT NULL DEFAULT TRUE' },
+                { nome: 'dataCadastro', definicao: 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP' },
+                { nome: 'aparencia', definicao: `VARCHAR(255) NOT NULL DEFAULT 'dark'` },
+                { nome: 'idioma', definicao: `VARCHAR(255) NOT NULL DEFAULT 'pt-BR'` },
+                { nome: 'moeda', definicao: `VARCHAR(255) NOT NULL DEFAULT 'BRL'` },
+                { nome: 'formatoData', definicao: `VARCHAR(255) NOT NULL DEFAULT 'DD/MM/AAAA'` },
+            ]
+        },
+        {
+            nome: "Log",
+            colunas: [
+                { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
+                { nome: 'tipo', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'operacao', definicao: 'VARCHAR(255)' },
+                { nome: 'categoria', definicao: 'VARCHAR(255)' },
+                { nome: 'detalhe', definicao: 'TEXT NOT NULL' },
+                { nome: 'usuarioId', definicao: 'INT' },
+                { nome: 'timestamp', definicao: 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP' },
+            ]
+        },
+        {
+            nome: "Conta",
+            colunas: [
+                { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
+                { nome: 'nome', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'banco', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'tipo', definicao: 'VARCHAR(255) NOT NULL' },
+                { nome: 'usuarioId', definicao: 'INT NOT NULL' },
+            ]
+        }
     ];
-
-    const logColunas: ColunaEsperada[] = [
-        { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
-        { nome: 'tipo', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'operacao', definicao: 'VARCHAR(255)' },
-        { nome: 'categoria', definicao: 'VARCHAR(255)' },
-        { nome: 'detalhe', definicao: 'TEXT NOT NULL' },
-        { nome: 'usuarioId', definicao: 'INT' },
-        { nome: 'timestamp', definicao: 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP' }
-    ];
-
-    const contaColunas: ColunaEsperada[] = [
-        { nome: 'id', definicao: 'INT AUTO_INCREMENT PRIMARY KEY' },
-        { nome: 'nome', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'banco', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'tipo', definicao: 'VARCHAR(255) NOT NULL' },
-        { nome: 'usuarioId', definicao: 'INT NOT NULL' }
-    ];
-
-    const checkUsuario = "SHOW TABLES LIKE 'Usuario'";
-    const checkLog = "SHOW TABLES LIKE 'Log'";
-    const checkConta = "SHOW TABLES LIKE 'Conta'";
 
     try {
-        const usuarioResult: any = await executarQuery(checkUsuario);
-        if (usuarioResult.length === 0) {
-            const usuarioTabelaQuery = `
-        CREATE TABLE Usuario (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          nome VARCHAR(255) NOT NULL,
-          sobrenome VARCHAR(255) NOT NULL,
-          email VARCHAR(255) NOT NULL UNIQUE,
-          telefone VARCHAR(255),
-          senha VARCHAR(255) NOT NULL,
-          dataNascimento DATETIME,
-          ativo BOOLEAN NOT NULL DEFAULT TRUE,
-          dataCadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          aparencia VARCHAR(255),
-          idioma VARCHAR(255),
-          moeda VARCHAR(255),
-          formatoData VARCHAR(255)
-        );
-      `;
-            await executarQuery(usuarioTabelaQuery);
-        } else {
-            await atualizarTabela('Usuario', usuarioColunas);
-        }
-
-        const logResult: any = await executarQuery(checkLog);
-        if (logResult.length === 0) {
-            const logTabelaQuery = `
-        CREATE TABLE Log (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          tipo VARCHAR(255) NOT NULL,
-          operacao VARCHAR(255),
-          categoria VARCHAR(255),
-          detalhe TEXT NOT NULL,
-          usuarioId INT,
-          timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          CONSTRAINT fk_log_usuario FOREIGN KEY (usuarioId) REFERENCES Usuario(id) ON DELETE SET NULL
-        );
-      `;
-            await executarQuery(logTabelaQuery);
-        } else {
-            await atualizarTabela('Log', logColunas);
-        }
-
-        const contaResult: any = await executarQuery(checkConta);
-
-        if (contaResult.length === 0) {
-            const contaTabelaQuery = `
-        CREATE TABLE Conta (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          nome VARCHAR(255) NOT NULL,
-          banco VARCHAR(255) NOT NULL,
-          tipo VARCHAR(255) NOT NULL,
-          usuarioId INT NOT NULL,
-          CONSTRAINT fk_conta_usuario FOREIGN KEY (usuarioId) REFERENCES Usuario(id)
-        );
-      `;
-            console.log("Tabela conta criada");
-            await executarQuery(contaTabelaQuery);
-
-        } else {
-            await atualizarTabela('Conta', contaColunas);
+        for (const tabela of tabelas) {
+            if (await tabelaExiste(tabela.nome)) {
+                await atualizarTabela(tabela.nome, tabela.colunas);
+            } else {
+                const colunasSQL = tabela.colunas.map(col => `${col.nome} ${col.definicao}`).join(',\n  ');
+                const criarTabelaQuery = `CREATE TABLE ${tabela.nome} (\n  ${colunasSQL}\n);`;
+                await executarQuery(criarTabelaQuery);
+                await registrarLog(TiposDeLog.SUCESSO, Operacoes.CRIACAO, CategoriasDeLog.BancoDeDados, { tabela: tabela.nome }, undefined);
+            }
         }
     } catch (erro) {
-        console.error("Erro ao criar/atualizar tabelas:", erro);
+        await registrarLog(TiposDeLog.ERRO, Operacoes.ATUALIZACAO, CategoriasDeLog.BancoDeDados, JSON.stringify(erro), undefined);
         throw erro;
     }
 }
 
-//criarTabelas();
-// const consultarEstruturaDaTabela = executarQuery(`
-//     SELECT COLUMN_NAME, COLUMN_DEFAULT
-//     FROM INFORMATION_SCHEMA.COLUMNS
-//     WHERE TABLE_NAME = 'Usuario' AND TABLE_SCHEMA = DATABASE();`
-//)
-
-export default db;
-
-
+// (async () => {
+//     try {
+//         await criarTabelas();
+//     } catch (erro) {
+//     }
+// })();
