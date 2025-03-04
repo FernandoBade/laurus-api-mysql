@@ -1,10 +1,12 @@
+// #region Importaçoes
 import { HTTPStatus, TiposDeLog, Operacoes, CategoriasDeLog, NomeDaTabela } from './enumeradores';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction } from 'express';
-import db, { executarQuery } from './bancoDeDados';
+import { executarQuery } from './bancoDeDados';
 import { LogServico } from '../servicos/logServico';
 import { Response } from 'express';
 import { ZodError, ZodIssue } from 'zod';
+// endregion
 
 // #region Logger
 const logsCustomizados = {
@@ -94,7 +96,7 @@ export async function buscarLogsPorUsuario(usuarioId: number) {
     }
 }
 
-// #endregion 🔹 Logger
+// #endregion Logger
 
 // #region Tratamentos gerais de respostas e erros
 
@@ -164,7 +166,7 @@ export function formatarErrosDeValidacao(erro: ZodError) {
     });
 }
 
-// #endregion 🔹 Tratamentos gerais de respostas e erros
+// #endregion Tratamentos gerais de respostas e erros
 
 // #region Métodos de CRUD
 
@@ -231,4 +233,4 @@ export async function consultarDados(tabela: NomeDaTabela, coluna?: string, valo
 }
 
 export { executarQuery };
-// #endregion
+// #endregion Métodos de CRUD
