@@ -6,7 +6,7 @@ import { LogServico } from '../servicos/logServico';
 import { Response } from 'express';
 import { ZodError, ZodIssue } from 'zod';
 
-//#region 🔹 Logger
+// #region Logger
 const logsCustomizados = {
     levels: {
         [TiposDeLog.ERRO]: 0,
@@ -96,7 +96,7 @@ export async function buscarLogsPorUsuario(usuarioId: number) {
 
 // #endregion 🔹 Logger
 
-// #region 🔹 Tratamentos gerais de respostas e erros
+// #region Tratamentos gerais de respostas e erros
 
 /**
  * Responde a uma requisição com uma estrutura padrão.
@@ -166,7 +166,7 @@ export function formatarErrosDeValidacao(erro: ZodError) {
 
 // #endregion 🔹 Tratamentos gerais de respostas e erros
 
-// #region 🔹 Métodos para CRUD
+// #region Métodos de CRUD
 
 /**
  * Busca um registro pelo ID em qualquer tabela.
@@ -229,7 +229,6 @@ export async function consultarDados(tabela: NomeDaTabela, coluna?: string, valo
 
     return await executarQuery(query, parametros);
 }
-
 
 export { executarQuery };
 // #endregion

@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { TiposDeLog, Operacoes, CategoriasDeLog } from '../uteis/enumeradores';
-import { registrarLog } from '../uteis/metodosGerais';
+import { TiposDeLog, Operacoes, CategoriasDeLog } from '../utilidades/enumeradores';
+import { registrarLog } from '../utilidades/metodosGerais';
 import UsuarioControle from '../controles/usuarioControle';
 const roteamento = Router();
 

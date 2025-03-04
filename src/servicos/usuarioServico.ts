@@ -1,13 +1,13 @@
-import { NomeDaTabela } from '../uteis/enumeradores';
+import { NomeDaTabela } from '../utilidades/enumeradores';
 import bcrypt from 'bcrypt';
-import { executarQuery } from '../uteis/bancoDeDados'
+import { executarQuery } from '../utilidades/bancoDeDados'
 import {
     buscarPorId,
     salvarRegistro,
     atualizarRegistro,
     excluirRegistro,
     consultarDados
-} from '../uteis/metodosGerais';
+} from '../utilidades/metodosGerais';
 
 export class UsuarioServico {
     private tabela = NomeDaTabela.USUARIO;

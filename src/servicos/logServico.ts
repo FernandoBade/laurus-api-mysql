@@ -1,6 +1,6 @@
-import { NomeDaTabela, TiposDeLog, Operacoes, CategoriasDeLog } from '../uteis/enumeradores';
-import { buscarPorId, salvarRegistro, executarQuery, consultarDados } from '../uteis/metodosGerais';
-import { registrarLog } from '../uteis/metodosGerais';
+import { NomeDaTabela, TiposDeLog, Operacoes, CategoriasDeLog } from '../utilidades/enumeradores';
+import { buscarPorId, salvarRegistro, executarQuery, consultarDados } from '../utilidades/metodosGerais';
+import { registrarLog } from '../utilidades/metodosGerais';
 
 export class LogServico {
     private static readonly tabela = NomeDaTabela.LOG;

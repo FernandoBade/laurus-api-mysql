@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { UsuarioServico } from '../servicos/usuarioServico';
-import { formatarErrosDeValidacao, registrarLog, responderAPI } from '../uteis/metodosGerais';
-import { CategoriasDeLog, HTTPStatus, Operacoes, TiposDeLog } from '../uteis/enumeradores';
-import { criarUsuarioSchema, atualizarUsuarioSchema } from '../uteis/validador';
+import { formatarErrosDeValidacao, registrarLog, responderAPI } from '../utilidades/metodosGerais';
+import { CategoriasDeLog, HTTPStatus, Operacoes, TiposDeLog } from '../utilidades/enumeradores';
+import { criarUsuarioSchema, atualizarUsuarioSchema } from '../utilidades/validador';
 
 class UsuarioControle {
 
