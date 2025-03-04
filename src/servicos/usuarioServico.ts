@@ -1,16 +1,17 @@
-import { NomeDaTabela } from '../utils/enums';
+import { NomeDaTabela } from '../uteis/enumeradores';
 import bcrypt from 'bcrypt';
-import { executarQuery } from '../utils/db'
+import { executarQuery } from '../uteis/bancoDeDados'
 import {
     buscarPorId,
     salvarRegistro,
     atualizarRegistro,
     excluirRegistro,
     consultarDados
-} from '../utils/commons';
+} from '../uteis/metodosGerais';
 
-export class UsuarioService {
+export class UsuarioServico {
     private tabela = NomeDaTabela.USUARIO;
+
     /**
      * Cria um novo usuário garantindo que o e-mail seja único e criptografando a senha.
      * @param dados - Dados do usuário a ser criado.
@@ -82,6 +83,7 @@ export class UsuarioService {
 
         return usuarioAtualizado;
     }
+
     /**
      * Exclui um usuário pelo ID.
      * @param id - ID do usuário a ser excluído.

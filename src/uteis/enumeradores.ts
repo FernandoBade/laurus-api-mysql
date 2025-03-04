@@ -2,7 +2,6 @@ export enum TiposDeLog {
     ERRO = 'erro',
     ALERTA = 'alerta',
     SUCESSO = 'sucesso',
-    INFO = 'info',
     DEBUG = 'debug'
 }
 

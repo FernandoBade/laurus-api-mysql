@@ -1,8 +1,8 @@
-import { NomeDaTabela, TiposDeLog, Operacoes, CategoriasDeLog } from '../utils/enums';
-import { buscarPorId, salvarRegistro, executarQuery, consultarDados } from '../utils/commons';
-import { registrarLog } from '../utils/commons';
+import { NomeDaTabela, TiposDeLog, Operacoes, CategoriasDeLog } from '../uteis/enumeradores';
+import { buscarPorId, salvarRegistro, executarQuery, consultarDados } from '../uteis/metodosGerais';
+import { registrarLog } from '../uteis/metodosGerais';
 
-export class LogService {
+export class LogServico {
     private static readonly tabela = NomeDaTabela.LOG;
 
     static async registrarLog(
@@ -46,7 +46,7 @@ export class LogService {
         const total = resultado.affectedRows ?? 0;
 
         await registrarLog(
-            TiposDeLog.INFO,
+            TiposDeLog.DEBUG,
             Operacoes.EXCLUSAO,
             CategoriasDeLog.LOG,
             `Total de logs deletados: ${total}`

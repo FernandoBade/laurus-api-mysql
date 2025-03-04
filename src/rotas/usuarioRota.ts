@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { TiposDeLog, Operacoes, CategoriasDeLog } from '../utils/enums';
-import { registrarLog } from '../utils/commons';
-import UsuarioController from '../controllers/usuarioController';
-const router = Router();
+import { TiposDeLog, Operacoes, CategoriasDeLog } from '../uteis/enumeradores';
+import { registrarLog } from '../uteis/metodosGerais';
+import UsuarioControle from '../controles/usuarioControle';
+const roteamento = Router();
 
-router.get('/buscar', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.get('/buscar', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UsuarioController.obterUsuariosPorEmail(req, res, next);
+        await UsuarioControle.obterUsuariosPorEmail(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -19,9 +19,9 @@ router.get('/buscar', async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        UsuarioController.criarUsuario(req, res, next);
+        UsuarioControle.criarUsuario(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -35,9 +35,9 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UsuarioController.obterUsuarioPorId(req, res, next);
+        await UsuarioControle.obterUsuarioPorId(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -50,9 +50,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UsuarioController.listarUsuarios(req, res, next);
+        await UsuarioControle.listarUsuarios(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -65,9 +65,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UsuarioController.atualizarUsuario(req, res, next);
+        await UsuarioControle.atualizarUsuario(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -80,9 +80,9 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.delete('/:id?', async (req: Request, res: Response, next: NextFunction) => {
+roteamento.delete('/:id?', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        UsuarioController.excluirUsuario(req, res, next);
+        UsuarioControle.excluirUsuario(req, res, next);
     } catch (erro) {
         await registrarLog(
             TiposDeLog.DEBUG,
@@ -95,4 +95,4 @@ router.delete('/:id?', async (req: Request, res: Response, next: NextFunction) =
     }
 });
 
-export default router;
+export default roteamento;

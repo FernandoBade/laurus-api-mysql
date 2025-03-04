@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { registrarLog } from './commons';
-import { CategoriasDeLog, Operacoes, TiposDeLog } from './enums';
+import { registrarLog } from './metodosGerais';
+import { CategoriasDeLog, Operacoes, TiposDeLog } from './enumeradores';
 
 dotenv.config();
 
@@ -38,7 +38,7 @@ export async function executarQuery(query: string, parametros: any[] = []): Prom
 /**
  * Verifica se uma tabela existe no banco.
  */
-async function tabelaExiste(nome: string): Promise<boolean> {
+async function verificarTabela(nome: string): Promise<boolean> {
     const resultado: any = await executarQuery(`SHOW TABLES LIKE '${nome}'`);
     return resultado.length > 0;
 }
@@ -149,7 +149,7 @@ export async function criarTabelas() {
 
     try {
         for (const tabela of tabelas) {
-            if (await tabelaExiste(tabela.nome)) {
+            if (await verificarTabela(tabela.nome)) {
                 await atualizarTabela(tabela.nome, tabela.colunas);
             } else {
                 const colunasSQL = tabela.colunas.map(col => `${col.nome} ${col.definicao}`).join(',\n  ');

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Idioma, Aparencia, Moeda, FormatoData } from './enums';
+import { Idioma, Aparencia, Moeda, FormatoData } from './enumeradores';
 
 const dataSchema = z
     .union([

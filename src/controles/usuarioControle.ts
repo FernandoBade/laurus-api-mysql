@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { UsuarioService } from '../services/usuarioService';
-import { formatarErrosDeValidacao, registrarLog, responderAPI } from '../utils/commons';
-import { CategoriasDeLog, HTTPStatus, Operacoes, TiposDeLog } from '../utils/enums';
-import { criarUsuarioSchema, atualizarUsuarioSchema } from '../utils/validator';
+import { UsuarioServico } from '../servicos/usuarioServico';
+import { formatarErrosDeValidacao, registrarLog, responderAPI } from '../uteis/metodosGerais';
+import { CategoriasDeLog, HTTPStatus, Operacoes, TiposDeLog } from '../uteis/enumeradores';
+import { criarUsuarioSchema, atualizarUsuarioSchema } from '../uteis/validador';
 
-class UsuarioController {
+class UsuarioControle {
 
     /**
      * Cria um novo usuário.
@@ -13,7 +13,7 @@ class UsuarioController {
      * @param next - Middleware para tratamento de erros.
      */
     static async criarUsuario(req: Request, res: Response, next: NextFunction) {
-        const usuarioService = new UsuarioService();
+        const usuarioService = new UsuarioServico();
         const dadosUsuario = req.body;
 
         try {
@@ -47,7 +47,7 @@ class UsuarioController {
      */
     static async listarUsuarios(req: Request, res: Response, next: NextFunction) {
         try {
-            const usuarioService = new UsuarioService();
+            const usuarioService = new UsuarioServico();
             const usuariosEncontrados = await usuarioService.listarUsuarios();
 
             return responderAPI(res, HTTPStatus.OK, usuariosEncontrados, usuariosEncontrados.usuarios.length ? undefined : "Nenhum usuário encontrado");
@@ -68,7 +68,7 @@ class UsuarioController {
         }
 
         try {
-            const usuarioService = new UsuarioService();
+            const usuarioService = new UsuarioServico();
             const usuario = await usuarioService.obterUsuarioPorId(usuarioId);
 
             if ('erro' in usuario) {
@@ -93,7 +93,7 @@ class UsuarioController {
         }
 
         try {
-            const usuarioService = new UsuarioService();
+            const usuarioService = new UsuarioServico();
             const usuariosEncontrados = await usuarioService.obterUsuariosPorEmail(termoBuscado);
 
             return responderAPI(res, HTTPStatus.OK, usuariosEncontrados, usuariosEncontrados.usuarios.length ? undefined : "Nenhum usuário encontrado");
@@ -125,7 +125,7 @@ class UsuarioController {
                 );
             }
 
-            const usuarioService = new UsuarioService();
+            const usuarioService = new UsuarioServico();
             const usuarioAtualizado = await usuarioService.atualizarUsuario(usuarioId, resultadoParse.data);
 
             if ('erro' in usuarioAtualizado) {
@@ -162,7 +162,7 @@ class UsuarioController {
         }
 
         try {
-            const usuarioService = new UsuarioService();
+            const usuarioService = new UsuarioServico();
             const resultado = await usuarioService.excluirUsuario(usuarioId);
 
             if ('erro' in resultado) {
@@ -178,4 +178,4 @@ class UsuarioController {
     }
 }
 
-export default UsuarioController;
+export default UsuarioControle;

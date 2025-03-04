@@ -1,8 +1,8 @@
-import { HTTPStatus, TiposDeLog, Operacoes, CategoriasDeLog, NomeDaTabela } from './enums';
+import { HTTPStatus, TiposDeLog, Operacoes, CategoriasDeLog, NomeDaTabela } from './enumeradores';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction } from 'express';
-import db, { executarQuery } from './db';
-import { LogService } from '../services/logService';
+import db, { executarQuery } from './bancoDeDados';
+import { LogServico } from '../servicos/logServico';
 import { Response } from 'express';
 import { ZodError, ZodIssue } from 'zod';
 
@@ -12,7 +12,6 @@ const logsCustomizados = {
         [TiposDeLog.ERRO]: 0,
         [TiposDeLog.ALERTA]: 1,
         [TiposDeLog.SUCESSO]: 2,
-        [TiposDeLog.INFO]: 3,
         [TiposDeLog.DEBUG]: 4
     },
 
@@ -20,7 +19,6 @@ const logsCustomizados = {
         [TiposDeLog.ERRO]: 'red',
         [TiposDeLog.ALERTA]: 'yellow',
         [TiposDeLog.SUCESSO]: 'green',
-        [TiposDeLog.INFO]: 'blue',
         [TiposDeLog.DEBUG]: 'magenta'
     }
 };
@@ -51,7 +49,14 @@ const logger = createLogger({
  * @param usuarioId - ID do usuário associado ao log (opcional).
  * @param next - Função do Express para continuar o fluxo (opcional).
  */
-export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, categoria: CategoriasDeLog, detalhe: any, usuarioId?: number, next?: NextFunction) {
+export async function registrarLog(
+    tipoDeLog: TiposDeLog,
+    operacao: Operacoes,
+    categoria: CategoriasDeLog,
+    detalhe: any,
+    usuarioId?: number,
+    next?: NextFunction
+) {
     const mensagemLog = typeof detalhe === "object" && Object.keys(detalhe).length === 0
         ? "Erro desconhecido"
         : JSON.stringify(detalhe);
@@ -63,7 +68,7 @@ export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, c
     }
 
     if (tipoDeLog !== TiposDeLog.DEBUG) {
-        await LogService.registrarLog(tipoDeLog, operacao, categoria, mensagemLog, usuarioId);
+        await LogServico.registrarLog(tipoDeLog, operacao, categoria, mensagemLog, usuarioId);
     }
 }
 
@@ -75,7 +80,7 @@ export async function registrarLog(tipoDeLog: TiposDeLog, operacao: Operacoes, c
  */
 export async function buscarLogsPorUsuario(usuarioId: number) {
     try {
-        const logs = await LogService.buscarLogsPorUsuario(usuarioId);
+        const logs = await LogServico.buscarLogsPorUsuario(usuarioId);
         return logs;
     } catch (erro) {
         await registrarLog(
