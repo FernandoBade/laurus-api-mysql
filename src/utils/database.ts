@@ -170,9 +170,9 @@ export async function createTables() {
 }
 
 
-(async () => {
-    try {
-        await createTables();
-    } catch (erro) {
-    }
-})();
+// (async () => {
+//     try {
+//         await createTables();
+//     } catch (erro) {
+//     }
+// })();
