@@ -32,6 +32,7 @@ export enum Language {
 export enum LogCategory {
     DATABASE = 'database',
     LOG = 'log',
+    SERVER = 'server',
     USER = 'user',
 }
 
@@ -49,6 +50,7 @@ export enum LogOperation {
     LOGOUT = 'logout',
     SEARCH = 'search',
     UPDATE = 'update',
+    STATUS = 'status'
 }
 
 export enum TableName {

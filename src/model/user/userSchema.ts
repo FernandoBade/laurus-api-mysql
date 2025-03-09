@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Language, Appearance, Currency, DateFormat } from './enum';
+import { Language, Appearance, Currency, DateFormat } from '../../utils/enum'
 
 const dateSchema = z
     .union([

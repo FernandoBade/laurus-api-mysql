@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
+    "dev:sync": "ts-node src/utils/database/dbSync.ts && nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:migrate": "npx prisma migrate dev --name init",
@@ -23,6 +24,7 @@
     "i18next": "^24.2.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.12.0",
+    "reflect-metadata": "^0.2.2",
     "translation-check": "^1.1.0",
     "typescript": "^5.7.3",
     "winston": "^3.17.0",

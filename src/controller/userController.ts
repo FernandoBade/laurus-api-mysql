@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
 import { formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
-import { createUserSchema, updateUserSchema } from '../utils/validator';
+import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 
 class UserController {
     /**

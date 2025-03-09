@@ -1,16 +1,26 @@
-import express from 'express';
-import userRoutes from './routes/userRoutes';
+import express from "express";
+import userRoutes from "./routes/userRoutes";
+import { createLog } from "./utils/commons";
+import { LogCategory, LogOperation, LogType } from "./utils/enum";
 
 const app = express();
+const PORT = process.env.PORT || 5050;
 
 app.use(express.json());
-app.use('/users', userRoutes);
-
-const PORT = process.env.PORT || 3000;
+app.use("/users", userRoutes);
 
 /**
- * Starts the Express server and listens on the specified port.
+ * Starts the Express server.
  */
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+function startServer() {
+    app.listen(PORT, () => {
+        createLog(
+            LogType.DEBUG,
+            LogOperation.STATUS,
+            LogCategory.SERVER,
+            `🚀 Server running on port ${PORT}`,
+        )
+    })
+}
+
+startServer();
