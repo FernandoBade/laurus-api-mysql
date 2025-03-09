@@ -137,7 +137,7 @@ class UserController {
         const userId = Number(req.params.id);
 
         if (isNaN(userId) || userId <= 0) {
-            return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, "User ID must be a positive number");
+            return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, "Invalid user ID");
         }
 
         try {

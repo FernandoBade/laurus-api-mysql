@@ -58,7 +58,7 @@ export async function createLog(
 ) {
     const logMessage = typeof detail === "object" ? detail : String(detail);
 
-    logger.log(logType, `[${operation}][${category}]: ${logMessage}`);
+    logger.log(logType, `[${operation}][${category}]: ${JSON.stringify(logMessage)}`);
 
     if (logType === LogType.ERROR) {
         next?.(new Error(logMessage));
