@@ -4,6 +4,12 @@ import path from "path";
 import { LogType, LogOperation, LogCategory } from "../enum";
 import { createLog, formatError } from "../commons";
 
+/**
+ * Retrieves all model files from the 'model' directory, excluding `baseModel.ts` and schema files.
+ *
+ * @param {string} dir - Directory path where models are located.
+ * @returns {any[]} - Array of imported model classes.
+ */
 function getModels(dir = path.resolve(__dirname, "../../model")) {
     if (!fs.existsSync(dir)) {
         createLog(
@@ -42,6 +48,15 @@ function getModels(dir = path.resolve(__dirname, "../../model")) {
     return models;
 }
 
+/**
+ * Synchronizes the database by ensuring tables and columns match the model definitions.
+ *
+ * - Creates tables if they do not exist.
+ * - Adds missing columns to existing tables.
+ * - Removes extra columns that are no longer defined in the models.
+ *
+ * @returns {Promise<void>}
+ */
 async function syncDatabase() {
     createLog(
         LogType.DEBUG,
@@ -156,6 +171,9 @@ async function syncDatabase() {
 
 /**
  * Runs the database synchronization process manually.
+ *
+ * - If successful, logs completion and exits with code 0.
+ * - If an error occurs, logs the error and exits with code 1.
  */
 async function runSync() {
     try {
