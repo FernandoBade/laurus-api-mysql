@@ -13,9 +13,9 @@ export class UserService {
     private table = TableName.USER;
 
     /**
-     * Creates a new user, ensuring the email is unique and encrypting the password.
+     * Creates a new user, ensuring the email is unique and hashing the password securely.
      * @param data - User data to be created.
-     * @returns Returns the created user or an error if the email is already in use.
+     * @returns The newly created user, or an error if the email is already in use.
      */
     async createUser(data: { firstName: string; lastName: string; email: string; password: string; }) {
         data.email = data.email.trim().toLowerCase();
@@ -34,7 +34,7 @@ export class UserService {
 
     /**
      * Retrieves all registered users.
-     * @returns Returns an array of users.
+     * @returns A list of all registered users.
      */
     async getUsers() {
         const users = await searchEntry(this.table);
@@ -44,7 +44,7 @@ export class UserService {
     /**
      * Retrieves a user by ID.
      * @param id - User ID.
-     * @returns Returns the found user or an error if not found.
+     * @returns The user if found, or an error if not.
      */
     async getUserById(id: number) {
         const user = await getById(this.table, id);
@@ -53,8 +53,8 @@ export class UserService {
 
     /**
      * Searches for users by email (partial match using LIKE).
-     * @param emailTerm - Search term for the email.
-     * @returns Returns a list of users matching the search term.
+     * @param emailTerm - Partial email to search for.
+     * @returns A list of users whose emails match the search term.
      */
     async getUsersByEmail(emailTerm: string) {
         const term = `%${emailTerm}%`;
@@ -66,7 +66,7 @@ export class UserService {
      * Updates a user by ID and re-encrypts the password if changed.
      * @param id - ID of the user to be updated.
      * @param data - Data to be updated.
-     * @returns Returns the updated user or an error if not found.
+     * @returns The updated user if successful, or an error if not found.
      */
     async updateUser(id: number, data: any) {
         const user = await getById(this.table, id);
@@ -87,7 +87,7 @@ export class UserService {
     /**
      * Deletes a user by ID.
      * @param id - ID of the user to be deleted.
-     * @returns Returns the deleted user's ID or an error if not found.
+     * @returns The ID of the deleted user, or an error if not found.
      */
     async deleteUser(id: number) {
         const user = await getById(this.table, id);

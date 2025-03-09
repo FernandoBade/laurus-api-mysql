@@ -1,14 +1,18 @@
-export enum LogType {
-    ERROR = 'error',
-    ALERT = 'alert',
-    SUCCESS = 'success',
-    DEBUG = 'debug'
+export enum Appearance {
+    DARK = 'dark',
+    LIGHT = 'light',
 }
 
-export enum LogCategory {
-    USER = 'user',
-    LOG = 'log',
-    DATABASE = 'database',
+export enum Currency {
+    ARS = 'ARS',
+    BRL = 'BRL',
+    EUR = 'EUR',
+    USD = 'USD',
+}
+
+export enum DateFormat {
+    DD_MM_YYYY = 'DD/MM/YYYY',
+    MM_DD_YYYY = 'MM/DD/YYYY',
 }
 
 export enum HTTPStatus {
@@ -21,38 +25,34 @@ export enum HTTPStatus {
 
 export enum Language {
     EN_US = 'en-US',
-    PT_BR = 'pt-BR',
     ES_ES = 'es-ES',
+    PT_BR = 'pt-BR',
 }
 
-export enum Appearance {
-    DARK = 'dark',
-    LIGHT = 'light',
+export enum LogCategory {
+    DATABASE = 'database',
+    LOG = 'log',
+    USER = 'user',
 }
 
-export enum Currency {
-    USD = 'USD',
-    BRL = 'BRL',
-    EUR = 'EUR',
-    ARS = 'ARS',
+export enum LogType {
+    ALERT = 'alert',
+    DEBUG = 'debug',
+    ERROR = 'error',
+    SUCCESS = 'success',
 }
 
-export enum DateFormat {
-    DD_MM_YYYY = 'DD/MM/YYYY',
-    MM_DD_YYYY = 'MM/DD/YYYY',
-}
-
-export enum Operation {
+export enum LogOperation {
     CREATION = 'creation',
-    SEARCH = 'search',
-    UPDATE = 'update',
+    DELETION = 'deletion',
     LOGIN = 'login',
     LOGOUT = 'logout',
-    DELETION = 'deletion'
+    SEARCH = 'search',
+    UPDATE = 'update',
 }
 
 export enum TableName {
-    USER = 'User',
     ACCOUNT = 'Account',
     LOG = 'Log',
+    USER = 'User',
 }

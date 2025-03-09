@@ -1,16 +1,20 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { LogType, Operation, LogCategory } from '../utils/enum';
+import { LogType, LogOperation, LogCategory } from '../utils/enum';
 import { createLog } from '../utils/commons';
 import UserController from '../controller/userController';
 const router = Router();
 
+
+/**
+ * Searches for users by email.
+ */
 router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUsersByEmail(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             JSON.stringify(error),
             undefined,
@@ -19,13 +23,16 @@ router.get('/search', async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
+/**
+ * Creates a new user.
+ */
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.createUser(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.CREATION,
+            LogOperation.CREATION,
             LogCategory.USER,
             JSON.stringify(error),
             req.body?.userId,
@@ -34,28 +41,34 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
+/**
+ * Retrieves a user by ID.
+ */
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUserById(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             JSON.stringify(error),
-            req.params.id ? Number(req.params.id) : undefined,
+            Number(req.params.id) || undefined,
             next
         );
     }
 });
 
+/**
+ * Retrieves all users.
+ */
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUsers(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             JSON.stringify(error),
             undefined,
@@ -64,31 +77,37 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
+/**
+ * Updates a user by ID.
+ */
 router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.updateUser(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.UPDATE,
+            LogOperation.UPDATE,
             LogCategory.USER,
             JSON.stringify(error),
-            req.params.id ? Number(req.params.id) : undefined,
+            Number(req.params.id) || undefined,
             next
         );
     }
 });
 
+/**
+ * Deletes a user by ID.
+ */
 router.delete('/:id?', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.deleteUser(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.DELETION,
+            LogOperation.DELETION,
             LogCategory.USER,
             JSON.stringify(error),
-            req.params.id ? Number(req.params.id) : undefined,
+            Number(req.params.id) || undefined,
             next
         );
     }
