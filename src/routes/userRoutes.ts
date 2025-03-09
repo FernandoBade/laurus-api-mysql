@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { LogType, LogOperation, LogCategory } from '../utils/enum';
-import { createLog } from '../utils/commons';
+import { createLog, formatError } from '../utils/commons';
 import UserController from '../controller/userController';
 const router = Router();
 
@@ -16,7 +16,7 @@ router.get('/search', async (req: Request, res: Response, next: NextFunction) =>
             LogType.DEBUG,
             LogOperation.SEARCH,
             LogCategory.USER,
-            JSON.stringify(error),
+            formatError(error),
             undefined,
             next
         );
@@ -34,7 +34,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
             LogType.DEBUG,
             LogOperation.CREATION,
             LogCategory.USER,
-            JSON.stringify(error),
+            formatError(error),
             req.body?.userId,
             next
         );
@@ -52,7 +52,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
             LogType.DEBUG,
             LogOperation.SEARCH,
             LogCategory.USER,
-            JSON.stringify(error),
+            formatError(error),
             Number(req.params.id) || undefined,
             next
         );
@@ -70,7 +70,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
             LogType.DEBUG,
             LogOperation.SEARCH,
             LogCategory.USER,
-            JSON.stringify(error),
+            formatError(error),
             undefined,
             next
         );
@@ -80,7 +80,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 /**
  * Updates a user by ID.
  */
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id?', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.updateUser(req, res, next);
     } catch (error) {
@@ -88,7 +88,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
             LogType.DEBUG,
             LogOperation.UPDATE,
             LogCategory.USER,
-            JSON.stringify(error),
+            formatError(error),
             Number(req.params.id) || undefined,
             next
         );
