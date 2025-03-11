@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import BaseModel from "../baseModel";
-import { Table, Column } from "../../utils/database/dbDecorators";
-import { boolean } from "zod";
+import { Table, Column, OneToMany } from "../../utils/database/dbDecorators";
+import Log from "../log/log";
 
 @Table("user")
 class User extends BaseModel {
