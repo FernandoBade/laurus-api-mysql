@@ -3,7 +3,7 @@ import { getById, saveEntry, searchEntry, createLog } from '../utils/commons';
 import { runQuery } from '../utils/database';
 
 export class LogService {
-    private static readonly table = TableName.LOG;
+    private static readonly table = TableName.LOG_OLD;
 
     /**
      * Creates a log entry.

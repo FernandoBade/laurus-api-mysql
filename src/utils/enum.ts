@@ -57,4 +57,6 @@ export enum TableName {
     ACCOUNT = 'Account',
     LOG = 'Log',
     USER = 'User',
+    LOG_OLD = "Log_old",
+    USER_OLD = 'User_old',
 }

@@ -10,7 +10,7 @@ import {
 import bcrypt from 'bcrypt';
 
 export class UserService {
-    private table = TableName.USER;
+    private table = TableName.USER_OLD;
 
     /**
      * Creates a new user, ensuring the email is unique and hashing the password securely.
