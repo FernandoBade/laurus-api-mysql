@@ -17,10 +17,11 @@ export function Table(name: string) {
  */
 export function Column(options?: {
     defaultValue?: any,
-    type?: ColumnType | string,
     enumValues?: string[],
-    unique?: boolean,
-    index?: boolean
+    index?: boolean,
+    onUpdate?: boolean,
+    type?: ColumnType | string,
+    unique?: boolean
 }) {
     return function (target: any, propertyKey: string) {
         if (propertyKey === "id") return;
@@ -33,10 +34,11 @@ export function Column(options?: {
         columns.push({
             name: propertyKey,
             defaultValue: options?.defaultValue,
-            type: options?.type || ColumnType.STRING,
             enumValues: options?.enumValues,
-            unique: options?.unique,
-            index: options?.index
+            index: options?.index,
+            onUpdate: options?.onUpdate,
+            type: options?.type || ColumnType.STRING,
+            unique: options?.unique
         });
 
         Reflect.defineMetadata("columns", columns, target.constructor);

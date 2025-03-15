@@ -40,6 +40,19 @@ class Log {
         type: ColumnType.DATE, defaultValue: null
     }) timestamp!: Date;
 
+    // updatedAt
+    @Column({
+        type: ColumnType.TIMESTAMP,
+        defaultValue: 'CURRENT_TIMESTAMP',
+        onUpdate: true
+    }) updatedAt!: Date;
+
+    // createdAt
+    @Column({
+        type: ColumnType.TIMESTAMP,
+        defaultValue: 'CURRENT_TIMESTAMP'
+    }) createdAt!: Date;
+
     // log -> user | manyToOne
     @ManyToOne(() => User, 'logs')
     user?: User;

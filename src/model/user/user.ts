@@ -36,18 +36,11 @@ class User {
         defaultValue: null
     }) password!: string;
 
-
     // birthDate
     @Column({
         type: ColumnType.DATE,
         defaultValue: null
     }) birthDate?: Date;
-
-    // createdAt
-    @Column({
-        type: ColumnType.DATE,
-        defaultValue: null
-    }) createdAt!: Date;
 
     // phone
     @Column({
@@ -85,6 +78,19 @@ class User {
         type: ColumnType.BOOLEAN,
         defaultValue: true
     }) active!: boolean;
+
+    // updatedAt
+    @Column({
+        type: ColumnType.TIMESTAMP,
+        defaultValue: 'CURRENT_TIMESTAMP',
+        onUpdate: true
+    }) updatedAt!: Date;
+
+    // createdAt
+    @Column({
+        type: ColumnType.TIMESTAMP,
+        defaultValue: 'CURRENT_TIMESTAMP'
+    }) createdAt!: Date;
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];

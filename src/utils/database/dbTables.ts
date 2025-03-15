@@ -5,7 +5,7 @@ import { ColumnType, LogType, LogOperation, LogCategory } from "../enum";
 /**
  * Creates or adjusts the table structure based on the model definition.
  *
- * @param model: The model whose table needs to be synchronized.
+ * @param Model - The model whose table needs to be synchronized.
  */
 export async function syncTable(Model: any) {
     const tableName = Model.tableName.toLowerCase();
@@ -33,11 +33,15 @@ export async function syncTable(Model: any) {
                 columnType = `ENUM(${col.enumValues.map((val: string) => `'${val}'`).join(",")})`;
             }
 
-            const defaultClause = col.defaultValue !== undefined && col.defaultValue !== null
-                ? col.type === ColumnType.BOOLEAN
-                    ? ` DEFAULT ${col.defaultValue ? 1 : 0}`
-                    : ` DEFAULT '${col.defaultValue}'`
-                : ' DEFAULT NULL';
+            const defaultClause = col.defaultValue === 'CURRENT_TIMESTAMP'
+                ? col.onUpdate
+                    ? ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+                    : ' DEFAULT CURRENT_TIMESTAMP'
+                : col.defaultValue !== undefined && col.defaultValue !== null
+                    ? col.type === ColumnType.BOOLEAN
+                        ? ` DEFAULT ${col.defaultValue ? 1 : 0}`
+                        : ` DEFAULT '${col.defaultValue}'`
+                    : ' DEFAULT NULL';
 
             return `${col.name} ${columnType}${defaultClause}`;
         }).join(", ");
@@ -58,7 +62,7 @@ export async function syncTable(Model: any) {
             return map;
         }, {});
 
-        let changes: { added: string[], updated: string[] } = { added: [], updated: [] }; // Linha essencial adicionada!
+        let changes: { added: string[], updated: string[] } = { added: [], updated: [] };
 
         for (const column of columns) {
             if (column.name === "id") continue;
@@ -77,11 +81,15 @@ export async function syncTable(Model: any) {
                     columnType = `ENUM(${column.enumValues.map((val: string) => `'${val}'`).join(",")})`;
                 }
 
-                const defaultClause = column.defaultValue !== undefined && column.defaultValue !== null
-                    ? column.type === ColumnType.BOOLEAN
-                        ? ` DEFAULT ${column.defaultValue ? 1 : 0}`
-                        : ` DEFAULT '${column.defaultValue}'`
-                    : ' DEFAULT NULL';
+                const defaultClause = column.defaultValue === 'CURRENT_TIMESTAMP'
+                    ? column.onUpdate
+                        ? ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+                        : ' DEFAULT CURRENT_TIMESTAMP'
+                    : column.defaultValue !== undefined && column.defaultValue !== null
+                        ? column.type === ColumnType.BOOLEAN
+                            ? ` DEFAULT ${column.defaultValue ? 1 : 0}`
+                            : ` DEFAULT '${column.defaultValue}'`
+                        : ' DEFAULT NULL';
 
                 await db.query(`ALTER TABLE ${tableName} ADD COLUMN ${column.name} ${columnType}${defaultClause}`);
                 changes.added.push(column.name);
@@ -90,13 +98,30 @@ export async function syncTable(Model: any) {
 
                 const existingDefault = existingColumn.Default === null ? null : existingColumn.Default;
                 const intendedDefault = column.defaultValue !== undefined && column.defaultValue !== null
-                    ? column.type === ColumnType.BOOLEAN
-                        ? (column.defaultValue ? '1' : '0')
-                        : column.defaultValue.toString()
+                    ? column.defaultValue === 'CURRENT_TIMESTAMP'
+                        ? 'CURRENT_TIMESTAMP'
+                        : column.type === ColumnType.BOOLEAN
+                            ? (column.defaultValue ? '1' : '0')
+                            : column.defaultValue.toString()
                     : null;
 
                 if (existingDefault !== intendedDefault) {
-                    await db.query(`ALTER TABLE ${tableName} ALTER COLUMN ${column.name} SET DEFAULT ${intendedDefault === null ? 'NULL' : column.type === ColumnType.BOOLEAN ? intendedDefault : `'${intendedDefault}'`}`);
+                    let columnType = column.type;
+                    if (column.type === ColumnType.ENUM && column.enumValues) {
+                        columnType = `ENUM(${column.enumValues.map((val: string) => `'${val}'`).join(",")})`;
+                    }
+
+                    const defaultClause = column.defaultValue === 'CURRENT_TIMESTAMP'
+                        ? column.onUpdate
+                            ? ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+                            : ' DEFAULT CURRENT_TIMESTAMP'
+                        : column.defaultValue !== undefined && column.defaultValue !== null
+                            ? column.type === ColumnType.BOOLEAN
+                                ? ` DEFAULT ${column.defaultValue ? 1 : 0}`
+                                : ` DEFAULT '${column.defaultValue}'`
+                            : ' DEFAULT NULL';
+
+                    await db.query(`ALTER TABLE ${tableName} MODIFY COLUMN ${column.name} ${columnType}${defaultClause}`);
                     changes.updated.push(column.name);
                 }
             }
@@ -109,7 +134,12 @@ export async function syncTable(Model: any) {
                 changes
             });
         } else {
-            createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
+            createLog(
+                LogType.DEBUG,
+                LogOperation.SEARCH,
+                LogCategory.DATABASE,
+                `No changes needed for table '${tableName}'.`
+            );
         }
     }
 }
