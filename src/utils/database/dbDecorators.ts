@@ -15,7 +15,13 @@ export function Table(name: string) {
 /**
  * Column decorator to register class properties as database columns.
  */
-export function Column(options?: { defaultValue?: any, type?: ColumnType, enumValues?: string[] }) {
+export function Column(options?: {
+    defaultValue?: any,
+    type?: ColumnType | string,
+    enumValues?: string[],
+    unique?: boolean,
+    index?: boolean
+}) {
     return function (target: any, propertyKey: string) {
         if (propertyKey === "id") return;
 
@@ -28,7 +34,9 @@ export function Column(options?: { defaultValue?: any, type?: ColumnType, enumVa
             name: propertyKey,
             defaultValue: options?.defaultValue,
             type: options?.type || ColumnType.STRING,
-            enumValues: options?.enumValues
+            enumValues: options?.enumValues,
+            unique: options?.unique,
+            index: options?.index
         });
 
         Reflect.defineMetadata("columns", columns, target.constructor);

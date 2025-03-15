@@ -43,10 +43,20 @@ async function syncDatabase() {
 async function runSync() {
     try {
         await syncDatabase();
-        createLog(LogType.DEBUG, LogOperation.UPDATE, LogCategory.DATABASE, "Database synchronization completed successfully.");
+        createLog(
+            LogType.DEBUG,
+            LogOperation.UPDATE,
+            LogCategory.DATABASE,
+            "Database synchronization completed successfully."
+        );
         process.exit(0);
     } catch (error) {
-        createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.DATABASE, formatError(error));
+        createLog(
+            LogType.ERROR,
+            LogOperation.UPDATE,
+            LogCategory.DATABASE,
+            formatError(error)
+        );
         process.exit(1);
     }
 }

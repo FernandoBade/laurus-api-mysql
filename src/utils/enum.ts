@@ -3,6 +3,22 @@ export enum Theme {
     LIGHT = 'light',
 }
 
+export enum ColumnType {
+    STRING = "VARCHAR(255)",
+    TEXT = "TEXT",
+    INTEGER = "INT",
+    BIGINT = "BIGINT",
+    FLOAT = "FLOAT",
+    DOUBLE = "DOUBLE",
+    DECIMAL = "DECIMAL(10,2)",
+    BOOLEAN = "BOOLEAN",
+    DATE = "DATETIME",
+    TIME = "TIME",
+    TIMESTAMP = "TIMESTAMP",
+    ENUM = "ENUM"
+}
+
+
 export enum Currency {
     ARS = 'ARS',
     BRL = 'BRL',
@@ -13,14 +29,6 @@ export enum Currency {
 export enum DateFormat {
     DD_MM_YYYY = 'DD/MM/YYYY',
     MM_DD_YYYY = 'MM/DD/YYYY',
-}
-
-export enum ColumnType {
-    STRING = "VARCHAR(255)",
-    NUMBER = "INT",
-    BOOLEAN = "BOOLEAN",
-    DATE = "DATETIME",
-    ENUM = "ENUM"
 }
 
 export enum HTTPStatus {

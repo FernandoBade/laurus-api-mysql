@@ -31,7 +31,7 @@ export function getModels(dir = path.resolve(__dirname, "../../model")) {
 
         if (stat.isDirectory()) {
             models = models.concat(getModels(fullPath));
-        } else if (file.endsWith(".ts") && file !== "baseModel.ts" && !file.toLowerCase().includes("schema")) {
+        } else if (file.endsWith(".ts") && !file.toLowerCase().includes("schema")) {
             createLog(
                 LogType.DEBUG,
                 LogOperation.SEARCH,

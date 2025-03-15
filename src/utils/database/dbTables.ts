@@ -12,10 +12,15 @@ export async function syncTable(Model: any) {
     let columns: any[] = Reflect.getMetadata("columns", Model) || [];
 
     if (!columns.some((col: any) => col.name === "id")) {
-        columns.unshift({ name: "id", type: ColumnType.NUMBER });
+        columns.unshift({ name: "id", type: ColumnType.INTEGER });
     }
 
-    createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `Checking table: ${tableName}`);
+    createLog(
+        LogType.DEBUG,
+        LogOperation.SEARCH,
+        LogCategory.DATABASE,
+        `Checking table: ${tableName}`
+    );
 
     const [existingTable]: any[] = await db.query(`SHOW TABLES LIKE ?`, [tableName]);
 
@@ -39,7 +44,12 @@ export async function syncTable(Model: any) {
 
         await db.query(`CREATE TABLE ${tableName} (${columnDefinitions})`);
 
-        createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: tableName });
+        createLog(
+            LogType.SUCCESS,
+            LogOperation.CREATE,
+            LogCategory.DATABASE,
+            { table: tableName }
+        );
 
     } else {
         const [existingColumns]: any[] = await db.query(`SHOW COLUMNS FROM ${tableName}`);
@@ -52,6 +62,12 @@ export async function syncTable(Model: any) {
 
         for (const column of columns) {
             if (column.name === "id") continue;
+
+            if (column.unique) {
+                await db.query(`ALTER TABLE ${tableName} ADD UNIQUE(${column.name})`);
+            } else if (column.index) {
+                await db.query(`CREATE INDEX idx_${column.name} ON ${tableName}(${column.name})`);
+            }
 
             const existingColumn = existingColumnMap[column.name];
 
