@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Language, Appearance, Currency, DateFormat } from '../../utils/enum'
+import { Language, Theme, Currency, DateFormat } from '../../utils/enum'
 
 const dateSchema = z
     .union([
@@ -42,7 +42,7 @@ export const createUserSchema = z.object({
     birthDate: dateSchema.optional(),
     createdAt: dateSchema.optional(),
     active: z.boolean().optional(),
-    theme: z.enum([Appearance.DARK, Appearance.LIGHT]).optional(),
+    theme: z.enum([Theme.DARK, Theme.LIGHT]).optional(),
     language: z.enum([Language.PT_BR, Language.EN_US, Language.ES_ES]).optional(),
     currency: z.enum([Currency.BRL, Currency.USD, Currency.EUR, Currency.ARS]).optional(),
     dateFormat: z.enum([DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY]).optional(),
@@ -56,7 +56,7 @@ export const updateUserSchema = z.object({
     phone: z.string().optional(),
     birthDate: dateSchema.optional(),
     active: z.boolean().optional(),
-    theme: z.enum([Appearance.DARK, Appearance.LIGHT]).optional(),
+    theme: z.enum([Theme.DARK, Theme.LIGHT]).optional(),
     language: z.enum([Language.PT_BR, Language.EN_US, Language.ES_ES]).optional(),
     currency: z.enum([Currency.BRL, Currency.USD, Currency.EUR, Currency.ARS]).optional(),
     dateFormat: z.enum([DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY]).optional(),

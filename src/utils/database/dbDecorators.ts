@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { ColumnType } from "../enum";
 
 /**
  * Table decorator to associate a class with a database table.
@@ -14,15 +15,22 @@ export function Table(name: string) {
 /**
  * Column decorator to register class properties as database columns.
  */
-export function Column() {
+export function Column(options?: { defaultValue?: any, type?: ColumnType, enumValues?: string[] }) {
     return function (target: any, propertyKey: string) {
         if (propertyKey === "id") return;
 
         if (!Reflect.hasMetadata("columns", target.constructor)) {
             Reflect.defineMetadata("columns", [], target.constructor);
         }
+
         const columns = Reflect.getMetadata("columns", target.constructor);
-        columns.push(propertyKey);
+        columns.push({
+            name: propertyKey,
+            defaultValue: options?.defaultValue,
+            type: options?.type || ColumnType.STRING,
+            enumValues: options?.enumValues
+        });
+
         Reflect.defineMetadata("columns", columns, target.constructor);
     };
 }
@@ -59,8 +67,6 @@ export function ManyToOne(target: () => Function, inverse: string) {
         });
 
         Reflect.defineMetadata("relationships", relationships, targetClass.constructor);
-
-        console.log(`🔗 Registering ManyToOne relation: ${propertyKey} -> ${targetClass.constructor.name}`);
     };
 }
 

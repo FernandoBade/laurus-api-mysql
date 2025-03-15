@@ -32,7 +32,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.CREATION,
+            LogOperation.CREATE,
             LogCategory.USER,
             formatError(error),
             req.body?.userId,
@@ -104,7 +104,7 @@ router.delete('/:id?', async (req: Request, res: Response, next: NextFunction) =
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.DELETION,
+            LogOperation.DELETE,
             LogCategory.USER,
             JSON.stringify(error),
             Number(req.params.id) || undefined,

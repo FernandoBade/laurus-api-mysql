@@ -33,12 +33,12 @@ class UserController {
                 return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATION, LogCategory.USER, newUser, newUser.id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser, newUser.id);
             return answerAPI(res, HTTPStatus.CREATED, newUser);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.CREATION,
+                LogOperation.CREATE,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -193,12 +193,12 @@ class UserController {
                 return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETION, LogCategory.USER, result, userId, next);
+            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.USER, result, userId, next);
             return answerAPI(res, HTTPStatus.OK, { id: userId });
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.DELETION,
+                LogOperation.DELETE,
                 LogCategory.USER,
                 formatError(error),
                 userId,

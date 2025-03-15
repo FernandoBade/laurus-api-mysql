@@ -1,4 +1,4 @@
-export enum Appearance {
+export enum Theme {
     DARK = 'dark',
     LIGHT = 'light',
 }
@@ -13,6 +13,14 @@ export enum Currency {
 export enum DateFormat {
     DD_MM_YYYY = 'DD/MM/YYYY',
     MM_DD_YYYY = 'MM/DD/YYYY',
+}
+
+export enum ColumnType {
+    STRING = "VARCHAR(255)",
+    NUMBER = "INT",
+    BOOLEAN = "BOOLEAN",
+    DATE = "DATETIME",
+    ENUM = "ENUM"
 }
 
 export enum HTTPStatus {
@@ -44,8 +52,8 @@ export enum LogType {
 }
 
 export enum LogOperation {
-    CREATION = 'creation',
-    DELETION = 'deletion',
+    CREATE = 'creation',
+    DELETE = 'deletion',
     LOGIN = 'login',
     LOGOUT = 'logout',
     SEARCH = 'search',

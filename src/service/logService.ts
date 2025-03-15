@@ -59,7 +59,7 @@ export class LogService {
 
         await createLog(
             LogType.DEBUG,
-            LogOperation.DELETION,
+            LogOperation.DELETE,
             LogCategory.LOG,
             `Total logs deleted: ${total}`
         );

@@ -160,7 +160,7 @@ export async function createTables() {
                 const columnsSQL = table.columns.map(col => `${col.name} ${col.definition}`).join(',\n  ');
                 const createTableQuery = `CREATE TABLE ${table.name} (\n  ${columnsSQL}\n);`;
                 await runQuery(createTableQuery);
-                await createLog(LogType.SUCCESS, LogOperation.CREATION, LogCategory.DATABASE, { table: table.name }, undefined);
+                await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: table.name }, undefined);
             }
         }
     } catch (error) {

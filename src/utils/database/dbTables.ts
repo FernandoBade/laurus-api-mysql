@@ -1,95 +1,99 @@
-import db from "./dbConnection";
 import { createLog } from "../commons";
-import { LogType, LogOperation, LogCategory } from "../enum";
+import db from "../database";
+import { ColumnType, LogType, LogOperation, LogCategory } from "../enum";
 
 /**
  * Creates or adjusts the table structure based on the model definition.
  *
- * @param model The model whose table needs to be synchronized.
+ * @param model: The model whose table needs to be synchronized.
  */
 export async function syncTable(Model: any) {
     const tableName = Model.tableName.toLowerCase();
-    let columns: string[] = Reflect.getMetadata("columns", Model) || [];
+    let columns: any[] = Reflect.getMetadata("columns", Model) || [];
 
-    if (!columns.includes("id")) {
-        columns.unshift("id");
+    if (!columns.some((col: any) => col.name === "id")) {
+        columns.unshift({ name: "id", type: ColumnType.NUMBER });
     }
 
-    createLog(
-        LogType.DEBUG,
-        LogOperation.SEARCH,
-        LogCategory.DATABASE,
-        `Checking table: ${tableName
-        }`);
+    createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `Checking table: ${tableName}`);
 
-    const [tableExists]: any[] = await db.query(
-        `SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = DATABASE() AND LOWER(TABLE_NAME) = ?`,
-        [tableName.toLowerCase()]
-    );
+    const [existingTable]: any[] = await db.query(`SHOW TABLES LIKE ?`, [tableName]);
 
-    const existingTable = tableExists?.[0]?.TABLE_NAME || null;
+    if (!existingTable.length) {
+        const columnDefinitions = columns.map((col: any) => {
+            if (col.name === "id") return "id INT AUTO_INCREMENT PRIMARY KEY";
 
-    if (!existingTable) {
+            let columnType = col.type;
+            if (col.type === ColumnType.ENUM && col.enumValues) {
+                columnType = `ENUM(${col.enumValues.map((val: string) => `'${val}'`).join(",")})`;
+            }
 
-        const columnDefinitions = columns.map((col: string) =>
-            col === "id" ? "id INT AUTO_INCREMENT PRIMARY KEY" : `${col} VARCHAR(255)`
-        ).join(", ");
+            const defaultClause = col.defaultValue !== undefined && col.defaultValue !== null
+                ? col.type === ColumnType.BOOLEAN
+                    ? ` DEFAULT ${col.defaultValue ? 1 : 0}`
+                    : ` DEFAULT '${col.defaultValue}'`
+                : ' DEFAULT NULL';
+
+            return `${col.name} ${columnType}${defaultClause}`;
+        }).join(", ");
 
         await db.query(`CREATE TABLE ${tableName} (${columnDefinitions})`);
 
-        createLog(
-            LogType.SUCCESS,
-            LogOperation.CREATION,
-            LogCategory.DATABASE,
-            { table: tableName, action: "table_created", columns }
-        );
+        createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: tableName });
+
     } else {
-
         const [existingColumns]: any[] = await db.query(`SHOW COLUMNS FROM ${tableName}`);
-        const existingColumnNames = existingColumns.map((col: any) => col.Field);
+        const existingColumnMap = existingColumns.reduce((map: any, col: any) => {
+            map[col.Field] = col;
+            return map;
+        }, {});
 
-        let changes: { added: string[], removed: string[] } = { added: [], removed: [] };
+        let changes: { added: string[], updated: string[] } = { added: [], updated: [] }; // Linha essencial adicionada!
 
         for (const column of columns) {
-            if (!existingColumnNames.includes(column)) {
-                await db.query(`ALTER TABLE ${tableName} ADD COLUMN ${column} VARCHAR(255)`);
-                changes.added.push(column);
-            }
-        }
+            if (column.name === "id") continue;
 
-        for (const column of existingColumnNames) {
-            if (!columns.includes(column) && column !== "id") {
-                const [foreignKeyExists]: any[] = await db.query(`
-                    SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
-                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-                    [tableName, column]
-                );
+            const existingColumn = existingColumnMap[column.name];
 
-                if (foreignKeyExists.length > 0) {
-                    createLog(LogType.DEBUG, LogOperation.UPDATE, LogCategory.DATABASE,
-                        `Skipping removal of column '${column}' in '${tableName}' as it's part of a foreign key.`);
-                    continue;
+            if (!existingColumn) {
+                let columnType = column.type;
+                if (column.type === ColumnType.ENUM && column.enumValues) {
+                    columnType = `ENUM(${column.enumValues.map((val: string) => `'${val}'`).join(",")})`;
                 }
 
-                await db.query(`ALTER TABLE ${tableName} DROP COLUMN ${column}`);
-                changes.removed.push(column);
+                const defaultClause = column.defaultValue !== undefined && column.defaultValue !== null
+                    ? column.type === ColumnType.BOOLEAN
+                        ? ` DEFAULT ${column.defaultValue ? 1 : 0}`
+                        : ` DEFAULT '${column.defaultValue}'`
+                    : ' DEFAULT NULL';
+
+                await db.query(`ALTER TABLE ${tableName} ADD COLUMN ${column.name} ${columnType}${defaultClause}`);
+                changes.added.push(column.name);
+            } else {
+                const existingColumn = existingColumnMap[column.name];
+
+                const existingDefault = existingColumn.Default === null ? null : existingColumn.Default;
+                const intendedDefault = column.defaultValue !== undefined && column.defaultValue !== null
+                    ? column.type === ColumnType.BOOLEAN
+                        ? (column.defaultValue ? '1' : '0')
+                        : column.defaultValue.toString()
+                    : null;
+
+                if (existingDefault !== intendedDefault) {
+                    await db.query(`ALTER TABLE ${tableName} ALTER COLUMN ${column.name} SET DEFAULT ${intendedDefault === null ? 'NULL' : column.type === ColumnType.BOOLEAN ? intendedDefault : `'${intendedDefault}'`}`);
+                    changes.updated.push(column.name);
+                }
             }
         }
 
-        if (changes.added.length > 0 || changes.removed.length > 0) {
-            createLog(
-                LogType.SUCCESS,
-                LogOperation.UPDATE,
-                LogCategory.DATABASE,
-                { table: tableName, action: "table_updated", changes }
-            );
+        if (changes.added.length > 0 || changes.updated.length > 0) {
+            createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.DATABASE, {
+                table: tableName,
+                action: "table_updated",
+                changes
+            });
         } else {
-            createLog(
-                LogType.DEBUG,
-                LogOperation.SEARCH,
-                LogCategory.DATABASE,
-                `No changes needed for table '${tableName}'.`
-            );
+            createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
         }
     }
 }
