@@ -1,8 +1,8 @@
 import { Table, Column, ManyToOne } from '../../utils/database/dbDecorators';
 import User from '../user/user';
-import { ColumnType, LogType, LogOperation, LogCategory } from '../../utils/enum';
+import { ColumnType, LogType, LogOperation, LogCategory, TableName } from '../../utils/enum';
 
-@Table('log')
+@Table(TableName.LOG)
 class Log {
     // id
     @Column({

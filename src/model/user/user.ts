@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { Table, Column } from "../../utils/database/dbDecorators";
-import { ColumnType, Currency, DateFormat, Language, Theme } from "../../utils/enum";
+import { ColumnType, Currency, DateFormat, Language, TableName, Theme } from "../../utils/enum";
 import Log from '../log/log';
 import { OneToMany } from "../../utils/database/dbDecorators";
 
-@Table('user')
+@Table(TableName.USER)
 class User {
     // id
     @Column({

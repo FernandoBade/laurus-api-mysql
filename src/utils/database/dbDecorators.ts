@@ -3,6 +3,8 @@ import { ColumnType } from "../enum";
 
 /**
  * Table decorator to associate a class with a database table.
+ * @param name The name of the table.
+ * @returns A class decorator function.
  */
 export function Table(name: string) {
     return function (constructor: Function) {
@@ -13,7 +15,9 @@ export function Table(name: string) {
 }
 
 /**
- * Column decorator to register class properties as database columns.
+ * Column decorator to define a column in a database table.
+ * @param options Options for the column. defaultValue, enumValues, index, onUpdate, type, unique.
+ * @returns A property decorator function.
  */
 export function Column(options?: {
     defaultValue?: any,
@@ -47,6 +51,9 @@ export function Column(options?: {
 
 /**
  * Defines a One-to-Many relationship.
+ * @param target The target class of the relationship.
+ * @param inverse The inverse property of the relationship.
+ * @returns A property decorator function.
  */
 export function OneToMany(target: () => Function, inverse: string) {
     return function (targetClass: any, propertyKey: string) {
@@ -61,6 +68,9 @@ export function OneToMany(target: () => Function, inverse: string) {
 
 /**
  * Defines a Many-to-One relationship.
+ * @param target The target class of the relationship.
+ * @param inverse The inverse property of the relationship.
+ * @returns A property decorator function.
  */
 export function ManyToOne(target: () => Function, inverse: string) {
     return function (targetClass: any, propertyKey: string) {
@@ -83,6 +93,9 @@ export function ManyToOne(target: () => Function, inverse: string) {
 
 /**
  * Defines a Many-to-Many relationship.
+ * @param target The target class of the relationship.
+ * @param joinTable The name of the join table.
+ * @returns A property decorator function.
  */
 export function ManyToMany(target: () => Function, joinTable: string) {
     return function (targetClass: any, propertyKey: string) {
