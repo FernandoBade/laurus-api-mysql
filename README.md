@@ -25,7 +25,7 @@ With a strong focus on **performance, modularity, and scalability**, Laurus ensu
   - **Dynamic Query Building** – Allows **automatic query generation**, eliminating the need for manual SQL queries unless explicitly required.  
   - **Optimized Transactions** – Efficient handling of bulk operations and financial calculations for better performance.  
 
-### 🔍 Logging & Monitoring  
+### 📖 Logging & Monitoring  
 
 - **Comprehensive Logging System** – Every critical action within Laurus is logged, providing full visibility into **transactions, user interactions, and API requests**.  
 - **Error Tracking & Debugging** – Logs help diagnose issues quickly, improving system reliability and maintainability.  
