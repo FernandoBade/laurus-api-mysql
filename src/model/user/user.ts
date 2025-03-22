@@ -13,26 +13,26 @@ class User {
 
     // firstName
     @Column({
-        type: ColumnType.STRING,
+        type: ColumnType.VARCHAR,
         defaultValue: null
     }) firstName!: string;
 
     // lastName
     @Column({
-        type: ColumnType.STRING,
+        type: ColumnType.VARCHAR,
         defaultValue: null
     }) lastName!: string;
 
     // email
     @Column({
-        type: ColumnType.STRING,
+        type: ColumnType.VARCHAR,
         unique: true,
         defaultValue: null
     }) email!: string;
 
     // password
     @Column({
-        type: ColumnType.STRING,
+        type: ColumnType.VARCHAR,
         defaultValue: null
     }) password!: string;
 
@@ -44,7 +44,7 @@ class User {
 
     // phone
     @Column({
-        type: ColumnType.STRING,
+        type: ColumnType.VARCHAR,
         defaultValue: null
     }) phone?: string;
 
@@ -70,8 +70,11 @@ class User {
     }) dateFormat?: DateFormat;
 
     // currency
-    @Column({ type: ColumnType.ENUM, enumValues: Object.values(Currency), defaultValue: Currency.BRL }) currency!: Currency;
-
+    @Column({
+        type: ColumnType.ENUM,
+        enumValues: Object.values(Currency),
+        defaultValue: Currency.BRL
+    }) currency!: Currency;
 
     // active
     @Column({
@@ -82,15 +85,27 @@ class User {
     // updatedAt
     @Column({
         type: ColumnType.TIMESTAMP,
-        defaultValue: 'CURRENT_TIMESTAMP',
+        defaultValue: ColumnType.CURRENT_TIMESTAMP,
         onUpdate: true
     }) updatedAt!: Date;
 
     // createdAt
     @Column({
         type: ColumnType.TIMESTAMP,
-        defaultValue: 'CURRENT_TIMESTAMP'
+        defaultValue: ColumnType.CURRENT_TIMESTAMP
     }) createdAt!: Date;
+
+    @Column({
+        type: ColumnType.TEXT,
+        defaultValue: null
+    }) nickname?: string;
+
+    // // photo
+    // @Column({
+    //     type: ColumnType.BOOLEAN,
+    //     defaultValue: false
+    // }) photo?: boolean;
+
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];

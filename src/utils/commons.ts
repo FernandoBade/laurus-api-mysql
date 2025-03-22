@@ -1,4 +1,4 @@
-import { HTTPStatus, LogType, LogOperation, LogCategory, TableName } from './enum';
+import { HTTPStatus, LogType, Operation, LogCategory, TableName } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction } from 'express';
 import { runQuery } from './database';
@@ -50,7 +50,7 @@ const logger = createLogger({
  */
 export async function createLog(
     logType: LogType,
-    operation: LogOperation,
+    operation: Operation,
     category: LogCategory,
     detail: any,
     userId?: number,
@@ -82,7 +82,7 @@ export async function getLogsByUser(userId: number) {
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.SEARCH,
+            Operation.SEARCH,
             LogCategory.LOG,
             JSON.stringify(error),
             userId

@@ -1,4 +1,4 @@
-import { TableName, LogType, LogOperation, LogCategory } from '../utils/enum';
+import { TableName, LogType, Operation, LogCategory } from '../utils/enum';
 import { getById, saveEntry, searchEntry, createLog } from '../utils/commons';
 import { runQuery } from '../utils/database';
 
@@ -15,7 +15,7 @@ export class LogService {
      */
     static async createLog(
         logType: LogType,
-        logOperation: LogOperation,
+        logOperation: Operation,
         logCategory: LogCategory,
         logDetail: string,
         userId?: number
@@ -59,7 +59,7 @@ export class LogService {
 
         await createLog(
             LogType.DEBUG,
-            LogOperation.DELETE,
+            Operation.DELETE,
             LogCategory.LOG,
             `Total logs deleted: ${total}`
         );

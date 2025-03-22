@@ -4,18 +4,25 @@ export enum Theme {
 }
 
 export enum ColumnType {
-    STRING = "VARCHAR(255)",
+    VARCHAR = "VARCHAR(255)",
+    CHAR = "CHAR(255)",
     TEXT = "TEXT",
+    TINYINT = "TINYINT",
     INTEGER = "INT",
+    MEDIUMINT = "MEDIUMINT",
     BIGINT = "BIGINT",
     FLOAT = "FLOAT",
     DOUBLE = "DOUBLE",
     DECIMAL = "DECIMAL(10,2)",
     BOOLEAN = "BOOLEAN",
-    DATE = "DATETIME",
+    DATE = "DATE",
+    DATETIME = "DATETIME",
     TIME = "TIME",
     TIMESTAMP = "TIMESTAMP",
-    ENUM = "ENUM"
+    CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP",
+    YEAR = "YEAR",
+    ENUM = "ENUM",
+    BLOB = "BLOB"
 }
 
 
@@ -59,14 +66,12 @@ export enum LogType {
     SUCCESS = 'success',
 }
 
-export enum LogOperation {
+export enum Operation {
     CREATE = 'creation',
     DELETE = 'deletion',
-    LOGIN = 'login',
-    LOGOUT = 'logout',
     SEARCH = 'search',
     UPDATE = 'update',
-    STATUS = 'status'
+    STATUS = 'status',
 }
 
 export enum TableName {
@@ -75,4 +80,5 @@ export enum TableName {
     USER = 'user',
     LOG_OLD = "Log_old",
     USER_OLD = 'User_old',
+    MIGRATION = "MIGRATION",
 }

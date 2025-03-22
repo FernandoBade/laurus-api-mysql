@@ -1,4 +1,4 @@
-import { LogCategory, LogOperation, LogType } from './enum';
+import { LogCategory, Operation, LogType } from './enum';
 import { createLog } from './commons';
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
@@ -95,11 +95,11 @@ async function updateTable(table: string, columns: { name: string; definition: s
         }
 
         if (changes.length > 0) {
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.DATABASE,
+            await createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.DATABASE,
                 { table, changes }, undefined);
         }
     } catch (error: any) {
-        await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.DATABASE,
+        await createLog(LogType.ERROR, Operation.UPDATE, LogCategory.DATABASE,
             { table, error: error.message }, undefined);
         throw error;
     }
@@ -160,11 +160,11 @@ export async function createTables() {
                 const columnsSQL = table.columns.map(col => `${col.name} ${col.definition}`).join(',\n  ');
                 const createTableQuery = `CREATE TABLE ${table.name} (\n  ${columnsSQL}\n);`;
                 await runQuery(createTableQuery);
-                await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: table.name }, undefined);
+                await createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, { table: table.name }, undefined);
             }
         }
     } catch (error) {
-        await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.DATABASE, JSON.stringify(error), undefined);
+        await createLog(LogType.ERROR, Operation.UPDATE, LogCategory.DATABASE, JSON.stringify(error), undefined);
         throw error;
     }
 }

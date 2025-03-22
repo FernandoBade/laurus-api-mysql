@@ -41,7 +41,7 @@ export function Column(options?: {
             enumValues: options?.enumValues,
             index: options?.index,
             onUpdate: options?.onUpdate,
-            type: options?.type || ColumnType.STRING,
+            type: options?.type || ColumnType.VARCHAR,
             unique: options?.unique
         });
 

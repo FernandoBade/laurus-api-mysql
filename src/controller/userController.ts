@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
 import { formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
-import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
+import { LogCategory, HTTPStatus, Operation, LogType } from '../utils/enum';
 import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 
 class UserController {
@@ -33,12 +33,12 @@ class UserController {
                 return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser, newUser.id);
+            await createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.USER, newUser, newUser.id);
             return answerAPI(res, HTTPStatus.CREATED, newUser);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.CREATE,
+                Operation.CREATE,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -60,7 +60,7 @@ class UserController {
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.SEARCH,
+                Operation.SEARCH,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -92,7 +92,7 @@ class UserController {
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.SEARCH,
+                Operation.SEARCH,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -120,7 +120,7 @@ class UserController {
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.SEARCH,
+                Operation.SEARCH,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -159,12 +159,12 @@ class UserController {
                 return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, updatedUser);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, updatedUser, updatedUser.id);
+            await createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.USER, updatedUser, updatedUser.id);
             return answerAPI(res, HTTPStatus.OK, updatedUser);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.UPDATE,
+                Operation.UPDATE,
                 LogCategory.USER,
                 formatError(error),
                 userId,
@@ -193,12 +193,12 @@ class UserController {
                 return answerAPI(res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.USER, result, userId, next);
+            await createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.USER, result, userId, next);
             return answerAPI(res, HTTPStatus.OK, { id: userId });
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                LogOperation.DELETE,
+                Operation.DELETE,
                 LogCategory.USER,
                 formatError(error),
                 userId,

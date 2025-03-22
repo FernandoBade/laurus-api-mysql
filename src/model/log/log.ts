@@ -1,6 +1,6 @@
 import { Table, Column, ManyToOne } from '../../utils/database/dbDecorators';
 import User from '../user/user';
-import { ColumnType, LogType, LogOperation, LogCategory, TableName } from '../../utils/enum';
+import { ColumnType, LogType, Operation, LogCategory, TableName } from '../../utils/enum';
 
 @Table(TableName.LOG)
 class Log {
@@ -18,9 +18,9 @@ class Log {
     // operation
     @Column({
         type: ColumnType.ENUM,
-        enumValues: Object.values(LogOperation),
-        defaultValue: LogOperation.CREATE
-    }) operation!: LogOperation;
+        enumValues: Object.values(Operation),
+        defaultValue: Operation.CREATE
+    }) operation!: Operation;
 
     // category
     @Column({
@@ -43,14 +43,14 @@ class Log {
     // updatedAt
     @Column({
         type: ColumnType.TIMESTAMP,
-        defaultValue: 'CURRENT_TIMESTAMP',
+        defaultValue: ColumnType.CURRENT_TIMESTAMP,
         onUpdate: true
     }) updatedAt!: Date;
 
     // createdAt
     @Column({
         type: ColumnType.TIMESTAMP,
-        defaultValue: 'CURRENT_TIMESTAMP'
+        defaultValue: ColumnType.CURRENT_TIMESTAMP,
     }) createdAt!: Date;
 
     // log -> user | manyToOne

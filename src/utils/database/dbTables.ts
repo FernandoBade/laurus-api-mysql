@@ -1,6 +1,9 @@
 import { createLog } from "../commons";
 import db from "../database";
-import { ColumnType, LogType, LogOperation, LogCategory } from "../enum";
+import { ColumnType, LogType, Operation, LogCategory } from "../enum";
+import fs from 'fs';
+import path from 'path';
+
 
 /**
  * Synchronizes table structure based on the model definition.
@@ -12,7 +15,7 @@ export async function syncTable(Model: any) {
     const columns: any[] = Reflect.getMetadata("columns", Model) || [];
 
     ensureIdColumn(columns);
-    createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `Checking table: ${tableName}`);
+    createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `Checking table: ${tableName}`);
 
     const [existingTable]: any[] = await db.query(`SHOW TABLES LIKE ?`, [tableName]);
 
@@ -45,7 +48,7 @@ async function createNewTable(tableName: string, columns: any[]) {
 
     await db.query(`CREATE TABLE ${tableName} (${columnDefinitions})`);
 
-    createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: tableName });
+    createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, { table: tableName });
 }
 
 /**
@@ -76,13 +79,21 @@ async function updateExistingTable(tableName: string, columns: any[]) {
         return map;
     }, {});
 
-    let changes: { added: string[], updated: string[] } = { added: [], updated: [] };
+    const columnNamesInModel = columns.map(col => col.name);
+
+    // Obtém colunas com chaves estrangeiras para proteger
+    const [foreignKeyColumns]: any[] = await db.query(`
+        SELECT COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND REFERENCED_COLUMN_NAME IS NOT NULL
+    `, [tableName]);
+    const fkColumnNames = foreignKeyColumns.map((fk: any) => fk.COLUMN_NAME);
+
+    let changes: { added: string[], updated: string[], removed: string[] } = { added: [], updated: [], removed: [] };
 
     for (const column of columns) {
         if (column.name === "id") continue;
 
         await applyIndexesAndConstraints(tableName, column);
-
         const existingColumn = existingColumnMap[column.name];
 
         if (!existingColumn) {
@@ -95,8 +106,48 @@ async function updateExistingTable(tableName: string, columns: any[]) {
         if (updated) changes.updated.push(column.name);
     }
 
-    logChanges(tableName, changes);
+    // Verifique colunas removidas, ignorando colunas com FK
+    for (const existingColumnName of Object.keys(existingColumnMap)) {
+        if (!columnNamesInModel.includes(existingColumnName) && existingColumnName !== "id" && !fkColumnNames.includes(existingColumnName)) {
+            changes.removed.push(existingColumnName);
+            await removeColumn(tableName, existingColumnName);
+        }
+    }
+
+    await logChanges(tableName, changes);
 }
+
+
+async function removeColumn(tableName: string, columnName: string) {
+    try {
+        await db.query(`ALTER TABLE ${tableName} DROP COLUMN ${columnName}`);
+
+        const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+        const migrationName = `table-${tableName}--column-${columnName}-${timestamp}`;
+
+        const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
+        const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(255) DEFAULT NULL}` });
+
+        await db.query(`
+            INSERT INTO migration (name, tableName, columnName, operation, up, down)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [
+            migrationName,
+            tableName,
+            columnName,
+            Operation.DELETE,
+            sqlUp,
+            sqlDown
+        ]);
+
+        createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
+    } catch (error) {
+        createLog(LogType.ERROR, Operation.DELETE, LogCategory.DATABASE, {
+            message: `Error removing column ${columnName} from ${tableName}: ${(error as Error).message}`
+        });
+    }
+}
+
 
 /**
  * Applies indexes and constraints to a column in the specified table.
@@ -224,14 +275,46 @@ function resolveDefaultClause(col: any) {
  * @param tableName The name of the table.
  * @param changes An object containing the added and updated columns.
  */
-function logChanges(tableName: string, changes: { added: string[], updated: string[] }) {
-    if (changes.added.length > 0 || changes.updated.length > 0) {
-        createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.DATABASE, {
+async function logChanges(tableName: string, changes: { added: string[], updated: string[], removed: string[] }) {
+    if (changes.added.length > 0 || changes.updated.length > 0 || changes.removed.length > 0) {
+        createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.DATABASE, {
             table: tableName,
-            action: "table_updated",
+            action: Operation.UPDATE,
             changes
         });
+
+        for (const columnName of changes.added) {
+            const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+            const migrationName = `${tableName}--${Operation.CREATE}-${columnName}-${timestamp}`;
+
+            const columnDefinition = "TEXT DEFAULT NULL"; // você pode melhorar isso no futuro usando os metadados
+            const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}` });
+            const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
+
+            await db.query(`
+                INSERT INTO migration (name, tableName, columnName, operation, up, down)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `, [migrationName, tableName, columnName, Operation.CREATE, sqlUp, sqlDown]);
+
+            createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
+        }
+
+        for (const columnName of changes.removed) {
+            const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+            const migrationName = `${tableName}--${Operation.DELETE}--${columnName}--${timestamp}`;
+
+            const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
+            const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(255) DEFAULT NULL` });
+
+            await db.query(`
+                INSERT INTO migration (name, tableName, columnName, operation, up, down)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `, [migrationName, tableName, columnName, Operation.DELETE, sqlUp, sqlDown]);
+
+            createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
+        }
+
     } else {
-        createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
+        createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
     }
 }

@@ -1,6 +1,6 @@
 import db from "./dbConnection";
 import { createLog } from "../commons";
-import { LogType, LogOperation, LogCategory } from "../enum";
+import { LogType, Operation, LogCategory } from "../enum";
 
 /**
  * Synchronizes relationships between models.
@@ -20,7 +20,7 @@ export async function syncRelationships(Model: any) {
         if (!targetModel || typeof targetModel !== "function") {
             createLog(
                 LogType.ERROR,
-                LogOperation.UPDATE,
+                Operation.UPDATE,
                 LogCategory.DATABASE,
                 {
                     message: `Invalid target function for relation '${relation.propertyKey}' in table '${tableName}'.`
@@ -39,7 +39,7 @@ export async function syncRelationships(Model: any) {
         if (!targetTableExists.length) {
             createLog(
                 LogType.ERROR,
-                LogOperation.UPDATE,
+                Operation.UPDATE,
                 LogCategory.DATABASE,
                 {
                     message: `Cannot add foreign key to '${tableName}'. Table '${targetTable}' does not exist.`
@@ -53,7 +53,7 @@ export async function syncRelationships(Model: any) {
 
             createLog(
                 LogType.SUCCESS,
-                LogOperation.UPDATE,
+                Operation.UPDATE,
                 LogCategory.DATABASE,
                 {
                     table: tableName,

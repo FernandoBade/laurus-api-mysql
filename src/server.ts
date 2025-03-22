@@ -1,7 +1,7 @@
 import express from "express";
 import userRoutes from "./routes/userRoutes";
 import { createLog } from "./utils/commons";
-import { LogCategory, LogOperation, LogType } from "./utils/enum";
+import { LogCategory, Operation, LogType } from "./utils/enum";
 
 const app = express();
 const PORT = process.env.PORT || 5050;
@@ -16,7 +16,7 @@ function startServer() {
     app.listen(PORT, () => {
         createLog(
             LogType.DEBUG,
-            LogOperation.STATUS,
+            Operation.STATUS,
             LogCategory.SERVER,
             `🚀 Server running on port ${PORT}`,
         )

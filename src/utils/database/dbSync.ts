@@ -3,7 +3,7 @@ import { getModels } from "./dbModels";
 import { syncTable } from "./dbTables";
 import { syncRelationships } from "./dbRelations";
 import { createLog, formatError } from "../commons";
-import { LogType, LogOperation, LogCategory } from "../enum";
+import { LogType, Operation, LogCategory } from "../enum";
 
 /**
  * @summary Synchronizes the database structure to match model definitions.
@@ -12,11 +12,12 @@ import { LogType, LogOperation, LogCategory } from "../enum";
  * - Tables are created if they do not exist.
  * - Columns are added or removed as necessary.
  * - Foreign key relationships are established.
+ * - Pending migrations are applied.
  */
 async function syncDatabase() {
     createLog(
         LogType.DEBUG,
-        LogOperation.UPDATE,
+        Operation.UPDATE,
         LogCategory.DATABASE,
         "Starting database synchronization..."
     );
@@ -24,8 +25,20 @@ async function syncDatabase() {
     const models = getModels();
 
     for (const Model of models) {
+        if (!Model || !Model.tableName) {
+            createLog(
+                LogType.ERROR,
+                Operation.UPDATE,
+                LogCategory.DATABASE,
+                {
+                    message: `Invalid model detected: ${Model}`
+                });
+            continue;
+        }
+
         await syncTable(Model);
     }
+
 
     for (const Model of models) {
         await syncRelationships(Model);
@@ -45,7 +58,7 @@ async function runSync() {
         await syncDatabase();
         createLog(
             LogType.DEBUG,
-            LogOperation.UPDATE,
+            Operation.UPDATE,
             LogCategory.DATABASE,
             "Database synchronization completed successfully."
         );
@@ -53,7 +66,7 @@ async function runSync() {
     } catch (error) {
         createLog(
             LogType.ERROR,
-            LogOperation.UPDATE,
+            Operation.UPDATE,
             LogCategory.DATABASE,
             formatError(error)
         );
