@@ -82,30 +82,18 @@ class User {
         defaultValue: true
     }) active!: boolean;
 
-    // updatedAt
-    @Column({
-        type: ColumnType.TIMESTAMP,
-        defaultValue: ColumnType.CURRENT_TIMESTAMP,
-        onUpdate: true
-    }) updatedAt!: Date;
-
     // createdAt
     @Column({
         type: ColumnType.TIMESTAMP,
         defaultValue: ColumnType.CURRENT_TIMESTAMP
     }) createdAt!: Date;
 
+    // updatedAt
     @Column({
-        type: ColumnType.TEXT,
-        defaultValue: null
-    }) nickname?: string;
-
-    // // photo
-    // @Column({
-    //     type: ColumnType.BOOLEAN,
-    //     defaultValue: false
-    // }) photo?: boolean;
-
+        type: ColumnType.TIMESTAMP,
+        defaultValue: ColumnType.CURRENT_TIMESTAMP,
+        onUpdate: true
+    }) updatedAt!: Date;
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];

@@ -1,9 +1,7 @@
 import { createLog } from "../commons";
 import db from "../database";
 import { ColumnType, LogType, Operation, LogCategory } from "../enum";
-import fs from 'fs';
-import path from 'path';
-
+import { dbRecorder } from "./dbRecorder";
 
 /**
  * Synchronizes table structure based on the model definition.
@@ -27,9 +25,9 @@ export async function syncTable(Model: any) {
 }
 
 /**
- * Ensures that the 'id' column is present in the column definitions.
+ * Ensures the 'id' column exists in the model.
  *
- * @param columns The column definitions for the table.
+ * @param columns The column definitions from the model.
  */
 function ensureIdColumn(columns: any[]) {
     if (!columns.some((col: any) => col.name === "id")) {
@@ -38,39 +36,35 @@ function ensureIdColumn(columns: any[]) {
 }
 
 /**
- * Creates a new table in the database based on the provided column definitions.
+ * Creates a new table with the given columns.
  *
- * @param tableName The name of the table to create.
- * @param columns The column definitions for the new table.
+ * @param tableName The name of the table.
+ * @param columns The columns to create.
  */
 async function createNewTable(tableName: string, columns: any[]) {
     const columnDefinitions = columns.map(generateColumnDefinition).join(", ");
-
     await db.query(`CREATE TABLE ${tableName} (${columnDefinitions})`);
-
     createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, { table: tableName });
 }
 
 /**
- * Generates the SQL definition for a column based on its properties.
+ * Generates the SQL definition for a column.
  *
- * @param col The column definition object.
- * @returns The SQL definition string for the column.
+ * @param col Column metadata.
+ * @returns SQL string for column creation.
  */
 function generateColumnDefinition(col: any) {
     if (col.name === "id") return "id INT AUTO_INCREMENT PRIMARY KEY";
-
     const colType = resolveColumnType(col);
     const defaultClause = resolveDefaultClause(col);
-
     return `${col.name} ${colType}${defaultClause}`;
 }
 
 /**
- * Updates an existing table in the database based on the provided column definitions.
+ * Updates an existing table to match the current model definition.
  *
- * @param tableName The name of the table to update.
- * @param columns The column definitions to update in the table.
+ * @param tableName The table to update.
+ * @param columns The columns from the model.
  */
 async function updateExistingTable(tableName: string, columns: any[]) {
     const [existingColumns]: any[] = await db.query(`SHOW COLUMNS FROM ${tableName}`);
@@ -81,7 +75,6 @@ async function updateExistingTable(tableName: string, columns: any[]) {
 
     const columnNamesInModel = columns.map(col => col.name);
 
-    // Obtém colunas com chaves estrangeiras para proteger
     const [foreignKeyColumns]: any[] = await db.query(`
         SELECT COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE
         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND REFERENCED_COLUMN_NAME IS NOT NULL
@@ -92,7 +85,6 @@ async function updateExistingTable(tableName: string, columns: any[]) {
 
     for (const column of columns) {
         if (column.name === "id") continue;
-
         await applyIndexesAndConstraints(tableName, column);
         const existingColumn = existingColumnMap[column.name];
 
@@ -106,7 +98,6 @@ async function updateExistingTable(tableName: string, columns: any[]) {
         if (updated) changes.updated.push(column.name);
     }
 
-    // Verifique colunas removidas, ignorando colunas com FK
     for (const existingColumnName of Object.keys(existingColumnMap)) {
         if (!columnNamesInModel.includes(existingColumnName) && existingColumnName !== "id" && !fkColumnNames.includes(existingColumnName)) {
             changes.removed.push(existingColumnName);
@@ -114,46 +105,35 @@ async function updateExistingTable(tableName: string, columns: any[]) {
         }
     }
 
-    await logChanges(tableName, changes);
+    await dbRecorder(tableName, changes);
 }
 
-
+/**
+ * Removes a column from the table and logs the migration.
+ *
+ * @param tableName Table name.
+ * @param columnName Column to be removed.
+ */
 async function removeColumn(tableName: string, columnName: string) {
     try {
         await db.query(`ALTER TABLE ${tableName} DROP COLUMN ${columnName}`);
-
-        const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
-        const migrationName = `table-${tableName}--column-${columnName}-${timestamp}`;
-
-        const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
-        const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(255) DEFAULT NULL}` });
-
-        await db.query(`
-            INSERT INTO migration (name, tableName, columnName, operation, up, down)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [
-            migrationName,
-            tableName,
-            columnName,
-            Operation.DELETE,
-            sqlUp,
-            sqlDown
-        ]);
-
-        createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
     } catch (error) {
-        createLog(LogType.ERROR, Operation.DELETE, LogCategory.DATABASE, {
-            message: `Error removing column ${columnName} from ${tableName}: ${(error as Error).message}`
-        });
+        createLog(
+            LogType.ERROR,
+            Operation.DELETE,
+            LogCategory.DATABASE,
+            {
+                message: `Error removing column ${columnName} from ${tableName}: ${(error as Error).message}`
+            }
+        );
     }
 }
 
-
 /**
- * Applies indexes and constraints to a column in the specified table.
+ * Applies constraints to the column (unique or index).
  *
- * @param tableName The name of the table.
- * @param column The column definition object.
+ * @param tableName The table name.
+ * @param column Column metadata.
  */
 async function applyIndexesAndConstraints(tableName: string, column: any) {
     if (column.unique) {
@@ -164,25 +144,24 @@ async function applyIndexesAndConstraints(tableName: string, column: any) {
 }
 
 /**
- * Adds a new column to an existing table in the database.
+ * Adds a column to an existing table.
  *
- * @param tableName The name of the table.
- * @param column The column definition object.
+ * @param tableName The table name.
+ * @param column Column metadata.
  */
 async function addNewColumn(tableName: string, column: any) {
     const colType = resolveColumnType(column);
     const defaultClause = resolveDefaultClause(column);
-
     await db.query(`ALTER TABLE ${tableName} ADD COLUMN ${column.name} ${colType}${defaultClause}`);
 }
 
 /**
- * Checks and updates a column in an existing table if necessary.
+ * Updates column definition if it differs from the model.
  *
- * @param tableName The name of the table.
- * @param column The column definition object.
- * @param existingColumn The existing column definition from the database.
- * @returns A boolean indicating whether the column was updated.
+ * @param tableName Table name.
+ * @param column Column metadata.
+ * @param existingColumn Column info from DB.
+ * @returns Whether an update was performed.
  */
 async function checkAndUpdateColumn(tableName: string, column: any, existingColumn: any) {
     const colType = resolveColumnType(column);
@@ -200,25 +179,24 @@ async function checkAndUpdateColumn(tableName: string, column: any, existingColu
 }
 
 /**
- * Checks if the ENUM values of a column match the existing ENUM values in the database.
+ * Compares enum values to determine if an update is required.
  *
- * @param existingColumn The existing column definition from the database.
- * @param column The column definition object.
- * @returns A boolean indicating whether the ENUM values match.
+ * @param existingColumn Column from DB.
+ * @param column Column from model.
+ * @returns Whether enums match.
  */
 function enumsMatch(existingColumn: any, column: any) {
     const currentEnum = existingColumn.Type.replace(/^enum\((.*)\)$/i, '$1').split(",").map((v: string) => v.trim().replace(/'/g, ""));
     const intendedEnum = column.enumValues;
-
     return currentEnum.length === intendedEnum.length && currentEnum.every((v: string) => intendedEnum.includes(v));
 }
 
 /**
- * Checks if the default values of a column match the existing default values in the database.
+ * Compares default values.
  *
- * @param existingColumn The existing column definition from the database.
- * @param column The column definition object.
- * @returns A boolean indicating whether the default values match.
+ * @param existingColumn Column from DB.
+ * @param column Column from model.
+ * @returns Whether default values match.
  */
 function defaultsMatch(existingColumn: any, column: any) {
     let existingDefault = existingColumn.Default ?? 'NULL';
@@ -240,10 +218,10 @@ function defaultsMatch(existingColumn: any, column: any) {
 }
 
 /**
- * Resolves the SQL type definition for a column based on its properties.
+ * Converts column type into SQL representation.
  *
- * @param col The column definition object.
- * @returns The SQL type definition string for the column.
+ * @param col Column metadata.
+ * @returns SQL type string.
  */
 function resolveColumnType(col: any) {
     return col.type === ColumnType.ENUM
@@ -252,10 +230,10 @@ function resolveColumnType(col: any) {
 }
 
 /**
- * Resolves the SQL default clause for a column based on its properties.
+ * Returns SQL default clause string.
  *
- * @param col The column definition object.
- * @returns The SQL default clause string for the column.
+ * @param col Column metadata.
+ * @returns SQL string for default value.
  */
 function resolveDefaultClause(col: any) {
     return col.defaultValue === 'CURRENT_TIMESTAMP'
@@ -267,54 +245,4 @@ function resolveDefaultClause(col: any) {
                 ? ` DEFAULT ${col.defaultValue ? 1 : 0}`
                 : ` DEFAULT '${col.defaultValue}'`
             : ' DEFAULT NULL';
-}
-
-/**
- * Logs the changes made to a table during the update process.
- *
- * @param tableName The name of the table.
- * @param changes An object containing the added and updated columns.
- */
-async function logChanges(tableName: string, changes: { added: string[], updated: string[], removed: string[] }) {
-    if (changes.added.length > 0 || changes.updated.length > 0 || changes.removed.length > 0) {
-        createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.DATABASE, {
-            table: tableName,
-            action: Operation.UPDATE,
-            changes
-        });
-
-        for (const columnName of changes.added) {
-            const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
-            const migrationName = `${tableName}--${Operation.CREATE}-${columnName}-${timestamp}`;
-
-            const columnDefinition = "TEXT DEFAULT NULL"; // você pode melhorar isso no futuro usando os metadados
-            const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}` });
-            const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
-
-            await db.query(`
-                INSERT INTO migration (name, tableName, columnName, operation, up, down)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `, [migrationName, tableName, columnName, Operation.CREATE, sqlUp, sqlDown]);
-
-            createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
-        }
-
-        for (const columnName of changes.removed) {
-            const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
-            const migrationName = `${tableName}--${Operation.DELETE}--${columnName}--${timestamp}`;
-
-            const sqlUp = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
-            const sqlDown = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(255) DEFAULT NULL` });
-
-            await db.query(`
-                INSERT INTO migration (name, tableName, columnName, operation, up, down)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `, [migrationName, tableName, columnName, Operation.DELETE, sqlUp, sqlDown]);
-
-            createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.DATABASE, `Migration ${migrationName} saved to database.`);
-        }
-
-    } else {
-        createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
-    }
 }

@@ -1,9 +1,9 @@
-import { Table, Column, ManyToOne } from '../../utils/database/dbDecorators';
+import { Table, Column, OneToMany } from '../../utils/database/dbDecorators';
 import { ColumnType, Operation, TableName } from '../../utils/enum';
-import MigrationGroup from '../migration_group/migration_group';
+import Migration from '../migration/migration';
 
-@Table(TableName.MIGRATION)
-class Migration {
+@Table(TableName.MIGRATION_GROUP)
+class MigrationGroup {
     // id
     @Column({
         type: ColumnType.INTEGER
@@ -12,23 +12,8 @@ class Migration {
     // name
     @Column({
         type: ColumnType.VARCHAR,
+        unique: true,
     }) name!: string;
-
-    // tableName
-    @Column({
-        type: ColumnType.VARCHAR
-    }) tableName!: string;
-
-    // columnName
-    @Column({
-        type: ColumnType.VARCHAR
-    }) columnName!: string;
-
-    // operation
-    @Column({
-        type: ColumnType.ENUM,
-        enumValues: Object.values(Operation),
-    }) operation!: Operation;
 
     // up
     @Column({
@@ -50,9 +35,9 @@ class Migration {
         onUpdate: true,
     }) updatedAt!: Date;
 
-    // migration -> migration_group
-    @ManyToOne(() => MigrationGroup, 'migrations')
-    migrationGroup?: MigrationGroup;
+    // migration_group -> migration
+    @OneToMany(() => Migration, 'migrationGroup')
+    migrations?: Migration[];
 }
 
-export default Migration;
+export default MigrationGroup;

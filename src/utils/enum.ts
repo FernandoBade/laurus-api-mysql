@@ -25,7 +25,6 @@ export enum ColumnType {
     BLOB = "BLOB"
 }
 
-
 export enum Currency {
     ARS = 'ARS',
     BRL = 'BRL',
@@ -57,6 +56,8 @@ export enum LogCategory {
     LOG = 'log',
     SERVER = 'server',
     USER = 'user',
+    MIGRATION = "migration",
+    MIGRATION_GROUP = "migration_group",
 }
 
 export enum LogType {
@@ -67,11 +68,13 @@ export enum LogType {
 }
 
 export enum Operation {
-    CREATE = 'creation',
-    DELETE = 'deletion',
+    CREATE = 'create',
+    DELETE = 'delete',
     SEARCH = 'search',
     UPDATE = 'update',
     STATUS = 'status',
+    APPLY = 'apply',
+    ROLLBACK = 'rollback',
 }
 
 export enum TableName {
@@ -80,5 +83,6 @@ export enum TableName {
     USER = 'user',
     LOG_OLD = "Log_old",
     USER_OLD = 'User_old',
-    MIGRATION = "MIGRATION",
+    MIGRATION = "migration",
+    MIGRATION_GROUP = "migration_group",
 }
