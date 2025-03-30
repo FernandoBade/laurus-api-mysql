@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { Table, Column } from "../../utils/database/dbDecorators";
+import { Table, Column } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, Currency, DateFormat, Language, TableName, Theme } from "../../utils/enum";
 import Log from '../log/log';
-import { OneToMany } from "../../utils/database/dbDecorators";
+import { OneToMany } from "../../utils/database/schemas/dbDecorators";
 
 @Table(TableName.USER)
 class User {
@@ -42,11 +42,11 @@ class User {
         defaultValue: null
     }) birthDate?: Date;
 
-    // phone
-    @Column({
-        type: ColumnType.VARCHAR,
-        defaultValue: null
-    }) phone?: string;
+    // // phone
+    // @Column({
+    //     type: ColumnType.VARCHAR,
+    //     defaultValue: null
+    // }) phone?: string;
 
     // theme
     @Column({
@@ -94,6 +94,12 @@ class User {
         defaultValue: ColumnType.CURRENT_TIMESTAMP,
         onUpdate: true
     }) updatedAt!: Date;
+
+    @Column({
+        type: ColumnType.BOOLEAN,
+        defaultValue: false,
+        onUpdate: true
+    }) TESTEMIGRATION!: boolean;
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];

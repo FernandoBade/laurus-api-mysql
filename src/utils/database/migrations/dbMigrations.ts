@@ -1,6 +1,6 @@
-import db from "../database";
-import { LogType, Operation, LogCategory } from "../enum";
-import { createLog } from "../commons";
+import db from "../connections/dbConnection";
+import { LogType, Operation, LogCategory } from "../../enum";
+import { createLog } from "../../commons";
 
 /**
  * @summary Saves a migration entry for a column addition or removal.

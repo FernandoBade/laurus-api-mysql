@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ColumnType } from "../enum";
+import { ColumnType } from "../../enum";
 
 /**
  * Table decorator to associate a class with a database table.

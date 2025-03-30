@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import { getModels } from "./dbModels";
-import { syncTable } from "./dbTables";
-import { syncRelationships } from "./dbRelations";
-import { createLog, formatError } from "../commons";
-import { LogType, Operation, LogCategory } from "../enum";
+import { getModels } from "../schemas/dbModels";
+import { syncTable } from "../schemas/dbTables";
+import { syncRelationships } from "../relationships/dbRelations";
+import { createLog, formatError } from "../../commons";
+import { LogType, Operation, LogCategory } from "../../enum";
 
 /**
  * @summary Synchronizes the database structure to match model definitions.

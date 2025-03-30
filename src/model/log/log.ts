@@ -1,4 +1,4 @@
-import { Table, Column, ManyToOne } from '../../utils/database/dbDecorators';
+import { Table, Column, ManyToOne } from '../../utils/database/schemas/dbDecorators';
 import User from '../user/user';
 import { ColumnType, LogType, Operation, LogCategory, TableName } from '../../utils/enum';
 

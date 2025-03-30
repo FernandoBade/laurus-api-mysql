@@ -1,7 +1,7 @@
-import { createLog } from "../commons";
-import db from "../database";
-import { ColumnType, LogType, Operation, LogCategory } from "../enum";
-import { dbRecorder } from "./dbRecorder";
+import { createLog } from "../../commons";
+import db from "../connections/dbConnection";
+import { ColumnType, LogType, Operation, LogCategory } from "../../enum";
+import { dbRecorder } from "../migrations/dbRecorder";
 
 /**
  * Synchronizes table structure based on the model definition.

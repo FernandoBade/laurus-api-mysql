@@ -1,6 +1,6 @@
-import db from "../database";
-import { createLog } from "../commons";
-import { Operation, LogCategory, LogType } from "../enum";
+import db from "../connections/dbConnection";
+import { createLog } from "../../commons";
+import { Operation, LogCategory, LogType } from "../../enum";
 
 /**
  * @summary Records all schema changes for a table and stores them under a grouped migration.

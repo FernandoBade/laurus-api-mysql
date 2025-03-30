@@ -1,6 +1,6 @@
-import db from "./dbConnection";
-import { createLog } from "../commons";
-import { LogType, Operation, LogCategory } from "../enum";
+import db from "../connections/dbConnection";
+import { createLog } from "../../commons";
+import { LogType, Operation, LogCategory } from "../../enum";
 
 /**
  * Synchronizes relationships between models.

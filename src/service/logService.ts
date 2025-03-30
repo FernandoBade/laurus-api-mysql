@@ -1,79 +1,90 @@
-import { TableName, LogType, Operation, LogCategory } from '../utils/enum';
-import { getById, saveEntry, searchEntry, createLog } from '../utils/commons';
-import { runQuery } from '../utils/database';
+import { DbService } from '../utils/database/services/dbService';
+import { TableName, LogType, Operation, LogCategory, ErrorMessages } from '../utils/enum';
+import { DbResponse } from '../utils/database/services/dbResponse';
+import { findById, findMany, insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
+import { createLog } from '../utils/commons';
 
-export class LogService {
-    private static readonly table = TableName.LOG_OLD;
+interface LogData {
+    type: LogType;
+    operation: Operation;
+    detail: string;
+    category: LogCategory;
+    user_id?: number | null;
+    timestamp?: Date;
+}
 
-    /**
-     * Creates a log entry.
-     * @param logType - Type of log (ERROR, ALERT, SUCCESS, DEBUG).
-     * @param logOperation - Type of operation performed.
-     * @param logCategory - Log category.
-     * @param logDetail - Details of the operation or error.
-     * @param userId - ID of the associated user (optional).
-     */
-    static async createLog(
-        logType: LogType,
-        logOperation: Operation,
-        logCategory: LogCategory,
-        logDetail: string,
-        userId?: number
-    ) {
-        let user = null;
-
-        if (userId && !isNaN(userId)) {
-            const foundUser = await getById(TableName.USER, userId);
-            if (!('error' in foundUser)) {
-                user = foundUser;
-            }
-        }
-
-        if (logType !== LogType.DEBUG) {
-            await saveEntry(this.table, {
-                type: logType,
-                operation: logOperation,
-                detail: JSON.stringify(logDetail),
-                category: logCategory,
-                userId: user ? user.id : null,
-                timestamp: new Date(),
-            });
-        }
+export class LogService extends DbService {
+    constructor() {
+        super(TableName.LOG);
     }
 
     /**
-     * Deletes old logs older than 120 days.
-     * @returns The total number of logs deleted.
+     * Creates a new log entry, with optional user validation.
      */
-    static async deleteLogs() {
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - 120);
-        const formattedCutoffDate = cutoffDate.toISOString().slice(0, 19).replace('T', ' ');
 
-        const result: any = await runQuery(
-            `DELETE FROM ${this.table} WHERE timestamp < ?`,
-            [formattedCutoffDate]
-        );
+    async createLog(
+        type: LogType,
+        operation: Operation,
+        category: LogCategory,
+        detail: string,
+        userId?: number
+    ): Promise<DbResponse<any>> {
+        const validUserId = await (async () => {
+            if (!userId || isNaN(userId)) return null;
+            const user = await findById<{ id: number }>(TableName.USER, userId);
+            return user.success ? user.data?.id ?? null : null;
+        })();
 
-        const total = result.affectedRows ?? 0;
+        const log: LogData = {
+            type,
+            operation,
+            category,
+            detail: detail,
+            user_id: validUserId,
+            timestamp: new Date(),
+        };
+
+        if (type !== LogType.DEBUG) {
+            return insert(TableName.LOG, log);
+        }
+
+        return { success: true };
+    }
+
+    /**
+     * Deletes logs older than 120 days.
+     * @returns Number of deleted logs or error message.
+     */
+    async deleteOldLogs(): Promise<DbResponse<{ deleted: number }>> {
+        const result = await removeOlderThan(TableName.LOG, 'timestamp', 120);
+
+        const total = result.data?.deleted ?? 0;
 
         await createLog(
             LogType.DEBUG,
             Operation.DELETE,
             LogCategory.LOG,
-            `Total logs deleted: ${total}`
+            `Deleted ${total} logs older than 120 days`,
+            undefined,
         );
 
-        return total;
+        if (!result.success) {
+            return { success: false, error: result.error };
+        }
+
+        return result;
     }
 
+
     /**
-     * Retrieves logs associated with a specific user.
-     * @param userId - ID of the user whose logs should be retrieved.
-     * @returns A list of logs associated with the user.
+     * Retrieves logs for a given user ID.
      */
-    static async getLogsByUser(userId: number) {
-        if (isNaN(userId)) throw new Error("Invalid user ID");
-        return await searchEntry(this.table, "userId", userId);
+    async getLogsByUser(userId: number): Promise<DbResponse<any[]>> {
+        if (isNaN(userId) || userId <= 0) {
+            return { success: false, error: ErrorMessages.INVALID_USER_ID };
+        }
+
+        return findMany(TableName.LOG, { userId });
     }
+
 }
