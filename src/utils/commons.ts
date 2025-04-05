@@ -1,8 +1,10 @@
 import { HTTPStatus, LogType, Operation, LogCategory, ErrorMessages } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response, Request } from 'express';
 import { LogService } from '../service/logService';
 import { ZodError, ZodIssue } from 'zod';
+import { ResourceBase } from './resources/languages/resourceService';
+import { Resource } from './resources/resource'; // tipo
 
 // #region Logger Configuration
 
@@ -78,15 +80,29 @@ export async function getLogsByUser(userId: number) {
 // #endregion
 
 // #region API Response Helpers
-
 /**
- * Sends a standardized API response to the client.
+ * Sends a standardized and localized API response to the client.
+ * @param req - HTTP request, used to determine the user's language.
+ * @param res - HTTP response object.
+ * @param status - HTTP status code.
+ * @param data - Optional response payload.
+ * @param resource - Optional resource key for the translated message.
  */
-export function answerAPI(res: Response, status: HTTPStatus, data?: any, message?: string) {
+// commons.ts
+
+export function answerAPI(
+    req: Request,
+    res: Response,
+    status: HTTPStatus,
+    data?: any,
+    resource?: Resource
+) {
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
+    const language = req.language ?? 'en-US';
+
     const response: any = {
         success,
-        ...(message && { message }),
+        ...(resource && { message: ResourceBase.translate(resource, language) }),
         ...(data !== undefined && data !== null ? { data } : {})
     };
 

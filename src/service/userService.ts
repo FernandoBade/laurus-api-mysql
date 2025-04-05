@@ -4,6 +4,7 @@ import { DbService } from '../utils/database/services/dbService';
 import { findByLike } from '../utils/database/helpers/dbHelpers';
 import { ErrorMessages } from '../utils/enum';
 import { DbResponse } from '../utils/database/services/dbResponse';
+import { Resource } from '../utils/resources/resource';
 
 export class UserService extends DbService {
     constructor() {
@@ -20,7 +21,7 @@ export class UserService extends DbService {
 
         const existingUsers = await this.findMany({ email: data.email });
         if (existingUsers.data?.length) {
-            return { success: false, error: ErrorMessages.EMAIL_IN_USE };
+            return { success: false, error: Resource.EMAIL_IN_USE as ErrorMessages};
         }
 
         data.password = await bcrypt.hash(data.password, 10);

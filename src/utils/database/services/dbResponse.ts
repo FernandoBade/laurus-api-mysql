@@ -1,4 +1,5 @@
 import { ErrorMessages } from '../../enum';
+import { Resource } from '../../resources/resource';
 
 /**
  * Generic and standardized database response type.
@@ -6,5 +7,5 @@ import { ErrorMessages } from '../../enum';
 export type DbResponse<T> = {
     success: boolean;
     data?: T;
-    error?: ErrorMessages;
+    error?: ErrorMessages | Resource;
 };
