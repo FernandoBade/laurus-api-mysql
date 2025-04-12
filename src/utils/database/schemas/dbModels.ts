@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import fs from "fs";
 import path from "path";
-import { createLog } from "../commons";
-import { LogType, Operation, LogCategory } from "../enum";
+import { createLog } from "../../commons"
+import { LogType, Operation, LogCategory } from "../../enum";
 
 /**
  * Retrieves all model files from the 'model' directory, excluding `baseModel.ts` and schema files.
@@ -10,7 +10,7 @@ import { LogType, Operation, LogCategory } from "../enum";
  * @param {string} dir - Directory path where models are located.
  * @returns {any[]} - Array of imported model classes.
  */
-export function getModels(dir = path.resolve(__dirname, "../../model")) {
+export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
     if (!fs.existsSync(dir)) {
         createLog
             (LogType.ERROR,

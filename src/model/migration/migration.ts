@@ -1,4 +1,4 @@
-import { Table, Column, ManyToOne } from '../../utils/database/dbDecorators';
+import { Table, Column, ManyToOne } from '../../utils/database/schemas/dbDecorators';
 import { ColumnType, Operation, TableName } from '../../utils/enum';
 import MigrationGroup from '../migration_group/migration_group';
 

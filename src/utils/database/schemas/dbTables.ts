@@ -170,7 +170,9 @@ async function checkAndUpdateColumn(tableName: string, column: any, existingColu
     const enumNeedsUpdate = column.type === ColumnType.ENUM && !enumsMatch(existingColumn, column);
     const defaultNeedsUpdate = !defaultsMatch(existingColumn, column);
 
-    if (enumNeedsUpdate || defaultNeedsUpdate) {
+    const onUpdateNeedsUpdate = column.onUpdate && !existingColumn.Extra.includes("on update CURRENT_TIMESTAMP");
+
+    if (enumNeedsUpdate || defaultNeedsUpdate || onUpdateNeedsUpdate) {
         await db.query(`ALTER TABLE ${tableName} MODIFY COLUMN ${column.name} ${colType}${defaultClause}`);
         return true;
     }

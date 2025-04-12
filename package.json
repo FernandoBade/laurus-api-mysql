@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "dev:sync": "ts-node src/utils/database/dbSync.ts && nodemon src/server.ts",
+    "dev:sync": "ts-node src/utils/database/sync/dbSync.ts && nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:migrate": "npx prisma migrate dev --name init",

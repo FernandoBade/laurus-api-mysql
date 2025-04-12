@@ -42,11 +42,11 @@ class User {
         defaultValue: null
     }) birthDate?: Date;
 
-    // // phone
-    // @Column({
-    //     type: ColumnType.VARCHAR,
-    //     defaultValue: null
-    // }) phone?: string;
+    // phone
+    @Column({
+        type: ColumnType.VARCHAR,
+        defaultValue: null
+    }) phone?: string;
 
     // theme
     @Column({
@@ -73,7 +73,7 @@ class User {
     @Column({
         type: ColumnType.ENUM,
         enumValues: Object.values(Currency),
-        defaultValue: Currency.BRL
+        defaultValue: Currency.BRL,
     }) currency!: Currency;
 
     // active
@@ -94,12 +94,6 @@ class User {
         defaultValue: ColumnType.CURRENT_TIMESTAMP,
         onUpdate: true
     }) updatedAt!: Date;
-
-    @Column({
-        type: ColumnType.BOOLEAN,
-        defaultValue: false,
-        onUpdate: true
-    }) TESTEMIGRATION!: boolean;
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];
