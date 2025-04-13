@@ -91,11 +91,11 @@ export class AuthController {
                 sameSite: 'strict',
             });
 
-            await createLog(LogType.DEBUG, Operation.LOGOUT, LogCategory.AUTH, `User logged out`);
+            await createLog(LogType.DEBUG, Operation.LOGOUT, LogCategory.AUTH, `User ${refreshToken.data.id} logged out`);
             return answerAPI(req, res, HTTPStatus.OK);
         } catch (error) {
             await createLog(LogType.ERROR, Operation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
-            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, error, Resource.INTERNAL_SERVER_ERROR);
         }
     }
 }

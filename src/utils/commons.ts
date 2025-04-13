@@ -53,7 +53,7 @@ export async function createLog(
     userId?: number,
     next?: NextFunction
 ) {
-    const logMessage = typeof detail === 'object' ? JSON.stringify(detail) : String(detail);
+    const logMessage = typeof detail === 'object' ? JSON.stringify(detail) : detail;
 
     logger.log(logType, `[${operation}][${category}]: ${logMessage}`.trim());
 
@@ -130,7 +130,7 @@ export function formatError(error: unknown): Record<string, any> {
         return error as Record<string, any>;
     }
 
-    return { message: String(error) };
+    return { message: error };
 }
 
 /**
