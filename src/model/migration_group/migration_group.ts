@@ -35,7 +35,7 @@ class MigrationGroup {
         onUpdate: true,
     }) updatedAt!: Date;
 
-    // migration_group -> migration
+    // migration_group -> migration | OneToMany
     @OneToMany(() => Migration, 'migrationGroup')
     migrations?: Migration[];
 }

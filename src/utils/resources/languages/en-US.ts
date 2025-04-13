@@ -9,6 +9,9 @@ const enUS: LanguageResource = {
     INTERNAL_SERVER_ERROR: "Internal server error",
     NO_RECORDS_FOUND: "No records found",
     INVALID_JSON: "Invalid JSON format",
+    INVALID_CREDENTIALS: 'Invalid credentials',
+    EXPIRED_OR_INVALID_TOKEN: 'Expired or invalid token',
+    TOKEN_NOT_FOUND: 'Token not found',
 };
 
 export default enUS;

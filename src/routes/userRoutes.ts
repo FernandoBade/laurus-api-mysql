@@ -1,14 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { LogType, Operation, LogCategory } from '../utils/enum';
 import { createLog, formatError } from '../utils/commons';
+import { verifyToken } from '../utils/auth/verifyToken';
 import UserController from '../controller/userController';
+
 const router = Router();
 
 
 /**
  * Searches for users by email.
  */
-router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/search', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUsersByEmail(req, res, next);
     } catch (error) {
@@ -44,7 +46,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 /**
  * Retrieves a user by ID.
  */
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUserById(req, res, next);
     } catch (error) {
@@ -62,7 +64,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 /**
  * Retrieves all users.
  */
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.getUsers(req, res, next);
     } catch (error) {
@@ -80,7 +82,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 /**
  * Updates a user by ID.
  */
-router.put('/:id?', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id?', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.updateUser(req, res, next);
     } catch (error) {
@@ -98,7 +100,7 @@ router.put('/:id?', async (req: Request, res: Response, next: NextFunction) => {
 /**
  * Deletes a user by ID.
  */
-router.delete('/:id?', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id?', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         await UserController.deleteUser(req, res, next);
     } catch (error) {

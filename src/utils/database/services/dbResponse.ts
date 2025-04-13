@@ -1,4 +1,3 @@
-import { ErrorMessages } from '../../enum';
 import { Resource } from '../../resources/resource';
 
 /**
@@ -7,5 +6,5 @@ import { Resource } from '../../resources/resource';
 export type DbResponse<T> = {
     success: boolean;
     data?: T;
-    error?: ErrorMessages | Resource;
+    error?: Resource;
 };

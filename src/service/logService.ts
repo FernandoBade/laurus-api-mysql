@@ -1,8 +1,9 @@
 import { DbService } from '../utils/database/services/dbService';
-import { TableName, LogType, Operation, LogCategory, ErrorMessages } from '../utils/enum';
+import { TableName, LogType, Operation, LogCategory } from '../utils/enum';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { findById, findMany, insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';
+import { Resource } from '../utils/resources/resource';
 
 interface LogData {
     type: LogType;
@@ -69,7 +70,7 @@ export class LogService extends DbService {
         );
 
         if (!result.success) {
-            return { success: false, error: result.error };
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
         return result;
@@ -81,7 +82,7 @@ export class LogService extends DbService {
      */
     async getLogsByUser(userId: number): Promise<DbResponse<any[]>> {
         if (isNaN(userId) || userId <= 0) {
-            return { success: false, error: ErrorMessages.INVALID_USER_ID };
+            return { success: false, error: Resource.INVALID_USER_ID };
         }
 
         return findMany(TableName.LOG, { userId });

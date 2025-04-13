@@ -36,24 +36,24 @@ export enum DateFormat {
     DD_MM_YYYY = 'DD/MM/YYYY',
     MM_DD_YYYY = 'MM/DD/YYYY',
 }
-
-export enum ErrorMessages {
-    EMAIL_IN_USE = "Email is already in use",
-    USER_NOT_FOUND = "User not found",
-    INVALID_USER_ID = "Invalid user ID",
-    VALIDATION_ERROR = "Validation error",
-    SEARCH_TERM_TOO_SHORT = "Search term must contain at least 3 characters",
-    INTERNAL_SERVER_ERROR = "Internal server error",
-    NO_RECORDS_FOUND = "No records found",
-    INVALID_JSON = "Invalid JSON format",
-}
-
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
+    NO_CONTENT = 204,
+    MOVED_PERMANENTLY = 301,
+    NOT_MODIFIED = 304,
     BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
     NOT_FOUND = 404,
+    CONFLICT = 409,
+    PRECONDITION_FAILED = 412,
+    UNPROCESSABLE_ENTITY = 422,
+    TOO_MANY_REQUESTS = 429,
     INTERNAL_SERVER_ERROR = 500,
+    NOT_IMPLEMENTED = 501,
+    SERVICE_UNAVAILABLE = 503,
+    GATEWAY_TIMEOUT = 504
 }
 
 export enum Language {
@@ -63,12 +63,13 @@ export enum Language {
 }
 
 export enum LogCategory {
+    AUTH = 'auth',
     DATABASE = 'database',
     LOG = 'log',
-    SERVER = 'server',
-    USER = 'user',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migration_group",
+    SERVER = 'server',
+    USER = 'user',
 }
 
 export enum LogType {
@@ -79,13 +80,15 @@ export enum LogType {
 }
 
 export enum Operation {
+    APPLY = 'apply',
     CREATE = 'create',
     DELETE = 'delete',
-    SEARCH = 'search',
+    LOGIN = 'login',
+    LOGOUT = 'logout',
     UPDATE = 'update',
-    STATUS = 'status',
-    APPLY = 'apply',
     ROLLBACK = 'rollback',
+    SEARCH = 'search',
+    STATUS = 'status',
 }
 
 export enum TableName {
@@ -96,4 +99,5 @@ export enum TableName {
     USER_OLD = 'User_old',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migration_group",
+    REFRESH_TOKEN = "refresh_token",
 }

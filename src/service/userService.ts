@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import { TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { findByLike } from '../utils/database/helpers/dbHelpers';
-import { ErrorMessages } from '../utils/enum';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 
@@ -21,14 +20,14 @@ export class UserService extends DbService {
 
         const existingUsers = await this.findMany({ email: data.email });
         if (existingUsers.data?.length) {
-            return { success: false, error: Resource.EMAIL_IN_USE as ErrorMessages};
+            return { success: false, error: Resource.EMAIL_IN_USE };
         }
 
         data.password = await bcrypt.hash(data.password, 10);
         const result = await this.create(data);
 
         if (!result.success || !result.data?.id) {
-            return { success: false, error: ErrorMessages.INTERNAL_SERVER_ERROR };
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
         return this.findOne(result.data.id);
@@ -83,7 +82,7 @@ export class UserService extends DbService {
         const existingUser = await this.findOne(id);
 
         if (!existingUser.success) {
-            return { success: false, error: ErrorMessages.USER_NOT_FOUND };
+            return { success: false, error: Resource.USER_NOT_FOUND };
         }
 
         return this.remove(id);

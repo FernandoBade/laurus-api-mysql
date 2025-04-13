@@ -50,7 +50,7 @@ class Migration {
         onUpdate: true,
     }) updatedAt!: Date;
 
-    // migration -> migration_group
+    // migration -> migration_group | ManyToOne
     @ManyToOne(() => MigrationGroup, 'migrations')
     migrationGroup?: MigrationGroup;
 }

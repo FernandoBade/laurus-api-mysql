@@ -25,7 +25,7 @@ class UserController {
             const newUser = await userService.createUser(parseResult.data);
 
             if (!newUser.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, newUser.error ? Resource.EMAIL_IN_USE: newUser.error);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 
             await createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.USER, newUser.data, newUser.data.id);
@@ -66,7 +66,7 @@ class UserController {
         try {
             const user = await userService.getUserById(userId);
             if (!user.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, user.error ? Resource.EMAIL_IN_USE: user.error);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, user.error);
             }
 
             return answerAPI(req, res, HTTPStatus.OK, user.data);
@@ -105,7 +105,7 @@ class UserController {
         const existingUser = await userService.findOne(userId);
 
         if (existingUser.error) {
-            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error ? Resource.EMAIL_IN_USE : existingUser.error);
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error);
         }
 
         try {
@@ -117,7 +117,7 @@ class UserController {
 
             const updatedUser = await userService.updateUser(userId, parseResult.data);
             if (!updatedUser.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updatedUser.error ? Resource.EMAIL_IN_USE: updatedUser.error);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updatedUser.error);
             }
 
             await createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data.id);
@@ -141,7 +141,7 @@ class UserController {
             const result = await userService.deleteUser(userId);
 
             if (!result.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error ? Resource.EMAIL_IN_USE: result.error);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
             await createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.USER, result.data, userId);

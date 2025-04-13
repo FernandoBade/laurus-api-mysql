@@ -1,12 +1,15 @@
-import { HTTPStatus, LogType, Operation, LogCategory, ErrorMessages } from './enum';
+import { HTTPStatus, LogType, Operation, LogCategory } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
-import { LogService } from '../service/logService';
 import { ZodError, ZodIssue } from 'zod';
 import { ResourceBase } from './resources/languages/resourceService';
-import { Resource } from './resources/resource'; // tipo
+import { Resource } from './resources/resource';
 
 // #region Logger Configuration
+async function getLogService() {
+    const { LogService } = await import('../service/logService');
+    return new LogService();
+}
 
 const customLogs = {
     levels: {
@@ -59,7 +62,7 @@ export async function createLog(
     }
 
     if (logType !== LogType.DEBUG) {
-        const logService = new LogService();
+        const logService = await getLogService();
         await logService.createLog(logType, operation, category, logMessage, userId);
     }
 }
@@ -69,11 +72,11 @@ export async function createLog(
  */
 export async function getLogsByUser(userId: number) {
     try {
-        const logService = new LogService();
+        const logService = await getLogService();
         return await logService.getLogsByUser(userId);
     } catch (error) {
         await createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.LOG, error, userId);
-        throw new Error(ErrorMessages.INTERNAL_SERVER_ERROR);
+        throw Resource.INTERNAL_SERVER_ERROR;
     }
 }
 

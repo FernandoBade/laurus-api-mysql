@@ -9,6 +9,9 @@ const ptBR: LanguageResource = {
     INTERNAL_SERVER_ERROR: "Erro interno do servidor",
     NO_RECORDS_FOUND: "Nenhum registro encontrado",
     INVALID_JSON: "Formato JSON inválido",
+    INVALID_CREDENTIALS: 'Credenciais inválidas',
+    EXPIRED_OR_INVALID_TOKEN: 'Token expirado ou inválido',
+    TOKEN_NOT_FOUND: 'Token não encontrado',
 };
 
 export default ptBR;

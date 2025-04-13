@@ -53,7 +53,7 @@ class Log {
         onUpdate: true
     }) updatedAt!: Date;
 
-    // log -> user | manyToOne
+    // log -> user | ManyToOne
     @ManyToOne(() => User, 'logs')
     user?: User;
 }

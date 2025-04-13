@@ -3,6 +3,7 @@ import { Table, Column } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, Currency, DateFormat, Language, TableName, Theme } from "../../utils/enum";
 import Log from '../log/log';
 import { OneToMany } from "../../utils/database/schemas/dbDecorators";
+import RefreshToken from "../refresh_token/refresth_token";
 
 @Table(TableName.USER)
 class User {
@@ -97,6 +98,11 @@ class User {
 
     // user -> log | oneToMany
     @OneToMany(() => Log, 'user') logs?: Log[];
+
+    //user -> refresh_token | oneToMany
+    @OneToMany(() => RefreshToken, 'user')
+    refreshTokens?: RefreshToken[];
+
 }
 
 export default User;

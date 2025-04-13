@@ -1,7 +1,8 @@
 import db from '../connections/dbConnection';
 import { DbResponse } from '../services/dbResponse';
-import { ErrorMessages, LogCategory, LogType, Operation, TableName } from '../../enum';
+import { LogCategory, LogType, Operation, TableName } from '../../enum';
 import { createLog } from '../../commons';
+import { Resource } from '../../resources/resource';
 
 /**
  * Inserts a new record into a given table.
@@ -26,7 +27,7 @@ export async function insert<T>(table: string, data: object): Promise<DbResponse
                 Operation.CREATE,
                 LogCategory.LOG,
                 {
-                    error: ErrorMessages.INTERNAL_SERVER_ERROR,
+                    error: Resource.INTERNAL_SERVER_ERROR,
                     message: `Error inserting into ${table}: ${(error as Error).message}`,
                     data,
                 },
@@ -34,7 +35,7 @@ export async function insert<T>(table: string, data: object): Promise<DbResponse
             );
         }
 
-        return { success: false, error: ErrorMessages.INTERNAL_SERVER_ERROR };
+        return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
     }
 }
 
@@ -49,7 +50,7 @@ export async function findById<T>(table: string, id: number): Promise<DbResponse
     const [rows]: any = await db.query(query, [id]);
 
     if (!rows.length) {
-        return { success: false, error: ErrorMessages.NO_RECORDS_FOUND };
+        return { success: false, error: Resource.NO_RECORDS_FOUND };
     }
 
     return { success: true, data: rows[0] };
@@ -113,7 +114,7 @@ export async function update(table: string, id: number, data: object): Promise<D
         await db.query(query, [...values, id]);
         return { success: true };
     } catch {
-        return { success: false, error: ErrorMessages.INTERNAL_SERVER_ERROR };
+        return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
     }
 }
 
@@ -130,12 +131,12 @@ export async function remove(table: string, id: number): Promise<DbResponse<null
         const [result]: any = await db.query(query, [id]);
 
         if (result.affectedRows === 0) {
-            return { success: false, error: ErrorMessages.NO_RECORDS_FOUND };
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
         }
 
         return { success: true };
     } catch {
-        return { success: false, error: ErrorMessages.INTERNAL_SERVER_ERROR };
+        return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
     }
 }
 
@@ -152,6 +153,6 @@ export async function removeOlderThan(table: string, column: string, days: numbe
         const [result]: any = await db.query(query, [days]);
         return { success: true, data: { deleted: result.affectedRows ?? 0 } };
     } catch {
-        return { success: false, error: ErrorMessages.INTERNAL_SERVER_ERROR };
+        return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
     }
 }

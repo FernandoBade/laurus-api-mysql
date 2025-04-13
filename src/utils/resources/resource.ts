@@ -10,6 +10,9 @@ export const Resource = {
     INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
     NO_RECORDS_FOUND: "NO_RECORDS_FOUND",
     INVALID_JSON: "INVALID_JSON",
-  } as const;
+    INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+    EXPIRED_OR_INVALID_TOKEN: 'EXPIRED_OR_INVALID_TOKEN',
+    TOKEN_NOT_FOUND: 'TOKEN_NOT_FOUND'
+} as const;
 
-  export type Resource = keyof typeof Resource;
+export type Resource = keyof typeof Resource;

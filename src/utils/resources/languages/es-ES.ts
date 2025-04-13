@@ -9,6 +9,9 @@ const esES: LanguageResource = {
     INTERNAL_SERVER_ERROR: "Error interno del servidor",
     NO_RECORDS_FOUND: "No se encontraron registros",
     INVALID_JSON: "Formato JSON inválido",
+    INVALID_CREDENTIALS: 'Credenciales inválidas',
+    EXPIRED_OR_INVALID_TOKEN: 'Token expirado o inválido',
+    TOKEN_NOT_FOUND: 'Token no encontrado',
 };
 
 export default esES;
