@@ -32,7 +32,7 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 1000* 60 * 60 * 24 * 365  // 1 year (60 seconds * 60 minutes * 24 hours * 365 days * 1000 milliseconds)
+                maxAge: 1000 * 60 * 60 * 24 * 365  // 1 year (60 seconds * 60 minutes * 24 hours * 365 days * 1000 milliseconds)
             });
 
             await createLog(LogType.DEBUG, Operation.LOGIN, LogCategory.AUTH, `User ${result.data.user.id} logged in`, result.data.user.id);
@@ -83,7 +83,11 @@ export class AuthController {
         const authService = new AuthService();
 
         try {
-            await authService.logout(refreshToken);
+            const result = await authService.logout(refreshToken);
+
+            if (!result.success || !result.data) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
+            }
 
             res.clearCookie('refreshToken', {
                 httpOnly: true,
@@ -91,11 +95,18 @@ export class AuthController {
                 sameSite: 'strict',
             });
 
-            await createLog(LogType.DEBUG, Operation.LOGOUT, LogCategory.AUTH, `User ${refreshToken.data.id} logged out`);
+            await createLog(
+                LogType.DEBUG,
+                Operation.LOGOUT,
+                LogCategory.AUTH,
+                `User ${result.data.userId} logged out`
+            );
+
             return answerAPI(req, res, HTTPStatus.OK);
+            
         } catch (error) {
             await createLog(LogType.ERROR, Operation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
-            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, error, Resource.INTERNAL_SERVER_ERROR);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, formatError(error), Resource.INTERNAL_SERVER_ERROR);
         }
     }
 }

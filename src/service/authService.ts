@@ -88,7 +88,7 @@ export class AuthService {
      * @param token - The refresh token to invalidate.
      * @returns Success status.
      */
-    async logout(token: string): Promise<DbResponse<null>> {
+    async logout(token: string): Promise<DbResponse<{ userId: number }>> {
         const tokens = await this.tokenDb.findMany({ token });
         const stored = tokens.data?.[0];
 
@@ -104,6 +104,7 @@ export class AuthService {
             `Refresh token ${stored.id} deleted.`,
             stored.user_id
         )
-        return { success: true, data: null};
+        return { success: true, data: { userId: stored.user_id } }
+
     }
 }

@@ -89,6 +89,7 @@ export enum Operation {
     ROLLBACK = 'rollback',
     SEARCH = 'search',
     STATUS = 'status',
+    AUTH = "auth",
 }
 
 export enum TableName {

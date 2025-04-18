@@ -53,13 +53,9 @@ export async function createLog(
     userId?: number,
     next?: NextFunction
 ) {
-    const logMessage = typeof detail === 'object' ? JSON.stringify(detail) : detail;
+    const logMessage = typeof detail === 'object' ? JSON.stringify(detail) : String(detail);
 
     logger.log(logType, `[${operation}][${category}]: ${logMessage}`.trim());
-
-    if (logType === LogType.ERROR) {
-        next?.(new Error(logMessage));
-    }
 
     if (logType !== LogType.DEBUG) {
         const logService = await getLogService();
@@ -91,8 +87,6 @@ export async function getLogsByUser(userId: number) {
  * @param data - Optional response payload.
  * @param resource - Optional resource key for the translated message.
  */
-// commons.ts
-
 export function answerAPI(
     req: Request,
     res: Response,
@@ -106,7 +100,7 @@ export function answerAPI(
     const response: any = {
         success,
         ...(resource && { message: ResourceBase.translate(resource, language) }),
-        ...(data !== undefined && data !== null ? { data } : {})
+        ...(data !== undefined && data !== null ? { error: JSON.parse(JSON.stringify(data)) } : {})
     };
 
     if (!res.headersSent) {
@@ -169,4 +163,29 @@ export function formatZodValidationErrors(error: ZodError) {
     });
 }
 
-// #endregion
+
+/**
+ * Sends a standardized error response to the client with localization support.
+ * @param req - HTTP request used to determine the user's language.
+ * @param res - HTTP response used to send the error.
+ * @param status - HTTP status code to return.
+ * @param resource - Resource key for the translated error message.
+ * @param error - Optional error object to include in the response.
+ */
+export function sendErrorResponse(
+    req: Request,
+    res: Response,
+    status: HTTPStatus,
+    resource: Resource,
+    error?: any
+) {
+    const language = req.language ?? 'pt-BR';
+
+    return res.status(status).json({
+        success: false,
+        message: ResourceBase.translate(resource, language),
+        ...(error ? { error: formatError(error) } : {})
+    });
+}
+
+// #endregion API Response Helpers
