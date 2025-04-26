@@ -94,18 +94,18 @@ export function answerAPI(
     data?: any,
     resource?: Resource
 ) {
+    if (res.headersSent) return;
+
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
     const language = req.language ?? 'en-US';
 
-    const response: any = {
+    const response = {
         success,
         ...(resource && { message: ResourceBase.translate(resource, language) }),
-        ...(data !== undefined && data !== null ? { error: JSON.parse(JSON.stringify(data)) } : {})
+        ...(data && (success ? { data } : { error: JSON.parse(JSON.stringify(data)) }))
     };
 
-    if (!res.headersSent) {
-        return res.status(status).json(response);
-    }
+    return res.status(status).json(response);
 }
 
 /**

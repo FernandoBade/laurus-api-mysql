@@ -6,6 +6,7 @@ import UserController from '../controller/userController';
 
 const router = Router();
 
+router.use(verifyToken);
 
 /**
  * Searches for users by email.
