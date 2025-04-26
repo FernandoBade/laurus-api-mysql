@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Table, Column } from "../../utils/database/schemas/dbDecorators";
-import { ColumnType, Currency, DateFormat, Language, TableName, Theme } from "../../utils/enum";
+import { ColumnType, Currency, DateFormat, Language, TableName, Theme, Profile } from "../../utils/enum";
 import Log from '../log/log';
 import { OneToMany } from "../../utils/database/schemas/dbDecorators";
 import RefreshToken from "../refresh_token/refresth_token";
@@ -76,6 +76,13 @@ class User {
         enumValues: Object.values(Currency),
         defaultValue: Currency.BRL,
     }) currency!: Currency;
+
+    // profile
+    @Column({
+        type: ColumnType.ENUM,
+        enumValues: Object.values(Profile),
+        defaultValue: Profile.STARTER,
+    }) profile!: Profile;
 
     // active
     @Column({

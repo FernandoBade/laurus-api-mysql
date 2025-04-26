@@ -13,7 +13,7 @@ export async function syncTable(Model: any) {
     const columns: any[] = Reflect.getMetadata("columns", Model) || [];
 
     ensureIdColumn(columns);
-    createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `Checking table: ${tableName}`);
+    createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `Checking table: '${tableName}'`);
 
     const [existingTable]: any[] = await db.query(`SHOW TABLES LIKE ?`, [tableName]);
 

@@ -46,7 +46,9 @@ export async function saveMigration(
             LogType.SUCCESS,
             operation,
             LogCategory.MIGRATION,
-            `Migration ${migrationName} saved to database.`
+            {
+                migrationName: migrationName,
+            }
         );
     } catch (error) {
         createLog(
@@ -114,18 +116,27 @@ export async function executeMigrationGroup(
                 LogType.ERROR,
                 Operation.SEARCH,
                 LogCategory.MIGRATION,
-                `Migration group ${migrationGroupId} not found.`
+                {
+                    action: "search",
+                    group: migrationGroupId,
+                    error: "Migration group not found"
+                }
             );
             return;
         }
 
         const { queries } = JSON.parse(rows[0][field]);
 
-        createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.MIGRATION, {
-            action: operation === Operation.APPLY ? "apply" : "rollback",
-            group: migrationGroupId,
-            steps: queries.length,
-        });
+        createLog(
+            LogType.DEBUG,
+            Operation.SEARCH,
+            LogCategory.MIGRATION,
+            {
+                action: operation === Operation.APPLY ? "apply" : "rollback",
+                group: migrationGroupId,
+                steps: queries.length,
+            }
+        );
 
         await db.query("START TRANSACTION");
 
@@ -138,17 +149,22 @@ export async function executeMigrationGroup(
         createLog(
             LogType.SUCCESS,
             operation === Operation.APPLY ? Operation.CREATE : Operation.DELETE,
-            LogCategory.MIGRATION,
-            `Migration group ${migrationGroupId} ${operation === Operation.APPLY ? "applied" : "rolled back"} successfully.`
+            LogCategory.MIGRATION_GROUP,
+            {
+                action: operation === Operation.APPLY ? "apply" : "rollback",
+                group: migrationGroupId,
+            }
         );
     } catch (error) {
         await db.query("ROLLBACK");
         createLog(
             LogType.ERROR,
             operation === Operation.APPLY ? Operation.CREATE : Operation.DELETE,
-            LogCategory.MIGRATION,
+            LogCategory.MIGRATION_GROUP,
             {
-                message: `Migration group ${migrationGroupId} ${operation === Operation.APPLY ? "apply" : "rollback"} failed: ${(error as Error).message}`,
+                action: operation === Operation.APPLY ? "apply" : "rollback",
+                group: migrationGroupId,
+                error: (error as Error).message
             }
         );
     }

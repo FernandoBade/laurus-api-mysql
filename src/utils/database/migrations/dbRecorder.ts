@@ -12,9 +12,13 @@ export async function dbRecorder(
     tableName: string,
     changes: { added: string[]; updated: string[]; removed: string[] }
 ) {
-    if (changes.added.length === 0 && changes.updated.length === 0 && changes.removed.length === 0) {
-        createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `No changes needed for table '${tableName}'.`);
-        return;
+    const ignoredColumns = ['updatedAt'];
+    const filteredChanges = Object.fromEntries(
+        Object.entries(changes).map(([key, cols]) => [key, cols.filter(col => !ignoredColumns.includes(col))])
+    );
+
+    if (Object.values(filteredChanges).every(cols => cols.length === 0)) {
+        return createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `No real schema changes for table '${tableName}'.`);
     }
 
     createLog(
@@ -66,7 +70,9 @@ export async function dbRecorder(
             LogType.SUCCESS,
             Operation.CREATE,
             LogCategory.MIGRATION,
-            `Migration ${migrationName} saved to database.`
+            {
+                migrationName: migrationName,
+            }
         );
     }
 
@@ -88,7 +94,9 @@ export async function dbRecorder(
             LogType.SUCCESS,
             Operation.DELETE,
             LogCategory.MIGRATION,
-            `Migration ${migrationName} saved to database.`
+            {
+                migrationName: migrationName,
+            }
         );
     }
 
@@ -100,10 +108,15 @@ export async function dbRecorder(
         [up, down, migrationGroupId]
     );
 
+    const totalAlterations = filteredChanges.added.length + filteredChanges.removed.length;
+
     createLog(
         LogType.SUCCESS,
         Operation.CREATE,
-        LogCategory.MIGRATION,
-        `Migration group '${groupName}' saved with ${upQueries.length} operations.`
+        LogCategory.MIGRATION_GROUP,
+        {
+            migrationGroupName: groupName,
+            totalAlterations
+        }
     );
 }

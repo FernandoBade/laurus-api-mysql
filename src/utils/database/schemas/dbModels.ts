@@ -36,7 +36,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
                 LogType.DEBUG,
                 Operation.SEARCH,
                 LogCategory.DATABASE,
-                `Loading model: ${file}`
+                `Loading model: '${file}'`
             );
             models.push(require(fullPath).default);
         }

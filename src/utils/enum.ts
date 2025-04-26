@@ -92,6 +92,12 @@ export enum Operation {
     AUTH = "auth",
 }
 
+export enum Profile {
+    STARTER = 'starter',
+    PRO = 'pro',
+    MASTER = 'master'
+}
+
 export enum TableName {
     ACCOUNT = 'Account',
     LOG = 'log',
