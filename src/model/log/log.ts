@@ -1,6 +1,6 @@
 import { Table, Column, ManyToOne } from '../../utils/database/schemas/dbDecorators';
 import User from '../user/user';
-import { ColumnType, LogType, Operation, LogCategory, TableName } from '../../utils/enum';
+import { ColumnType, LogType, LogOperation, LogCategory, TableName } from '../../utils/enum';
 
 @Table(TableName.LOG)
 class Log {
@@ -18,9 +18,9 @@ class Log {
     // operation
     @Column({
         type: ColumnType.ENUM,
-        enumValues: Object.values(Operation),
-        defaultValue: Operation.CREATE
-    }) operation!: Operation;
+        enumValues: Object.values(LogOperation),
+        defaultValue: LogOperation.CREATE
+    }) operation!: LogOperation;
 
     // category
     @Column({

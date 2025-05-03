@@ -1,5 +1,5 @@
 import { Table, Column, ManyToOne } from '../../utils/database/schemas/dbDecorators';
-import { ColumnType, Operation, TableName } from '../../utils/enum';
+import { ColumnType, LogOperation, TableName } from '../../utils/enum';
 import MigrationGroup from '../migration_group/migration_group';
 
 @Table(TableName.MIGRATION)
@@ -27,8 +27,8 @@ class Migration {
     // operation
     @Column({
         type: ColumnType.ENUM,
-        enumValues: Object.values(Operation),
-    }) operation!: Operation;
+        enumValues: Object.values(LogOperation),
+    }) operation!: LogOperation;
 
     // up
     @Column({

@@ -1,5 +1,5 @@
 import db from "../connections/dbConnection";
-import { LogType, Operation, LogCategory } from "../../enum";
+import { LogType, LogOperation, LogCategory } from "../../enum";
 import { createLog } from "../../commons";
 
 /**
@@ -14,13 +14,13 @@ import { createLog } from "../../commons";
 export async function saveMigration(
     tableName: string,
     columnName: string,
-    operation: Operation.CREATE | Operation.DELETE,
+    operation: LogOperation.CREATE | LogOperation.DELETE,
     up: string,
     down: string,
     migrationGroupId?: number
 ) {
     const timestamp = new Date().toISOString().replace('T', '-').slice(0, 19);
-    const migrationName = operation === Operation.CREATE
+    const migrationName = operation === LogOperation.CREATE
         ? `${tableName}--creation-${columnName}-${timestamp}`
         : `${tableName}--deletion--${columnName}--${timestamp}`;
 
@@ -92,19 +92,19 @@ export async function createMigrationGroup(upQueries: string[], downQueries: str
  */
 export async function executeMigrationGroup(
     migrationGroupId: number,
-    operation: Operation
+    operation: LogOperation
 ) {
     try {
-        if (operation !== Operation.APPLY && operation !== Operation.ROLLBACK) {
+        if (operation !== LogOperation.APPLY && operation !== LogOperation.ROLLBACK) {
             createLog(
                 LogType.ERROR,
-                Operation.SEARCH,
+                LogOperation.SEARCH,
                 LogCategory.MIGRATION,
                 `Invalid migration operation: ${operation}`);
             return;
         }
 
-        const field = operation === Operation.APPLY ? "up" : "down";
+        const field = operation === LogOperation.APPLY ? "up" : "down";
 
         const [rows]: any = await db.query(
             `SELECT ${field} FROM migration_group WHERE id = ?`,
@@ -114,7 +114,7 @@ export async function executeMigrationGroup(
         if (!rows.length) {
             createLog(
                 LogType.ERROR,
-                Operation.SEARCH,
+                LogOperation.SEARCH,
                 LogCategory.MIGRATION,
                 {
                     action: "search",
@@ -129,10 +129,10 @@ export async function executeMigrationGroup(
 
         createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.MIGRATION,
             {
-                action: operation === Operation.APPLY ? "apply" : "rollback",
+                action: operation === LogOperation.APPLY ? "apply" : "rollback",
                 group: migrationGroupId,
                 steps: queries.length,
             }
@@ -148,10 +148,10 @@ export async function executeMigrationGroup(
 
         createLog(
             LogType.SUCCESS,
-            operation === Operation.APPLY ? Operation.CREATE : Operation.DELETE,
+            operation === LogOperation.APPLY ? LogOperation.CREATE : LogOperation.DELETE,
             LogCategory.MIGRATION_GROUP,
             {
-                action: operation === Operation.APPLY ? "apply" : "rollback",
+                action: operation === LogOperation.APPLY ? "apply" : "rollback",
                 group: migrationGroupId,
             }
         );
@@ -159,10 +159,10 @@ export async function executeMigrationGroup(
         await db.query("ROLLBACK");
         createLog(
             LogType.ERROR,
-            operation === Operation.APPLY ? Operation.CREATE : Operation.DELETE,
+            operation === LogOperation.APPLY ? LogOperation.CREATE : LogOperation.DELETE,
             LogCategory.MIGRATION_GROUP,
             {
-                action: operation === Operation.APPLY ? "apply" : "rollback",
+                action: operation === LogOperation.APPLY ? "apply" : "rollback",
                 group: migrationGroupId,
                 error: (error as Error).message
             }

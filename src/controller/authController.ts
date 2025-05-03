@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../service/authService';
 import { answerAPI, formatError, createLog } from '../utils/commons';
-import { LogType, LogCategory, Operation, HTTPStatus } from '../utils/enum';
+import { LogType, LogCategory, LogOperation, HTTPStatus } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 
 /**
@@ -32,14 +32,14 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 1000 * 60 * 60 * 24 * 365  // 1 year (60 seconds * 60 minutes * 24 hours * 365 days * 1000 milliseconds)
+                maxAge: 1000 * 60 * 60 * 24 * 365  // 1 year (1000 milliseconds * 60 seconds * 60 minutes * 24 hours * 365 days)
             });
 
-            await createLog(LogType.DEBUG, Operation.LOGIN, LogCategory.AUTH, `User ${result.data.user.id} logged in`, result.data.user.id);
+            await createLog(LogType.DEBUG, LogOperation.LOGIN, LogCategory.AUTH, `User ${result.data.user.id} logged in`, result.data.user.id);
 
             return answerAPI(req, res, HTTPStatus.OK, { token: result.data.token });
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.LOGIN, LogCategory.AUTH, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.LOGIN, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,7 +65,7 @@ export class AuthController {
 
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -97,15 +97,15 @@ export class AuthController {
 
             await createLog(
                 LogType.DEBUG,
-                Operation.LOGOUT,
+                LogOperation.LOGOUT,
                 LogCategory.AUTH,
                 `User ${result.data.userId} logged out`
             );
 
             return answerAPI(req, res, HTTPStatus.OK);
-            
+
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, formatError(error), Resource.INTERNAL_SERVER_ERROR);
         }
     }

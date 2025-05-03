@@ -1,4 +1,5 @@
-import { insert, findById, findMany, update, remove } from '../helpers/dbHelpers';
+import { Operator } from '../../enum';
+import { insert, findById, findMany, update, remove, findWithColumnFilters } from '../helpers/dbHelpers';
 import { DbResponse } from './dbResponse';
 
 /**
@@ -28,6 +29,33 @@ export abstract class DbService {
     async findMany<T = any>(filter?: object): Promise<DbResponse<T[]>> {
         return findMany<T>(this.table, filter);
     }
+
+  /**
+   * Finds entries using advanced column filters with type-safe operators.
+   * Supports '=', 'IN', 'LIKE', 'BETWEEN', ORDER BY, LIMIT and OFFSET.
+   *
+   * @param filters - Optional filters by column with operators.
+   * @param options - Optional ordering and pagination options.
+   * @returns Matching records or an empty list.
+   */
+  async findWithFilters<T = any>(
+    filters?: {
+      [K in keyof T]?:
+      | { operator: Operator.EQUAL; value: T[K] }
+      | { operator: Operator.IN; value: T[K][] }
+      | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
+      | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+    },
+    options?: {
+      orderBy?: keyof T;
+      direction?: Operator;
+      limit?: number;
+      offset?: number;
+    }
+  ): Promise<DbResponse<T[]>> {
+    return findWithColumnFilters<T>(this.table, filters, options);
+  }
+
 
     /**
      * Creates a new entry in the database.

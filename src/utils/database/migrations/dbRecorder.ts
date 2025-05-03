@@ -1,6 +1,6 @@
 import db from "../connections/dbConnection";
 import { createLog } from "../../commons";
-import { Operation, LogCategory, LogType } from "../../enum";
+import { LogOperation, LogCategory, LogType } from "../../enum";
 
 /**
  * @summary Records all schema changes for a table and stores them under a grouped migration.
@@ -18,16 +18,16 @@ export async function dbRecorder(
     );
 
     if (Object.values(filteredChanges).every(cols => cols.length === 0)) {
-        return createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `No real schema changes for table '${tableName}'.`);
+        return createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `No real schema changes for table '${tableName}'.`);
     }
 
     createLog(
         LogType.SUCCESS,
-        Operation.UPDATE,
+        LogOperation.UPDATE,
         LogCategory.DATABASE,
         {
             table: tableName,
-            action: Operation.UPDATE,
+            action: LogOperation.UPDATE,
             changes,
         }
     );
@@ -44,7 +44,7 @@ export async function dbRecorder(
     const migrationGroupId = result.insertId;
 
     for (const columnName of changes.added) {
-        const migrationName = `${tableName}--${Operation.CREATE}-${columnName}-${timestamp}`;
+        const migrationName = `${tableName}--${LogOperation.CREATE}-${columnName}-${timestamp}`;
         const columnDefinition = "TEXT DEFAULT NULL";
 
         const upQuery = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}` });
@@ -59,7 +59,7 @@ export async function dbRecorder(
                 migrationName,
                 tableName,
                 columnName,
-                Operation.CREATE,
+                LogOperation.CREATE,
                 upQuery,
                 downQuery,
                 migrationGroupId
@@ -68,7 +68,7 @@ export async function dbRecorder(
 
         createLog(
             LogType.SUCCESS,
-            Operation.CREATE,
+            LogOperation.CREATE,
             LogCategory.MIGRATION,
             {
                 migrationName: migrationName,
@@ -77,7 +77,7 @@ export async function dbRecorder(
     }
 
     for (const columnName of changes.removed) {
-        const migrationName = `${tableName}--${Operation.DELETE}--${columnName}--${timestamp}`;
+        const migrationName = `${tableName}--${LogOperation.DELETE}--${columnName}--${timestamp}`;
 
         const upQuery = JSON.stringify({ query: `ALTER TABLE ${tableName} DROP COLUMN ${columnName}` });
         const downQuery = JSON.stringify({ query: `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(255) DEFAULT NULL` });
@@ -87,12 +87,12 @@ export async function dbRecorder(
         await db.query(
             `INSERT INTO migration (name, tableName, columnName, operation, up, down, migrationGroup_id)
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [migrationName, tableName, columnName, Operation.DELETE, upQuery, downQuery, migrationGroupId]
+            [migrationName, tableName, columnName, LogOperation.DELETE, upQuery, downQuery, migrationGroupId]
         );
 
         createLog(
             LogType.SUCCESS,
-            Operation.DELETE,
+            LogOperation.DELETE,
             LogCategory.MIGRATION,
             {
                 migrationName: migrationName,
@@ -112,7 +112,7 @@ export async function dbRecorder(
 
     createLog(
         LogType.SUCCESS,
-        Operation.CREATE,
+        LogOperation.CREATE,
         LogCategory.MIGRATION_GROUP,
         {
             migrationGroupName: groupName,

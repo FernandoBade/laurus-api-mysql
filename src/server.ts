@@ -6,7 +6,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from "./routes/userRoutes";
 import cookieParser from 'cookie-parser';
 import { createLog, formatError, sendErrorResponse } from "./utils/commons";
-import { LogCategory, Operation, LogType } from "./utils/enum";
+import { LogCategory, LogOperation, LogType } from "./utils/enum";
 import { LanguageCode } from "./utils/resources/resourceTypes";
 import { Resource } from "./utils/resources/resource";
 
@@ -53,7 +53,7 @@ function startServer() {
     app.listen(port, () => {
         createLog(
             LogType.DEBUG,
-            Operation.STATUS,
+            LogOperation.STATUS,
             LogCategory.SERVER,
             `🚀 Server running on port ${port}`
         );

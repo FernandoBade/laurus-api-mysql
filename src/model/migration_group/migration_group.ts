@@ -1,5 +1,5 @@
 import { Table, Column, OneToMany } from '../../utils/database/schemas/dbDecorators';
-import { ColumnType, Operation, TableName } from '../../utils/enum';
+import { ColumnType, LogOperation, TableName } from '../../utils/enum';
 import Migration from '../migration/migration';
 
 @Table(TableName.MIGRATION_GROUP)

@@ -1,6 +1,6 @@
 import { createLog } from "../../commons";
 import db from "../connections/dbConnection";
-import { ColumnType, LogType, Operation, LogCategory } from "../../enum";
+import { ColumnType, LogType, LogOperation, LogCategory } from "../../enum";
 import { dbRecorder } from "../migrations/dbRecorder";
 
 /**
@@ -13,7 +13,7 @@ export async function syncTable(Model: any) {
     const columns: any[] = Reflect.getMetadata("columns", Model) || [];
 
     ensureIdColumn(columns);
-    createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.DATABASE, `Checking table: '${tableName}'`);
+    createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.DATABASE, `Checking table: '${tableName}'`);
 
     const [existingTable]: any[] = await db.query(`SHOW TABLES LIKE ?`, [tableName]);
 
@@ -44,7 +44,7 @@ function ensureIdColumn(columns: any[]) {
 async function createNewTable(tableName: string, columns: any[]) {
     const columnDefinitions = columns.map(generateColumnDefinition).join(", ");
     await db.query(`CREATE TABLE ${tableName} (${columnDefinitions})`);
-    createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.DATABASE, { table: tableName });
+    createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.DATABASE, { table: tableName });
 }
 
 /**
@@ -120,7 +120,7 @@ async function removeColumn(tableName: string, columnName: string) {
     } catch (error) {
         createLog(
             LogType.ERROR,
-            Operation.DELETE,
+            LogOperation.DELETE,
             LogCategory.DATABASE,
             {
                 message: `Error removing column ${columnName} from ${tableName}: ${(error as Error).message}`

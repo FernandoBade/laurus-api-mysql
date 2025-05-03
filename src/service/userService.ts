@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import { TableName } from '../utils/enum';
+import { Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
-import { findByLike } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 
@@ -18,7 +18,11 @@ export class UserService extends DbService {
     async createUser(data: { firstName: string; lastName: string; email: string; password: string }): Promise<DbResponse<any>> {
         data.email = data.email.trim().toLowerCase();
 
-        const existingUsers = await this.findMany({ email: data.email });
+        const existingUsers = await this.findWithFilters<any>(
+            {
+                email: { operator: Operator.EQUAL, value: data.email }
+            });
+
         if (existingUsers.data?.length) {
             return { success: false, error: Resource.EMAIL_IN_USE };
         }
@@ -40,6 +44,7 @@ export class UserService extends DbService {
     async getUsers(): Promise<DbResponse<any[]>> {
         return this.findMany<any>();
     }
+
     /**
      * Retrieves a user by ID.
      * @param id - User ID.
@@ -55,7 +60,9 @@ export class UserService extends DbService {
      * @returns A list of users whose emails match the search term.
      */
     async getUsersByEmail(emailTerm: string): Promise<DbResponse<any[]>> {
-        return findByLike(this.table, 'email', emailTerm);
+        return findWithColumnFilters<any>(TableName.USER, {
+            email: { operator: Operator.LIKE, value: emailTerm }
+        });
     }
 
     /**

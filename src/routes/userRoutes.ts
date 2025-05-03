@@ -1,12 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { LogType, Operation, LogCategory } from '../utils/enum';
+import { LogType, LogOperation, LogCategory } from '../utils/enum';
 import { createLog, formatError } from '../utils/commons';
 import { verifyToken } from '../utils/auth/verifyToken';
 import UserController from '../controller/userController';
 
 const router = Router();
-
-router.use(verifyToken);
 
 /**
  * Searches for users by email.
@@ -17,7 +15,7 @@ router.get('/search', verifyToken, async (req: Request, res: Response, next: Nex
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             formatError(error),
             undefined,
@@ -35,7 +33,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.CREATE,
+            LogOperation.CREATE,
             LogCategory.USER,
             formatError(error),
             req.body?.userId,
@@ -53,7 +51,7 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             formatError(error),
             Number(req.params.id) || undefined,
@@ -71,7 +69,7 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.SEARCH,
+            LogOperation.SEARCH,
             LogCategory.USER,
             formatError(error),
             undefined,
@@ -89,7 +87,7 @@ router.put('/:id?', verifyToken, async (req: Request, res: Response, next: NextF
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.UPDATE,
+            LogOperation.UPDATE,
             LogCategory.USER,
             formatError(error),
             Number(req.params.id) || undefined,
@@ -107,7 +105,7 @@ router.delete('/:id?', verifyToken, async (req: Request, res: Response, next: Ne
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            Operation.DELETE,
+            LogOperation.DELETE,
             LogCategory.USER,
             JSON.stringify(error),
             Number(req.params.id) || undefined,

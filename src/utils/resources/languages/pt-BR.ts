@@ -8,6 +8,7 @@ const ptBR: LanguageResource = {
     SEARCH_TERM_TOO_SHORT: "O termo de pesquisa deve conter pelo menos 3 caracteres",
     INTERNAL_SERVER_ERROR: "Erro interno do servidor",
     NO_RECORDS_FOUND: "Nenhum registro encontrado",
+    INVALID_CRITERIA: "Critérios inválidos",
     INVALID_JSON: "Formato JSON inválido",
     INVALID_CREDENTIALS: 'Credenciais inválidas',
     EXPIRED_OR_INVALID_TOKEN: 'Token expirado ou inválido',

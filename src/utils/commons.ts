@@ -1,4 +1,4 @@
-import { HTTPStatus, LogType, Operation, LogCategory } from './enum';
+import { HTTPStatus, LogType, LogOperation, LogCategory } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
 import { ZodError, ZodIssue } from 'zod';
@@ -47,7 +47,7 @@ const logger = createLogger({
  */
 export async function createLog(
     logType: LogType,
-    operation: Operation,
+    operation: LogOperation,
     category: LogCategory,
     detail: any,
     userId?: number,
@@ -71,7 +71,7 @@ export async function getLogsByUser(userId: number) {
         const logService = await getLogService();
         return await logService.getLogsByUser(userId);
     } catch (error) {
-        await createLog(LogType.DEBUG, Operation.SEARCH, LogCategory.LOG, error, userId);
+        await createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.LOG, error, userId);
         throw Resource.INTERNAL_SERVER_ERROR;
     }
 }

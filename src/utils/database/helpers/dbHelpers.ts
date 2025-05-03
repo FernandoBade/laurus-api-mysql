@@ -1,6 +1,6 @@
 import db from '../connections/dbConnection';
 import { DbResponse } from '../services/dbResponse';
-import { LogCategory, LogType, Operation, TableName } from '../../enum';
+import { LogCategory, LogType, LogOperation, TableName, Operator } from '../../enum';
 import { createLog } from '../../commons';
 import { Resource } from '../../resources/resource';
 
@@ -24,7 +24,7 @@ export async function insert<T>(table: string, data: object): Promise<DbResponse
         if (table !== TableName.LOG) {
             await createLog(
                 LogType.ERROR,
-                Operation.CREATE,
+                LogOperation.CREATE,
                 LogCategory.LOG,
                 {
                     error: Resource.INTERNAL_SERVER_ERROR,
@@ -95,6 +95,81 @@ export async function findMany<T>(table: string, filter?: object): Promise<DbRes
 
     return { success: true, data: rows };
 }
+
+
+/**
+ * Executes a flexible query using column filters with type-safe operators.
+ * Supports '=', 'IN', 'LIKE', 'BETWEEN', as well as ORDER BY, LIMIT and OFFSET.
+ *
+ * @param table - The database table to query.
+ * @param filters - Optional column filters with operator and value.
+ * @param options - Optional ordering and pagination options.
+ * @returns An array of matched records or an empty array.
+ */
+export async function findWithColumnFilters<T>(
+    table: TableName | string,
+    filters?: {
+        [K in keyof T]?:
+        | { operator: Operator.EQUAL; value: T[K] }
+        | { operator: Operator.IN; value: T[K][] }
+        | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
+        | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+    },
+    options?: {
+        orderBy?: keyof T;
+        direction?: Operator;
+        limit?: number;
+        offset?: number;
+    }
+): Promise<DbResponse<T[]>> {
+    let query = `SELECT * FROM ${table}`;
+    const values: any[] = [];
+
+    if (filters && Object.keys(filters).length) {
+        const conditions = Object.entries(filters).map(([column, f]) => {
+            const { operator, value } = f as any;
+
+            switch (operator) {
+                case Operator.EQUAL:
+                    values.push(value);
+                    return `${column} = ?`;
+
+                case Operator.IN:
+                    if (!value.length) return '1 = 0';
+                    values.push(...value);
+                    return `${column} IN (${value.map(() => '?').join(', ')})`;
+
+                case Operator.LIKE:
+                    values.push(`%${value}%`);
+                    return `${column} LIKE ?`;
+
+                case Operator.BETWEEN:
+                    values.push(...value);
+                    return `${column} BETWEEN ? AND ?`;
+            }
+        });
+
+        query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    if (options?.orderBy) {
+        query += ` ORDER BY ${String(options.orderBy)} ${String(options.direction ?? Operator.ASC)}`;
+    }
+
+    if (options?.limit != null) {
+        query += ` LIMIT ?`;
+        values.push(options.limit);
+    }
+
+    if (options?.offset != null) {
+        query += ` OFFSET ?`;
+        values.push(options.offset);
+    }
+
+    const [rows]: any = await db.query(query, values);
+    return { success: true, data: rows };
+}
+
 
 /**
  * Updates a record in a given table by its ID.

@@ -2,7 +2,7 @@ import "reflect-metadata";
 import fs from "fs";
 import path from "path";
 import { createLog } from "../../commons"
-import { LogType, Operation, LogCategory } from "../../enum";
+import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
  * Retrieves all model files from the 'model' directory, excluding `baseModel.ts` and schema files.
@@ -14,7 +14,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
     if (!fs.existsSync(dir)) {
         createLog
             (LogType.ERROR,
-                Operation.SEARCH,
+                LogOperation.SEARCH,
                 LogCategory.DATABASE,
                 {
                     message: `Directory '${dir}' not found.`
@@ -34,7 +34,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
         } else if (file.endsWith(".ts") && !file.toLowerCase().includes("schema")) {
             createLog(
                 LogType.DEBUG,
-                Operation.SEARCH,
+                LogOperation.SEARCH,
                 LogCategory.DATABASE,
                 `Loading model: '${file}'`
             );

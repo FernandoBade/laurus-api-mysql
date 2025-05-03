@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
 import { formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
-import { LogCategory, HTTPStatus, Operation, LogType } from '../utils/enum';
+import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 import { Resource } from '../utils/resources/resource';
 
@@ -28,12 +28,12 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 
-            await createLog(LogType.SUCCESS, Operation.CREATE, LogCategory.USER, newUser.data, newUser.data.id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser.data, newUser.data.id);
             return answerAPI(req, res, HTTPStatus.CREATED, newUser.data);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
-                Operation.CREATE,
+                LogOperation.CREATE,
                 LogCategory.USER,
                 formatError(error),
                 undefined,
@@ -50,7 +50,7 @@ class UserController {
             const usersFound = await userService.getUsers();
             return answerAPI(req, res, HTTPStatus.OK, usersFound.data, usersFound.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,7 +71,7 @@ class UserController {
 
             return answerAPI(req, res, HTTPStatus.OK, user.data);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -89,7 +89,7 @@ class UserController {
             const usersFound = await userService.getUsersByEmail(searchTerm);
             return answerAPI(req, res, HTTPStatus.OK, usersFound.data, usersFound.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -120,10 +120,10 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updatedUser.error);
             }
 
-            await createLog(LogType.SUCCESS, Operation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data.id);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data.id);
             return answerAPI(req, res, HTTPStatus.OK, updatedUser.data);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.UPDATE, LogCategory.USER, formatError(error), userId, next);
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.USER, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -144,10 +144,10 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, Operation.DELETE, LogCategory.USER, result.data, userId);
+            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.USER, result.data, userId);
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
-            await createLog(LogType.ERROR, Operation.DELETE, LogCategory.USER, formatError(error), userId, next);
+            await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.USER, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }

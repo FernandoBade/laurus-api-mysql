@@ -3,7 +3,7 @@ import { getModels } from "../schemas/dbModels";
 import { syncTable } from "../schemas/dbTables";
 import { syncRelationships } from "../relationships/dbRelations";
 import { createLog, formatError } from "../../commons";
-import { LogType, Operation, LogCategory } from "../../enum";
+import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
  * @summary Synchronizes the database structure to match model definitions.
@@ -17,7 +17,7 @@ import { LogType, Operation, LogCategory } from "../../enum";
 async function syncDatabase() {
     createLog(
         LogType.DEBUG,
-        Operation.UPDATE,
+        LogOperation.UPDATE,
         LogCategory.DATABASE,
         "Starting database synchronization..."
     );
@@ -28,7 +28,7 @@ async function syncDatabase() {
         if (!Model || !Model.tableName) {
             createLog(
                 LogType.ERROR,
-                Operation.UPDATE,
+                LogOperation.UPDATE,
                 LogCategory.DATABASE,
                 {
                     message: `Invalid model detected: ${Model}`
@@ -58,7 +58,7 @@ async function runSync() {
         await syncDatabase();
         createLog(
             LogType.DEBUG,
-            Operation.UPDATE,
+            LogOperation.UPDATE,
             LogCategory.DATABASE,
             "Database synchronization completed successfully."
         );
@@ -66,7 +66,7 @@ async function runSync() {
     } catch (error) {
         createLog(
             LogType.ERROR,
-            Operation.UPDATE,
+            LogOperation.UPDATE,
             LogCategory.DATABASE,
             formatError(error)
         );

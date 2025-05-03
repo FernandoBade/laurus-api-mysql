@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
-import { LogCategory, LogType, Operation, TableName } from '../utils/enum';
+import { LogCategory, LogType, LogOperation, TableName, Operator } from '../utils/enum';
 import { TokenUtils } from '../utils/auth/tokenUtils';
 import { Resource } from '../utils/resources/resource';
 import User from '../model/user/user';
@@ -31,7 +31,17 @@ export class AuthService {
      * @returns The access token and sets refresh token in the cookie.
      */
     async login(email: string, password: string): Promise<DbResponse<{ token: string; refreshToken: string, user: User }>> {
-        const users = await this.userDb.findMany<User>({ email: email.toLowerCase().trim() });
+        if (!password) {
+            return { success: false, error: Resource.INVALID_CREDENTIALS };
+        }
+
+        const users = await this.userDb.findWithFilters<User>(
+            {
+                email: {
+                    operator: Operator.EQUAL, value: email.trim().toLowerCase()
+
+                }
+            });
 
         const user = users.data?.[0];
         if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
@@ -42,7 +52,7 @@ export class AuthService {
         const refreshToken = TokenUtils.generateRefreshToken({ id: user.id });
 
         const expiresAt = new Date();
-        expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
         await this.tokenDb.create({
             token: refreshToken,
@@ -66,7 +76,10 @@ export class AuthService {
      * @returns A new access token if valid.
      */
     async refresh(token: string): Promise<DbResponse<{ token: string }>> {
-        const existing = await this.tokenDb.findMany<RefreshToken>({ token });
+        const existing = await this.tokenDb.findWithFilters<RefreshToken>(
+            {
+                token: { operator: Operator.EQUAL, value: token }
+            });
 
         const storedToken = existing.data?.[0];
         if (!storedToken || new Date(storedToken.expiresAt) < new Date()) {
@@ -99,7 +112,7 @@ export class AuthService {
         await this.tokenDb.remove(stored.id);
         createLog(
             LogType.SUCCESS,
-            Operation.LOGOUT,
+            LogOperation.LOGOUT,
             LogCategory.AUTH,
             `Refresh token ${stored.id} deleted.`,
             stored.user_id

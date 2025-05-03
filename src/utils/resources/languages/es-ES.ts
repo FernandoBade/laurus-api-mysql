@@ -8,6 +8,7 @@ const esES: LanguageResource = {
     SEARCH_TERM_TOO_SHORT: "El término de búsqueda debe contener al menos 3 caracteres",
     INTERNAL_SERVER_ERROR: "Error interno del servidor",
     NO_RECORDS_FOUND: "No se encontraron registros",
+    INVALID_CRITERIA: "Criterios inválidos",
     INVALID_JSON: "Formato JSON inválido",
     INVALID_CREDENTIALS: 'Credenciales inválidas',
     EXPIRED_OR_INVALID_TOKEN: 'Token expirado o inválido',

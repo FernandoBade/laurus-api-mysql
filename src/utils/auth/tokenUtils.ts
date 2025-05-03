@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { createLog } from '../commons';
-import { LogCategory, LogType, Operation } from '../enum';
+import { LogCategory, LogType, LogOperation } from '../enum';
 import { Resource } from '../resources/resource';
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
@@ -26,7 +26,7 @@ function ensureSecrets() {
             JWT_REFRESH_SECRET=your_other_super_secret_key
         `;
 
-        createLog(LogType.DEBUG, Operation.AUTH, LogCategory.AUTH, message);
+        createLog(LogType.DEBUG, LogOperation.AUTH, LogCategory.AUTH, message);
 
         throw new Error(Resource.INTERNAL_SERVER_ERROR);
 

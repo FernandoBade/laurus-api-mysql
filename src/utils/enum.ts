@@ -36,6 +36,7 @@ export enum DateFormat {
     DD_MM_YYYY = 'DD/MM/YYYY',
     MM_DD_YYYY = 'MM/DD/YYYY',
 }
+
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
@@ -79,7 +80,7 @@ export enum LogType {
     SUCCESS = 'success',
 }
 
-export enum Operation {
+export enum LogOperation {
     APPLY = 'apply',
     CREATE = 'create',
     DELETE = 'delete',
@@ -91,6 +92,15 @@ export enum Operation {
     STATUS = 'status',
     AUTH = "auth",
 }
+
+export enum Operator {
+    EQUAL = '=',
+    IN = 'IN',
+    LIKE = 'LIKE',
+    BETWEEN = 'BETWEEN',
+    ASC = 'ASC',
+    DESC = 'DESC',
+  }
 
 export enum Profile {
     STARTER = 'starter',

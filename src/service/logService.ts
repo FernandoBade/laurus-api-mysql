@@ -1,13 +1,14 @@
 import { DbService } from '../utils/database/services/dbService';
-import { TableName, LogType, Operation, LogCategory } from '../utils/enum';
+import { TableName, LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
 import { DbResponse } from '../utils/database/services/dbResponse';
-import { findById, findMany, insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
+import { findById, findMany, findWithColumnFilters, insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';
 import { Resource } from '../utils/resources/resource';
+import { number } from 'zod';
 
 interface LogData {
     type: LogType;
-    operation: Operation;
+    operation: LogOperation;
     detail: string;
     category: LogCategory;
     user_id?: number | null;
@@ -25,22 +26,27 @@ export class LogService extends DbService {
 
     async createLog(
         type: LogType,
-        operation: Operation,
+        operation: LogOperation,
         category: LogCategory,
         detail: string,
         userId?: number
     ): Promise<DbResponse<any>> {
         const validUserId = await (async () => {
             if (!userId || isNaN(userId)) return null;
-            const user = await findById<{ id: number }>(TableName.USER, userId);
-            return user.success ? user.data?.id ?? null : null;
+
+            const user = await this.findWithFilters<{ id: number }>(
+                {
+                    id: { operator: Operator.EQUAL, value: userId }
+                });
+
+            return user.success ? user.data?.[0]?.id ?? null : null;
         })();
 
         const log: LogData = {
             type,
             operation,
             category,
-            detail: detail,
+            detail,
             user_id: validUserId,
             timestamp: new Date(),
         };
@@ -63,7 +69,7 @@ export class LogService extends DbService {
 
         await createLog(
             LogType.DEBUG,
-            Operation.DELETE,
+            LogOperation.DELETE,
             LogCategory.LOG,
             `Deleted ${total} logs older than 120 days`,
             undefined,
@@ -76,16 +82,18 @@ export class LogService extends DbService {
         return result;
     }
 
-
     /**
      * Retrieves logs for a given user ID.
      */
-    async getLogsByUser(userId: number): Promise<DbResponse<any[]>> {
-        if (isNaN(userId) || userId <= 0) {
+    async getLogsByUser(user_id: number | null): Promise<DbResponse<any[]>> {
+        if (user_id === null || isNaN(user_id) || user_id <= 0) {
             return { success: false, error: Resource.INVALID_USER_ID };
         }
 
-        return findMany(TableName.LOG, { userId });
+        return this.findWithFilters(
+            {
+                user_id: { operator: Operator.EQUAL, value: user_id }
+            });
     }
 
 }
