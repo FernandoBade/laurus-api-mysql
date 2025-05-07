@@ -2,35 +2,59 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Request, Response, NextFunction } from "express";
-import authRoutes from './routes/authRoutes';
-import userRoutes from "./routes/userRoutes";
 import cookieParser from 'cookie-parser';
-import { createLog, formatError, sendErrorResponse } from "./utils/commons";
-import { LogCategory, LogOperation, LogType } from "./utils/enum";
-import { LanguageCode } from "./utils/resources/resourceTypes";
-import { Resource } from "./utils/resources/resource";
+import swaggerUi from 'swagger-ui-express';
+import redoc from 'redoc-express';
+
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import { swaggerSpec } from './utils/docs/swaggerConfig';
+import './utils/docs/userDocs';
+
+
+import { createLog, sendErrorResponse } from './utils/commons';
+import { LogCategory, LogOperation, LogType } from './utils/enum';
+import { LanguageCode } from './utils/resources/resourceTypes';
+import { Resource } from './utils/resources/resource';
 
 const app = express();
 const port = process.env.PORT || 5050;
 
-
+// Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cookieParser());
 
+// Middleware to resolve language from Accept-Language header
 app.use((req: Request, res: Response, next: NextFunction) => {
     const acceptedLanguages: LanguageCode[] = ['en-US', 'pt-BR', 'es-ES'];
     const lang = req.headers['accept-language'] as LanguageCode;
-
     req.language = acceptedLanguages.includes(lang) ? lang : 'pt-BR';
-
     next();
 });
 
+// Register application routes
 app.use("/users", userRoutes);
 app.use('/auth', authRoutes);
 
+// Swagger UI (OpenAPI JSON)
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/docs/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
+
+// Redoc rendering
+app.get('/redoc', redoc({
+    title: 'Laurus API Docs',
+    specUrl: '/docs/swagger.json'
+}));
 /**
  * Global error handler to catch unhandled exceptions.
+ *
+ * @param error - Any unhandled error.
+ * @param req - Express request object.
+ * @param res - Express response object.
+ * @param next - Next middleware function.
  */
 function errorHandler(error: any, req: Request, res: Response, next: NextFunction) {
     const isSyntaxError = error instanceof SyntaxError && 'body' in error;
@@ -48,6 +72,7 @@ app.use(errorHandler as unknown as express.ErrorRequestHandler);
 
 /**
  * Starts the Express server.
+ * Logs the active port to the console.
  */
 function startServer() {
     app.listen(port, () => {
