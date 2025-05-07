@@ -37,11 +37,12 @@ app.use("/users", userRoutes);
 app.use('/auth', authRoutes);
 
 // Swagger UI (OpenAPI JSON)
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/docs/swagger.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
 });
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Redoc rendering
 app.get('/redoc', redoc({
