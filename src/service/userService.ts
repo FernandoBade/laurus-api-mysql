@@ -11,9 +11,11 @@ export class UserService extends DbService {
     }
 
     /**
-     * Creates a new user, ensuring the email is unique and hashing the password securely.
-     * @param data - User data to be created.
-     * @returns The newly created user, or an error if the email is already in use.
+     * Creates a new user with a unique email and hashed password.
+     * Validates that the email is not already registered.
+     *
+     * @param data - User registration data.
+     * @returns Created user record or error if email is already in use.
      */
     async createUser(data: { firstName: string; lastName: string; email: string; password: string }): Promise<DbResponse<any>> {
         data.email = data.email.trim().toLowerCase();
@@ -38,26 +40,29 @@ export class UserService extends DbService {
     }
 
     /**
-     * Retrieves all registered users.
-     * @returns A list containing total count and users.
+     * Retrieves a list of all users in the database.
+     *
+     * @returns List of user records.
      */
     async getUsers(): Promise<DbResponse<any[]>> {
         return this.findMany<any>();
     }
 
     /**
-     * Retrieves a user by ID.
-     * @param id - User ID.
-     * @returns The user if found, or an error if not.
+     * Retrieves a user by their unique ID.
+     *
+     * @param id - ID of the user.
+     * @returns User record if found, or error if not.
      */
     async getUserById(id: number): Promise<DbResponse<any>> {
         return this.findOne(id);
     }
 
     /**
-     * Searches for users by email (partial match using LIKE).
-     * @param emailTerm - Partial email to search for.
-     * @returns A list of users whose emails match the search term.
+     * Searches for users by partial email using a LIKE clause.
+     *
+     * @param emailTerm - Email search term (partial match).
+     * @returns List of users matching the email filter.
      */
     async getUsersByEmail(emailTerm: string): Promise<DbResponse<any[]>> {
         return findWithColumnFilters<any>(TableName.USER, {
@@ -66,14 +71,22 @@ export class UserService extends DbService {
     }
 
     /**
-     * Updates a user by ID and re-encrypts the password if changed.
-     * @param id - ID of the user to be updated.
-     * @param data - Data to be updated.
-     * @returns The updated user if successful, or an error if not found.
+     * Updates a user by ID and rehashes the password if it has changed.
+     *
+     * @param id - ID of the user to update.
+     * @param data - Partial user data.
+     * @returns Updated user or error if not found.
      */
     async updateUser(id: number, data: any): Promise<DbResponse<any>> {
-        if (data.password) {
-            data.password = await bcrypt.hash(data.password, 10);
+        const current = await this.findOne(id);
+
+        if (data.password && current.success && current.data?.password) {
+            const isSamePassword = await bcrypt.compare(data.password, current.data.password);
+            if (!isSamePassword) {
+                data.password = await bcrypt.hash(data.password, 10);
+            } else {
+                delete data.password;
+            }
         }
 
         await this.update(id, data);
@@ -81,9 +94,10 @@ export class UserService extends DbService {
     }
 
     /**
-     * Deletes a user by ID.
-     * @param id - ID of the user to be deleted.
-     * @returns Success status with ID of deleted user, or error if the operation fails.
+     * Deletes a user by ID after validating its existence.
+     *
+     * @param id - ID of the user to delete.
+     * @returns Success with deleted ID, or error if user does not exist.
      */
     async deleteUser(id: number): Promise<DbResponse<{ id: number }>> {
         const existingUser = await this.findOne(id);
@@ -94,5 +108,4 @@ export class UserService extends DbService {
 
         return this.remove(id);
     }
-
 }

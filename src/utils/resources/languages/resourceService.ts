@@ -18,6 +18,7 @@ class ResourceService {
 
     /**
      * Retrieves translation safely.
+     *
      * @param key - ResourceKey enum
      * @param lang - Optional language code from user
      * @returns Translated string or fallback to English.
@@ -29,6 +30,7 @@ class ResourceService {
 
     /**
      * Adds support for a new language dynamically.
+     *
      * @param lang - Language code (e.g., 'fr-FR')
      * @param resource - Language dictionary with all required keys.
      */

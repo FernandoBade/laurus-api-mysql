@@ -3,13 +3,14 @@ import { LogType, LogOperation, LogCategory } from "../../enum";
 import { createLog } from "../../commons";
 
 /**
- * @summary Saves a migration entry for a column addition or removal.
+ * Registers a migration entry in the `migration` table for a column creation or deletion.
  *
- * @param tableName The table where the change occurred.
- * @param columnName The name of the column changed.
- * @param operation The type of change (CREATE or DELETE).
- * @param up SQL to apply the change.
- * @param down SQL to revert the change.
+ * @param tableName - Table name being modified.
+ * @param columnName - Column being created or removed.
+ * @param operation - Type of operation (CREATE or DELETE).
+ * @param up - SQL to apply the change.
+ * @param down - SQL to revert the change.
+ * @param migrationGroupId - Optional group ID to associate the migration with.
  */
 export async function saveMigration(
     tableName: string,

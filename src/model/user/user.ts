@@ -54,21 +54,21 @@ class User {
         type: ColumnType.ENUM,
         enumValues: Object.values(Theme),
         defaultValue: Theme.DARK
-    }) theme?: Theme;
+    }) theme!: Theme;
 
     // language
     @Column({
         type: ColumnType.ENUM,
         enumValues: Object.values(Language),
         defaultValue: Language.EN_US
-    }) language?: Language;
+    }) language!: Language;
 
     // dateFormat
     @Column({
         type: ColumnType.ENUM,
         enumValues: Object.values(DateFormat),
         defaultValue: DateFormat.DD_MM_YYYY
-    }) dateFormat?: DateFormat;
+    }) dateFormat!: DateFormat;
 
     // currency
     @Column({

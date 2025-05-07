@@ -35,10 +35,6 @@ class Log {
         defaultValue: null
     }) detail!: string;
 
-    // timestamp
-    @Column({
-        type: ColumnType.DATE, defaultValue: null
-    }) timestamp!: Date;
 
     // createdAt
     @Column({

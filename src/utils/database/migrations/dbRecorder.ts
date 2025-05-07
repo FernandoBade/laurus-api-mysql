@@ -3,10 +3,11 @@ import { createLog } from "../../commons";
 import { LogOperation, LogCategory, LogType } from "../../enum";
 
 /**
- * @summary Records all schema changes for a table and stores them under a grouped migration.
+ * Automatically records all schema changes (columns added/removed) for a specific table.
+ * Creates a new migration group and logs all generated migration entries.
  *
- * @param tableName The name of the modified table.
- * @param changes Added, updated, and removed columns for this table.
+ * @param tableName - Name of the modified table.
+ * @param changes - Object with lists of added, updated, and removed columns.
  */
 export async function dbRecorder(
     tableName: string,

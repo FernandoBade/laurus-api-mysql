@@ -5,8 +5,13 @@ import { HTTPStatus } from '../enum';
 import { Resource } from '../resources/resource';
 
 /**
- * Middleware to validate the JWT access token from the Authorization header.
- * Injects the user ID into req.user if the token is valid.
+ * Middleware to validate the access token from the Authorization header.
+ * If valid, injects the user ID into `req.user`.
+ * Responds with 401 if the token is missing, invalid, or expired.
+ *
+ * @param req - Incoming request with optional Authorization header.
+ * @param res - HTTP response used for error response.
+ * @param next - Calls the next middleware if the token is valid.
  */
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];

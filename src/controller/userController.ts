@@ -5,7 +5,17 @@ import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 import { Resource } from '../utils/resources/resource';
 
+
 class UserController {
+    /**
+     * Creates a new user using validated input from the request body.
+     * Logs the result and returns the created user on success.
+     *
+     * @param req - Express request containing new user data.
+     * @param res - Express response returning the created user.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 201 with new user data or validation/server error.
+     */
     static async createUser(req: Request, res: Response, next: NextFunction) {
         const userService = new UserService();
 
@@ -43,6 +53,15 @@ class UserController {
         }
     }
 
+    /**
+     * Retrieves a list of all registered users.
+     * Returns 204 if the list is empty and logs the operation.
+     *
+     * @param req - Express request object.
+     * @param res - Express response returning the user list.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with user array or 204 if empty.
+     */
     static async getUsers(req: Request, res: Response, next: NextFunction) {
         const userService = new UserService();
 
@@ -55,6 +74,15 @@ class UserController {
         }
     }
 
+    /**
+     * Retrieves a specific user by ID.
+     * Validates the ID, fetches the user, and handles missing or invalid input.
+     *
+     * @param req - Express request containing user ID in the URL.
+     * @param res - Express response returning the user or an error.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with user data or appropriate error.
+     */
     static async getUserById(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
         if (isNaN(userId) || userId <= 0) {
@@ -76,6 +104,15 @@ class UserController {
         }
     }
 
+    /**
+     * Searches users by partial email using a LIKE filter.
+     * Requires a minimum of 3 characters for the search term.
+     *
+     * @param req - Express request with email in the query string.
+     * @param res - Express response returning matched users.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with result set or validation/server error.
+     */
     static async getUsersByEmail(req: Request, res: Response, next: NextFunction) {
         const searchTerm = req.query.email as string;
 
@@ -94,6 +131,15 @@ class UserController {
         }
     }
 
+    /**
+     * Updates an existing user by ID using validated input.
+     * Ensures user exists before updating and logs the result.
+     *
+     * @param req - Express request with user ID and updated data.
+     * @param res - Express response returning the updated user.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with updated user or appropriate error.
+     */
     static async updateUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
         if (isNaN(userId) || userId <= 0) {
@@ -102,15 +148,13 @@ class UserController {
 
         const userService = new UserService();
 
-        const existingUser = await userService.findOne(userId);
-
-        if (existingUser.error) {
-            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error);
-        }
-
         try {
-            const parseResult = updateUserSchema.safeParse(req.body);
+            const existingUser = await userService.findOne(userId);
+            if (existingUser.error) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error);
+            }
 
+            const parseResult = updateUserSchema.safeParse(req.body);
             if (!parseResult.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
             }
@@ -128,6 +172,15 @@ class UserController {
         }
     }
 
+    /**
+     * Deletes a user by their unique ID.
+     * Validates the ID and logs the result upon successful deletion.
+     *
+     * @param req - Express request with the ID of the user to delete.
+     * @param res - Express response confirming deletion.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with deleted ID or error if not found.
+     */
     static async deleteUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
 

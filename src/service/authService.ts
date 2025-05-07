@@ -10,10 +10,6 @@ import { UserService } from './userService';
 import RefreshToken from '../model/refresh_token/refresth_token';
 import { createLog } from '../utils/commons';
 
-/**
- * Service responsible for handling authentication logic,
- * including login, token generation, refresh and logout.
- */
 export class AuthService {
     private userDb: DbService;
     private tokenDb: DbService;
@@ -24,11 +20,13 @@ export class AuthService {
     }
 
     /**
-     * Authenticates the user by email and password.
-     * If valid, generates access and refresh tokens.
-     * @param email - The user's email.
-     * @param password - The user's password.
-     * @returns The access token and sets refresh token in the cookie.
+     * Authenticates a user based on email and password.
+     * If valid, generates and returns both access and refresh tokens.
+     * The refresh token is persisted in the database with 1-year expiration.
+     *
+     * @param email - User's email.
+     * @param password - User's plain-text password.
+     * @returns Access and refresh tokens along with user data, or error if credentials are invalid.
      */
     async login(email: string, password: string): Promise<DbResponse<{ token: string; refreshToken: string, user: User }>> {
         if (!password) {
@@ -71,9 +69,11 @@ export class AuthService {
     }
 
     /**
-     * Generates a new access token from a valid refresh token.
-     * @param token - The refresh token.
-     * @returns A new access token if valid.
+     * Validates a refresh token and issues a new access token if valid.
+     * Checks for token existence, expiration, and signature validity.
+     *
+     * @param token - Refresh token from cookies.
+     * @returns New access token or error if the token is expired or invalid.
      */
     async refresh(token: string): Promise<DbResponse<{ token: string }>> {
         const existing = await this.tokenDb.findWithFilters<RefreshToken>(
@@ -97,15 +97,23 @@ export class AuthService {
     }
 
     /**
-     * Logs out the user by deleting the refresh token from the database.
-     * @param token - The refresh token to invalidate.
-     * @returns Success status.
+     * Logs out the user by removing the refresh token from the database.
+     * Logs the operation if the token is valid. Fails silently if token is not found.
+     *
+     * @param token - Refresh token to invalidate.
+     * @returns Success status and user ID if logout succeeds, or error if token is not found.
      */
     async logout(token: string): Promise<DbResponse<{ userId: number }>> {
         const tokens = await this.tokenDb.findMany({ token });
         const stored = tokens.data?.[0];
 
         if (!stored) {
+            await createLog(
+                LogType.ALERT,
+                LogOperation.LOGOUT,
+                LogCategory.AUTH,
+                `Logout attempt with invalid token: ${token}`
+            );
             return { success: false, error: Resource.TOKEN_NOT_FOUND };
         }
 

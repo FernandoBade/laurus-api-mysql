@@ -3,14 +3,17 @@ import { AuthService } from '../service/authService';
 import { answerAPI, formatError, createLog } from '../utils/commons';
 import { LogType, LogCategory, LogOperation, HTTPStatus } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
+import { RefreshTokenCookie, ClearCookieOptions } from '../utils/auth/cookieConfig';
 
-/**
- * Controller for authentication endpoints:
- * login, refresh and logout.
- */
 export class AuthController {
     /**
-     * Authenticates a user and sets refresh token as cookie.
+     * Authenticates a user using email and password credentials.
+     * If valid, generates an access token and sets a refresh token as an HTTP-only cookie.
+     *
+     * @param req - Express request containing email and password.
+     * @param res - Express response used to return the access token.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with access token, or appropriate error status.
      */
     static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
@@ -28,12 +31,8 @@ export class AuthController {
                 return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.INVALID_CREDENTIALS);
             }
 
-            res.cookie('refreshToken', result.data.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 1000 * 60 * 60 * 24 * 365  // 1 year (1000 milliseconds * 60 seconds * 60 minutes * 24 hours * 365 days)
-            });
+
+            res.cookie(RefreshTokenCookie.name, result.data.refreshToken, RefreshTokenCookie.options);
 
             await createLog(LogType.DEBUG, LogOperation.LOGIN, LogCategory.AUTH, `User ${result.data.user.id} logged in`, result.data.user.id);
 
@@ -45,7 +44,13 @@ export class AuthController {
     }
 
     /**
-     * Issues a new access token from a valid refresh token.
+     * Issues a new access token using a valid refresh token from the cookie.
+     * If the token is missing or invalid, responds with HTTP 401 Unauthorized.
+     *
+     * @param req - Express request containing the refresh token in cookies.
+     * @param res - Express response used to return the new access token.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with new access token, or 401 on failure.
      */
     static async refresh(req: Request, res: Response, next: NextFunction) {
         const refreshToken = req.cookies?.refreshToken;
@@ -71,12 +76,19 @@ export class AuthController {
     }
 
     /**
-     * Logs out the user and deletes refresh token from DB and cookie.
+     * Logs out the user by removing the refresh token from the database and clearing the cookie.
+     * Logs the operation and handles invalid or missing token cases gracefully.
+     *
+     * @param req - Express request containing the refresh token.
+     * @param res - Express response confirming logout.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 on successful logout, or appropriate error status.
      */
     static async logout(req: Request, res: Response, next: NextFunction) {
         const refreshToken = req.cookies?.refreshToken;
 
         if (!refreshToken) {
+            await createLog(LogType.ALERT, LogOperation.LOGOUT, LogCategory.AUTH, Resource.LOGOUT_ATTEMPT_WITH_MISSING_TOKEN);
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
         }
 
@@ -89,11 +101,8 @@ export class AuthController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
             }
 
-            res.clearCookie('refreshToken', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-            });
+            res.clearCookie(RefreshTokenCookie.name, ClearCookieOptions);
+
 
             await createLog(
                 LogType.DEBUG,

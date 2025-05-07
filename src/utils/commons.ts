@@ -43,7 +43,15 @@ const logger = createLogger({
 });
 
 /**
- * Logs a message and optionally saves it to the database.
+ * Logs a message to the console and, if appropriate, persists it to the database.
+ * Used across the system for centralized logging with support for log levels, user context, and categories.
+ *
+ * @param logType - Severity level of the log (e.g., ERROR, DEBUG).
+ * @param operation - Type of operation being logged (e.g., CREATE, DELETE).
+ * @param category - Area of the system the log relates to (e.g., USER, AUTH).
+ * @param detail - Log message or object, automatically serialized if needed.
+ * @param userId - Optional user ID to associate the log with.
+ * @param next - Optional Express error handler for chaining errors.
  */
 export async function createLog(
     logType: LogType,
@@ -64,7 +72,11 @@ export async function createLog(
 }
 
 /**
- * Retrieves logs associated with a specific user.
+ * Retrieves all logs associated with a specific user ID.
+ * Uses the log service internally. If an error occurs during retrieval, a debug log is recorded.
+ *
+ * @param userId - User ID to retrieve logs for.
+ * @returns A list of logs or throws an internal server error resource key.
  */
 export async function getLogsByUser(userId: number) {
     try {
@@ -76,16 +88,18 @@ export async function getLogsByUser(userId: number) {
     }
 }
 
-// #endregion
+// #endregion Logger Configuration
 
 // #region API Response Helpers
 /**
- * Sends a standardized and localized API response to the client.
- * @param req - HTTP request, used to determine the user's language.
- * @param res - HTTP response object.
- * @param status - HTTP status code.
- * @param data - Optional response payload.
- * @param resource - Optional resource key for the translated message.
+ * Sends a standardized and translated JSON response to the client.
+ * Automatically formats the payload according to success or failure, and includes a localized message if available.
+ *
+ * @param req - Express request, used to detect the user's language preference.
+ * @param res - Express response object.
+ * @param status - HTTP status code to send.
+ * @param data - Optional response payload (success: data, error: details).
+ * @param resource - Optional resource key for localized message.
  */
 export function answerAPI(
     req: Request,
@@ -109,7 +123,11 @@ export function answerAPI(
 }
 
 /**
- * Converts error object into a structured loggable format.
+ * Normalizes different types of thrown errors (Error, object, or primitive)
+ * into a consistent and serializable format for logging or display.
+ *
+ * @param error - Unknown error object.
+ * @returns A structured object with message, name and stack trace (if applicable).
  */
 export function formatError(error: unknown): Record<string, any> {
     if (error instanceof Error) {
@@ -128,7 +146,11 @@ export function formatError(error: unknown): Record<string, any> {
 }
 
 /**
- * Formats Zod validation errors into readable messages.
+ * Transforms Zod validation errors into a list of user-friendly messages.
+ * Supports common error codes such as invalid enums, size constraints, and unrecognized keys.
+ *
+ * @param error - A ZodError object containing one or more validation issues.
+ * @returns An array of objects with the invalid property and the associated error message.
  */
 export function formatZodValidationErrors(error: ZodError) {
     return error.errors.map((e: ZodIssue) => {
@@ -163,14 +185,16 @@ export function formatZodValidationErrors(error: ZodError) {
     });
 }
 
-
 /**
- * Sends a standardized error response to the client with localization support.
- * @param req - HTTP request used to determine the user's language.
- * @param res - HTTP response used to send the error.
+ * Sends a localized error response to the client, following the same structure
+ * as successful API responses, but explicitly marking success as false.
+ *
+ * @param req - Express request, used to determine language for translation.
+ * @param res - Express response to write the error into.
  * @param status - HTTP status code to return.
- * @param resource - Resource key for the translated error message.
- * @param error - Optional error object to include in the response.
+ * @param resource - Resource key for localized error message.
+ * @param error - Optional raw error object to include in the payload.
+ * @returns The formatted error response in JSON format.
  */
 export function sendErrorResponse(
     req: Request,

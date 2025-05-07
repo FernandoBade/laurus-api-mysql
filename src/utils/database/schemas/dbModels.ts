@@ -5,10 +5,11 @@ import { createLog } from "../../commons"
 import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
- * Retrieves all model files from the 'model' directory, excluding `baseModel.ts` and schema files.
+ * Recursively loads all model classes from the `/model` directory.
+ * Excludes files that include "schema" in the name or are not `.ts` files.
  *
- * @param {string} dir - Directory path where models are located.
- * @returns {any[]} - Array of imported model classes.
+ * @param dir - Optional directory path (defaults to /model).
+ * @returns Array of loaded model classes.
  */
 export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
     if (!fs.existsSync(dir)) {

@@ -20,7 +20,10 @@ class MigrationGroup {
         type: ColumnType.TEXT
     }) up!: string;
 
-    @Column({ type: ColumnType.TEXT }) down!: string;
+    // down
+    @Column({
+        type: ColumnType.TEXT
+    }) down!: string;
 
     // createdAt
     @Column({

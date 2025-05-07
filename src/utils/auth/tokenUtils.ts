@@ -10,7 +10,8 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 dotenv.config();
 
 /**
- * Ensures required JWT secrets are defined and throws a descriptive error if not.
+ * Ensures that required JWT secrets are defined.
+ * If any secret is missing, logs a DEBUG message and throws an internal error.
  */
 function ensureSecrets() {
     if (!ACCESS_SECRET || !REFRESH_SECRET) {
@@ -27,15 +28,17 @@ function ensureSecrets() {
         `;
 
         createLog(LogType.DEBUG, LogOperation.AUTH, LogCategory.AUTH, message);
-
         throw new Error(Resource.INTERNAL_SERVER_ERROR);
-
     }
 }
 
 export const TokenUtils = {
     /**
-     * Generates a JWT access token valid for 1 hour.
+     * Generates a JWT access token with 1-hour expiration.
+     * Throws if required secrets are missing.
+     *
+     * @param payload - Data to embed in the token (e.g. user ID).
+     * @returns Signed access token.
      */
     generateAccessToken(payload: object): string {
         ensureSecrets();
@@ -43,7 +46,11 @@ export const TokenUtils = {
     },
 
     /**
-     * Generates a JWT refresh token valid for 1 year.
+     * Generates a JWT refresh token with 1-year expiration.
+     * Throws if required secrets are missing.
+     *
+     * @param payload - Data to embed in the token.
+     * @returns Signed refresh token.
      */
     generateRefreshToken(payload: object): string {
         ensureSecrets();
@@ -51,7 +58,11 @@ export const TokenUtils = {
     },
 
     /**
-     * Verifies an access token and returns its decoded payload if valid.
+     * Verifies the authenticity of an access token.
+     * Throws if invalid or expired.
+     *
+     * @param token - Access token to verify.
+     * @returns Decoded payload.
      */
     verifyAccessToken(token: string) {
         ensureSecrets();
@@ -59,7 +70,11 @@ export const TokenUtils = {
     },
 
     /**
-     * Verifies a refresh token and returns its decoded payload if valid.
+     * Verifies the authenticity of a refresh token.
+     * Throws if invalid or expired.
+     *
+     * @param token - Refresh token to verify.
+     * @returns Decoded payload.
      */
     verifyRefreshToken(token: string) {
         ensureSecrets();

@@ -5,10 +5,11 @@ import { createLog } from '../../commons';
 import { Resource } from '../../resources/resource';
 
 /**
- * Inserts a new record into a given table.
- * @param table - The database table to insert into.
- * @param data - Data object to insert.
- * @returns The inserted record including its new ID, or an error message if insertion fails.
+ * Inserts a new record into the specified table.
+ * Returns the inserted entry including its generated ID.
+ *
+ * @param table - Target table name.
+ * @param data - Record data to insert.
  */
 export async function insert<T>(table: string, data: object): Promise<DbResponse<T>> {
     const keys = Object.keys(data);
@@ -40,10 +41,11 @@ export async function insert<T>(table: string, data: object): Promise<DbResponse
 }
 
 /**
- * Retrieves a record by its ID from a given table.
- * @param table - The database table to query.
- * @param id - ID of the record.
- * @returns The record if found, or an error message if not.
+ * Fetches a single record by ID from a specific table.
+ *
+ * @param table - Table name.
+ * @param id - Record ID to look for.
+ * @returns The found record or an error if not found.
  */
 export async function findById<T>(table: string, id: number): Promise<DbResponse<T>> {
     const query = `SELECT * FROM ${table} WHERE id = ?`;
@@ -58,10 +60,11 @@ export async function findById<T>(table: string, id: number): Promise<DbResponse
 
 /**
  * Performs a LIKE query on a specified table and column.
+ *
  * @param table - The database table to search.
  * @param column - Column name to perform the LIKE query on.
  * @param searchTerm - Partial term to search for.
- * @returns An array of matched records (possibly empty).
+ * @returns A list of records that match the LIKE condition.
  */
 export async function findByLike<T>(table: string, column: string, searchTerm: string): Promise<DbResponse<T[]>> {
     const term = `%${searchTerm}%`;
@@ -74,9 +77,10 @@ export async function findByLike<T>(table: string, column: string, searchTerm: s
 
 /**
  * Finds multiple records matching optional filters.
+ *
  * @param table - The database table to query.
  * @param filter - Optional filter conditions as key-value pairs.
- * @returns An array of matched records (possibly empty).
+ * @returns A list of records matching the provided filters.
  */
 export async function findMany<T>(table: string, filter?: object): Promise<DbResponse<T[]>> {
     let query = `SELECT * FROM ${table}`;
@@ -96,15 +100,13 @@ export async function findMany<T>(table: string, filter?: object): Promise<DbRes
     return { success: true, data: rows };
 }
 
-
 /**
- * Executes a flexible query using column filters with type-safe operators.
- * Supports '=', 'IN', 'LIKE', 'BETWEEN', as well as ORDER BY, LIMIT and OFFSET.
+ * Performs a flexible and type-safe query using column-based filters.
+ * Supports multiple operators like EQUAL, IN, LIKE, BETWEEN, ORDER, LIMIT, and OFFSET.
  *
- * @param table - The database table to query.
- * @param filters - Optional column filters with operator and value.
- * @param options - Optional ordering and pagination options.
- * @returns An array of matched records or an empty array.
+ * @param table - Table name to search.
+ * @param filters - Column filters using typed operators.
+ * @param options - Pagination and ordering options.
  */
 export async function findWithColumnFilters<T>(
     table: TableName | string,
@@ -169,7 +171,6 @@ export async function findWithColumnFilters<T>(
     const [rows]: any = await db.query(query, values);
     return { success: true, data: rows };
 }
-
 
 /**
  * Updates a record in a given table by its ID.

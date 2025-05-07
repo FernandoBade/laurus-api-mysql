@@ -3,7 +3,8 @@ import { insert, findById, findMany, update, remove, findWithColumnFilters } fro
 import { DbResponse } from './dbResponse';
 
 /**
- * Abstract class providing reusable CRUD methods for database operations.
+ * Abstract base class for services that interact with the database.
+ * Provides reusable CRUD operations and advanced filtering logic using helper functions.
  */
 export abstract class DbService {
     protected table: string;
@@ -30,32 +31,31 @@ export abstract class DbService {
         return findMany<T>(this.table, filter);
     }
 
-  /**
-   * Finds entries using advanced column filters with type-safe operators.
-   * Supports '=', 'IN', 'LIKE', 'BETWEEN', ORDER BY, LIMIT and OFFSET.
-   *
-   * @param filters - Optional filters by column with operators.
-   * @param options - Optional ordering and pagination options.
-   * @returns Matching records or an empty list.
-   */
-  async findWithFilters<T = any>(
-    filters?: {
-      [K in keyof T]?:
-      | { operator: Operator.EQUAL; value: T[K] }
-      | { operator: Operator.IN; value: T[K][] }
-      | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
-      | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
-    },
-    options?: {
-      orderBy?: keyof T;
-      direction?: Operator;
-      limit?: number;
-      offset?: number;
+    /**
+     * Finds entries using advanced column filters with type-safe operators.
+     * Supports '=', 'IN', 'LIKE', 'BETWEEN', ORDER BY, LIMIT and OFFSET.
+     *
+     * @param filters - Optional filters by column with operators.
+     * @param options - Optional ordering and pagination options.
+     * @returns Matching records or an empty list.
+     */
+    async findWithFilters<T = any>(
+        filters?: {
+            [K in keyof T]?:
+            | { operator: Operator.EQUAL; value: T[K] }
+            | { operator: Operator.IN; value: T[K][] }
+            | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
+            | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+        },
+        options?: {
+            orderBy?: keyof T;
+            direction?: Operator;
+            limit?: number;
+            offset?: number;
+        }
+    ): Promise<DbResponse<T[]>> {
+        return findWithColumnFilters<T>(this.table, filters, options);
     }
-  ): Promise<DbResponse<T[]>> {
-    return findWithColumnFilters<T>(this.table, filters, options);
-  }
-
 
     /**
      * Creates a new entry in the database.

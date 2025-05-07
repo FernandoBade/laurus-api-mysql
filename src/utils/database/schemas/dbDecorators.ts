@@ -15,7 +15,10 @@ export function Table(name: string) {
 }
 
 /**
- * Column decorator to define a column in a database table.
+/**
+ * Property decorator to define column metadata (type, default, enum, constraints).
+ * Used for schema generation and automatic migration detection.
+
  * @param options Options for the column. defaultValue, enumValues, index, onUpdate, type, unique.
  * @returns A property decorator function.
  */

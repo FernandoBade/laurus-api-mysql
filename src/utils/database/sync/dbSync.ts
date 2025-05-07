@@ -6,8 +6,10 @@ import { createLog, formatError } from "../../commons";
 import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
- * @summary Synchronizes the database structure to match model definitions.
- *
+ * Synchronizes the database structure to match model definitions.
+ * Main entry point to synchronize the entire database schema with model definitions.
+ * Handles table structure, relationships, and logs all operations.
+
  * This function ensures that:
  * - Tables are created if they do not exist.
  * - Columns are added or removed as necessary.

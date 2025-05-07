@@ -2,17 +2,18 @@ import { LanguageResource } from '../resourceTypes';
 
 const esES: LanguageResource = {
     EMAIL_IN_USE: "El correo electrónico ya está en uso",
-    USER_NOT_FOUND: "Usuario no encontrado",
-    INVALID_USER_ID: "ID de usuario inválido",
-    VALIDATION_ERROR: "Error de validación",
-    SEARCH_TERM_TOO_SHORT: "El término de búsqueda debe contener al menos 3 caracteres",
+    EXPIRED_OR_INVALID_TOKEN: "Token expirado o inválido",
     INTERNAL_SERVER_ERROR: "Error interno del servidor",
-    NO_RECORDS_FOUND: "No se encontraron registros",
+    INVALID_CREDENTIALS: "Credenciales inválidas",
     INVALID_CRITERIA: "Criterios inválidos",
     INVALID_JSON: "Formato JSON inválido",
-    INVALID_CREDENTIALS: 'Credenciales inválidas',
-    EXPIRED_OR_INVALID_TOKEN: 'Token expirado o inválido',
-    TOKEN_NOT_FOUND: 'Token no encontrado',
+    INVALID_USER_ID: "ID de usuario inválido",
+    LOGOUT_ATTEMPT_WITH_MISSING_TOKEN: "Intento de cierre de sesión sin token",
+    NO_RECORDS_FOUND: "No se encontraron registros",
+    SEARCH_TERM_TOO_SHORT: "El término de búsqueda debe contener al menos 3 caracteres",
+    TOKEN_NOT_FOUND: "Token no encontrado",
+    USER_NOT_FOUND: "Usuario no encontrado",
+    VALIDATION_ERROR: "Error de validación",
 };
 
 export default esES;

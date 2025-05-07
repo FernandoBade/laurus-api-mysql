@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+/**
+ * Creates and exports a MySQL connection pool using environment variables.
+ * Manages connection pooling for performance and scalability.
+ */
 const db = mysql.createPool({
     host: process.env.DB_URL,
     user: process.env.DB_USER,

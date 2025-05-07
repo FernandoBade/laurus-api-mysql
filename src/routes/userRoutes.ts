@@ -7,7 +7,8 @@ import UserController from '../controller/userController';
 const router = Router();
 
 /**
- * Searches for users by email.
+ * @route GET /search
+ * @description Searches for users by partial email. Requires authentication.
  */
 router.get('/search', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -25,7 +26,8 @@ router.get('/search', verifyToken, async (req: Request, res: Response, next: Nex
 });
 
 /**
- * Creates a new user.
+ * @route POST /
+ * @description Creates a new user with validated input data.
  */
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -43,7 +45,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /**
- * Retrieves a user by ID.
+ * @route GET /:id
+ * @description Retrieves a user by ID. Requires authentication.
  */
 router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -61,7 +64,8 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
 });
 
 /**
- * Retrieves all users.
+ * @route GET /
+ * @description Lists all users in the system. Requires authentication.
  */
 router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -79,7 +83,8 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
 });
 
 /**
- * Updates a user by ID.
+ * @route PUT /:id
+ * @description Updates an existing user by ID. Requires authentication.
  */
 router.put('/:id?', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -97,7 +102,8 @@ router.put('/:id?', verifyToken, async (req: Request, res: Response, next: NextF
 });
 
 /**
- * Deletes a user by ID.
+ * @route DELETE /:id
+ * @description Deletes a user by ID. Requires authentication.
  */
 router.delete('/:id?', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {

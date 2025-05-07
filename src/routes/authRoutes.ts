@@ -6,7 +6,8 @@ import { LogType, LogCategory, LogOperation } from '../utils/enum';
 const router = Router();
 
 /**
- * Login route: authenticates a user and sets the refresh token in the cookie.
+ * @route POST /login
+ * @description Authenticates a user and sets a refresh token cookie.
  */
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,7 +18,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 /**
- * Refresh route: issues a new access token from a valid refresh token.
+ * @route POST /refresh
+ * @description Issues a new access token using a valid refresh token from cookies.
  */
 router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -28,7 +30,8 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
 });
 
 /**
- * Logout route: clears the refresh token from the database and cookie.
+ * @route POST /logout
+ * @description Logs out the user by revoking the refresh token and clearing the cookie.
  */
 router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
     try {

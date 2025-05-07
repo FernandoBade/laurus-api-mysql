@@ -3,9 +3,10 @@ import { createLog } from "../../commons";
 import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
- * Synchronizes relationships between models.
+ * Automatically synchronizes model relationships and foreign key constraints.
+ * Adds missing foreign key columns and constraints when needed.
  *
- * @param model The model whose relationships need to be synchronized.
+ * @param Model - Target model whose relationships should be evaluated and applied.
  */
 export async function syncRelationships(Model: any) {
     const tableName = Model.tableName.toLowerCase();
