@@ -11,6 +11,18 @@ export class UserService extends DbService {
     }
 
     /**
+     * Removes sensitive fields from the user object.
+     *
+     * @param data - Raw user object with sensitive fields.
+     * @returns User object without the password.
+     */
+    private sanitizeUser(data: any): any {
+        if (!data) return data;
+        const { password, ...safeUser } = data;
+        return safeUser;
+    }
+
+    /**
      * Creates a new user with a unique email and hashed password.
      * Validates that the email is not already registered.
      *
@@ -20,10 +32,9 @@ export class UserService extends DbService {
     async createUser(data: { firstName: string; lastName: string; email: string; password: string }): Promise<DbResponse<any>> {
         data.email = data.email.trim().toLowerCase();
 
-        const existingUsers = await this.findWithFilters<any>(
-            {
-                email: { operator: Operator.EQUAL, value: data.email }
-            });
+        const existingUsers = await this.findWithFilters<any>({
+            email: { operator: Operator.EQUAL, value: data.email }
+        });
 
         if (existingUsers.data?.length) {
             return { success: false, error: Resource.EMAIL_IN_USE };
@@ -36,7 +47,11 @@ export class UserService extends DbService {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
-        return this.findOne(result.data.id);
+        const created = await this.findOne(result.data.id);
+        return {
+            ...created,
+            data: this.sanitizeUser(created.data)
+        };
     }
 
     /**
@@ -45,7 +60,11 @@ export class UserService extends DbService {
      * @returns List of user records.
      */
     async getUsers(): Promise<DbResponse<any[]>> {
-        return this.findMany<any>();
+        const users = await this.findMany<any>();
+        return {
+            ...users,
+            data: users.data?.map(this.sanitizeUser)
+        };
     }
 
     /**
@@ -55,7 +74,11 @@ export class UserService extends DbService {
      * @returns User record if found, or error if not.
      */
     async getUserById(id: number): Promise<DbResponse<any>> {
-        return this.findOne(id);
+        const user = await this.findOne(id);
+        return {
+            ...user,
+            data: this.sanitizeUser(user.data)
+        };
     }
 
     /**
@@ -65,9 +88,13 @@ export class UserService extends DbService {
      * @returns List of users matching the email filter.
      */
     async getUsersByEmail(emailTerm: string): Promise<DbResponse<any[]>> {
-        return findWithColumnFilters<any>(TableName.USER, {
+        const result = await findWithColumnFilters<any>(TableName.USER, {
             email: { operator: Operator.LIKE, value: emailTerm }
         });
+        return {
+            ...result,
+            data: result.data?.map(this.sanitizeUser)
+        };
     }
 
     /**
@@ -90,7 +117,11 @@ export class UserService extends DbService {
         }
 
         await this.update(id, data);
-        return this.findOne(id);
+        const updated = await this.findOne(id);
+        return {
+            ...updated,
+            data: this.sanitizeUser(updated.data)
+        };
     }
 
     /**

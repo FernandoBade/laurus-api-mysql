@@ -27,6 +27,7 @@ export enum ColumnType {
 
 export enum Currency {
     ARS = 'ARS',
+    COP = 'COP',
     BRL = 'BRL',
     EUR = 'EUR',
     USD = 'USD',
