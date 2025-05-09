@@ -13,7 +13,7 @@ export class AuthController {
      * @param req - Express request containing email and password.
      * @param res - Express response used to return the access token.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with access token, or appropriate error status.
+     * @returns HTTP 200 with access token or appropriate error.
      */
     static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
@@ -50,7 +50,7 @@ export class AuthController {
      * @param req - Express request containing the refresh token in cookies.
      * @param res - Express response used to return the new access token.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with new access token, or 401 on failure.
+     * @returns HTTP 200 with new access token or appropriate error.
      */
     static async refresh(req: Request, res: Response, next: NextFunction) {
         const refreshToken = req.cookies?.refreshToken;
@@ -82,7 +82,7 @@ export class AuthController {
      * @param req - Express request containing the refresh token.
      * @param res - Express response confirming logout.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 on successful logout, or appropriate error status.
+     * @returns HTTP 200 on successful logout or appropriate error.
      */
     static async logout(req: Request, res: Response, next: NextFunction) {
         const refreshToken = req.cookies?.refreshToken;

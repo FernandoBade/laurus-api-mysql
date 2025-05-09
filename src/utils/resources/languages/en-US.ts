@@ -1,9 +1,11 @@
 import { LanguageResource } from '../resourceTypes';
 
 const enUS: LanguageResource = {
+    ACCOUNT_NOT_FOUND: "Account not found",
     EMAIL_IN_USE: "Email is already in use",
     EXPIRED_OR_INVALID_TOKEN: "Expired or invalid token",
     INTERNAL_SERVER_ERROR: "Internal server error",
+    INVALID_ACCOUNT_ID: "Invalid account ID",
     INVALID_CREDENTIALS: "Invalid credentials",
     INVALID_CRITERIA: "Invalid criteria",
     INVALID_JSON: "Invalid JSON format",

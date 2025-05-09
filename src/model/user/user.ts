@@ -4,6 +4,7 @@ import { ColumnType, Currency, DateFormat, Language, TableName, Theme, Profile }
 import Log from '../log/log';
 import { OneToMany } from "../../utils/database/schemas/dbDecorators";
 import RefreshToken from "../refresh_token/refresth_token";
+import Account from "../account/account";
 
 @Table(TableName.USER)
 class User {
@@ -110,6 +111,9 @@ class User {
     @OneToMany(() => RefreshToken, 'user')
     refreshTokens?: RefreshToken[];
 
+    // user -> account | oneToMany
+    @OneToMany(() => Account, 'user')
+    accounts?: Account[];
 }
 
 export default User;

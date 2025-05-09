@@ -1,9 +1,11 @@
 import { LanguageResource } from '../resourceTypes';
 
 const ptBR: LanguageResource = {
+    ACCOUNT_NOT_FOUND: "Conta não encontrada",
     EMAIL_IN_USE: "Email já está em uso",
     EXPIRED_OR_INVALID_TOKEN: "Token expirado ou inválido",
     INTERNAL_SERVER_ERROR: "Erro interno do servidor",
+    INVALID_ACCOUNT_ID: "ID da conta inválido",
     INVALID_CREDENTIALS: "Credenciais inválidas",
     INVALID_CRITERIA: "Critérios inválidos",
     INVALID_JSON: "Formato JSON inválido",

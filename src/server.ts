@@ -16,6 +16,7 @@ import { createLog, sendErrorResponse } from './utils/commons';
 import { LogCategory, LogOperation, LogType } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
+import accountRoutes from './routes/accountRoutes';
 
 const app = express();
 const port = process.env.PORT || 5050;
@@ -33,8 +34,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Register application routes
-app.use("/users", userRoutes);
 app.use('/auth', authRoutes);
+app.use("/accounts", accountRoutes);
+app.use("/users", userRoutes);
 
 // Swagger UI (OpenAPI JSON)
 app.get('/docs/swagger.json', (req, res) => {

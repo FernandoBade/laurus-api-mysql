@@ -1,6 +1,10 @@
-export enum Theme {
-    DARK = 'dark',
-    LIGHT = 'light',
+export enum AccountType {
+    CHECKING = 'checking',
+    PAYROLL = 'payroll',
+    SAVINGS = 'savings',
+    INVESTMENT = 'investment',
+    LOAN = 'loan',
+    OTHER = 'other',
 }
 
 export enum ColumnType {
@@ -65,6 +69,7 @@ export enum Language {
 }
 
 export enum LogCategory {
+    ACCOUNT = "account",
     AUTH = 'auth',
     DATABASE = 'database',
     LOG = 'log',
@@ -110,7 +115,7 @@ export enum Profile {
 }
 
 export enum TableName {
-    ACCOUNT = 'Account',
+    ACCOUNT = 'account',
     LOG = 'log',
     USER = 'user',
     LOG_OLD = "Log_old",
@@ -118,4 +123,9 @@ export enum TableName {
     MIGRATION = "migration",
     MIGRATION_GROUP = "migration_group",
     REFRESH_TOKEN = "refresh_token",
+}
+
+export enum Theme {
+    DARK = 'dark',
+    LIGHT = 'light',
 }

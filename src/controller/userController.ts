@@ -14,7 +14,7 @@ class UserController {
      * @param req - Express request containing new user data.
      * @param res - Express response returning the created user.
      * @param next - Express next function for error handling.
-     * @returns HTTP 201 with new user data or validation/server error.
+     * @returns HTTP 201 with new user data or appropriate error.
      */
     static async createUser(req: Request, res: Response, next: NextFunction) {
         const userService = new UserService();
@@ -55,12 +55,11 @@ class UserController {
 
     /**
      * Retrieves a list of all registered users.
-     * Returns 204 if the list is empty and logs the operation.
      *
      * @param req - Express request object.
      * @param res - Express response returning the user list.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with user array or 204 if empty.
+     * @returns HTTP 200 with user array or appropriate error. May be empty.
      */
     static async getUsers(req: Request, res: Response, next: NextFunction) {
         const userService = new UserService();
@@ -111,7 +110,7 @@ class UserController {
      * @param req - Express request with email in the query string.
      * @param res - Express response returning matched users.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with result set or validation/server error.
+     * @returns HTTP 200 with result set or appropriate error. May be empty.
      */
     static async getUsersByEmail(req: Request, res: Response, next: NextFunction) {
         const searchTerm = req.query.email as string;
@@ -179,7 +178,7 @@ class UserController {
      * @param req - Express request with the ID of the user to delete.
      * @param res - Express response confirming deletion.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with deleted ID or error if not found.
+     * @returns HTTP 200 with deleted ID or appropriate error.
      */
     static async deleteUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
