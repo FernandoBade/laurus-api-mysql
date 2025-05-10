@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
-import { formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
+import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 import { Resource } from '../utils/resources/resource';
+import { LanguageCode } from '../utils/resources/resourceTypes';
 
 
 class UserController {
@@ -20,7 +21,8 @@ class UserController {
         const userService = new UserService();
 
         try {
-            const parseResult = createUserSchema.safeParse(req.body);
+
+            const parseResult = validateSchema(createUserSchema, req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
@@ -54,10 +56,10 @@ class UserController {
     }
 
     /**
-     * Retrieves a list of all registered users.
+     * Retrieves a list of all users in the database.
      *
      * @param req - Express request object.
-     * @param res - Express response returning the user list.
+     * @param res - Express response returning the user list or an error.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with user array or appropriate error. May be empty.
      */
@@ -153,7 +155,9 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error);
             }
 
-            const parseResult = updateUserSchema.safeParse(req.body);
+            const parseResult = validateSchema(updateUserSchema, req.body, req.language as LanguageCode);
+
+
             if (!parseResult.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
             }

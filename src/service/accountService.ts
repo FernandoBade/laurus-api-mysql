@@ -74,6 +74,15 @@ export class AccountService extends DbService {
      * @returns Updated account record.
      */
     async updateAccount(id: number, data: Partial<any>): Promise<DbResponse<any>> {
+        if (data.user_id !== undefined) {
+            const userService = new UserService();
+            const user = await userService.getUserById(data.user_id);
+
+            if (!user.success || !user.data) {
+                return { success: false, error: Resource.USER_NOT_FOUND };
+            }
+        }
+
         await this.update(id, data);
         return this.findOne(id);
     }

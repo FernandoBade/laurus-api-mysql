@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AccountService } from '../service/accountService';
-import { formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
+import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
 import { createAccountSchema, updateAccountSchema } from '../model/account/accountSchema';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
+import { LanguageCode } from '../utils/resources/resourceTypes';
 
 class AccountController {
     /**
@@ -19,7 +20,8 @@ class AccountController {
         const accountService = new AccountService();
 
         try {
-            const parseResult = createAccountSchema.safeParse(req.body);
+
+            const parseResult = validateSchema(createAccountSchema, req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
@@ -49,7 +51,7 @@ class AccountController {
      * Retrieves all financial accounts from the database.
      *
      * @param req - Express request object.
-     * @param res - Express response returning the account list.
+     * @param res - Express response returning the account list or an error.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with account list or appropriate error. May be empty.
      */
@@ -157,7 +159,8 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = updateAccountSchema.safeParse(req.body);
+            const parseResult = validateSchema(updateAccountSchema, req.body, req.language as LanguageCode);
+
             if (!parseResult.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
             }

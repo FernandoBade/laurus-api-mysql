@@ -1,11 +1,22 @@
+// #region Imports
 import { HTTPStatus, LogType, LogOperation, LogCategory } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
-import { ZodError, ZodIssue } from 'zod';
+import { ZodError, ZodIssue, ZodTypeAny } from 'zod';
 import { ResourceBase } from './resources/languages/resourceService';
 import { Resource } from './resources/resource';
+import { ZodSchema } from 'zod';
+import { LanguageCode } from './resources/resourceTypes';
+// #endregion Imports
 
 // #region Logger Configuration
+/*
+    * Logger configuration using Winston for structured logging.
+    * Custom log levels and colors are defined for better readability.
+    * Logs are sent to the console and can be persisted to a database.
+    *
+    * @module logger
+    */
 async function getLogService() {
     const { LogService } = await import('../service/logService');
     return new LogService();
@@ -145,45 +156,43 @@ export function formatError(error: unknown): Record<string, any> {
     return { message: error };
 }
 
-/**
- * Transforms Zod validation errors into a list of user-friendly messages.
- * Supports common error codes such as invalid enums, size constraints, and unrecognized keys.
- *
- * @param error - A ZodError object containing one or more validation issues.
- * @returns An array of objects with the invalid property and the associated error message.
- */
-export function formatZodValidationErrors(error: ZodError) {
-    return error.errors.map((e: ZodIssue) => {
-        let message = e.message;
-        const path = e.path.join('.') || 'unknown';
 
-        switch (e.code) {
-            case 'invalid_enum_value':
-                message = `Invalid value for '${path}'. Received: '${(e as any).received}'. Valid: ${(e as any).options?.join(', ')}`;
-                break;
-            case 'invalid_type':
-                message = `Expected '${(e as any).expected}' for '${path}', received '${(e as any).received}'`;
-                break;
-            case 'too_small':
-                message = `'${path}' must have at least ${(e as any).minimum} characters`;
-                break;
-            case 'too_big':
-                message = `'${path}' must have at most ${(e as any).maximum} characters`;
-                break;
-            case 'unrecognized_keys':
-                message = `Unrecognized keys: ${(e as any).keys.join(', ')}`;
-                break;
-            case 'invalid_date':
-                message = `'${path}' must be a valid date`;
-                break;
-        }
+/**
+ * Formats Zod validation errors using localized user-friendly messages.
+ * Falls back to manual formatting if custom message is missing.
+ *
+ * @param error - The Zod validation error
+ * @param lang - Language code (e.g., 'pt-BR', 'en-US', 'es-ES')
+ * @returns An array of errors with property and translated message.
+ */
+export function formatZodValidationErrors(error: ZodError, lang: LanguageCode = 'en-US') {
+    return error.errors.map((e: ZodIssue) => {
+        const path = e.path.join('.') || 'unknown';
+        let message = e.message;
+
+        // Se a mensagem veio do schema ou for fallback, sempre tenta substituir os placeholders
+        if (message.includes('{path}')) message = message.replace('{path}', path);
+        if (message.includes('{received}') && (e as any).received !== undefined)
+            message = message.replace('{received}', String((e as any).received));
+        if (message.includes('{expected}') && (e as any).expected !== undefined)
+            message = message.replace('{expected}', String((e as any).expected));
+        if (message.includes('{options}') && (e as any).options !== undefined)
+            message = message.replace('{options}', (e as any).options.join(', '));
+        if (message.includes('{min}') && (e as any).minimum !== undefined)
+            message = message.replace('{min}', String((e as any).minimum));
+        if (message.includes('{max}') && (e as any).maximum !== undefined)
+            message = message.replace('{max}', String((e as any).maximum));
+        if (message.includes('{keys}') && (e as any).keys !== undefined)
+            message = message.replace('{keys}', (e as any).keys.join(', '));
 
         return {
             property: path,
-            error: message
+            error: message,
         };
     });
 }
+
+
 
 /**
  * Sends a localized error response to the client, following the same structure
@@ -211,5 +220,27 @@ export function sendErrorResponse(
         ...(error ? { error: formatError(error) } : {})
     });
 }
+
+/**
+ * Validates an input object using a Zod schema factory that supports dynamic language.
+ *
+ * This helper centralizes the schema creation and validation logic,
+ * ensuring consistent support for localized messages throughout the application.
+ *
+ * @template T - Type of the schema's expected output.
+ * @param schemaFactory - A function that returns a Zod schema with optional language input.
+ * @param data - The data to be validated.
+ * @param lang - Optional language code used to customize error messages.
+ * @returns The result of schema.safeParse(data), with success and potential error info.
+ */
+export function validateSchema(
+    schemaFactory: (lang?: LanguageCode) => ZodTypeAny,
+    data: unknown,
+    lang?: LanguageCode
+) {
+    const schema = schemaFactory(lang);
+    return schema.safeParse(data);
+}
+
 
 // #endregion API Response Helpers

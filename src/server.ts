@@ -1,6 +1,6 @@
+// #region Imports
 import dotenv from 'dotenv';
 dotenv.config();
-
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
@@ -17,6 +17,8 @@ import { LogCategory, LogOperation, LogType } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
 import accountRoutes from './routes/accountRoutes';
+import expenseRoutes from './routes/expenseRoutes';
+// #endregion Imports
 
 const app = express();
 const port = process.env.PORT || 5050;
@@ -36,6 +38,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Register application routes
 app.use('/auth', authRoutes);
 app.use("/accounts", accountRoutes);
+app.use("/expenses", expenseRoutes);
 app.use("/users", userRoutes);
 
 // Swagger UI (OpenAPI JSON)
@@ -51,6 +54,7 @@ app.get('/redoc', redoc({
     title: 'Laurus API Docs',
     specUrl: '/docs/swagger.json'
 }));
+
 /**
  * Global error handler to catch unhandled exceptions.
  *

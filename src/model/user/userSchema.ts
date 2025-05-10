@@ -1,30 +1,33 @@
 import { z } from 'zod';
-import { Language, Theme, Currency, DateFormat } from '../../utils/enum'
+import { Language, Theme, Currency, DateFormat } from '../../utils/enum';
+import { ResourceBase } from '../../utils/resources/languages/resourceService';
+import { Resource } from '../../utils/resources/resource';
+import { LanguageCode } from '../../utils/resources/resourceTypes';
 
-const dateSchema = z
-    .union([
+const t = (key: Resource, lang?: LanguageCode): string => ResourceBase.translate(key, lang);
+
+/**
+ * Schema to validate date formats.
+ */
+const dateSchema = (lang?: LanguageCode) =>
+    z.union([
         z.string().refine((value) => {
             const convertedDate = new Date(value);
             return !isNaN(convertedDate.getTime());
-        }, { message: "Invalid format. Use a valid ISO 8601 string." }),
-
-        z.number().refine((value) => value > 0, {
-            message: "Timestamp must be a positive number representing milliseconds since 1970."
-        }).transform((value) => new Date(value)),
+        }, { message: t(Resource.INVALID_DATE_FORMAT, lang) }),
 
         z.date().refine((value) => !isNaN(value.getTime()), {
-            message: "The provided date is not valid.",
+            message: t(Resource.INVALID_DATE_FORMAT, lang),
         }),
-    ])
-    .transform((value) => {
-        if (typeof value === "string" || typeof value === "number") {
+    ]).transform((value) => {
+        if (typeof value === 'string' || typeof value === 'number') {
             const convertedDate = new Date(value);
             if (isNaN(convertedDate.getTime())) {
                 throw new z.ZodError([
                     {
-                        code: "custom",
-                        path: ["date"],
-                        message: `Invalid date: ${value}. Use ISO 8601 or timestamp.`,
+                        code: 'custom',
+                        path: ['date'],
+                        message: t(Resource.INVALID_DATE_FORMAT, lang),
                     },
                 ]);
             }
@@ -33,31 +36,39 @@ const dateSchema = z
         return value;
     });
 
-export const createUserSchema = z.object({
-    firstName: z.string().min(2),
-    lastName: z.string().min(2),
-    email: z.string().toLowerCase().trim().email(),
-    password: z.string().min(6),
-    phone: z.string().optional(),
-    birthDate: dateSchema.optional(),
-    createdAt: dateSchema.optional(),
-    active: z.boolean().optional(),
-    theme: z.enum([Theme.DARK, Theme.LIGHT]).optional(),
-    language: z.enum([Language.PT_BR, Language.EN_US, Language.ES_ES]).optional(),
-    currency: z.enum([Currency.BRL, Currency.USD, Currency.EUR, Currency.ARS]).optional(),
-    dateFormat: z.enum([DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY]).optional(),
-}).strict();
+/**
+ * Schema to validate user creation input with translated messages and enum refinements.
+ */
+export const createUserSchema = (lang?: LanguageCode) =>
+    z
+        .object({
+            firstName: z.string().min(2, { message: t(Resource.FIRST_NAME_TOO_SHORT, lang) }),
+            lastName: z.string().min(2, { message: t(Resource.LAST_NAME_TOO_SHORT, lang) }),
+            email: z.string().toLowerCase().trim().email({ message: t(Resource.EMAIL_INVALID, lang) }),
+            password: z.string().min(6, { message: t(Resource.PASSWORD_TOO_SHORT, lang) }),
+            phone: z.string().optional(),
+            birthDate: dateSchema(lang).optional(),
+            createdAt: dateSchema(lang).optional(),
+            active: z.boolean().optional(),
+            theme: z.enum([Theme.DARK, Theme.LIGHT], {
+                errorMap: () => ({ message: t(Resource.INVALID_THEME_VALUE, lang) }),
+            }).optional(),
+            language: z.enum([Language.PT_BR, Language.EN_US, Language.ES_ES], {
+                errorMap: () => ({ message: t(Resource.INVALID_LANGUAGE_VALUE, lang) }),
+            }).optional(),
+            currency: z.enum([Currency.BRL, Currency.USD, Currency.EUR, Currency.ARS], {
+                errorMap: () => ({ message: t(Resource.INVALID_CURRENCY_VALUE, lang) }),
+            }).optional(),
+            dateFormat: z.enum([DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY], {
+                errorMap: () => ({ message: t(Resource.INVALID_DATE_FORMAT_VALUE, lang) }),
+            }).optional(),
+        })
+        .strict();
 
-export const updateUserSchema = z.object({
-    firstName: z.string().min(2).optional(),
-    lastName: z.string().min(2).optional(),
-    email: z.string().toLowerCase().trim().email().optional(),
-    password: z.string().min(6).optional(),
-    phone: z.string().optional(),
-    birthDate: dateSchema.optional(),
-    active: z.boolean().optional(),
-    theme: z.enum([Theme.DARK, Theme.LIGHT]).optional(),
-    language: z.enum([Language.PT_BR, Language.EN_US, Language.ES_ES]).optional(),
-    currency: z.enum([Currency.BRL, Currency.USD, Currency.EUR, Currency.ARS]).optional(),
-    dateFormat: z.enum([DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY]).optional(),
-}).strict();
+
+/**
+ * Schema to validate user update input with translated messages and enum refinements.
+ */
+export const updateUserSchema = (lang?: LanguageCode) =>
+    createUserSchema(lang).partial().strict();
+

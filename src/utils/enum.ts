@@ -42,10 +42,14 @@ export enum DateFormat {
     MM_DD_YYYY = 'MM/DD/YYYY',
 }
 
+export enum ExpenseType {
+    ACCOUNT = 'account',
+    CREDIT_CARD = 'creditCard',
+}
+
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
-    NO_CONTENT = 204,
     MOVED_PERMANENTLY = 301,
     NOT_MODIFIED = 304,
     BAD_REQUEST = 400,
@@ -72,9 +76,10 @@ export enum LogCategory {
     ACCOUNT = "account",
     AUTH = 'auth',
     DATABASE = 'database',
+    EXPENSE = 'expense',
     LOG = 'log',
     MIGRATION = "migration",
-    MIGRATION_GROUP = "migration_group",
+    MIGRATION_GROUP = "migrationGroup",
     SERVER = 'server',
     USER = 'user',
 }
@@ -116,13 +121,12 @@ export enum Profile {
 
 export enum TableName {
     ACCOUNT = 'account',
+    EXPENSE = "expense",
     LOG = 'log',
-    USER = 'user',
-    LOG_OLD = "Log_old",
-    USER_OLD = 'User_old',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migration_group",
     REFRESH_TOKEN = "refresh_token",
+    USER = 'user',
 }
 
 export enum Theme {

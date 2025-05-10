@@ -7,6 +7,7 @@ import User from "../user/user";
 class Account {
     // id
     @Column({
+        
         type: ColumnType.INTEGER
     }) id!: number;
 
