@@ -6,6 +6,8 @@ const enUS: LanguageResource = {
     EXPENSE_NOT_FOUND: "Expense not found",
     EXPIRED_OR_INVALID_TOKEN: "Expired or invalid token",
     INTERNAL_SERVER_ERROR: "Internal server error",
+    INVALID_CATEGORY_ID: "Invalid category ID",
+    INVALID_SUBCATEGORY_ID: "Invalid subcategory ID",
     INVALID_ACCOUNT_ID: "Invalid account ID",
     INVALID_CREDENTIALS: "Invalid credentials",
     INVALID_CRITERIA: "Invalid criteria",
@@ -41,6 +43,10 @@ const enUS: LanguageResource = {
     TOO_BIG: "'{path}' must have at most {max} characters",
     UNRECOGNIZED_KEYS: "Unrecognized keys: {keys}",
     INVALID_DATE: "'{path}' must be a valid date",
+    CATEGORY_NOT_FOUND_OR_INACTIVE: "Category not found or inactive",
+    CATEGORY_NOT_FOUND: "Category not found",
+    SUBCATEGORY_NOT_FOUND: "Subcategory not found",
+    UNAUTHORIZED_OPERATION: "Unauthorized operation",
 };
 
 export default enUS;

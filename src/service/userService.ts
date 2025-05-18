@@ -128,7 +128,7 @@ export class UserService extends DbService {
      * Deletes a user by ID after validating its existence.
      *
      * @param id - ID of the user to delete.
-     * @returns Success with deleted ID, or error if user does not exist.
+     * @returns  Success with deleted ID, or error if user does not exist.
      */
     async deleteUser(id: number): Promise<DbResponse<{ id: number }>> {
         const existingUser = await this.findOne(id);

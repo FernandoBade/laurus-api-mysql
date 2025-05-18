@@ -23,7 +23,7 @@ export class ExpenseService extends DbService {
         category: string;
         subcategory: string;
         observation?: string;
-        expenseType: ExpenseType
+        expenseType: ExpenseType;
         isInstallment: boolean;
         totalMonths?: number;
         isRecurring: boolean;
@@ -38,7 +38,12 @@ export class ExpenseService extends DbService {
             return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
         }
 
-        return this.create(data);
+        const result = await this.create(data);
+        if (!result.success || !result.data?.id) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+
+        return this.findOne(result.data.id);
     }
 
     /**
@@ -101,7 +106,6 @@ export class ExpenseService extends DbService {
             return allExpenses;
         }
 
-        // Agrupando manualmente por account_id
         const grouped = accountIds.map(accountId => ({
             accountId,
             expenses: allExpenses.data?.filter(e => e.account_id === accountId)
@@ -113,7 +117,6 @@ export class ExpenseService extends DbService {
         };
     }
 
-
     /**
      * Updates an expense by ID.
      *
@@ -122,7 +125,12 @@ export class ExpenseService extends DbService {
      * @returns Updated expense record.
      */
     async updateExpense(id: number, data: Partial<any>): Promise<DbResponse<any>> {
-        await this.update(id, data);
+        const updateResult = await this.update(id, data);
+
+        if (!updateResult.success) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+
         return this.findOne(id);
     }
 
@@ -130,7 +138,7 @@ export class ExpenseService extends DbService {
      * Deletes an expense by ID after verifying its existence.
      *
      * @param id - ID of the expense to delete.
-     * @returns Success with deleted ID, or error if not found.
+     * @returns  Success with deleted ID, or error if expense does not exist.
      */
     async deleteExpense(id: number): Promise<DbResponse<{ id: number }>> {
         const existing = await this.findOne(id);

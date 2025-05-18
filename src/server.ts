@@ -18,6 +18,8 @@ import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
 import accountRoutes from './routes/accountRoutes';
 import expenseRoutes from './routes/expenseRoutes';
+import categoryRoutes from './routes/categoryRoutes';
+import subcategoryRoutes from './routes/subcategoryRoutes';
 // #endregion Imports
 
 const app = express();
@@ -38,6 +40,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Register application routes
 app.use('/auth', authRoutes);
 app.use("/accounts", accountRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/subcategories", subcategoryRoutes);
 app.use("/expenses", expenseRoutes);
 app.use("/users", userRoutes);
 

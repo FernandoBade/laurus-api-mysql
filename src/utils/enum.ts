@@ -7,6 +7,24 @@ export enum AccountType {
     OTHER = 'other',
 }
 
+export enum CategoryType {
+    INCOME = 'income',
+    EXPENSE = 'expense'
+}
+
+export enum CategoryColor {
+    RED = 'red',
+    BLUE = 'blue',
+    GREEN = 'green',
+    PURPLE = 'purple',
+    YELLOW = 'yellow',
+    ORANGE = 'orange',
+    PINK = 'pink',
+    GRAY = 'gray',
+    CYAN = 'cyan',
+    INDIGO = 'indigo'
+}
+
 export enum ColumnType {
     VARCHAR = "VARCHAR(255)",
     CHAR = "CHAR(255)",
@@ -75,12 +93,14 @@ export enum Language {
 export enum LogCategory {
     ACCOUNT = "account",
     AUTH = 'auth',
+    CATEGORY = 'category',
     DATABASE = 'database',
     EXPENSE = 'expense',
     LOG = 'log',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migrationGroup",
     SERVER = 'server',
+    SUBCATEGORY = "subcategory",
     USER = 'user',
 }
 
@@ -111,7 +131,7 @@ export enum Operator {
     BETWEEN = 'BETWEEN',
     ASC = 'ASC',
     DESC = 'DESC',
-  }
+}
 
 export enum Profile {
     STARTER = 'starter',
@@ -127,6 +147,8 @@ export enum TableName {
     MIGRATION_GROUP = "migration_group",
     REFRESH_TOKEN = "refresh_token",
     USER = 'user',
+    CATEGORY = 'category',
+    SUBCATEGORY = "subcategory",
 }
 
 export enum Theme {

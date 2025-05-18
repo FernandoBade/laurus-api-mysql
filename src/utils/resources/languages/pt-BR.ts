@@ -6,6 +6,8 @@ const ptBR: LanguageResource = {
     EXPENSE_NOT_FOUND: "Despesa não encontrada",
     EXPIRED_OR_INVALID_TOKEN: "Token expirado ou inválido",
     INTERNAL_SERVER_ERROR: "Erro interno do servidor",
+    INVALID_CATEGORY_ID: "ID da categoria inválido",
+    INVALID_SUBCATEGORY_ID: "ID da subcategoria inválido",
     INVALID_ACCOUNT_ID: "ID da conta inválido",
     INVALID_CREDENTIALS: "Credenciais inválidas",
     INVALID_CRITERIA: "Critérios inválidos",
@@ -41,7 +43,10 @@ const ptBR: LanguageResource = {
     TOO_BIG: "'{path}' deve ter no máximo {max} caracteres",
     UNRECOGNIZED_KEYS: "Chaves não reconhecidas: {keys}",
     INVALID_DATE: "'{path}' deve ser uma data válida",
-
+    CATEGORY_NOT_FOUND_OR_INACTIVE: "Categoria não encontrada ou inativa",
+    CATEGORY_NOT_FOUND: "Categoria não encontrada",
+    SUBCATEGORY_NOT_FOUND: "Subcategoria não encontrada",
+    UNAUTHORIZED_OPERATION: "Operação não autorizada",
 };
 
 export default ptBR;

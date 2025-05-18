@@ -6,6 +6,8 @@ const esES: LanguageResource = {
     EXPENSE_NOT_FOUND: "Gasto no encontrado",
     EXPIRED_OR_INVALID_TOKEN: "Token expirado o inválido",
     INTERNAL_SERVER_ERROR: "Error interno del servidor",
+    INVALID_CATEGORY_ID: "ID de categoría inválido",
+    INVALID_SUBCATEGORY_ID: "ID de subcategoría inválido",
     INVALID_ACCOUNT_ID: "ID de cuenta inválido",
     INVALID_CREDENTIALS: "Credenciales inválidas",
     INVALID_CRITERIA: "Criterios inválidos",
@@ -41,7 +43,10 @@ const esES: LanguageResource = {
     TOO_BIG: "'{path}' debe tener como máximo {max} caracteres",
     UNRECOGNIZED_KEYS: "Claves no reconocidas: {keys}",
     INVALID_DATE: "'{path}' debe ser una fecha válida",
-
+    CATEGORY_NOT_FOUND_OR_INACTIVE: "Categoría no encontrada o inactiva",
+    CATEGORY_NOT_FOUND: "Categoría no encontrada",
+    SUBCATEGORY_NOT_FOUND: "Subcategoría no encontrada",
+    UNAUTHORIZED_OPERATION: "Operación no autorizada",
 };
 
 export default esES;
