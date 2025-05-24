@@ -1,9 +1,11 @@
 import "reflect-metadata";
 import { Table, Column, ManyToOne } from "../../utils/database/schemas/dbDecorators";
-import { ColumnType, TableName, ExpenseType } from "../../utils/enum";
+import { ColumnType, TableName, TransactionSource, TransactionType } from "../../utils/enum";
 import Account from "../account/account";
+import Category from "../category/category";
+import Subcategory from "../subcategory/subcategory";
 
-@Table(TableName.EXPENSE)
+@Table(TableName.TRANSACTION)
 class Expense {
     // id
     @Column({
@@ -20,17 +22,12 @@ class Expense {
         type: ColumnType.DATE
     }) date!: Date;
 
-    // category
+    // transactionType
     @Column({
-        type: ColumnType.VARCHAR,
-        defaultValue: null
-    }) category!: string;
-
-    // subcategory
-    @Column({
-        type: ColumnType.VARCHAR,
-        defaultValue: null
-    }) subcategory!: string;
+        type: ColumnType.ENUM,
+        enumValues: Object.values(TransactionType),
+    })
+    transactionType!: TransactionType;
 
     // observation
     @Column({
@@ -38,11 +35,11 @@ class Expense {
         defaultValue: null
     }) observation?: string;
 
-    // expenseType
+    // transactionSource
     @Column({
         type: ColumnType.ENUM,
-        enumValues: Object.values(ExpenseType),
-    }) expenseType!: ExpenseType;
+        enumValues: Object.values(TransactionSource),
+    }) expenseType!: TransactionSource;
 
     // isInstallment
     @Column({
@@ -90,6 +87,15 @@ class Expense {
     // expense -> account | manyToOne
     @ManyToOne(() => Account, 'expenses')
     account!: Account;
+
+    // expense -> category | manyToOne
+    @ManyToOne(() => Category, 'expenses')
+    category?: Category;
+
+    // expense -> subcategory | manyToOne
+    @ManyToOne(() => Subcategory, 'expenses')
+    subcategory?: Subcategory;
+
 }
 
 export default Expense;

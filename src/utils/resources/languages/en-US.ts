@@ -47,6 +47,9 @@ const enUS: LanguageResource = {
     CATEGORY_NOT_FOUND: "Category not found",
     SUBCATEGORY_NOT_FOUND: "Subcategory not found",
     UNAUTHORIZED_OPERATION: "Unauthorized operation",
+    SUBCATEGORY_NOT_FOUND_OR_INACTIVE: "Subcategory not found or inactive",
+    CATEGORY_OR_SUBCATEGORY_REQUIRED: "Category or subcategory (active) is required",
+    TRANSACTION_NOT_FOUND: "Transaction not found",
 };
 
 export default enUS;

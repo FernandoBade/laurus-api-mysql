@@ -73,7 +73,7 @@
 *               active:
 *                 type: boolean
 *                 default: true
-*                 description: Flag indicating if the expense is currently active.
+*                 description: Indicates whether the expense is active. Defaults to true.
 
  *     responses:
  *       201:

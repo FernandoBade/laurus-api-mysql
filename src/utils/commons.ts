@@ -165,25 +165,43 @@ export function formatError(error: unknown): Record<string, any> {
  * @param lang - Language code (e.g., 'pt-BR', 'en-US', 'es-ES')
  * @returns An array of errors with property and translated message.
  */
-export function formatZodValidationErrors(error: ZodError, lang: LanguageCode = 'en-US') {
+export function formatZodValidationErrors(error: ZodError, lang?: LanguageCode) {
     return error.errors.map((e: ZodIssue) => {
         const path = e.path.join('.') || 'unknown';
         let message = e.message;
 
-        // Se a mensagem veio do schema ou for fallback, sempre tenta substituir os placeholders
-        if (message.includes('{path}')) message = message.replace('{path}', path);
-        if (message.includes('{received}') && (e as any).received !== undefined)
-            message = message.replace('{received}', String((e as any).received));
-        if (message.includes('{expected}') && (e as any).expected !== undefined)
-            message = message.replace('{expected}', String((e as any).expected));
-        if (message.includes('{options}') && (e as any).options !== undefined)
-            message = message.replace('{options}', (e as any).options.join(', '));
-        if (message.includes('{min}') && (e as any).minimum !== undefined)
-            message = message.replace('{min}', String((e as any).minimum));
-        if (message.includes('{max}') && (e as any).maximum !== undefined)
-            message = message.replace('{max}', String((e as any).maximum));
-        if (message.includes('{keys}') && (e as any).keys !== undefined)
-            message = message.replace('{keys}', (e as any).keys.join(', '));
+        // Enum error custom translation
+        if (e.code === 'invalid_enum_value') {
+            const received = (e as any).received ?? 'undefined';
+            const expectedValues = (e as any).options || (e as any).expected || [];
+            message = ResourceBase.translate(Resource.INVALID_ENUM, lang)
+                .replace('{path}', path)
+                .replace('{received}', String(received))
+                .replace('{options}', expectedValues.join(', '));
+        } else {
+            // Other substitutions only if not already customized
+            if (message.includes('{path}')) message = message.replace('{path}', path);
+            if (message.includes('{received}') && (e as any).received !== undefined)
+                message = message.replace('{received}', String((e as any).received));
+            if (message.includes('{expected}') && (e as any).expected !== undefined)
+                message = message.replace('{expected}', String((e as any).expected));
+            if (message.includes('{options}')) {
+                const options =
+                    (e as any).options ||
+                    ((e as any).expected && typeof (e as any).expected === 'object'
+                        ? Object.values((e as any).expected)
+                        : undefined);
+                if (options) {
+                    message = message.replace('{options}', options.join(', '));
+                }
+            }
+            if (message.includes('{min}') && (e as any).minimum !== undefined)
+                message = message.replace('{min}', String((e as any).minimum));
+            if (message.includes('{max}') && (e as any).maximum !== undefined)
+                message = message.replace('{max}', String((e as any).maximum));
+            if (message.includes('{keys}') && (e as any).keys !== undefined)
+                message = message.replace('{keys}', (e as any).keys.join(', '));
+        }
 
         return {
             property: path,
@@ -191,8 +209,6 @@ export function formatZodValidationErrors(error: ZodError, lang: LanguageCode = 
         };
     });
 }
-
-
 
 /**
  * Sends a localized error response to the client, following the same structure

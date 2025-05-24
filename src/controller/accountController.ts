@@ -28,7 +28,7 @@ class AccountController {
                     req,
                     res,
                     HTTPStatus.BAD_REQUEST,
-                    formatZodValidationErrors(parseResult.error),
+                    formatZodValidationErrors(parseResult.error, ),
                     Resource.VALIDATION_ERROR
                 );
             }

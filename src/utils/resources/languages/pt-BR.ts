@@ -47,6 +47,9 @@ const ptBR: LanguageResource = {
     CATEGORY_NOT_FOUND: "Categoria não encontrada",
     SUBCATEGORY_NOT_FOUND: "Subcategoria não encontrada",
     UNAUTHORIZED_OPERATION: "Operação não autorizada",
+    SUBCATEGORY_NOT_FOUND_OR_INACTIVE: "Subcategoria não encontrada ou inativa",
+    CATEGORY_OR_SUBCATEGORY_REQUIRED: "Categoria ou subcategoria (ativas) são obrigatórias",
+    TRANSACTION_NOT_FOUND: "Transação não encontrada",
 };
 
 export default ptBR;

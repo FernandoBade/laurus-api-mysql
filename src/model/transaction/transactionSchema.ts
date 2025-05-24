@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ExpenseType } from '../../utils/enum';
+import { TransactionSource, TransactionType } from '../../utils/enum';
 import { Resource } from '../../utils/resources/resource';
 import { LanguageCode } from '../../utils/resources/resourceTypes';
 import { ResourceBase } from '../../utils/resources/languages/resourceService';
@@ -39,18 +39,17 @@ const dateSchema = (lang?: LanguageCode) =>
     });
 
 /**
- * Shared base schema for expense creation and update
+ * Shared base schema for transaction creation and update
  */
-const baseExpenseSchema = (lang?: LanguageCode) =>
+const baseTransactionSchema = (lang?: LanguageCode) =>
     z.object({
         value: z.number().positive({ message: t(Resource.TOO_SMALL, lang) }),
         date: dateSchema(lang),
-        category: z.string().min(1, { message: t(Resource.TOO_SMALL, lang) }),
-        subcategory: z.string().min(1, { message: t(Resource.TOO_SMALL, lang) }),
+        category_id: z.number().int().positive().optional(),
+        subcategory_id: z.number().int().positive().optional(),
         observation: z.string().optional(),
-        expenseType: z.enum([ExpenseType.ACCOUNT, ExpenseType.CREDIT_CARD], {
-            errorMap: () => ({ message: t(Resource.INVALID_ENUM, lang) }),
-        }),
+        transactionType: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
+        transactionSource: z.enum([TransactionSource.ACCOUNT, TransactionSource.CREDIT_CARD]),
         isInstallment: z.boolean({ invalid_type_error: t(Resource.INVALID_TYPE, lang) }),
         totalMonths: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
         isRecurring: z.boolean({ invalid_type_error: t(Resource.INVALID_TYPE, lang) }),
@@ -66,8 +65,21 @@ const baseExpenseSchema = (lang?: LanguageCode) =>
 /**
  * Common validation logic for installment and recurring rules
  */
-const withExpenseRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode) =>
+const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode) =>
     schema.superRefine((data, ctx) => {
+        if (!data.category_id && !data.subcategory_id) {
+            ctx.addIssue({
+                path: ['category_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+            });
+
+            ctx.addIssue({
+                path: ['subcategory_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+            });
+        }
         if (data.isInstallment) {
             if (!data.totalMonths) {
                 ctx.addIssue({
@@ -110,13 +122,13 @@ const withExpenseRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode) =>
     });
 
 /**
- * Schema to validate expense creation
+ * Schema to validate transaction creation
  */
-export const createExpenseSchema = (lang?: LanguageCode) =>
-    withExpenseRefinements(baseExpenseSchema(lang), lang);
+export const createTransactionSchema = (lang?: LanguageCode) =>
+    withTransactionRefinements(baseTransactionSchema(lang), lang);
 
 /**
- * Schema to validate expense update (all fields optional)
+ * Schema to validate transaction update (all fields optional)
  */
-export const updateExpenseSchema = (lang?: LanguageCode) =>
-    withExpenseRefinements(baseExpenseSchema(lang).partial(), lang);
+export const updateTransactionSchema = (lang?: LanguageCode) =>
+    withTransactionRefinements(baseTransactionSchema(lang).partial(), lang);

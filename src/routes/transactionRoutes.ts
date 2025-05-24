@@ -2,17 +2,17 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { LogType, LogOperation, LogCategory } from '../utils/enum';
 import { createLog, formatError } from '../utils/commons';
 import { verifyToken } from '../utils/auth/verifyToken';
-import ExpenseController from '../controller/expenseController';
+import TransactionController from '../controller/transactionController';
 
 const router = Router();
 
 /**
  * @route POST /
- * @description Creates a new expense. Requires authentication.
+ * @description Creates a new transaction. Requires authentication.
  */
 router.post('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.createExpense(req, res, next);
+        await TransactionController.createTransaction(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -27,11 +27,11 @@ router.post('/', verifyToken, async (req: Request, res: Response, next: NextFunc
 
 /**
  * @route GET /
- * @description Lists all expenses in the system. Requires authentication.
+ * @description Lists all transactions in the system. Requires authentication.
  */
 router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.getExpenses(req, res, next);
+        await TransactionController.getTransactions(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -46,11 +46,11 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
 
 /**
  * @route GET /:id
- * @description Retrieves an expense by ID. Requires authentication.
+ * @description Retrieves an transaction by ID. Requires authentication.
  */
 router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.getExpenseById(req, res, next);
+        await TransactionController.getTransactionById(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -65,11 +65,11 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
 
 /**
  * @route GET /account/:accountId
- * @description Lists all expenses for a specific account. Requires authentication.
+ * @description Lists all transactions for a specific account. Requires authentication.
  */
 router.get('/account/:accountId', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.getExpensesByAccount(req, res, next);
+        await TransactionController.getTransactionsByAccount(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -84,11 +84,11 @@ router.get('/account/:accountId', verifyToken, async (req: Request, res: Respons
 
 /**
  * @route GET /user/:userId
- * @description Lists all expenses grouped by accounts for a specific user. Requires authentication.
+ * @description Lists all transactions grouped by accounts for a specific user. Requires authentication.
  */
 router.get('/user/:userId', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.getExpensesByUser(req, res, next);
+        await TransactionController.getTransactionsByUser(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -103,11 +103,11 @@ router.get('/user/:userId', verifyToken, async (req: Request, res: Response, nex
 
 /**
  * @route PUT /:id
- * @description Updates an expense by ID. Requires authentication.
+ * @description Updates an transaction by ID. Requires authentication.
  */
 router.put('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.updateExpense(req, res, next);
+        await TransactionController.updateTransaction(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,
@@ -122,11 +122,11 @@ router.put('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
 
 /**
  * @route DELETE /:id
- * @description Deletes an expense by ID. Requires authentication.
+ * @description Deletes an transaction by ID. Requires authentication.
  */
 router.delete('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await ExpenseController.deleteExpense(req, res, next);
+        await TransactionController.deleteTransaction(req, res, next);
     } catch (error) {
         await createLog(
             LogType.DEBUG,

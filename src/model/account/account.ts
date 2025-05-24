@@ -1,13 +1,14 @@
 import "reflect-metadata";
-import { Table, Column, ManyToOne } from "../../utils/database/schemas/dbDecorators";
+import { Table, Column, ManyToOne, OneToMany } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, TableName, AccountType } from "../../utils/enum";
 import User from "../user/user";
+import Transaction from "../transaction/transaction";
 
 @Table(TableName.ACCOUNT)
 class Account {
     // id
     @Column({
-        
+
         type: ColumnType.INTEGER
     }) id!: number;
 
@@ -58,6 +59,10 @@ class Account {
     // account -> user | manyToOne
     @ManyToOne(() => User, 'accounts')
     user!: User;
+
+    // account -> transaction | oneToMany
+    @OneToMany(() => Transaction, 'account')
+    transaction?: Transaction[];
 }
 
 export default Account;

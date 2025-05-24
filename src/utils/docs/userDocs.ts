@@ -58,7 +58,7 @@
  *                 description: Preferred date format. Defaults to "DD/MM/YYYY".
  *               active:
  *                 type: boolean
- *                 description: Indicates whether the user account is active.
+ *                 description: Indicates whether the user is active. Defaults to true.
  *               profile:
  *                 type: string
  *                 enum: [starter, pro, master]

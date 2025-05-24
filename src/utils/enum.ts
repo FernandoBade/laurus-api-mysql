@@ -60,11 +60,6 @@ export enum DateFormat {
     MM_DD_YYYY = 'MM/DD/YYYY',
 }
 
-export enum ExpenseType {
-    ACCOUNT = 'account',
-    CREDIT_CARD = 'creditCard',
-}
-
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
@@ -149,9 +144,20 @@ export enum TableName {
     USER = 'user',
     CATEGORY = 'category',
     SUBCATEGORY = "subcategory",
+    TRANSACTION = "transaction",
 }
 
 export enum Theme {
     DARK = 'dark',
     LIGHT = 'light',
+}
+
+export enum TransactionSource {
+    ACCOUNT = 'account',
+    CREDIT_CARD = 'creditCard',
+
+}
+export enum TransactionType {
+    INCOME = "income",
+    EXPENSE = "expense",
 }

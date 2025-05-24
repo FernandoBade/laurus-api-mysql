@@ -47,6 +47,9 @@ const esES: LanguageResource = {
     CATEGORY_NOT_FOUND: "Categoría no encontrada",
     SUBCATEGORY_NOT_FOUND: "Subcategoría no encontrada",
     UNAUTHORIZED_OPERATION: "Operación no autorizada",
+    SUBCATEGORY_NOT_FOUND_OR_INACTIVE: "Subcategoría no encontrada o inactiva",
+    CATEGORY_OR_SUBCATEGORY_REQUIRED: "Categoría o subcategoría (activas) son obligatorias",
+    TRANSACTION_NOT_FOUND: "Transacción no encontrada",
 };
 
 export default esES;

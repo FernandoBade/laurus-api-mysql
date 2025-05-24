@@ -1,29 +1,29 @@
 // #region Imports
 import { Request, Response, NextFunction } from 'express';
-import { ExpenseService } from '../service/expenseService';
-import { createExpenseSchema, updateExpenseSchema } from '../model/expense/expenseSchema';
+import { TransactionService } from '../service/transactionService';
+import { createTransactionSchema, updateTransactionSchema } from '../model/transaction/transactionSchema';
 import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 // #endregion Imports
 
-class ExpenseController {
+class TransactionController {
     /**
-     * Creates a new expense using validated input from the request body.
-     * Logs the result and returns the created expense on success.
+     * Creates a new transaction using validated input from the request body.
+     * Logs the result and returns the created transaction on success.
      *
-     * @param req - Express request containing new expense data.
-     * @param res - Express response returning the created expense.
+     * @param req - Express request containing new transaction data.
+     * @param res - Express response returning the created transaction.
      * @param next - Express next function for error handling.
-     * @returns HTTP 201 with new expense data or appropriate error.
+     * @returns HTTP 201 with new transaction data or appropriate error.
      */
-    static async createExpense(req: Request, res: Response, next: NextFunction) {
-        const expenseService = new ExpenseService();
+    static async createTransaction(req: Request, res: Response, next: NextFunction) {
+        const transactionService = new TransactionService();
 
         try {
 
-            const parseResult = validateSchema(createExpenseSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateSchema(createTransactionSchema, req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
@@ -35,7 +35,7 @@ class ExpenseController {
                 );
             }
 
-            const created = await expenseService.createExpense(parseResult.data);
+            const created = await transactionService.createTransaction(parseResult.data);
 
             if (!created.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
@@ -50,20 +50,20 @@ class ExpenseController {
     }
 
     /**
-     * Retrieves all expenses from the database.
+     * Retrieves all transactions from the database.
      * Validates the ID before querying.
      *
      * @param req - Express request object.
-     * @param res - Express response returning the expense or an error.
+     * @param res - Express response returning the transaction or an error.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with expense data or appropriate error. May be empty.
+     * @returns HTTP 200 with transaction data or appropriate error. May be empty.
      */
-    static async getExpenses(req: Request, res: Response, next: NextFunction) {
-        const expenseService = new ExpenseService();
+    static async getTransactions(req: Request, res: Response, next: NextFunction) {
+        const transactionService = new TransactionService();
 
         try {
-            const expenses = await expenseService.getExpenses();
-            return answerAPI(req, res, HTTPStatus.OK, expenses.data, expenses.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const transactions = await transactionService.getTransactions();
+            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -71,30 +71,30 @@ class ExpenseController {
     }
 
     /**
-     * Retrieves a specific expense by its ID.
+     * Retrieves a specific transaction by its ID.
      * Validates the ID before querying.
      *
-     * @param req - Express request containing expense ID in the URL.
-     * @param res - Express response returning the expense or an error.
+     * @param req - Express request containing transaction ID in the URL.
+     * @param res - Express response returning the transaction or an error.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with expense data or appropriate error.
+     * @returns HTTP 200 with transaction data or appropriate error.
      */
-    static async getExpenseById(req: Request, res: Response, next: NextFunction) {
+    static async getTransactionById(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
         }
 
-        const expenseService = new ExpenseService();
+        const transactionService = new TransactionService();
 
         try {
-            const expense = await expenseService.getExpenseById(id);
+            const transaction = await transactionService.getTransactionById(id);
 
-            if (!expense.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, expense.error);
+            if (!transaction.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, transaction.error);
             }
 
-            return answerAPI(req, res, HTTPStatus.OK, expense.data);
+            return answerAPI(req, res, HTTPStatus.OK, transaction.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -102,25 +102,25 @@ class ExpenseController {
     }
 
     /**
-     * Retrieves all expenses for a specific account.
+     * Retrieves all transactions for a specific account.
      * Validates the account ID before querying.
      *
      * @param req - Express request with account ID in the URL.
-     * @param res - Express response returning the list of expenses.
+     * @param res - Express response returning the list of transactions.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with expense list or appropriate error.
+     * @returns HTTP 200 with transaction list or appropriate error.
      */
-    static async getExpensesByAccount(req: Request, res: Response, next: NextFunction) {
+    static async getTransactionsByAccount(req: Request, res: Response, next: NextFunction) {
         const accountId = Number(req.params.accountId);
         if (isNaN(accountId) || accountId <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_ACCOUNT_ID);
         }
 
-        const expenseService = new ExpenseService();
+        const transactionService = new TransactionService();
 
         try {
-            const expenses = await expenseService.getExpensesByAccount(accountId);
-            return answerAPI(req, res, HTTPStatus.OK, expenses.data, expenses.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const transactions = await transactionService.getTransactionsByAccount(accountId);
+            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), accountId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -128,25 +128,25 @@ class ExpenseController {
     }
 
     /**
-     * Retrieves all expenses for a given user, grouped by account.
+     * Retrieves all transactions for a given user, grouped by account.
      * Validates the user ID before processing.
      *
      * @param req - Express request with user ID in the URL.
-     * @param res - Express response returning the user's expenses.
+     * @param res - Express response returning the user's transactions.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with expense list or appropriate error.
+     * @returns HTTP 200 with transaction list or appropriate error.
      */
-    static async getExpensesByUser(req: Request, res: Response, next: NextFunction) {
+    static async getTransactionsByUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.userId);
         if (isNaN(userId) || userId <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_USER_ID);
         }
 
-        const expenseService = new ExpenseService();
+        const transactionService = new TransactionService();
 
         try {
-            const expenses = await expenseService.getExpensesByUser(userId);
-            return answerAPI(req, res, HTTPStatus.OK, expenses.data, expenses.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const transactions = await transactionService.getTransactionsByUser(userId);
+            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -154,35 +154,35 @@ class ExpenseController {
     }
 
     /**
-     * Updates an existing expense by ID using validated input.
-     * Ensures expense exists before updating and logs the operation.
+     * Updates an existing transaction by ID using validated input.
+     * Ensures transaction exists before updating and logs the operation.
      *
-     * @param req - Express request with expense ID and updated data.
-     * @param res - Express response returning the updated expense.
+     * @param req - Express request with transaction ID and updated data.
+     * @param res - Express response returning the updated transaction.
      * @param next - Express next function for error handling.
-     * @returns HTTP 200 with updated expense or appropriate error.
+     * @returns HTTP 200 with updated transaction or appropriate error.
      */
-    static async updateExpense(req: Request, res: Response, next: NextFunction) {
+    static async updateTransaction(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
         }
 
-        const expenseService = new ExpenseService();
+        const transactionService = new TransactionService();
 
         try {
-            const existing = await expenseService.getExpenseById(id);
+            const existing = await transactionService.getTransactionById(id);
             if (!existing.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateExpenseSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateSchema(updateTransactionSchema, req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
             }
 
-            const updated = await expenseService.updateExpense(id, parseResult.data);
+            const updated = await transactionService.updateTransaction(id, parseResult.data);
             if (!updated.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
@@ -196,25 +196,25 @@ class ExpenseController {
     }
 
     /**
-     * Deletes an expense by its unique ID.
+     * Deletes an transaction by its unique ID.
      * Validates the ID and logs the result upon successful deletion.
      *
-     * @param req - Express request with the ID of the expense to delete.
+     * @param req - Express request with the ID of the transaction to delete.
      * @param res - Express response confirming deletion.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with deleted ID or appropriate error.
      */
-    static async deleteExpense(req: Request, res: Response, next: NextFunction) {
+    static async deleteTransaction(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
 
         if (isNaN(id) || id <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
         }
 
-        const expenseService = new ExpenseService();
+        const transactionService = new TransactionService();
 
         try {
-            const result = await expenseService.deleteExpense(id);
+            const result = await transactionService.deleteTransaction(id);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
@@ -229,4 +229,4 @@ class ExpenseController {
     }
 }
 
-export default ExpenseController;
+export default TransactionController;
