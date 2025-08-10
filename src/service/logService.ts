@@ -1,6 +1,5 @@
 import { DbService } from '../utils/database/services/dbService';
 import { TableName, LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';

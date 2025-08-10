@@ -45,8 +45,8 @@ const baseTransactionSchema = (lang?: LanguageCode) =>
     z.object({
         value: z.number().positive({ message: t(Resource.TOO_SMALL, lang) }),
         date: dateSchema(lang),
-        category_id: z.number().int().positive().optional(),
-        subcategory_id: z.number().int().positive().optional(),
+        category_id: z.number().int().positive().optional().nullable(),
+        subcategory_id: z.number().int().positive().optional().nullable(),
         observation: z.string().optional(),
         transactionType: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
         transactionSource: z.enum([TransactionSource.ACCOUNT, TransactionSource.CREDIT_CARD]),
@@ -65,21 +65,40 @@ const baseTransactionSchema = (lang?: LanguageCode) =>
 /**
  * Common validation logic for installment and recurring rules
  */
-const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode) =>
+const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode, isUpdate = false) =>
     schema.superRefine((data, ctx) => {
-        if (!data.category_id && !data.subcategory_id) {
-            ctx.addIssue({
-                path: ['category_id'],
-                code: z.ZodIssueCode.custom,
-                message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
-            });
-
-            ctx.addIssue({
-                path: ['subcategory_id'],
-                code: z.ZodIssueCode.custom,
-                message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
-            });
+        if (isUpdate) {
+            const hasCat = Object.prototype.hasOwnProperty.call(data, 'category_id');
+            const hasSub = Object.prototype.hasOwnProperty.call(data, 'subcategory_id');
+            if (hasCat || hasSub) {
+                if (!data.category_id && !data.subcategory_id) {
+                    ctx.addIssue({
+                        path: ['category_id'],
+                        code: z.ZodIssueCode.custom,
+                        message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+                    });
+                    ctx.addIssue({
+                        path: ['subcategory_id'],
+                        code: z.ZodIssueCode.custom,
+                        message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+                    });
+                }
+            }
+        } else {
+            if (!data.category_id && !data.subcategory_id) {
+                ctx.addIssue({
+                    path: ['category_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+                });
+                ctx.addIssue({
+                    path: ['subcategory_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang),
+                });
+            }
         }
+
         if (data.isInstallment) {
             if (!data.totalMonths) {
                 ctx.addIssue({
@@ -131,4 +150,4 @@ export const createTransactionSchema = (lang?: LanguageCode) =>
  * Schema to validate transaction update (all fields optional)
  */
 export const updateTransactionSchema = (lang?: LanguageCode) =>
-    withTransactionRefinements(baseTransactionSchema(lang).partial(), lang);
+    withTransactionRefinements(baseTransactionSchema(lang).partial(), lang, true);

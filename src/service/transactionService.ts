@@ -146,33 +146,36 @@ export class TransactionService extends DbService {
      * @returns Updated transaction record.
      */
     async updateTransaction(id: number, data: Partial<any>): Promise<DbResponse<any>> {
+        const current = await this.findOne(id);
+        if (!current.success || !current.data) {
+            return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
+        }
 
         if (data.account_id !== undefined) {
-            const accountService = new AccountService();
-            const account = await accountService.getAccountById(data.account_id);
-
+            const account = await new AccountService().getAccountById(Number(data.account_id));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
         }
 
-        if ('category_id' in data || 'subcategory_id' in data) {
-            if (!data.category_id && !data.subcategory_id) {
-                return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
-            }
+        const effectiveCategoryId = data.category_id !== undefined ? data.category_id : current.data.category_id;
+        const effectiveSubcategoryId = data.subcategory_id !== undefined ? data.subcategory_id : current.data.subcategory_id;
 
-            if (data.category_id !== undefined) {
-                const category = await new CategoryService().getCategoryById(data.category_id);
-                if (!category.success || !category.data?.active) {
-                    return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
-                }
-            }
+        if (!effectiveCategoryId && !effectiveSubcategoryId) {
+            return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
+        }
 
-            if (data.subcategory_id !== undefined) {
-                const subcategory = await new SubcategoryService().getSubcategoryById(data.subcategory_id);
-                if (!subcategory.success || !subcategory.data?.active) {
-                    return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND_OR_INACTIVE };
-                }
+        if (data.category_id !== undefined) {
+            const category = await new CategoryService().getCategoryById(Number(data.category_id));
+            if (!category.success || !category.data?.active) {
+                return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
+            }
+        }
+
+        if (data.subcategory_id !== undefined) {
+            const subcategory = await new SubcategoryService().getSubcategoryById(Number(data.subcategory_id));
+            if (!subcategory.success || !subcategory.data?.active) {
+                return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
@@ -183,6 +186,7 @@ export class TransactionService extends DbService {
 
         return this.findOne(id);
     }
+
 
     /**
      * Deletes an transaction by ID after verifying its existence.

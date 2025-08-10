@@ -11,7 +11,6 @@ import userRoutes from './routes/userRoutes';
 import { swaggerSpec } from './utils/docs/swaggerConfig';
 import './utils/docs/userDocs';
 
-
 import { createLog, sendErrorResponse } from './utils/commons';
 import { LogCategory, LogOperation, LogType } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';

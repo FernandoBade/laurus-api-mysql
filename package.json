@@ -7,9 +7,6 @@
     "dev:sync": "ts-node src/utils/database/sync/dbSync.ts && nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "prisma:migrate": "npx prisma migrate dev --name init",
-    "prisma:generate": "npx prisma generate",
-    "prisma:studio": "npx prisma studio",
     "test": "node --test"
   },
   "keywords": [],

@@ -142,10 +142,19 @@ export function answerAPI(
  */
 export function formatError(error: unknown): Record<string, any> {
     if (error instanceof Error) {
+
+        const detailedError = error as any;
+        const message =
+            error.message ||
+            detailedError.sqlMessage ||
+            detailedError.code ||
+            'Unknown error';
         return {
-            message: error.message,
+            message,
             name: error.name,
-            stack: error.stack
+            ...(detailedError.code && { code: detailedError.code }),
+            ...(detailedError.errno && { errno: detailedError.errno }),
+            ...(detailedError.sqlState && { sqlState: detailedError.sqlState }),
         };
     }
 
