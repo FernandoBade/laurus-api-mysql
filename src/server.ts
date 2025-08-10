@@ -17,7 +17,7 @@ import { LogCategory, LogOperation, LogType } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
 import accountRoutes from './routes/accountRoutes';
-import expenseRoutes from './routes/transactionRoutes';
+import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
 // #endregion Imports
@@ -42,7 +42,7 @@ app.use('/auth', authRoutes);
 app.use("/accounts", accountRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/subcategories", subcategoryRoutes);
-app.use("/transactions", expenseRoutes);
+app.use("/transactions", transactionRoutes);
 app.use("/users", userRoutes);
 
 // Swagger UI (OpenAPI JSON)

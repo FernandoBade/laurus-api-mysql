@@ -6,7 +6,7 @@ import Category from "../category/category";
 import Subcategory from "../subcategory/subcategory";
 
 @Table(TableName.TRANSACTION)
-class Expense {
+class Transaction {
     // id
     @Column({
         type: ColumnType.INTEGER
@@ -39,7 +39,7 @@ class Expense {
     @Column({
         type: ColumnType.ENUM,
         enumValues: Object.values(TransactionSource),
-    }) expenseType!: TransactionSource;
+    }) transactionSource!: TransactionSource;
 
     // isInstallment
     @Column({
@@ -84,18 +84,18 @@ class Expense {
         onUpdate: true
     }) updatedAt!: Date;
 
-    // expense -> account | manyToOne
-    @ManyToOne(() => Account, 'expenses')
+    // transaction -> account | manyToOne
+    @ManyToOne(() => Account, 'transactions')
     account!: Account;
 
-    // expense -> category | manyToOne
-    @ManyToOne(() => Category, 'expenses')
+    // transaction -> category | manyToOne
+    @ManyToOne(() => Category, 'transactions')
     category?: Category;
 
-    // expense -> subcategory | manyToOne
-    @ManyToOne(() => Subcategory, 'expenses')
+    // transaction -> subcategory | manyToOne
+    @ManyToOne(() => Subcategory, 'transactions')
     subcategory?: Subcategory;
 
 }
 
-export default Expense;
+export default Transaction;

@@ -60,9 +60,9 @@ class Account {
     @ManyToOne(() => User, 'accounts')
     user!: User;
 
-    // account -> transaction | oneToMany
+    // account -> transactions | oneToMany
     @OneToMany(() => Transaction, 'account')
-    transaction?: Transaction[];
+    transactions?: Transaction[];
 }
 
 export default Account;

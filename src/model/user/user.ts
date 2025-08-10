@@ -3,7 +3,7 @@ import { Table, Column } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, Currency, DateFormat, Language, TableName, Theme, Profile } from "../../utils/enum";
 import Log from '../log/log';
 import { OneToMany } from "../../utils/database/schemas/dbDecorators";
-import RefreshToken from "../refresh_token/refresth_token";
+import RefreshToken from "../refresh_token/refresh_token";
 import Account from "../account/account";
 
 @Table(TableName.USER)
