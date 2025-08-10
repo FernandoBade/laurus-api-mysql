@@ -9,8 +9,7 @@ import { LanguageCode } from '../utils/resources/resourceTypes';
 // #endregion Imports
 
 class TransactionController {
-    /**
-     * Creates a new transaction using validated input from the request body.
+    /** @summary Creates a new transaction using validated input from the request body.
      * Logs the result and returns the created transaction on success.
      *
      * @param req - Express request containing new transaction data.
@@ -41,8 +40,8 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.TRANSACTION, created.data, created.data.account_id);
-            return answerAPI(req, res, HTTPStatus.CREATED, created.data);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.TRANSACTION, created.data, created.data!.account_id);
+            return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -153,8 +152,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Updates an existing transaction by ID using validated input.
+    /** @summary Updates an existing transaction by ID using validated input.
      * Ensures transaction exists before updating and logs the operation.
      *
      * @param req - Express request with transaction ID and updated data.
@@ -187,8 +185,8 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.TRANSACTION, updated.data, updated.data.account_id);
-            return answerAPI(req, res, HTTPStatus.OK, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.TRANSACTION, updated.data, updated.data!.account_id);
+            return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.TRANSACTION, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

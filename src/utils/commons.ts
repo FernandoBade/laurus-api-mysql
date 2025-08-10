@@ -140,10 +140,15 @@ export function answerAPI(
  * @param error - Unknown error object.
  * @returns A structured object with message, name and stack trace (if applicable).
  */
-export function formatError(error: unknown): Record<string, any> {
+export function formatError(error: unknown): Record<string, unknown> {
     if (error instanceof Error) {
 
-        const detailedError = error as any;
+        const detailedError = (error as unknown) as Record<string, unknown> & {
+            sqlMessage?: string;
+            code?: string;
+            errno?: number;
+            sqlState?: string;
+        };
         const message =
             error.message ||
             detailedError.sqlMessage ||
@@ -159,7 +164,7 @@ export function formatError(error: unknown): Record<string, any> {
     }
 
     if (typeof error === 'object' && error !== null) {
-        return error as Record<string, any>;
+        return error as Record<string, unknown>;
     }
 
     return { message: error };

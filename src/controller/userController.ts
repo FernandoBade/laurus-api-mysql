@@ -8,8 +8,7 @@ import { LanguageCode } from '../utils/resources/resourceTypes';
 
 
 class UserController {
-    /**
-     * Creates a new user using validated input from the request body.
+    /** @summary Creates a new user using validated input from the request body.
      * Logs the result and returns the created user on success.
      *
      * @param req - Express request containing new user data.
@@ -40,8 +39,8 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser.data, newUser.data.id);
-            return answerAPI(req, res, HTTPStatus.CREATED, newUser.data);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser.data, newUser.data!.id);
+            return answerAPI(req, res, HTTPStatus.CREATED, newUser.data!);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
@@ -132,8 +131,7 @@ class UserController {
         }
     }
 
-    /**
-     * Updates an existing user by ID using validated input.
+    /** @summary Updates an existing user by ID using validated input.
      * Ensures user exists before updating and logs the result.
      *
      * @param req - Express request with user ID and updated data.
@@ -167,8 +165,8 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updatedUser.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data.id);
-            return answerAPI(req, res, HTTPStatus.OK, updatedUser.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data!.id);
+            return answerAPI(req, res, HTTPStatus.OK, updatedUser.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.USER, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

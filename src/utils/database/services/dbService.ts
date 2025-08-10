@@ -18,7 +18,7 @@ export abstract class DbService {
      * @param id - The ID of the entry to retrieve.
      * @returns The found entry or an error if not found.
      */
-    async findOne<T = any>(id: number): Promise<DbResponse<T>> {
+    async findOne<T>(id: number): Promise<DbResponse<T>> {
         return findById<T>(this.table, id);
     }
 
@@ -27,7 +27,7 @@ export abstract class DbService {
      * @param filter - Optional criteria to filter entries.
      * @returns List of found entries.
      */
-    async findMany<T = any>(filter?: object): Promise<DbResponse<T[]>> {
+    async findMany<T>(filter?: object): Promise<DbResponse<T[]>> {
         return findMany<T>(this.table, filter);
     }
 
@@ -39,7 +39,7 @@ export abstract class DbService {
      * @param options - Optional ordering and pagination options.
      * @returns Matching records or an empty list.
      */
-    async findWithFilters<T = any>(
+    async findWithFilters<T>(
         filters?: {
             [K in keyof T]?:
             | { operator: Operator.EQUAL; value: T[K] }
@@ -62,7 +62,7 @@ export abstract class DbService {
      * @param data - Data to create the new entry.
      * @returns The newly created entry.
      */
-    async create<T = any>(data: object): Promise<DbResponse<T>> {
+    async create<T>(data: object): Promise<DbResponse<T>> {
         return insert<T>(this.table, data);
     }
 
@@ -72,7 +72,7 @@ export abstract class DbService {
      * @param data - Data to be updated.
      * @returns Updated entry or an error if entry not found.
      */
-    async update<T = any>(id: number, data: object): Promise<DbResponse<T>> {
+    async update<T>(id: number, data: object): Promise<DbResponse<T>> {
         const updateResult = await update(this.table, id, data);
 
         if (!updateResult.success) {

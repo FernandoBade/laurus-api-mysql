@@ -11,7 +11,9 @@ import { LogType, LogOperation, LogCategory } from "../../enum";
  * @param dir - Optional directory path (defaults to /model).
  * @returns Array of loaded model classes.
  */
-export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
+type ModelClass = { tableName: string };
+
+export function getModels(dir = path.resolve(__dirname, "../../../model/")): ModelClass[] {
     if (!fs.existsSync(dir)) {
         createLog
             (LogType.ERROR,
@@ -23,7 +25,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
         return [];
     }
 
-    let models: any[] = [];
+    let models: ModelClass[] = [];
     const files = fs.readdirSync(dir);
 
     for (const file of files) {
@@ -39,7 +41,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
                 LogCategory.DATABASE,
                 `Loading model: '${file}'`
             );
-            models.push(require(fullPath).default);
+            models.push(require(fullPath).default as ModelClass);
         }
     }
 

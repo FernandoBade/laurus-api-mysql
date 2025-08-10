@@ -8,6 +8,8 @@ import User from '../model/user/user';
 import { RefreshTokenService } from './refreshTokenService';
 import { UserService } from './userService';
 import RefreshToken from '../model/refresh_token/refresh_token';
+
+type RefreshTokenRow = RefreshToken & { user_id: number };
 import { createLog } from '../utils/commons';
 
 export class AuthService {
@@ -52,7 +54,7 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
-        await this.tokenDb.create({
+        await this.tokenDb.create<RefreshTokenRow>({
             token: refreshToken,
             user_id: user.id,
             expiresAt
@@ -104,7 +106,7 @@ export class AuthService {
      * @returns Success status and user ID if logout succeeds, or error if token is not found.
      */
     async logout(token: string): Promise<DbResponse<{ userId: number }>> {
-        const tokens = await this.tokenDb.findMany({ token });
+        const tokens = await this.tokenDb.findMany<RefreshTokenRow>({ token });
         const stored = tokens.data?.[0];
 
         if (!stored) {
