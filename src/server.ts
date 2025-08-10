@@ -11,8 +11,8 @@ import userRoutes from './routes/userRoutes';
 import { swaggerSpec } from './utils/docs/swaggerConfig';
 import './utils/docs/userDocs';
 
-import { createLog, sendErrorResponse } from './utils/commons';
-import { LogCategory, LogOperation, LogType } from './utils/enum';
+import { createLog, sendErrorResponse, formatError } from './utils/commons';
+import { LogCategory, LogOperation, LogType, HTTPStatus } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
 import accountRoutes from './routes/accountRoutes';
@@ -66,15 +66,12 @@ app.get('/redoc', redoc({
  * @param res - Express response object.
  * @param next - Next middleware function.
  */
-function errorHandler(error: any, req: Request, res: Response, next: NextFunction) {
+async function errorHandler(error: unknown, req: Request, res: Response, next: NextFunction) {
     const isSyntaxError = error instanceof SyntaxError && 'body' in error;
+    const resource = isSyntaxError ? Resource.INVALID_JSON : Resource.INTERNAL_SERVER_ERROR;
+    const status = isSyntaxError ? HTTPStatus.BAD_REQUEST : HTTPStatus.INTERNAL_SERVER_ERROR;
 
-    const resource = isSyntaxError
-        ? Resource.INVALID_JSON
-        : Resource.INTERNAL_SERVER_ERROR;
-
-    const status = isSyntaxError ? 400 : 500;
-
+    await createLog(LogType.ERROR, LogOperation.STATUS, LogCategory.SERVER, formatError(error));
     return sendErrorResponse(req, res, status, resource, error);
 }
 
