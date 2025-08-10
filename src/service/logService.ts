@@ -1,10 +1,10 @@
 import { DbService } from '../utils/database/services/dbService';
 import { TableName, LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
+import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
-import { findById, findMany, findWithColumnFilters, insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
+import { insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';
 import { Resource } from '../utils/resources/resource';
-import { number } from 'zod';
 
 interface LogData {
     type: LogType;

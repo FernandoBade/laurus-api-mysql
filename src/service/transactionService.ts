@@ -4,8 +4,6 @@ import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { AccountService } from './accountService';
-import Category from '../model/category/category';
-import Subcategory from '../model/subcategory/subcategory';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
 

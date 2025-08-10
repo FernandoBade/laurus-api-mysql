@@ -7,7 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import User from '../model/user/user';
 import { RefreshTokenService } from './refreshTokenService';
 import { UserService } from './userService';
-import RefreshToken from '../model/refresh_token/refresth_token';
+import RefreshToken from '../model/refresh_token/refresh_token';
 import { createLog } from '../utils/commons';
 
 export class AuthService {

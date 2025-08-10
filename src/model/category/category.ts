@@ -3,6 +3,7 @@ import { Table, Column, OneToMany, ManyToOne } from "../../utils/database/schema
 import { ColumnType, TableName, CategoryColor, CategoryType } from "../../utils/enum";
 import Subcategory from "../subcategory/subcategory";
 import User from "../user/user";
+import Transaction from "../transaction/transaction";
 
 @Table(TableName.CATEGORY)
 class Category {
@@ -56,6 +57,10 @@ class Category {
     // category -> subcategories | oneToMany
     @OneToMany(() => Subcategory, 'category')
     subcategories?: Subcategory[];
+
+    // category -> transactions | oneToMany
+    @OneToMany(() => Transaction, 'category')
+    transactions?: Transaction[];
 }
 
 export default Category;

@@ -90,7 +90,7 @@ export enum LogCategory {
     AUTH = 'auth',
     CATEGORY = 'category',
     DATABASE = 'database',
-    EXPENSE = 'expense',
+    TRANSACTION = 'transaction',
     LOG = 'log',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migrationGroup",
@@ -136,7 +136,6 @@ export enum Profile {
 
 export enum TableName {
     ACCOUNT = 'account',
-    EXPENSE = "expense",
     LOG = 'log',
     MIGRATION = "migration",
     MIGRATION_GROUP = "migration_group",

@@ -41,10 +41,10 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.EXPENSE, created.data, created.data.account_id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.TRANSACTION, created.data, created.data.account_id);
             return answerAPI(req, res, HTTPStatus.CREATED, created.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.EXPENSE, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,7 +65,7 @@ class TransactionController {
             const transactions = await transactionService.getTransactions();
             return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), undefined, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -82,7 +82,7 @@ class TransactionController {
     static async getTransactionById(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
-            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_TRANSACTION_ID);
         }
 
         const transactionService = new TransactionService();
@@ -96,7 +96,7 @@ class TransactionController {
 
             return answerAPI(req, res, HTTPStatus.OK, transaction.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), id, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -122,7 +122,7 @@ class TransactionController {
             const transactions = await transactionService.getTransactionsByAccount(accountId);
             return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), accountId, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), accountId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -148,7 +148,7 @@ class TransactionController {
             const transactions = await transactionService.getTransactionsByUser(userId);
             return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.EXPENSE, formatError(error), userId, next);
+            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -165,7 +165,7 @@ class TransactionController {
     static async updateTransaction(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
-            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_TRANSACTION_ID);
         }
 
         const transactionService = new TransactionService();
@@ -187,10 +187,10 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.EXPENSE, updated.data, updated.data.account_id);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.TRANSACTION, updated.data, updated.data.account_id);
             return answerAPI(req, res, HTTPStatus.OK, updated.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.EXPENSE, formatError(error), id, next);
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.TRANSACTION, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -208,7 +208,7 @@ class TransactionController {
         const id = Number(req.params.id);
 
         if (isNaN(id) || id <= 0) {
-            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_EXPENSE_ID);
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_TRANSACTION_ID);
         }
 
         const transactionService = new TransactionService();
@@ -220,10 +220,10 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.EXPENSE, result.data, result.data?.id);
+            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.TRANSACTION, result.data, result.data?.id);
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.EXPENSE, formatError(error), id, next);
+            await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.TRANSACTION, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }

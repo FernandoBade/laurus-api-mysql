@@ -17,7 +17,7 @@ router.post('/', verifyToken, async (req: Request, res: Response, next: NextFunc
         await createLog(
             LogType.DEBUG,
             LogOperation.CREATE,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             req.body?.account_id,
             next
@@ -36,7 +36,7 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
         await createLog(
             LogType.DEBUG,
             LogOperation.SEARCH,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             undefined,
             next
@@ -55,7 +55,7 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
         await createLog(
             LogType.DEBUG,
             LogOperation.SEARCH,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.id) || undefined,
             next
@@ -74,7 +74,7 @@ router.get('/account/:accountId', verifyToken, async (req: Request, res: Respons
         await createLog(
             LogType.DEBUG,
             LogOperation.SEARCH,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.accountId) || undefined,
             next
@@ -93,7 +93,7 @@ router.get('/user/:userId', verifyToken, async (req: Request, res: Response, nex
         await createLog(
             LogType.DEBUG,
             LogOperation.SEARCH,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.userId) || undefined,
             next
@@ -112,7 +112,7 @@ router.put('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
         await createLog(
             LogType.DEBUG,
             LogOperation.UPDATE,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.id) || undefined,
             next
@@ -131,7 +131,7 @@ router.delete('/:id', verifyToken, async (req: Request, res: Response, next: Nex
         await createLog(
             LogType.DEBUG,
             LogOperation.DELETE,
-            LogCategory.EXPENSE,
+            LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.id) || undefined,
             next

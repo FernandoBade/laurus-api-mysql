@@ -1,7 +1,8 @@
 import "reflect-metadata";
-import { Table, Column, ManyToOne } from "../../utils/database/schemas/dbDecorators";
+import { Table, Column, ManyToOne, OneToMany } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, TableName } from "../../utils/enum";
 import Category from "../category/category";
+import Transaction from "../transaction/transaction";
 
 @Table(TableName.SUBCATEGORY)
 class Subcategory {
@@ -38,6 +39,10 @@ class Subcategory {
     // subcategory -> category | manyToOne
     @ManyToOne(() => Category, 'subcategories')
     category!: Category;
+
+    // subcategory -> transactions | oneToMany
+    @OneToMany(() => Transaction, 'subcategory')
+    transactions?: Transaction[];
 }
 
 export default Subcategory;
