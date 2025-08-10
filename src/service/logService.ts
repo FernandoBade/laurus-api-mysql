@@ -4,6 +4,9 @@ import { DbResponse } from '../utils/database/services/dbResponse';
 import { insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';
 import { Resource } from '../utils/resources/resource';
+import Log from '../model/log/log';
+
+type LogRow = Log & { user_id: number | null };
 
 interface LogData {
     type: LogType;
@@ -96,19 +99,18 @@ export class LogService extends DbService {
         return result;
     }
 
-    /**
-     * Retrieves all logs associated with a given user ID.
+    /** @summary Retrieves all logs associated with a given user ID.
      * Validates the input before executing the query.
      *
      * @param user_id - User ID to filter logs by.
      * @returns Array of logs or error if ID is invalid.
      */
-    async getLogsByUser(user_id: number | null): Promise<DbResponse<any[]>> {
+    async getLogsByUser(user_id: number | null): Promise<DbResponse<LogRow[]>> {
         if (user_id === null || isNaN(user_id) || user_id <= 0) {
             return { success: false, error: Resource.INVALID_USER_ID };
         }
 
-        return this.findWithFilters(
+        return this.findWithFilters<LogRow>(
             {
                 user_id: { operator: Operator.EQUAL, value: user_id }
             });

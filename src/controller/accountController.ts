@@ -7,8 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
 class AccountController {
-    /**
-     * Creates a new financial account using validated input.
+    /** @summary Creates a new financial account using validated input.
      * Logs the result and returns the created account on success.
      *
      * @param req - Express request containing account data.
@@ -39,8 +38,8 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.ACCOUNT, created.data, created.data.user_id);
-            return answerAPI(req, res, HTTPStatus.CREATED, created.data);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.ACCOUNT, created.data, created.data!.user_id);
+            return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.ACCOUNT, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -136,8 +135,7 @@ class AccountController {
         }
     }
 
-    /**
-     * Updates an existing account by ID using validated input.
+    /** @summary Updates an existing account by ID using validated input.
      * Ensures account exists before updating and logs the operation.
      *
      * @param req - Express request with account ID and updated data.
@@ -170,8 +168,8 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.ACCOUNT, updated.data, updated.data.user_id);
-            return answerAPI(req, res, HTTPStatus.OK, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.ACCOUNT, updated.data, updated.data!.user_id);
+            return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.ACCOUNT, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

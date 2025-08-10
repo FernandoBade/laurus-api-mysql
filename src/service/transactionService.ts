@@ -6,14 +6,22 @@ import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { AccountService } from './accountService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
+import Transaction from '../model/transaction/transaction';
+
+type TransactionRow = Transaction & {
+    account_id: number;
+    category_id: number | null;
+    subcategory_id: number | null;
+};
+
+type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
 
 export class TransactionService extends DbService {
     constructor() {
         super(TableName.TRANSACTION);
     }
 
-    /**
-     * Creates a new transaction linked to a valid account.
+    /** @summary Creates a new transaction linked to a valid account.
      * Validates required fields and the existence of the target account.
      *
      * @param data - Transaction creation data.
@@ -32,7 +40,7 @@ export class TransactionService extends DbService {
         paymentDay?: number;
         account_id: number;
         active?: boolean;
-    }): Promise<DbResponse<any>> {
+    }): Promise<DbResponse<TransactionRow>> {
         const accountService = new AccountService();
         const account = await accountService.getAccountById(data.account_id);
 
@@ -59,55 +67,51 @@ export class TransactionService extends DbService {
         }
 
 
-        const result = await this.create(data);
+        const result = await this.create<TransactionRow>(data);
         if (!result.success || !result.data?.id) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
-        return this.findOne(result.data.id);
+        return this.findOne<TransactionRow>(result.data.id);
     }
 
-    /**
-     * Retrieves all transaction records in the system.
+    /** @summary Retrieves all transaction records in the system.
      *
      * @returns A list of all transaction records.
      */
-    async getTransactions(): Promise<DbResponse<any[]>> {
-        return findWithColumnFilters<any>(TableName.TRANSACTION, {}, {
+    async getTransactions(): Promise<DbResponse<TransactionRow[]>> {
+        return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {}, {
             orderBy: 'date',
             direction: Operator.DESC
         });
     }
 
-    /**
-     * Retrieves a single transaction by its ID.
+    /** @summary Retrieves a single transaction by its ID.
      *
      * @param id - ID of the transaction.
      * @returns Transaction record if found.
      */
-    async getTransactionById(id: number): Promise<DbResponse<any>> {
-        return this.findOne(id);
+    async getTransactionById(id: number): Promise<DbResponse<TransactionRow>> {
+        return this.findOne<TransactionRow>(id);
     }
 
-    /**
-     * Retrieves all transactions associated with a specific account.
+    /** @summary Retrieves all transactions associated with a specific account.
      *
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
-    async getTransactionsByAccount(accountId: number): Promise<DbResponse<any[]>> {
-        return findWithColumnFilters<any>(TableName.TRANSACTION, {
+    async getTransactionsByAccount(accountId: number): Promise<DbResponse<TransactionRow[]>> {
+        return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
             account_id: { operator: Operator.EQUAL, value: accountId }
         }, { orderBy: 'date', direction: Operator.DESC });
     }
 
-    /**
-     * Retrieves all transactions for a given user, grouped by their accounts.
+    /** @summary Retrieves all transactions for a given user, grouped by their accounts.
      *
      * @param userId - ID of the user.
      * @returns A list of grouped transactions by account.
      */
-    async getTransactionsByUser(userId: number): Promise<DbResponse<any[]>> {
+    async getTransactionsByUser(userId: number): Promise<DbResponse<AccountTransactions[]>> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -117,17 +121,17 @@ export class TransactionService extends DbService {
 
         const accountIds = userAccounts.data.map(acc => acc.id);
 
-        const allTransactions = await findWithColumnFilters<any>(
+        const allTransactions = await findWithColumnFilters<TransactionRow>(
             TableName.TRANSACTION,
             { account_id: { operator: Operator.IN, value: accountIds } },
             { orderBy: 'date', direction: Operator.DESC }
         );
 
         if (!allTransactions.success || !allTransactions.data) {
-            return allTransactions;
+            return { ...allTransactions, data: undefined } as DbResponse<AccountTransactions[]>;
         }
 
-        const grouped = accountIds.map(accountId => ({
+        const grouped: AccountTransactions[] = accountIds.map(accountId => ({
             accountId,
             transactions: allTransactions.data?.filter(e => e.account_id === accountId)
         }));
@@ -138,15 +142,14 @@ export class TransactionService extends DbService {
         };
     }
 
-    /**
-     * Updates an transaction by ID.
+    /** @summary Updates an transaction by ID.
      *
      * @param id - ID of the transaction.
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: Partial<any>): Promise<DbResponse<any>> {
-        const current = await this.findOne(id);
+    async updateTransaction(id: number, data: Partial<TransactionRow>): Promise<DbResponse<TransactionRow>> {
+        const current = await this.findOne<TransactionRow>(id);
         if (!current.success || !current.data) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
@@ -179,12 +182,12 @@ export class TransactionService extends DbService {
             }
         }
 
-        const updateResult = await this.update(id, data);
+        const updateResult = await this.update<TransactionRow>(id, data);
         if (!updateResult.success) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
-        return this.findOne(id);
+        return this.findOne<TransactionRow>(id);
     }
 
 
@@ -195,7 +198,7 @@ export class TransactionService extends DbService {
      * @returns  Success with deleted ID, or error if transaction does not exist.
      */
     async deleteTransaction(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne(id);
+        const existing = await this.findOne<TransactionRow>(id);
 
         if (!existing.success) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };

@@ -7,8 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
 class SubcategoryController {
-    /**
-     * Creates a new subcategory using validated input from the request body.
+    /** @summary Creates a new subcategory using validated input from the request body.
      * Validates the category before proceeding and logs the result.
      *
      * @param req - Express request containing new subcategory data.
@@ -32,8 +31,8 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data.category_id);
-            return answerAPI(req, res, HTTPStatus.CREATED, created.data);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.category_id);
+            return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -143,8 +142,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Updates an existing subcategory by ID.
+    /** @summary Updates an existing subcategory by ID.
      * Validates input and logs the result.
      *
      * @param req - Express request with subcategory ID and data.
@@ -178,8 +176,8 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data.category_id);
-            return answerAPI(req, res, HTTPStatus.OK, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.category_id);
+            return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CATEGORY, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

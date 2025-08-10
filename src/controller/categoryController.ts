@@ -7,8 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
 class CategoryController {
-    /**
-     * Creates a new category using validated input from the request body.
+    /** @summary Creates a new category using validated input from the request body.
      * Logs the result and returns the created category on success.
      *
      * @param req - Express request containing category data.
@@ -32,8 +31,8 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data.user_id);
-            return answerAPI(req, res, HTTPStatus.CREATED, created.data);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.user_id);
+            return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -116,8 +115,7 @@ class CategoryController {
         }
     }
 
-    /**
-     * Updates an existing category by ID.
+    /** @summary Updates an existing category by ID.
      * Validates the input and ensures the category exists.
      *
      * @param req - Express request with category ID and update data.
@@ -149,8 +147,8 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data.user_id);
-            return answerAPI(req, res, HTTPStatus.OK, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.user_id);
+            return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CATEGORY, formatError(error), id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
