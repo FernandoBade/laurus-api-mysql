@@ -14,32 +14,32 @@ export abstract class DbService {
     }
 
     /**
-     * Finds a single entry by its ID.
+     * @summary Finds a single entry by its ID.
      * @param id - The ID of the entry to retrieve.
      * @returns The found entry or an error if not found.
      */
-    async findOne<T = any>(id: number): Promise<DbResponse<T>> {
+    async findOne<T>(id: number): Promise<DbResponse<T>> {
         return findById<T>(this.table, id);
     }
 
     /**
-     * Finds multiple entries based on an optional filter object.
+     * @summary Finds multiple entries based on an optional filter object.
      * @param filter - Optional criteria to filter entries.
      * @returns List of found entries.
      */
-    async findMany<T = any>(filter?: object): Promise<DbResponse<T[]>> {
+    async findMany<T>(filter?: object): Promise<DbResponse<T[]>> {
         return findMany<T>(this.table, filter);
     }
 
     /**
-     * Finds entries using advanced column filters with type-safe operators.
+     * @summary Finds entries using advanced column filters with type-safe operators.
      * Supports '=', 'IN', 'LIKE', 'BETWEEN', ORDER BY, LIMIT and OFFSET.
      *
      * @param filters - Optional filters by column with operators.
      * @param options - Optional ordering and pagination options.
      * @returns Matching records or an empty list.
      */
-    async findWithFilters<T = any>(
+    async findWithFilters<T extends object>(
         filters?: {
             [K in keyof T]?:
             | { operator: Operator.EQUAL; value: T[K] }
@@ -58,21 +58,21 @@ export abstract class DbService {
     }
 
     /**
-     * Creates a new entry in the database.
+     * @summary Creates a new entry in the database.
      * @param data - Data to create the new entry.
      * @returns The newly created entry.
      */
-    async create<T = any>(data: object): Promise<DbResponse<T>> {
+    async create<T>(data: object): Promise<DbResponse<T>> {
         return insert<T>(this.table, data);
     }
 
     /**
-     * Updates an existing entry by its ID.
+     * @summary Updates an existing entry by its ID.
      * @param id - ID of the entry to update.
      * @param data - Data to be updated.
      * @returns Updated entry or an error if entry not found.
      */
-    async update<T = any>(id: number, data: object): Promise<DbResponse<T>> {
+    async update<T>(id: number, data: object): Promise<DbResponse<T>> {
         const updateResult = await update(this.table, id, data);
 
         if (!updateResult.success) {
@@ -83,7 +83,7 @@ export abstract class DbService {
     }
 
     /**
-     * Deletes an entry by its ID.
+     * @summary Deletes an entry by its ID.
      * @param id - ID of the entry to delete.
      * @returns Success status or error if deletion fails.
      */

@@ -140,26 +140,32 @@ export function answerAPI(
  * @param error - Unknown error object.
  * @returns A structured object with message, name and stack trace (if applicable).
  */
-export function formatError(error: unknown): Record<string, any> {
+/**
+ * @summary Normalizes different types of thrown errors into a serializable format.
+ *
+ * @param error - Unknown error object.
+ * @returns A structured object with message, name and stack trace (if applicable).
+ */
+export function formatError(error: unknown): Record<string, unknown> {
     if (error instanceof Error) {
 
-        const detailedError = error as any;
+        const detailedError = error as unknown as Record<string, unknown>;
         const message =
             error.message ||
-            detailedError.sqlMessage ||
-            detailedError.code ||
+            (detailedError as any).sqlMessage ||
+            (detailedError as any).code ||
             'Unknown error';
         return {
             message,
             name: error.name,
-            ...(detailedError.code && { code: detailedError.code }),
-            ...(detailedError.errno && { errno: detailedError.errno }),
-            ...(detailedError.sqlState && { sqlState: detailedError.sqlState }),
+            ...((detailedError as any).code && { code: (detailedError as any).code }),
+            ...((detailedError as any).errno && { errno: (detailedError as any).errno }),
+            ...((detailedError as any).sqlState && { sqlState: (detailedError as any).sqlState }),
         };
     }
 
     if (typeof error === 'object' && error !== null) {
-        return error as Record<string, any>;
+        return error as Record<string, unknown>;
     }
 
     return { message: error };

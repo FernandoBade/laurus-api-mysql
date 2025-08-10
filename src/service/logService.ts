@@ -4,6 +4,7 @@ import { DbResponse } from '../utils/database/services/dbResponse';
 import { insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
 import { createLog } from '../utils/commons';
 import { Resource } from '../utils/resources/resource';
+import Log from '../model/log/log';
 
 interface LogData {
     type: LogType;
@@ -20,7 +21,7 @@ export class LogService extends DbService {
     }
 
     /**
-     * Creates a new log entry.
+     * @summary Creates a new log entry.
      * DEBUG logs are ignored and not persisted in the database.
      *
      * @param type - Severity of the log (e.g., DEBUG, ERROR).
@@ -57,7 +58,7 @@ export class LogService extends DbService {
 
 
     /**
-     * Verifies whether a user ID exists before associating it with a log.
+     * @summary Verifies whether a user ID exists before associating it with a log.
      *
      * @param userId - ID to validate.
      * @returns Validated user ID or null if invalid.
@@ -71,7 +72,7 @@ export class LogService extends DbService {
 
 
     /**
-     * Deletes all log entries older than 120 days based on the timestamp field.
+     * @summary Deletes all log entries older than 120 days based on the timestamp field.
      * A DEBUG log is created to record the number of deleted entries.
      *
      * @returns Total number of deleted entries or error on failure.
@@ -97,18 +98,18 @@ export class LogService extends DbService {
     }
 
     /**
-     * Retrieves all logs associated with a given user ID.
+     * @summary Retrieves all logs associated with a given user ID.
      * Validates the input before executing the query.
      *
      * @param user_id - User ID to filter logs by.
      * @returns Array of logs or error if ID is invalid.
      */
-    async getLogsByUser(user_id: number | null): Promise<DbResponse<any[]>> {
+    async getLogsByUser(user_id: number | null): Promise<DbResponse<Log[]>> {
         if (user_id === null || isNaN(user_id) || user_id <= 0) {
             return { success: false, error: Resource.INVALID_USER_ID };
         }
 
-        return this.findWithFilters(
+        return this.findWithFilters<Log>(
             {
                 user_id: { operator: Operator.EQUAL, value: user_id }
             });

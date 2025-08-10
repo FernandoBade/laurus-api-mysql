@@ -5,13 +5,14 @@ import { createLog } from "../../commons"
 import { LogType, LogOperation, LogCategory } from "../../enum";
 
 /**
- * Recursively loads all model classes from the `/model` directory.
+ * @summary Recursively loads all model classes from the `/model` directory.
+ *
  * Excludes files that include "schema" in the name or are not `.ts` files.
  *
  * @param dir - Optional directory path (defaults to /model).
  * @returns Array of loaded model classes.
  */
-export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
+export function getModels(dir = path.resolve(__dirname, "../../../model/")): (Function & { tableName?: string })[] {
     if (!fs.existsSync(dir)) {
         createLog
             (LogType.ERROR,
@@ -23,7 +24,7 @@ export function getModels(dir = path.resolve(__dirname, "../../../model/")) {
         return [];
     }
 
-    let models: any[] = [];
+    let models: (Function & { tableName?: string })[] = [];
     const files = fs.readdirSync(dir);
 
     for (const file of files) {
