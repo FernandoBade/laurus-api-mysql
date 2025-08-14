@@ -51,6 +51,8 @@
  *                 active: true
  *                 createdAt: "2025-07-12T12:00:00.000Z"
  *                 updatedAt: "2025-07-12T12:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Validation error or user not found
  *         content:
@@ -58,6 +60,8 @@
  *             example:
  *               success: false
  *               message: User not found
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -69,6 +73,11 @@
  *       - Categories
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of categories successfully retrieved
@@ -85,6 +94,13 @@
  *                   active: true
  *                   createdAt: "2025-07-01T08:00:00.000Z"
  *                   updatedAt: "2025-07-01T08:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -107,6 +123,10 @@
  *         schema:
  *           type: integer
  *         description: ID of the user
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of categories for the given user
@@ -123,6 +143,13 @@
  *                   active: true
  *                   createdAt: "2025-07-03T10:00:00.000Z"
  *                   updatedAt: "2025-07-03T10:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid user ID
  *       401:
@@ -163,6 +190,8 @@
  *                 active: true
  *                 createdAt: "2025-07-02T11:00:00.000Z"
  *                 updatedAt: "2025-07-05T15:30:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid category ID
  *       401:
@@ -219,6 +248,8 @@
  *                 user_id: 1
  *                 createdAt: "2025-07-02T11:00:00.000Z"
  *                 updatedAt: "2025-07-12T17:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid category ID or validation error
  *       401:
@@ -248,6 +279,8 @@
  *               success: true
  *               data:
  *                 id: 3
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid category ID or category not found
  *       401:

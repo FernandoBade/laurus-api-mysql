@@ -64,6 +64,14 @@
  *                       active: true
  *                       createdAt: '2025-06-16T00:00:00.000Z'
  *                       updatedAt: '2025-06-16T00:00:00.000Z'
+ *                   
+ *               meta:
+ *                 total: 2
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *         content:
@@ -84,6 +92,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  *   post:
  *     summary: Create Transaction
  *     description: Create a new transaction. Category or subcategory must be active and one of them is required.
@@ -142,6 +152,8 @@
  *                     active: true
  *                     createdAt: '2025-07-01T00:00:00.000Z'
  *                     updatedAt: '2025-07-01T00:00:00.000Z'
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       400:
  *         description: Validation error or referenced resource not found
  *         content:
@@ -171,6 +183,8 @@
  *                 value:
  *                   success: false
  *                   message: Conflict between installment and recurring rules
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -182,6 +196,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  */
 
 /**
@@ -228,6 +244,8 @@
  *                     active: true
  *                     createdAt: '2025-06-15T00:00:00.000Z'
  *                     updatedAt: '2025-06-15T00:00:00.000Z'
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       404:
  *         description: Transaction not found
  *         content:
@@ -257,6 +275,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  *
  *   put:
  *     summary: Update Transaction by ID
@@ -312,6 +332,8 @@
  *                     active: true
  *                     createdAt: '2025-06-15T00:00:00.000Z'
  *                     updatedAt: '2025-07-01T00:00:00.000Z'
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       400:
  *         description: Validation error
  *         content:
@@ -350,6 +372,8 @@
  *                 value:
  *                   success: false
  *                   message: Conflict between installment and recurring rules
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -361,6 +385,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  *
  *   delete:
  *     summary: Delete Transaction by ID
@@ -392,6 +418,8 @@
  *                   success: true
  *                   data:
  *                     id: 42
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       404:
  *         description: Transaction not found
  *         content:
@@ -421,6 +449,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  */
 
 /**
@@ -474,6 +504,13 @@
  *                       active: true
  *                       createdAt: '2025-07-10T00:00:00.000Z'
  *                       updatedAt: '2025-07-10T00:00:00.000Z'
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       404:
  *         description: Account not found
  *         content:
@@ -485,6 +522,8 @@
  *                 value:
  *                   success: false
  *                   message: Account not found
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *         content:
@@ -505,6 +544,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  */
 
 /**
@@ -568,6 +609,13 @@
  *                           active: true
  *                           createdAt: '2025-07-20T00:00:00.000Z'
  *                           updatedAt: '2025-07-20T00:00:00.000Z'
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       404:
  *         description: User or accounts not found
  *         content:
@@ -579,6 +627,8 @@
  *                 value:
  *                   success: false
  *                   message: Account not found
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *         content:
@@ -599,6 +649,8 @@
  *                 value:
  *                   success: false
  *                   message: Internal server error
+ *                   timed: true
+ *                   requestTimeMs: 12
  */
 
 /**
@@ -1045,19 +1097,27 @@
  *         details:
  *           - path: value
  *             message: Value must be greater than 0
+ *         timed: true
+ *         requestTimeMs: 12
  *     ErrorUnauthorized:
  *       summary: Unauthorized
  *       value:
  *         success: false
  *         message: Unauthorized
+ *         timed: true
+ *         requestTimeMs: 12
  *     ErrorNotFound:
  *       summary: Not found
  *       value:
  *         success: false
  *         message: Transaction not found
+ *         timed: true
+ *         requestTimeMs: 12
  *     ErrorConflict:
  *       summary: Conflict
  *       value:
  *         success: false
  *         message: Conflict
+ *         timed: true
+ *         requestTimeMs: 12
  */

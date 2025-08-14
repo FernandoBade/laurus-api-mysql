@@ -40,6 +40,8 @@
  *                 active: true
  *                 createdAt: "2025-07-12T12:00:00.000Z"
  *                 updatedAt: "2025-07-12T12:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Validation error or invalid/inactive category
  *         content:
@@ -47,6 +49,8 @@
  *             example:
  *               success: false
  *               message: Category not found or inactive
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -58,6 +62,11 @@
  *       - Subcategories
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of subcategories successfully retrieved
@@ -72,6 +81,13 @@
  *                   active: true
  *                   createdAt: "2025-07-01T08:00:00.000Z"
  *                   updatedAt: "2025-07-01T08:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -94,6 +110,10 @@
  *         schema:
  *           type: integer
  *         description: ID of the user
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of subcategories for categories owned by the user
@@ -108,6 +128,13 @@
  *                   active: true
  *                   createdAt: "2025-07-03T10:00:00.000Z"
  *                   updatedAt: "2025-07-03T10:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid user ID
  *       401:
@@ -132,6 +159,10 @@
  *         schema:
  *           type: integer
  *         description: ID of the category
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of subcategories for the specified category
@@ -146,6 +177,13 @@
  *                   active: true
  *                   createdAt: "2025-07-05T10:00:00.000Z"
  *                   updatedAt: "2025-07-05T10:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid category ID
  *       401:
@@ -184,6 +222,8 @@
  *                 active: true
  *                 createdAt: "2025-07-06T11:00:00.000Z"
  *                 updatedAt: "2025-07-06T11:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid subcategory ID
  *       401:
@@ -233,6 +273,8 @@
  *                 active: true
  *                 createdAt: "2025-07-06T11:00:00.000Z"
  *                 updatedAt: "2025-07-12T17:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid subcategory ID or validation error
  *       401:
@@ -262,6 +304,8 @@
  *               success: true
  *               data:
  *                 id: 6
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid subcategory ID or subcategory not found
  *       401:

@@ -85,6 +85,8 @@
  *                 active: true
  *                 createdAt: "2025-01-01T10:00:00.000Z"
  *                 updatedAt: "2025-03-30T21:58:33.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Validation error or email already in use
  *         content:
@@ -92,6 +94,8 @@
  *             example:
  *               success: false
  *               message: Email is already in use
+ *               timed: true
+ *               requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -99,6 +103,8 @@
  *             example:
  *               success: false
  *               message: Internal server error
+ *               timed: true
+ *               requestTimeMs: 12
 
  *   get:
  *     summary: Retrieve all users
@@ -106,6 +112,11 @@
  *       - Users
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of users successfully retrieved
@@ -128,6 +139,13 @@
  *                   active: true
  *                   createdAt: "2025-01-01T00:00:00.000Z"
  *                   updatedAt: "2025-03-30T21:58:33.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *                 - id: 2
  *                   firstName: Galadriel
  *                   lastName: of Lothlórien
@@ -178,6 +196,8 @@
  *               success: true
  *               data:
  *                 id: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *                 firstName: Gandalf
  *                 lastName: the Grey
  *                 email: gandalf@istari.org
@@ -191,6 +211,8 @@
  *                 active: true
  *                 createdAt: "2025-01-01T00:00:00.000Z"
  *                 updatedAt: "2025-03-30T21:58:33.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid user ID or user not found
  *         content:
@@ -221,6 +243,10 @@
  *           type: string
  *           minLength: 3
  *         description: Email filter to apply. Use `/users/search?email=somevalue`.
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: Matching users returned
@@ -243,6 +269,13 @@
  *                   active: true
  *                   createdAt: "2025-01-01T00:00:00.000Z"
  *                   updatedAt: "2025-03-30T21:58:33.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Search term must contain at least 3 characters
  *         content:
@@ -250,6 +283,8 @@
  *             example:
  *               success: false
  *               message: Search term must contain at least 3 characters
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -345,6 +380,8 @@
  *             example:
  *               success: false
  *               message: Validation error
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -383,6 +420,8 @@
  *             example:
  *               success: false
  *               message: User not found
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
