@@ -55,6 +55,8 @@
  *                 active: true
  *                 createdAt: "2025-05-09T22:00:00.000Z"
  *                 updatedAt: "2025-05-09T22:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Validation error or user not found
  *         content:
@@ -62,6 +64,8 @@
  *             example:
  *               success: false
  *               message: User not found
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -73,6 +77,11 @@
  *       - Accounts
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of accounts successfully retrieved
@@ -90,6 +99,13 @@
  *                   active: true
  *                   createdAt: "2025-05-09T22:00:00.000Z"
  *                   updatedAt: "2025-05-09T22:00:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *       500:
@@ -112,6 +128,10 @@
  *         schema:
  *           type: integer
  *         description: The ID of the user whose accounts will be listed
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/PageSize'
+ *       - $ref: '#/components/parameters/Sort'
+ *       - $ref: '#/components/parameters/Order'
  *     responses:
  *       200:
  *         description: List of accounts for the user
@@ -129,6 +149,13 @@
  *                   active: true
  *                   createdAt: "2025-05-09T21:58:00.000Z"
  *                   updatedAt: "2025-05-09T21:58:00.000Z"
+ *               meta:
+ *                 total: 1
+ *                 page: 1
+ *                 pageSize: 20
+ *                 pageCount: 1
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid user ID
  *       401:
@@ -170,6 +197,8 @@
  *                 active: true
  *                 createdAt: "2025-05-01T10:00:00.000Z"
  *                 updatedAt: "2025-05-01T10:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid account ID
  *       401:
@@ -226,6 +255,8 @@
  *                 user_id: 4
  *                 createdAt: "2025-05-01T10:00:00.000Z"
  *                 updatedAt: "2025-05-10T00:00:00.000Z"
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid account ID or validation error
  *       401:
@@ -255,6 +286,8 @@
  *               success: true
  *               data:
  *                 id: 5
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid account ID or account not found
  *       401:
