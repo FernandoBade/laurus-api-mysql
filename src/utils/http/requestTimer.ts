@@ -1,4 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+
 
 export function requestTimer() {
     return (_req: Request, res: Response, next: NextFunction) => {
@@ -7,11 +8,10 @@ export function requestTimer() {
     };
 }
 
-export function getDurationMs(res: Response) {
-    const start = res.locals._startNs as bigint | undefined;
-    if (typeof start === 'bigint') {
-        const diff = process.hrtime.bigint() - start;
-        return Number(diff) / 1e6;
-    }
-    return undefined;
+export function getDurationMs(res: Response): number {
+    const start: bigint | undefined = res.locals?._startNs;
+    if (!start) return 0;
+    const end = process.hrtime.bigint();
+    return Number((end - start) / 1_000_000n);
+
 }

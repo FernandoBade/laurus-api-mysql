@@ -25,7 +25,10 @@ import { requestTimer } from './utils/http/requestTimer';
 const app = express();
 const port = process.env.PORT || 5050;
 
+// Middleware to track request time
 app.use(requestTimer());
+
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cookieParser());

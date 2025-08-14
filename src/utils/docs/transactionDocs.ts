@@ -22,11 +22,23 @@
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Transaction'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total: { type: integer, example: 2 }
+ *                     page: { type: integer, example: 1 }
+ *                     pageSize: { type: integer, example: 20 }
+ *                     pageCount: { type: integer, example: 1 }
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               success:
  *                 value:
@@ -64,14 +76,13 @@
  *                       active: true
  *                       createdAt: '2025-06-16T00:00:00.000Z'
  *                       updatedAt: '2025-06-16T00:00:00.000Z'
- *                   
- *               meta:
- *                 total: 2
- *                 page: 1
- *                 pageSize: 20
- *                 pageCount: 1
- *               timed: true
- *               requestTimeMs: 12
+ *                   meta:
+ *                     total: 2
+ *                     page: 1
+ *                     pageSize: 20
+ *                     pageCount: 1
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       401:
  *         description: Unauthorized
  *         content:
@@ -128,9 +139,14 @@
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/Transaction'
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               created:
  *                 value:
@@ -218,11 +234,15 @@
  *             schema:
  *               type: object
  *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *                 success: { type: boolean }
  *                 data:
  *                   $ref: '#/components/schemas/Transaction'
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               found:
  *                 value:
@@ -306,11 +326,15 @@
  *             schema:
  *               type: object
  *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *                 success: { type: boolean }
  *                 data:
  *                   $ref: '#/components/schemas/Transaction'
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               updated:
  *                 value:
@@ -403,15 +427,19 @@
  *             schema:
  *               type: object
  *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *                 success: { type: boolean }
  *                 data:
  *                   type: object
  *                   properties:
  *                     id:
  *                       type: integer
  *                       example: 42
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               deleted:
  *                 value:
@@ -476,13 +504,24 @@
  *             schema:
  *               type: object
  *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *                 success: { type: boolean }
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Transaction'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total: { type: integer, example: 1 }
+ *                     page: { type: integer, example: 1 }
+ *                     pageSize: { type: integer, example: 20 }
+ *                     pageCount: { type: integer, example: 1 }
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               success:
  *                 value:
@@ -504,13 +543,13 @@
  *                       active: true
  *                       createdAt: '2025-07-10T00:00:00.000Z'
  *                       updatedAt: '2025-07-10T00:00:00.000Z'
- *               meta:
- *                 total: 1
- *                 page: 1
- *                 pageSize: 20
- *                 pageCount: 1
- *               timed: true
- *               requestTimeMs: 12
+ *                   meta:
+ *                     total: 1
+ *                     page: 1
+ *                     pageSize: 20
+ *                     pageCount: 1
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       404:
  *         description: Account not found
  *         content:
@@ -571,21 +610,30 @@
  *             schema:
  *               type: object
  *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *                 success: { type: boolean }
  *                 data:
  *                   type: array
  *                   items:
  *                     type: object
  *                     properties:
- *                       accountId:
- *                         type: integer
- *                         example: 1
+ *                       accountId: { type: integer, example: 1 }
  *                       transactions:
  *                         type: array
  *                         items:
  *                           $ref: '#/components/schemas/Transaction'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total: { type: integer, example: 1 }
+ *                     page: { type: integer, example: 1 }
+ *                     pageSize: { type: integer, example: 20 }
+ *                     pageCount: { type: integer, example: 1 }
+ *                 timed:
+ *                   type: boolean
+ *                   example: true
+ *                 requestTimeMs:
+ *                   type: integer
+ *                   example: 12
  *             examples:
  *               success:
  *                 value:
@@ -609,13 +657,13 @@
  *                           active: true
  *                           createdAt: '2025-07-20T00:00:00.000Z'
  *                           updatedAt: '2025-07-20T00:00:00.000Z'
- *               meta:
- *                 total: 1
- *                 page: 1
- *                 pageSize: 20
- *                 pageCount: 1
- *               timed: true
- *               requestTimeMs: 12
+ *                   meta:
+ *                     total: 1
+ *                     page: 1
+ *                     pageSize: 20
+ *                     pageCount: 1
+ *                   timed: true
+ *                   requestTimeMs: 12
  *       404:
  *         description: User or accounts not found
  *         content:
@@ -714,350 +762,129 @@
  *     User:
  *       type: object
  *       properties:
- *         id:
- *           type: integer
- *           example: 1
- *         firstName:
- *           type: string
- *           example: Gandalf
- *         lastName:
- *           type: string
- *           example: the Grey
- *         email:
- *           type: string
- *           format: email
- *           example: gandalf@istari.org
- *         theme:
- *           type: string
- *           enum: [dark, light]
- *           default: dark
- *           example: dark
- *         language:
- *           type: string
- *           enum: [pt-BR, en-US, es-ES]
- *           default: en-US
- *           example: en-US
- *         currency:
- *           type: string
- *           enum: [BRL, USD, EUR, ARS, COP]
- *           default: BRL
- *           example: BRL
- *         dateFormat:
- *           type: string
- *           enum: ['DD/MM/YYYY', 'MM/DD/YYYY']
- *           default: 'DD/MM/YYYY'
- *           example: 'DD/MM/YYYY'
- *         profile:
- *           type: string
- *           enum: [starter, pro, master]
- *           default: starter
- *           example: starter
- *         active:
- *           type: boolean
- *           example: true
- *         createdAt:
- *           type: string
- *           format: date-time
- *           example: '2025-06-01T00:00:00.000Z'
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           example: '2025-06-01T00:00:00.000Z'
+ *         id: { type: integer, example: 1 }
+ *         firstName: { type: string, example: Gandalf }
+ *         lastName: { type: string, example: the Grey }
+ *         email: { type: string, format: email, example: gandalf@istari.org }
+ *         theme: { type: string, enum: [dark, light], default: dark, example: dark }
+ *         language: { type: string, enum: [pt-BR, en-US, es-ES], default: en-US, example: en-US }
+ *         currency: { type: string, enum: [BRL, USD, EUR, ARS, COP], default: BRL, example: BRL }
+ *         dateFormat: { type: string, enum: ['DD/MM/YYYY', 'MM/DD/YYYY'], default: 'DD/MM/YYYY', example: 'DD/MM/YYYY' }
+ *         profile: { type: string, enum: [starter, pro, master], default: starter, example: starter }
+ *         active: { type: boolean, example: true }
+ *         createdAt: { type: string, format: date-time, example: '2025-06-01T00:00:00.000Z' }
+ *         updatedAt: { type: string, format: date-time, example: '2025-06-01T00:00:00.000Z' }
  *     Account:
  *       type: object
  *       properties:
- *         id:
- *           type: integer
- *           example: 1
- *         name:
- *           type: string
- *           example: Shire Banking
- *         institution:
- *           type: string
- *           example: Bank of the Shire
- *         type:
- *           type: string
- *           enum: [checking, payroll, savings, investment, loan, other]
- *           example: checking
- *         observation:
- *           type: string
- *           nullable: true
- *           example: Main vault of Erebor
- *         user_id:
- *           type: integer
- *           example: 1
- *         active:
- *           type: boolean
- *           example: true
- *         createdAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-01T00:00:00.000Z'
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-01T00:00:00.000Z'
+ *         id: { type: integer, example: 1 }
+ *         name: { type: string, example: Shire Banking }
+ *         institution: { type: string, example: Bank of the Shire }
+ *         type: { type: string, enum: [checking, payroll, savings, investment, loan, other], example: checking }
+ *         observation: { type: string, nullable: true, example: Main vault of Erebor }
+ *         user_id: { type: integer, example: 1 }
+ *         active: { type: boolean, example: true }
+ *         createdAt: { type: string, format: date-time, example: '2025-05-01T00:00:00.000Z' }
+ *         updatedAt: { type: string, format: date-time, example: '2025-05-01T00:00:00.000Z' }
  *     Category:
  *       type: object
  *       properties:
- *         id:
- *           type: integer
- *           example: 3
- *         name:
- *           type: string
- *           example: Mystical Goods
- *         type:
- *           type: string
- *           enum: [income, expense]
- *           example: income
- *         color:
- *           type: string
- *           enum: [red, yellow, blue, green, purple, orange, pink, gray, cyan, indigo]
- *           default: purple
- *           example: purple
- *         user_id:
- *           type: integer
- *           example: 1
- *         active:
- *           type: boolean
- *           example: true
- *         createdAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-01T00:00:00.000Z'
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-01T00:00:00.000Z'
+ *         id: { type: integer, example: 3 }
+ *         name: { type: string, example: Mystical Goods }
+ *         type: { type: string, enum: [income, expense], example: income }
+ *         color: { type: string, enum: [red, yellow, blue, green, purple, orange, pink, gray, cyan, indigo], default: purple, example: purple }
+ *         user_id: { type: integer, example: 1 }
+ *         active: { type: boolean, example: true }
+ *         createdAt: { type: string, format: date-time, example: '2025-05-01T00:00:00.000Z' }
+ *         updatedAt: { type: string, format: date-time, example: '2025-05-01T00:00:00.000Z' }
  *     Subcategory:
  *       type: object
  *       properties:
- *         id:
- *           type: integer
- *           example: 5
- *         name:
- *           type: string
- *           example: Elven Crafts
- *         type:
- *           type: string
- *           enum: [income, expense]
- *           example: income
- *         color:
- *           type: string
- *           enum: [red, yellow, blue, green, purple, orange, pink, gray, cyan, indigo]
- *           default: purple
- *           example: green
- *         category_id:
- *           type: integer
- *           example: 3
- *         user_id:
- *           type: integer
- *           example: 2
- *         active:
- *           type: boolean
- *           example: true
- *         createdAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-02T00:00:00.000Z'
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           example: '2025-05-02T00:00:00.000Z'
+ *         id: { type: integer, example: 5 }
+ *         name: { type: string, example: Elven Crafts }
+ *         type: { type: string, enum: [income, expense], example: income }
+ *         color: { type: string, enum: [red, yellow, blue, green, purple, orange, pink, gray, cyan, indigo], default: purple, example: green }
+ *         category_id: { type: integer, example: 3 }
+ *         user_id: { type: integer, example: 2 }
+ *         active: { type: boolean, example: true }
+ *         createdAt: { type: string, format: date-time, example: '2025-05-02T00:00:00.000Z' }
+ *         updatedAt: { type: string, format: date-time, example: '2025-05-02T00:00:00.000Z' }
  *     Transaction:
  *       type: object
  *       properties:
- *         id:
- *           type: integer
- *           example: 42
- *         value:
- *           type: number
- *           example: 100.5
- *         date:
- *           type: string
- *           format: date-time
- *           example: '2025-06-15T00:00:00.000Z'
- *         category_id:
- *           type: integer
- *           nullable: true
- *           example: 3
- *         subcategory_id:
- *           type: integer
- *           nullable: true
- *           example: null
- *         observation:
- *           type: string
- *           nullable: true
- *           example: Athelas sales
- *         transactionType:
- *           type: string
- *           enum: [income, expense]
- *           example: income
- *         transactionSource:
- *           type: string
- *           enum: [account, creditCard]
- *           example: account
- *         isInstallment:
- *           type: boolean
- *           example: false
- *         totalMonths:
- *           type: integer
- *           nullable: true
- *           example: null
- *         isRecurring:
- *           type: boolean
- *           example: false
- *         paymentDay:
- *           type: integer
- *           nullable: true
- *           example: null
- *         account_id:
- *           type: integer
- *           example: 1
- *         active:
- *           type: boolean
- *           example: true
- *         createdAt:
- *           type: string
- *           format: date-time
- *           example: '2025-06-15T00:00:00.000Z'
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           example: '2025-06-15T00:00:00.000Z'
+ *         id: { type: integer, example: 42 }
+ *         value: { type: number, example: 100.5 }
+ *         date: { type: string, format: date-time, example: '2025-06-15T00:00:00.000Z' }
+ *         category_id: { type: integer, nullable: true, example: 3 }
+ *         subcategory_id: { type: integer, nullable: true, example: null }
+ *         observation: { type: string, nullable: true, example: Athelas sales }
+ *         transactionType: { type: string, enum: [income, expense], example: income }
+ *         transactionSource: { type: string, enum: [account, creditCard], example: account }
+ *         isInstallment: { type: boolean, example: false }
+ *         totalMonths: { type: integer, nullable: true, example: null }
+ *         isRecurring: { type: boolean, example: false }
+ *         paymentDay: { type: integer, nullable: true, example: null }
+ *         account_id: { type: integer, example: 1 }
+ *         active: { type: boolean, example: true }
+ *         createdAt: { type: string, format: date-time, example: '2025-06-15T00:00:00.000Z' }
+ *         updatedAt: { type: string, format: date-time, example: '2025-06-15T00:00:00.000Z' }
  *     TransactionCreate:
  *       type: object
- *       required:
- *         - value
- *         - date
- *         - transactionType
- *         - transactionSource
- *         - isInstallment
- *         - isRecurring
- *         - account_id
+ *       required: [value, date, transactionType, transactionSource, isInstallment, isRecurring, account_id]
  *       properties:
- *         value:
- *           type: number
- *           minimum: 0.01
- *           example: 150.75
- *         date:
- *           type: string
- *           format: date-time
- *           example: '2025-07-01T00:00:00.000Z'
- *         category_id:
- *           type: integer
- *           nullable: true
- *           example: 3
- *           description: Required if subcategory_id is not provided
- *         subcategory_id:
- *           type: integer
- *           nullable: true
- *           example: null
- *           description: Required if category_id is not provided
- *         observation:
- *           type: string
- *           example: Staff of Gandalf sale
- *         transactionType:
- *           type: string
- *           enum: [income, expense]
- *           example: income
- *         transactionSource:
- *           type: string
- *           enum: [account, creditCard]
- *           example: account
- *         isInstallment:
- *           type: boolean
- *           example: false
- *         totalMonths:
- *           type: integer
- *           nullable: true
- *           example: null
- *           description: Required when isInstallment is true
- *         isRecurring:
- *           type: boolean
- *           example: false
- *         paymentDay:
- *           type: integer
- *           nullable: true
- *           minimum: 1
- *           maximum: 31
- *           example: null
- *           description: Required when isRecurring is true
- *         account_id:
- *           type: integer
- *           example: 1
- *         active:
- *           type: boolean
- *           default: true
- *           example: true
+ *         value: { type: number, minimum: 0.01, example: 150.75 }
+ *         date: { type: string, format: date-time, example: '2025-07-01T00:00:00.000Z' }
+ *         category_id: { type: integer, nullable: true, example: 3, description: Required if subcategory_id is not provided }
+ *         subcategory_id: { type: integer, nullable: true, example: null, description: Required if category_id is not provided }
+ *         observation: { type: string, example: Staff of Gandalf sale }
+ *         transactionType: { type: string, enum: [income, expense], example: income }
+ *         transactionSource: { type: string, enum: [account, creditCard], example: account }
+ *         isInstallment: { type: boolean, example: false }
+ *         totalMonths: { type: integer, nullable: true, example: null, description: Required when isInstallment is true }
+ *         isRecurring: { type: boolean, example: false }
+ *         paymentDay: { type: integer, nullable: true, minimum: 1, maximum: 31, example: null, description: Required when isRecurring is true }
+ *         account_id: { type: integer, example: 1 }
+ *         active: { type: boolean, default: true, example: true }
  *     TransactionUpdate:
  *       type: object
  *       description: Fields to update; at least one property must be provided
  *       properties:
- *         value:
- *           type: number
- *         date:
- *           type: string
- *           format: date-time
- *         category_id:
- *           type: integer
- *           nullable: true
- *         subcategory_id:
- *           type: integer
- *           nullable: true
- *         observation:
- *           type: string
- *         transactionType:
- *           type: string
- *           enum: [income, expense]
- *         transactionSource:
- *           type: string
- *           enum: [account, creditCard]
- *         isInstallment:
- *           type: boolean
- *         totalMonths:
- *           type: integer
- *           nullable: true
- *         isRecurring:
- *           type: boolean
- *         paymentDay:
- *           type: integer
- *           nullable: true
- *           minimum: 1
- *           maximum: 31
- *         account_id:
- *           type: integer
- *         active:
- *           type: boolean
+ *         value: { type: number }
+ *         date: { type: string, format: date-time }
+ *         category_id: { type: integer, nullable: true }
+ *         subcategory_id: { type: integer, nullable: true }
+ *         observation: { type: string }
+ *         transactionType: { type: string, enum: [income, expense] }
+ *         transactionSource: { type: string, enum: [account, creditCard] }
+ *         isInstallment: { type: boolean }
+ *         totalMonths: { type: integer, nullable: true }
+ *         isRecurring: { type: boolean }
+ *         paymentDay: { type: integer, nullable: true, minimum: 1, maximum: 31 }
+ *         account_id: { type: integer }
+ *         active: { type: boolean }
  *     AuthTokens:
  *       type: object
  *       properties:
- *         accessToken:
- *           type: string
- *           example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
- *         refreshToken:
- *           type: string
- *           example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+ *         accessToken: { type: string, example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
+ *         refreshToken: { type: string, example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
  *     ErrorResponse:
  *       type: object
  *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         message:
- *           type: string
- *           example: Validation error
+ *         success: { type: boolean, example: false }
+ *         message: { type: string, example: Validation error }
  *         details:
  *           type: array
  *           items:
  *             type: object
  *             properties:
- *               path:
- *                 type: string
- *                 example: value
- *               message:
- *                 type: string
- *                 example: Value must be greater than 0
+ *               path: { type: string, example: value }
+ *               message: { type: string, example: Value must be greater than 0 }
+ *         timed:
+ *           type: boolean
+ *           example: true
+ *         requestTimeMs:
+ *           type: integer
+ *           example: 12
  *   examples:
  *     UserGandalf:
  *       summary: Gandalf the Grey
