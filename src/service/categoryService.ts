@@ -2,9 +2,10 @@ import { Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { UserService } from './userService';
 import Category from '../model/category/category';
+import { QueryOptions } from '../utils/pagination';
 
 type CategoryRow = Category & { user_id: number };
 
@@ -43,10 +44,21 @@ export class CategoryService extends DbService {
 
     /** @summary Retrieves all category records from the database.
      *
+     * @param options - Query options for pagination and sorting.
      * @returns A list of all categories.
      */
-    async getCategories(): Promise<DbResponse<CategoryRow[]>> {
-        return this.findMany<CategoryRow>();
+    async getCategories(options?: QueryOptions<CategoryRow>): Promise<DbResponse<CategoryRow[]>> {
+        return findWithColumnFilters<CategoryRow>(TableName.CATEGORY, {}, {
+            orderBy: options?.sort as keyof CategoryRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts all categories. */
+    async countCategories(): Promise<DbResponse<number>> {
+        return countWithColumnFilters<CategoryRow>(TableName.CATEGORY);
     }
 
     /** @summary Retrieves a category by its ID.
@@ -63,8 +75,20 @@ export class CategoryService extends DbService {
      * @param userId - ID of the user.
      * @returns A list of categories owned by the user.
      */
-    async getCategoriesByUser(userId: number): Promise<DbResponse<CategoryRow[]>> {
+    async getCategoriesByUser(userId: number, options?: QueryOptions<CategoryRow>): Promise<DbResponse<CategoryRow[]>> {
         return findWithColumnFilters<CategoryRow>(TableName.CATEGORY, {
+            user_id: { operator: Operator.EQUAL, value: userId }
+        }, {
+            orderBy: options?.sort as keyof CategoryRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts categories belonging to a specific user. */
+    async countCategoriesByUser(userId: number): Promise<DbResponse<number>> {
+        return countWithColumnFilters<CategoryRow>(TableName.CATEGORY, {
             user_id: { operator: Operator.EQUAL, value: userId }
         });
     }

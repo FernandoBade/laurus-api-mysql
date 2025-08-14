@@ -2,9 +2,10 @@ import { Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { UserService } from './userService';
 import Account from '../model/account/account';
+import { QueryOptions } from '../utils/pagination';
 
 type AccountRow = Account & { user_id: number };
 
@@ -44,10 +45,21 @@ export class AccountService extends DbService {
 
     /** @summary Retrieves all financial accounts from the database.
      *
+     * @param options - Query options for pagination and sorting.
      * @returns A list of all account records.
      */
-    async getAccounts(): Promise<DbResponse<AccountRow[]>> {
-        return this.findMany<AccountRow>();
+    async getAccounts(options?: QueryOptions<AccountRow>): Promise<DbResponse<AccountRow[]>> {
+        return findWithColumnFilters<AccountRow>(TableName.ACCOUNT, {}, {
+            orderBy: options?.sort as keyof AccountRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts all financial accounts in the database. */
+    async countAccounts(): Promise<DbResponse<number>> {
+        return countWithColumnFilters<AccountRow>(TableName.ACCOUNT);
     }
 
     /** @summary Retrieves a single account by its ID.
@@ -64,8 +76,20 @@ export class AccountService extends DbService {
      * @param userId - ID of the user.
      * @returns A list of accounts owned by the user.
      */
-    async getAccountsByUser(userId: number): Promise<DbResponse<AccountRow[]>> {
+    async getAccountsByUser(userId: number, options?: QueryOptions<AccountRow>): Promise<DbResponse<AccountRow[]>> {
         return findWithColumnFilters<AccountRow>(TableName.ACCOUNT, {
+            user_id: { operator: Operator.EQUAL, value: userId }
+        }, {
+            orderBy: options?.sort as keyof AccountRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts accounts associated with a user. */
+    async countAccountsByUser(userId: number): Promise<DbResponse<number>> {
+        return countWithColumnFilters<AccountRow>(TableName.ACCOUNT, {
             user_id: { operator: Operator.EQUAL, value: userId }
         });
     }

@@ -2,11 +2,12 @@ import { TransactionSource, Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { AccountService } from './accountService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
 import Transaction from '../model/transaction/transaction';
+import { QueryOptions } from '../utils/pagination';
 
 type TransactionRow = Transaction & {
     account_id: number;
@@ -79,11 +80,18 @@ export class TransactionService extends DbService {
      *
      * @returns A list of all transaction records.
      */
-    async getTransactions(): Promise<DbResponse<TransactionRow[]>> {
+    async getTransactions(options?: QueryOptions<TransactionRow>): Promise<DbResponse<TransactionRow[]>> {
         return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {}, {
-            orderBy: 'date',
-            direction: Operator.DESC
+            orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
+            direction: options?.order ?? Operator.DESC,
+            limit: options?.limit,
+            offset: options?.offset,
         });
+    }
+
+    /** @summary Counts all transactions. */
+    async countTransactions(): Promise<DbResponse<number>> {
+        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION);
     }
 
     /** @summary Retrieves a single transaction by its ID.
@@ -100,10 +108,22 @@ export class TransactionService extends DbService {
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
-    async getTransactionsByAccount(accountId: number): Promise<DbResponse<TransactionRow[]>> {
+    async getTransactionsByAccount(accountId: number, options?: QueryOptions<TransactionRow>): Promise<DbResponse<TransactionRow[]>> {
         return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
             account_id: { operator: Operator.EQUAL, value: accountId }
-        }, { orderBy: 'date', direction: Operator.DESC });
+        }, {
+            orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
+            direction: options?.order ?? Operator.DESC,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts transactions for a specific account. */
+    async countTransactionsByAccount(accountId: number): Promise<DbResponse<number>> {
+        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
+            account_id: { operator: Operator.EQUAL, value: accountId }
+        });
     }
 
     /** @summary Retrieves all transactions for a given user, grouped by their accounts.
@@ -111,7 +131,7 @@ export class TransactionService extends DbService {
      * @param userId - ID of the user.
      * @returns A list of grouped transactions by account.
      */
-    async getTransactionsByUser(userId: number): Promise<DbResponse<AccountTransactions[]>> {
+    async getTransactionsByUser(userId: number, options?: QueryOptions<TransactionRow>): Promise<DbResponse<AccountTransactions[]>> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -124,7 +144,12 @@ export class TransactionService extends DbService {
         const allTransactions = await findWithColumnFilters<TransactionRow>(
             TableName.TRANSACTION,
             { account_id: { operator: Operator.IN, value: accountIds } },
-            { orderBy: 'date', direction: Operator.DESC }
+            {
+                orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
+                direction: options?.order ?? Operator.DESC,
+                limit: options?.limit,
+                offset: options?.offset,
+            }
         );
 
         if (!allTransactions.success || !allTransactions.data) {
@@ -140,6 +165,22 @@ export class TransactionService extends DbService {
             success: true,
             data: grouped
         };
+    }
+
+    /** @summary Counts transactions across all accounts for a specific user. */
+    async countTransactionsByUser(userId: number): Promise<DbResponse<number>> {
+        const accountService = new AccountService();
+        const userAccounts = await accountService.getAccountsByUser(userId);
+
+        if (!userAccounts.success || !userAccounts.data?.length) {
+            return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+        }
+
+        const accountIds = userAccounts.data.map(acc => acc.id);
+
+        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
+            account_id: { operator: Operator.IN, value: accountIds }
+        });
     }
 
     /** @summary Updates an transaction by ID.
