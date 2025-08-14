@@ -5,7 +5,7 @@ import { findWithColumnFilters, countWithColumnFilters } from '../utils/database
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 import User from '../model/user/user';
-import { QueryOptions } from '../utils/pagination';
+import { QueryOptions } from '../utils/commons';
 
 export type SanitizedUser = Omit<User, 'password'>;
 

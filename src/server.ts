@@ -11,7 +11,7 @@ import userRoutes from './routes/userRoutes';
 import { swaggerSpec } from './utils/docs/swaggerConfig';
 import './utils/docs/userDocs';
 
-import { createLog, sendErrorResponse } from './utils/commons';
+import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
 import { LogCategory, LogOperation, LogType } from './utils/enum';
 import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
@@ -19,7 +19,6 @@ import accountRoutes from './routes/accountRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
-import { requestTimer } from './utils/http/requestTimer';
 // #endregion Imports
 
 const app = express();

@@ -134,6 +134,11 @@ export enum Profile {
     MASTER = 'master'
 }
 
+export enum SortOrder {
+    ASC = 'asc',
+    DESC = 'desc'
+}
+
 export enum TableName {
     ACCOUNT = 'account',
     LOG = 'log',
