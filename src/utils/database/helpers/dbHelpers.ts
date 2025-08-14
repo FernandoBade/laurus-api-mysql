@@ -80,9 +80,20 @@ export async function findByLike<T>(table: string, column: string, searchTerm: s
  *
  * @param table - The database table to query.
  * @param filter - Optional filter conditions as key-value pairs.
+ * @param orderBy - Optional column to sort by.
+ * @param direction - Optional sorting direction.
+ * @param limit - Optional maximum number of records to return.
+ * @param offset - Optional starting offset for records.
  * @returns A list of records matching the provided filters.
  */
-export async function findMany<T>(table: string, filter?: object): Promise<DbResponse<T[]>> {
+export async function findMany<T>(
+    table: string,
+    filter?: object,
+    orderBy?: string,
+    direction?: Operator,
+    limit?: number,
+    offset?: number
+): Promise<DbResponse<T[]>> {
     let query = `SELECT * FROM ${table}`;
     const values: any[] = [];
 
@@ -95,9 +106,47 @@ export async function findMany<T>(table: string, filter?: object): Promise<DbRes
         query += ` WHERE ${conditions.join(' AND ')}`;
     }
 
+    if (orderBy) {
+        query += ` ORDER BY ${orderBy} ${direction ?? Operator.ASC}`;
+    }
+
+    if (limit != null) {
+        query += ` LIMIT ?`;
+        values.push(limit);
+    }
+
+    if (offset != null) {
+        query += ` OFFSET ?`;
+        values.push(offset);
+    }
+
     const [rows]: any = await db.query(query, values);
 
     return { success: true, data: rows };
+}
+
+/**
+ * Counts records matching optional filters.
+ *
+ * @param table - The database table to query.
+ * @param filter - Optional filter conditions as key-value pairs.
+ * @returns Total number of records matching the provided filters.
+ */
+export async function count(table: string, filter?: object): Promise<number> {
+    let query = `SELECT COUNT(*) as total FROM ${table}`;
+    const values: any[] = [];
+
+    if (filter && Object.keys(filter).length) {
+        const conditions = Object.keys(filter).map(key => {
+            values.push((filter as any)[key]);
+            return `${key} = ?`;
+        });
+
+        query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    const [rows]: any = await db.query(query, values);
+    return rows[0]?.total ?? 0;
 }
 
 /**
@@ -170,6 +219,56 @@ export async function findWithColumnFilters<T>(
 
     const [rows]: any = await db.query(query, values);
     return { success: true, data: rows };
+}
+
+/**
+ * Counts records using the same column-based filter logic as findWithColumnFilters.
+ *
+ * @param table - Table name to count rows from.
+ * @param filters - Column filters using typed operators.
+ */
+export async function countWithColumnFilters<T>(
+    table: TableName | string,
+    filters?: {
+        [K in keyof T]?:
+        | { operator: Operator.EQUAL; value: T[K] }
+        | { operator: Operator.IN; value: T[K][] }
+        | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
+        | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+    }
+): Promise<DbResponse<number>> {
+    let query = `SELECT COUNT(*) as count FROM ${table}`;
+    const values: any[] = [];
+
+    if (filters && Object.keys(filters).length) {
+        const conditions = Object.entries(filters).map(([column, f]) => {
+            const { operator, value } = f as any;
+
+            switch (operator) {
+                case Operator.EQUAL:
+                    values.push(value);
+                    return `${column} = ?`;
+
+                case Operator.IN:
+                    if (!value.length) return '1 = 0';
+                    values.push(...value);
+                    return `${column} IN (${value.map(() => '?').join(', ')})`;
+
+                case Operator.LIKE:
+                    values.push(`%${value}%`);
+                    return `${column} LIKE ?`;
+
+                case Operator.BETWEEN:
+                    values.push(...value);
+                    return `${column} BETWEEN ? AND ?`;
+            }
+        });
+
+        query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    const [rows]: any = await db.query(query, values);
+    return { success: true, data: rows[0]?.count ?? 0 };
 }
 
 /**

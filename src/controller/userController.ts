@@ -5,6 +5,7 @@ import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
+import { parsePagination, buildMeta } from '../utils/pagination';
 
 
 class UserController {
@@ -66,8 +67,20 @@ class UserController {
         const userService = new UserService();
 
         try {
-            const usersFound = await userService.getUsers();
-            return answerAPI(req, res, HTTPStatus.OK, usersFound.data, usersFound.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                userService.getUsers({ limit, offset, sort, order }),
+                userService.countUsers()
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -123,8 +136,20 @@ class UserController {
         const userService = new UserService();
 
         try {
-            const usersFound = await userService.getUsersByEmail(searchTerm);
-            return answerAPI(req, res, HTTPStatus.OK, usersFound.data, usersFound.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                userService.getUsersByEmail(searchTerm, { limit, offset, sort, order }),
+                userService.countUsersByEmail(searchTerm)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

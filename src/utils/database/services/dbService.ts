@@ -1,6 +1,21 @@
 import { Operator } from '../../enum';
-import { insert, findById, findMany, update, remove, findWithColumnFilters } from '../helpers/dbHelpers';
+import {
+    insert,
+    findById,
+    findMany as findManyHelper,
+    update,
+    remove,
+    findWithColumnFilters,
+    count as countHelper,
+} from '../helpers/dbHelpers';
 import { DbResponse } from './dbResponse';
+
+export interface QueryOptions<T> {
+    limit?: number;
+    offset?: number;
+    sort?: keyof T;
+    order?: 'asc' | 'desc';
+}
 
 /**
  * Abstract base class for services that interact with the database.
@@ -8,9 +23,11 @@ import { DbResponse } from './dbResponse';
  */
 export abstract class DbService {
     protected table: string;
+    protected sortableColumns: string[];
 
-    constructor(table: string) {
+    constructor(table: string, sortableColumns: string[] = []) {
         this.table = table;
+        this.sortableColumns = sortableColumns;
     }
 
     /**
@@ -27,8 +44,23 @@ export abstract class DbService {
      * @param filter - Optional criteria to filter entries.
      * @returns List of found entries.
      */
-    async findMany<T>(filter?: object): Promise<DbResponse<T[]>> {
-        return findMany<T>(this.table, filter);
+    async findMany<T>(filter?: object, options?: QueryOptions<T>): Promise<DbResponse<T[]>> {
+        let orderBy: string | undefined;
+        let direction: Operator | undefined;
+
+        if (options?.sort && this.sortableColumns.includes(String(options.sort))) {
+            orderBy = String(options.sort);
+            direction = options.order === 'desc' ? Operator.DESC : Operator.ASC;
+        }
+
+        return findManyHelper<T>(
+            this.table,
+            filter,
+            orderBy,
+            direction,
+            options?.limit,
+            options?.offset
+        );
     }
 
     /**
@@ -47,14 +79,33 @@ export abstract class DbService {
             | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
             | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
         },
-        options?: {
+        options?: QueryOptions<T>
+    ): Promise<DbResponse<T[]>> {
+        let finalOptions: {
             orderBy?: keyof T;
             direction?: Operator;
             limit?: number;
             offset?: number;
+        } | undefined;
+
+        if (options) {
+            finalOptions = {};
+
+            if (options.sort && this.sortableColumns.includes(String(options.sort))) {
+                finalOptions.orderBy = options.sort;
+                finalOptions.direction = options.order === 'desc' ? Operator.DESC : Operator.ASC;
+            }
+
+            if (options.limit != null) {
+                finalOptions.limit = options.limit;
+            }
+
+            if (options.offset != null) {
+                finalOptions.offset = options.offset;
+            }
         }
-    ): Promise<DbResponse<T[]>> {
-        return findWithColumnFilters<T>(this.table, filters, options);
+
+        return findWithColumnFilters<T>(this.table, filters, finalOptions);
     }
 
     /**
@@ -95,5 +146,14 @@ export abstract class DbService {
         }
 
         return { success: true, data: { id } };
+    }
+
+    /**
+     * Counts entries based on an optional filter object.
+     * @param filter - Optional criteria to filter entries.
+     * @returns Total number of records matching the provided filter.
+     */
+    async count(filter?: object): Promise<number> {
+        return countHelper(this.table, filter);
     }
 }

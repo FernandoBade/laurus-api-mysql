@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import { Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
-import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 import User from '../model/user/user';
+import { QueryOptions } from '../utils/pagination';
 
 export type SanitizedUser = Omit<User, 'password'>;
 
@@ -56,14 +57,25 @@ export class UserService extends DbService {
 
     /** @summary Retrieves a list of all users in the database.
      *
+     * @param options - Query options for pagination and sorting.
      * @returns List of user records.
      */
-    async getUsers(): Promise<DbResponse<SanitizedUser[]>> {
-        const users = await this.findMany<User>();
+    async getUsers(options?: QueryOptions<User>): Promise<DbResponse<SanitizedUser[]>> {
+        const users = await findWithColumnFilters<User>(TableName.USER, {}, {
+            orderBy: options?.sort as keyof User,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
         return {
             ...users,
             data: users.data?.map(u => this.sanitizeUser(u))
         };
+    }
+
+    /** @summary Counts all users. */
+    async countUsers(): Promise<DbResponse<number>> {
+        return countWithColumnFilters<User>(TableName.USER);
     }
 
     /** @summary Retrieves a user by their unique ID.
@@ -84,14 +96,26 @@ export class UserService extends DbService {
      * @param emailTerm - Email search term (partial match).
      * @returns List of users matching the email filter.
      */
-    async getUsersByEmail(emailTerm: string): Promise<DbResponse<SanitizedUser[]>> {
+    async getUsersByEmail(emailTerm: string, options?: QueryOptions<User>): Promise<DbResponse<SanitizedUser[]>> {
         const result = await findWithColumnFilters<User>(TableName.USER, {
             email: { operator: Operator.LIKE, value: emailTerm }
+        }, {
+            orderBy: options?.sort as keyof User,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
         });
         return {
             ...result,
             data: result.data?.map(u => this.sanitizeUser(u))
         };
+    }
+
+    /** @summary Counts users matching an email term. */
+    async countUsersByEmail(emailTerm: string): Promise<DbResponse<number>> {
+        return countWithColumnFilters<User>(TableName.USER, {
+            email: { operator: Operator.LIKE, value: emailTerm }
+        });
     }
 
     /** @summary Updates a user by ID and rehashes the password if it has changed.

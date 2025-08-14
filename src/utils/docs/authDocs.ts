@@ -35,6 +35,8 @@
  *               success: true
  *               data:
  *                 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Invalid email or password
  *         content:
@@ -42,6 +44,8 @@
  *             example:
  *               success: false
  *               message: Invalid credentials
+ *               timed: true
+ *               requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -49,6 +53,8 @@
  *             example:
  *               success: false
  *               message: Internal server error
+ *               timed: true
+ *               requestTimeMs: 12
  *
  * /auth/refresh:
  *   post:
@@ -64,6 +70,8 @@
  *               success: true
  *               data:
  *                 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *               timed: true
+ *               requestTimeMs: 12
  *       401:
  *         description: Expired or invalid refresh token
  *         content:
@@ -71,6 +79,8 @@
  *             example:
  *               success: false
  *               message: Expired or invalid token
+ *               timed: true
+ *               requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -78,6 +88,8 @@
  *             example:
  *               success: false
  *               message: Internal server error
+ *               timed: true
+ *               requestTimeMs: 12
  *
  * /auth/logout:
  *   post:
@@ -92,6 +104,8 @@
  *             example:
  *               success: true
  *               message: Logged out successfully
+ *               timed: true
+ *               requestTimeMs: 12
  *       400:
  *         description: Missing or invalid refresh token
  *         content:
@@ -99,6 +113,8 @@
  *             example:
  *               success: false
  *               message: Token not found
+ *               timed: true
+ *               requestTimeMs: 12
  *       500:
  *         description: Internal server error
  *         content:
@@ -106,4 +122,6 @@
  *             example:
  *               success: false
  *               message: Internal server error
+ *               timed: true
+ *               requestTimeMs: 12
  */

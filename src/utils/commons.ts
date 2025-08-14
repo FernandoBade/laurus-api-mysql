@@ -156,6 +156,7 @@ export function answerAPI(
         }
     } else {
         response.elapsedTime = elapsedTime;
+
     }
 
     return res.status(status).json(response);
@@ -271,12 +272,14 @@ export function sendErrorResponse(
     error?: any
 ) {
     const language = req.language ?? 'pt-BR';
+    const requestTimeMs = getDurationMs(res);
 
     return res.status(status).json({
         success: false,
         message: ResourceBase.translate(resource, language),
         ...(error ? { error: formatError(error) } : {}),
         elapsedTime: getDurationMs(res)
+
     });
 }
 
