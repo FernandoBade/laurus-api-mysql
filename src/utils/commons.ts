@@ -7,6 +7,7 @@ import { ResourceBase } from './resources/languages/resourceService';
 import { Resource } from './resources/resource';
 import { ZodSchema } from 'zod';
 import { LanguageCode } from './resources/resourceTypes';
+import { getDurationMs } from './http/requestTimer';
 // #endregion Imports
 
 // #region Logger Configuration
@@ -123,12 +124,39 @@ export function answerAPI(
 
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
     const language = req.language ?? 'en-US';
+    const elapsedTime = getDurationMs(res);
 
-    const response = {
+    const response: any = {
         success,
-        ...(resource && { message: ResourceBase.translate(resource, language) }),
-        ...(data && (success ? { data } : { error: JSON.parse(JSON.stringify(data)) }))
+        ...(resource && { message: ResourceBase.translate(resource, language) })
     };
+
+    if (data !== undefined) {
+        if (success && typeof data === 'object' && data !== null && 'data' in data && 'meta' in data) {
+            const { data: payload, meta } = data as { data: any; meta: Record<string, any> };
+            const { page, pageSize, pageCount, total, ...restMeta } = meta || {};
+
+            response.data = payload;
+            if (Object.keys(restMeta).length) {
+                response.meta = restMeta;
+            }
+
+            response.elapsedTime = elapsedTime;
+            if (page !== undefined) response.page = page;
+            if (pageSize !== undefined) response.pageSize = pageSize;
+            if (pageCount !== undefined) response.pageCount = pageCount;
+            if (total !== undefined) response.totalItems = total;
+        } else {
+            if (success) {
+                response.data = data;
+            } else {
+                response.error = JSON.parse(JSON.stringify(data));
+            }
+            response.elapsedTime = elapsedTime;
+        }
+    } else {
+        response.elapsedTime = elapsedTime;
+    }
 
     return res.status(status).json(response);
 }
@@ -247,7 +275,8 @@ export function sendErrorResponse(
     return res.status(status).json({
         success: false,
         message: ResourceBase.translate(resource, language),
-        ...(error ? { error: formatError(error) } : {})
+        ...(error ? { error: formatError(error) } : {}),
+        elapsedTime: getDurationMs(res)
     });
 }
 
