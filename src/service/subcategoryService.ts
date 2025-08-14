@@ -2,9 +2,10 @@ import { Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { CategoryService } from './categoryService';
 import Subcategory from '../model/subcategory/subcategory';
+import { QueryOptions } from '../utils/pagination';
 
 type SubcategoryRow = Subcategory & { category_id: number };
 
@@ -48,10 +49,21 @@ export class SubcategoryService extends DbService {
 
     /** @summary Retrieves all subcategories from the database.
      *
+     * @param options - Query options for pagination and sorting.
      * @returns A list of all subcategories.
      */
-    async getSubcategories(): Promise<DbResponse<SubcategoryRow[]>> {
-        return this.findMany<SubcategoryRow>();
+    async getSubcategories(options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
+        return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {}, {
+            orderBy: options?.sort as keyof SubcategoryRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts all subcategories. */
+    async countSubcategories(): Promise<DbResponse<number>> {
+        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY);
     }
 
     /** @summary Retrieves all subcategories for a given category ID.
@@ -59,8 +71,20 @@ export class SubcategoryService extends DbService {
      * @param categoryId - ID of the parent category.
      * @returns A list of subcategories under the specified category.
      */
-    async getSubcategoriesByCategory(categoryId: number): Promise<DbResponse<SubcategoryRow[]>> {
+    async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
         return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
+            category_id: { operator: Operator.EQUAL, value: categoryId }
+        }, {
+            orderBy: options?.sort as keyof SubcategoryRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts subcategories for a specific category. */
+    async countSubcategoriesByCategory(categoryId: number): Promise<DbResponse<number>> {
+        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
             category_id: { operator: Operator.EQUAL, value: categoryId }
         });
     }
@@ -80,7 +104,7 @@ export class SubcategoryService extends DbService {
      * @param userId - ID of the user whose subcategories are being requested.
      * @returns A list of subcategories across all categories owned by the user.
      */
-    async getSubcategoriesByUser(userId: number): Promise<DbResponse<SubcategoryRow[]>> {
+    async getSubcategoriesByUser(userId: number, options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
         const categoryService = new CategoryService();
         const userCategories = await categoryService.getCategoriesByUser(userId);
 
@@ -91,6 +115,27 @@ export class SubcategoryService extends DbService {
         const categoryIds = userCategories.data.map(c => c.id);
 
         return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
+            category_id: { operator: Operator.IN, value: categoryIds }
+        }, {
+            orderBy: options?.sort as keyof SubcategoryRow,
+            direction: options?.order,
+            limit: options?.limit,
+            offset: options?.offset,
+        });
+    }
+
+    /** @summary Counts subcategories belonging to categories of a specific user. */
+    async countSubcategoriesByUser(userId: number): Promise<DbResponse<number>> {
+        const categoryService = new CategoryService();
+        const userCategories = await categoryService.getCategoriesByUser(userId);
+
+        if (!userCategories.success || !userCategories.data?.length) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+
+        const categoryIds = userCategories.data.map(c => c.id);
+
+        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
             category_id: { operator: Operator.IN, value: categoryIds }
         });
     }

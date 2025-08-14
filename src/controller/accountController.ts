@@ -4,6 +4,7 @@ import { formatZodValidationErrors, createLog, answerAPI, formatError, validateS
 import { createAccountSchema, updateAccountSchema } from '../model/account/accountSchema';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
+import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
 class AccountController {
@@ -58,14 +59,20 @@ class AccountController {
         const accountService = new AccountService();
 
         try {
-            const accounts = await accountService.getAccounts();
-            return answerAPI(
-                req,
-                res,
-                HTTPStatus.OK,
-                accounts.data,
-                accounts.data?.length ? undefined : Resource.NO_RECORDS_FOUND
-            );
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                accountService.getAccounts({ limit, offset, sort, order }),
+                accountService.countAccounts()
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -121,14 +128,20 @@ class AccountController {
         const accountService = new AccountService();
 
         try {
-            const accounts = await accountService.getAccountsByUser(userId);
-            return answerAPI(
-                req,
-                res,
-                HTTPStatus.OK,
-                accounts.data,
-                accounts.data?.length ? undefined : Resource.NO_RECORDS_FOUND
-            );
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                accountService.getAccountsByUser(userId, { limit, offset, sort, order }),
+                accountService.countAccountsByUser(userId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

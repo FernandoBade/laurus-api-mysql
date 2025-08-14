@@ -6,6 +6,7 @@ import { formatZodValidationErrors, createLog, answerAPI, formatError, validateS
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
+import { parsePagination, buildMeta } from '../utils/pagination';
 // #endregion Imports
 
 class TransactionController {
@@ -61,8 +62,20 @@ class TransactionController {
         const transactionService = new TransactionService();
 
         try {
-            const transactions = await transactionService.getTransactions();
-            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                transactionService.getTransactions({ limit, offset, sort, order }),
+                transactionService.countTransactions()
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -118,8 +131,20 @@ class TransactionController {
         const transactionService = new TransactionService();
 
         try {
-            const transactions = await transactionService.getTransactionsByAccount(accountId);
-            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                transactionService.getTransactionsByAccount(accountId, { limit, offset, sort, order }),
+                transactionService.countTransactionsByAccount(accountId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), accountId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -144,8 +169,20 @@ class TransactionController {
         const transactionService = new TransactionService();
 
         try {
-            const transactions = await transactionService.getTransactionsByUser(userId);
-            return answerAPI(req, res, HTTPStatus.OK, transactions.data, transactions.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                transactionService.getTransactionsByUser(userId, { limit, offset, sort, order }),
+                transactionService.countTransactionsByUser(userId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

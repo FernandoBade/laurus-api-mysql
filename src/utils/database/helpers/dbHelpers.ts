@@ -222,6 +222,56 @@ export async function findWithColumnFilters<T>(
 }
 
 /**
+ * Counts records using the same column-based filter logic as findWithColumnFilters.
+ *
+ * @param table - Table name to count rows from.
+ * @param filters - Column filters using typed operators.
+ */
+export async function countWithColumnFilters<T>(
+    table: TableName | string,
+    filters?: {
+        [K in keyof T]?:
+        | { operator: Operator.EQUAL; value: T[K] }
+        | { operator: Operator.IN; value: T[K][] }
+        | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
+        | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+    }
+): Promise<DbResponse<number>> {
+    let query = `SELECT COUNT(*) as count FROM ${table}`;
+    const values: any[] = [];
+
+    if (filters && Object.keys(filters).length) {
+        const conditions = Object.entries(filters).map(([column, f]) => {
+            const { operator, value } = f as any;
+
+            switch (operator) {
+                case Operator.EQUAL:
+                    values.push(value);
+                    return `${column} = ?`;
+
+                case Operator.IN:
+                    if (!value.length) return '1 = 0';
+                    values.push(...value);
+                    return `${column} IN (${value.map(() => '?').join(', ')})`;
+
+                case Operator.LIKE:
+                    values.push(`%${value}%`);
+                    return `${column} LIKE ?`;
+
+                case Operator.BETWEEN:
+                    values.push(...value);
+                    return `${column} BETWEEN ? AND ?`;
+            }
+        });
+
+        query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    const [rows]: any = await db.query(query, values);
+    return { success: true, data: rows[0]?.count ?? 0 };
+}
+
+/**
  * Updates a record in a given table by its ID.
  * @param table - The database table to update.
  * @param id - ID of the record to update.

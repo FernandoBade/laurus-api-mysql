@@ -5,6 +5,7 @@ import { validateSchema, formatZodValidationErrors, createLog, answerAPI, format
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
+import { parsePagination, buildMeta } from '../utils/pagination';
 
 class SubcategoryController {
     /** @summary Creates a new subcategory using validated input from the request body.
@@ -51,8 +52,20 @@ class SubcategoryController {
         const subcategoryService = new SubcategoryService();
 
         try {
-            const subcategories = await subcategoryService.getSubcategories();
-            return answerAPI(req, res, HTTPStatus.OK, subcategories.data, subcategories.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                subcategoryService.getSubcategories({ limit, offset, sort, order }),
+                subcategoryService.countSubcategories()
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -77,8 +90,20 @@ class SubcategoryController {
         const subcategoryService = new SubcategoryService();
 
         try {
-            const result = await subcategoryService.getSubcategoriesByCategory(categoryId);
-            return answerAPI(req, res, HTTPStatus.OK, result.data, result.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                subcategoryService.getSubcategoriesByCategory(categoryId, { limit, offset, sort, order }),
+                subcategoryService.countSubcategoriesByCategory(categoryId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), categoryId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -134,8 +159,20 @@ class SubcategoryController {
         const subcategoryService = new SubcategoryService();
 
         try {
-            const result = await subcategoryService.getSubcategoriesByUser(userId);
-            return answerAPI(req, res, HTTPStatus.OK, result.data, result.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                subcategoryService.getSubcategoriesByUser(userId, { limit, offset, sort, order }),
+                subcategoryService.countSubcategoriesByUser(userId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

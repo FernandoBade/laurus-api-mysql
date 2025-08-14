@@ -5,6 +5,7 @@ import { validateSchema, formatZodValidationErrors, createLog, answerAPI, format
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
+import { parsePagination, buildMeta } from '../utils/pagination';
 
 class CategoryController {
     /** @summary Creates a new category using validated input from the request body.
@@ -51,8 +52,20 @@ class CategoryController {
         const categoryService = new CategoryService();
 
         try {
-            const categories = await categoryService.getCategories();
-            return answerAPI(req, res, HTTPStatus.OK, categories.data, categories.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                categoryService.getCategories({ limit, offset, sort, order }),
+                categoryService.countCategories()
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -107,8 +120,20 @@ class CategoryController {
         const categoryService = new CategoryService();
 
         try {
-            const result = await categoryService.getCategoriesByUser(userId);
-            return answerAPI(req, res, HTTPStatus.OK, result.data, result.data?.length ? undefined : Resource.NO_RECORDS_FOUND);
+            const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const [rows, total] = await Promise.all([
+                categoryService.getCategoriesByUser(userId, { limit, offset, sort, order }),
+                categoryService.countCategoriesByUser(userId)
+            ]);
+
+            if (!rows.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, {
+                data: rows.data,
+                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+            });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
