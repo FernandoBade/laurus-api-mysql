@@ -7,6 +7,7 @@ import { ResourceBase } from './resources/languages/resourceService';
 import { Resource } from './resources/resource';
 import { ZodSchema } from 'zod';
 import { LanguageCode } from './resources/resourceTypes';
+import { getDurationMs } from './http/requestTimer';
 // #endregion Imports
 
 // #region Logger Configuration
@@ -123,12 +124,28 @@ export function answerAPI(
 
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
     const language = req.language ?? 'en-US';
+    const requestTimeMs = getDurationMs(res);
 
-    const response = {
+    const response: Record<string, unknown> = {
         success,
-        ...(resource && { message: ResourceBase.translate(resource, language) }),
-        ...(data && (success ? { data } : { error: JSON.parse(JSON.stringify(data)) }))
+        timed: true,
+        requestTimeMs,
+        ...(resource && { message: ResourceBase.translate(resource, language) })
     };
+
+    if (data) {
+        if (success) {
+            if (typeof data === 'object' && data !== null && 'data' in data && 'meta' in data) {
+                const { data: innerData, meta } = data as { data: unknown; meta: unknown };
+                response.data = innerData;
+                response.meta = meta;
+            } else {
+                response.data = data;
+            }
+        } else {
+            response.error = JSON.parse(JSON.stringify(data));
+        }
+    }
 
     return res.status(status).json(response);
 }
@@ -243,10 +260,13 @@ export function sendErrorResponse(
     error?: any
 ) {
     const language = req.language ?? 'pt-BR';
+    const requestTimeMs = getDurationMs(res);
 
     return res.status(status).json({
         success: false,
         message: ResourceBase.translate(resource, language),
+        timed: true,
+        requestTimeMs,
         ...(error ? { error: formatError(error) } : {})
     });
 }

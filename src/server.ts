@@ -19,11 +19,13 @@ import accountRoutes from './routes/accountRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
+import { requestTimer } from './utils/http/requestTimer';
 // #endregion Imports
 
 const app = express();
 const port = process.env.PORT || 5050;
 
+app.use(requestTimer());
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cookieParser());
