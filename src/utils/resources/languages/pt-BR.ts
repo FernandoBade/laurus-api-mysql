@@ -46,6 +46,7 @@ const ptBR: LanguageResource = {
     TOTAL_MONTHS_REQUIRED: "totalMonths é obrigatório quando isInstallment for true.",
     TRANSACTION_NOT_FOUND: "Transação não encontrada",
     UNAUTHORIZED_OPERATION: "Operação não autorizada",
+    UNEXPECTED_ERROR: "Erro inesperado",
     UNRECOGNIZED_KEYS: "Chaves não reconhecidas: {keys}",
     USER_NOT_FOUND: "Usuário não encontrado",
     VALIDATION_ERROR: "Erro de validação",

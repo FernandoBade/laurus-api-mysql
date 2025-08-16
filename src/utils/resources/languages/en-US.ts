@@ -46,6 +46,7 @@ const enUS: LanguageResource = {
     TOTAL_MONTHS_REQUIRED: "totalMonths is required when isInstallment is true.",
     TRANSACTION_NOT_FOUND: "Transaction not found",
     UNAUTHORIZED_OPERATION: "Unauthorized operation",
+    UNEXPECTED_ERROR: "Unexpected error",
     UNRECOGNIZED_KEYS: "Unrecognized keys: {keys}",
     USER_NOT_FOUND: "User not found",
     VALIDATION_ERROR: "Validation error",

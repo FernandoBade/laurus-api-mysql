@@ -46,6 +46,7 @@ const esES: LanguageResource = {
     TOTAL_MONTHS_REQUIRED: "totalMonths es obligatorio cuando isInstallment es true.",
     TRANSACTION_NOT_FOUND: "Transacción no encontrada",
     UNAUTHORIZED_OPERATION: "Operación no autorizada",
+    UNEXPECTED_ERROR: "Error inesperado",
     UNRECOGNIZED_KEYS: "Claves no reconocidas: {keys}",
     USER_NOT_FOUND: "Usuario no encontrado",
     VALIDATION_ERROR: "Error de validación",

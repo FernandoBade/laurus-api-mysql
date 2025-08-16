@@ -126,6 +126,7 @@ export enum Operator {
     BETWEEN = 'BETWEEN',
     ASC = 'ASC',
     DESC = 'DESC',
+    DATE = "DATE",
 }
 
 export enum Profile {

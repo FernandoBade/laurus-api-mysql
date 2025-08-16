@@ -9,7 +9,12 @@
     "start": "node dist/server.js",
     "test": "node --test",
     "dev:create": "ts-node src/dev/seedDevDatabase.ts",
-    "dev:reset": "ts-node src/dev/resetDevDatabase.ts"
+    "dev:reset": "ts-node src/dev/resetDevDatabase.ts",
+    "dev:analyze": "node -r ts-node/register -r dotenv/config ./src/dev/analyseUser.ts",
+    "dev:list-users": "node -r ts-node/register -r dotenv/config ./src/dev/analyseUser.ts --list",
+    "dev:db:diag": "node -r ts-node/register -r dotenv/config ./src/dev/dbDiag.ts",
+    "dev:tx-stats": "node -r ts-node/register -r dotenv/config ./src/dev/txDiag.ts"
+
   },
   "keywords": [],
   "author": "",

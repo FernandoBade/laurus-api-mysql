@@ -58,7 +58,7 @@ async function seedDevDatabase({ seed }: SeedOptions = {}): Promise<void> {
     const subcategoryService = new SubcategoryService();
     const transactionService = new TransactionService();
 
-    const USERS = parseInt(process.env.USERS || '20', 10);
+    const USERS = parseInt(process.env.USERS || '100', 10);
     const MONTHS = parseInt(process.env.MONTHS || '36', 10);
     const TX_MIN = parseInt(process.env.TX_PER_USER_MIN || '200', 10);
     const TX_MAX = parseInt(process.env.TX_PER_USER_MAX || '600', 10);
@@ -123,7 +123,7 @@ async function seedDevDatabase({ seed }: SeedOptions = {}): Promise<void> {
         const timezone = pick(timezones, rng);
 
         let userId: number | undefined;
-        const existing = await userService.findWithFilters<{ id: number }>({
+        const existing = await userService.findWithFilters<{ id: number, email: string }>({
             email: { operator: Operator.EQUAL, value: email }
         });
         if (existing.success && existing.data && existing.data[0]) {
@@ -368,8 +368,8 @@ async function seedDevDatabase({ seed }: SeedOptions = {}): Promise<void> {
     const statsCategories = await categoryService.countCategories();
     const statsSubcategories = await subcategoryService.countSubcategories();
     const statsTransactions = await transactionService.countTransactions();
-    const earliest = await transactionService.getTransactions({ sort: 'date' as any, order: 'asc', limit: 1 });
-    const latest = await transactionService.getTransactions({ sort: 'date' as any, order: 'desc', limit: 1 });
+    const earliest = await transactionService.getTransactions({ sort: 'date' as any, order: Operator.ASC, limit: 1 });
+    const latest = await transactionService.getTransactions({ sort: 'date' as any, order: Operator.DESC, limit: 1 });
 
     const stats = {
         totalUsuarios: statsUsers.data || 0,

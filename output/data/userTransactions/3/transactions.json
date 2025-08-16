@@ -1,0 +1,7682 @@
+{
+  "userId": 3,
+  "geradoEm": "2025-08-16T23:07:03.881Z",
+  "sumario": {
+    "totalTransacoes": 249,
+    "totalIncome": 311019.55,
+    "totalExpense": 85289.05000000006,
+    "saldoLiquido": 225730.49999999994,
+    "porMes": {
+      "2025-08": {
+        "income": 10337.74,
+        "expense": 3505.2799999999997,
+        "net": 6832.46
+      },
+      "2025-07": {
+        "income": 10152.99,
+        "expense": 2852.1099999999997,
+        "net": 7300.88
+      },
+      "2025-06": {
+        "income": 6900.05,
+        "expense": 2983.5,
+        "net": 3916.55
+      },
+      "2025-05": {
+        "income": 8052.08,
+        "expense": 2910.49,
+        "net": 5141.59
+      },
+      "2025-04": {
+        "income": 9528.21,
+        "expense": 2763.8700000000003,
+        "net": 6764.339999999998
+      },
+      "2025-03": {
+        "income": 4879.6,
+        "expense": 1605.59,
+        "net": 3274.01
+      },
+      "2025-02": {
+        "income": 5188.18,
+        "expense": 2957.37,
+        "net": 2230.8100000000004
+      },
+      "2025-01": {
+        "income": 11290.86,
+        "expense": 1364.6499999999999,
+        "net": 9926.210000000001
+      },
+      "2024-12": {
+        "income": 18155.629999999997,
+        "expense": 3188.02,
+        "net": 14967.609999999997
+      },
+      "2024-11": {
+        "income": 11612.11,
+        "expense": 2061.08,
+        "net": 9551.03
+      },
+      "2024-10": {
+        "income": 11387.1,
+        "expense": 4203.9400000000005,
+        "net": 7183.16
+      },
+      "2024-09": {
+        "income": 21053.04,
+        "expense": 3687.09,
+        "net": 17365.95
+      },
+      "2024-08": {
+        "income": 9326.16,
+        "expense": 1671.43,
+        "net": 7654.73
+      },
+      "2024-06": {
+        "income": 10472.539999999999,
+        "expense": 1323.67,
+        "net": 9148.869999999999
+      },
+      "2024-07": {
+        "income": 1341.68,
+        "expense": 1518.0300000000002,
+        "net": -176.35000000000014
+      },
+      "2024-04": {
+        "income": 6777.73,
+        "expense": 1571.0299999999997,
+        "net": 5206.7
+      },
+      "2024-05": {
+        "income": 11348.43,
+        "expense": 4991.21,
+        "net": 6357.22
+      },
+      "2024-03": {
+        "income": 9087.7,
+        "expense": 2359.8800000000006,
+        "net": 6727.82
+      },
+      "2024-01": {
+        "income": 11420.53,
+        "expense": 1673.67,
+        "net": 9746.86
+      },
+      "2024-02": {
+        "income": 5105.48,
+        "expense": 4134.38,
+        "net": 971.0999999999995
+      },
+      "2023-12": {
+        "income": 4280.9,
+        "expense": 2418.83,
+        "net": 1862.0699999999997
+      },
+      "2023-11": {
+        "income": 10774.19,
+        "expense": 2113.11,
+        "net": 8661.08
+      },
+      "2023-09": {
+        "income": 6974.37,
+        "expense": 1884.64,
+        "net": 5089.73
+      },
+      "2023-10": {
+        "income": 11477.16,
+        "expense": 5311.36,
+        "net": 6165.8
+      },
+      "2023-07": {
+        "income": 6660.13,
+        "expense": 1792,
+        "net": 4868.13
+      },
+      "2023-08": {
+        "income": 5278.16,
+        "expense": 2252.9,
+        "net": 3025.2599999999998
+      },
+      "2023-06": {
+        "income": 6095.61,
+        "expense": 916.99,
+        "net": 5178.62
+      },
+      "2023-05": {
+        "income": 3041.38,
+        "expense": 2218.11,
+        "net": 823.27
+      },
+      "2023-04": {
+        "income": 7546.81,
+        "expense": 1260.7900000000002,
+        "net": 6286.02
+      },
+      "2023-03": {
+        "income": 9698.34,
+        "expense": 2383.8199999999997,
+        "net": 7314.52
+      },
+      "2023-02": {
+        "income": 11397.19,
+        "expense": 1029.76,
+        "net": 10367.43
+      },
+      "2023-01": {
+        "income": 11674.69,
+        "expense": 1551,
+        "net": 10123.69
+      },
+      "2022-12": {
+        "income": 4105.02,
+        "expense": 1679.75,
+        "net": 2425.2700000000004
+      },
+      "2022-11": {
+        "income": 5171.87,
+        "expense": 1877.4100000000003,
+        "net": 3294.4599999999996
+      },
+      "2022-09": {
+        "income": 3092.21,
+        "expense": 1161.41,
+        "net": 1930.8
+      },
+      "2022-10": {
+        "income": 10333.68,
+        "expense": 2110.88,
+        "net": 8222.8
+      }
+    },
+    "porCategoria": {
+      "17": {
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "total": 295.59,
+        "quantidade": 8
+      },
+      "18": {
+        "nome": "Transporte",
+        "tipo": "expense",
+        "total": 1297.13,
+        "quantidade": 13
+      },
+      "19": {
+        "nome": "Moradia",
+        "tipo": "expense",
+        "total": 65127.11000000001,
+        "quantidade": 50
+      },
+      "20": {
+        "nome": "Mercado",
+        "tipo": "expense",
+        "total": 6035.65,
+        "quantidade": 12
+      },
+      "21": {
+        "nome": "Serviços",
+        "tipo": "expense",
+        "total": 7235.139999999998,
+        "quantidade": 87
+      },
+      "22": {
+        "nome": "Saúde",
+        "tipo": "expense",
+        "total": 2367.8799999999997,
+        "quantidade": 16
+      },
+      "23": {
+        "nome": "Lazer",
+        "tipo": "expense",
+        "total": 2930.5499999999997,
+        "quantidade": 17
+      },
+      "24": {
+        "nome": "Receitas",
+        "tipo": "income",
+        "total": 311019.55,
+        "quantidade": 46
+      }
+    },
+    "porConta": {
+      "9": {
+        "nome": "Conta Corrente",
+        "totalIncome": 288160.70000000007,
+        "totalExpense": 66489.94000000003,
+        "net": 221670.76000000004,
+        "quantidade": 169
+      },
+      "10": {
+        "nome": "Conta Poupança",
+        "totalIncome": 10751.04,
+        "totalExpense": 6606.65,
+        "net": 4144.390000000001,
+        "quantidade": 23
+      },
+      "11": {
+        "nome": "Carteira Digital",
+        "totalIncome": 3969.71,
+        "totalExpense": 5971.63,
+        "net": -2001.92,
+        "quantidade": 31
+      },
+      "12": {
+        "nome": "Cartão Vagalume Platinum",
+        "totalIncome": 8138.1,
+        "totalExpense": 6220.829999999999,
+        "net": 1917.2700000000013,
+        "quantidade": 26
+      }
+    }
+  },
+  "entidades": {
+    "contas": [
+      {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "instituicao": "Banco Sol",
+        "tipo": "checking",
+        "ativo": 1
+      },
+      {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "instituicao": "Banco Vanguarda",
+        "tipo": "savings",
+        "ativo": 1
+      },
+      {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "instituicao": "LuzPay",
+        "tipo": "other",
+        "ativo": 1
+      },
+      {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "instituicao": "Cartões",
+        "tipo": "other",
+        "ativo": 1
+      }
+    ],
+    "categorias": [
+      {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow",
+        "ativo": 1
+      },
+      {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple",
+        "ativo": 1
+      },
+      {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green",
+        "ativo": 1
+      },
+      {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange",
+        "ativo": 1
+      },
+      {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink",
+        "ativo": 1
+      },
+      {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red",
+        "ativo": 1
+      },
+      {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue",
+        "ativo": 1
+      },
+      {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan",
+        "ativo": 1
+      }
+    ],
+    "subcategorias": [
+      {
+        "id": 55,
+        "nome": "Salário",
+        "ativo": 1
+      },
+      {
+        "id": 48,
+        "nome": "Streaming",
+        "ativo": 1
+      },
+      {
+        "id": 47,
+        "nome": "Internet",
+        "ativo": 1
+      },
+      {
+        "id": 44,
+        "nome": "Aluguel",
+        "ativo": 1
+      },
+      {
+        "id": 50,
+        "nome": "Assinaturas",
+        "ativo": 1
+      },
+      {
+        "id": 46,
+        "nome": "Supermercado",
+        "ativo": 1
+      },
+      {
+        "id": 54,
+        "nome": "Viagem",
+        "ativo": 1
+      },
+      {
+        "id": 53,
+        "nome": "Cinema",
+        "ativo": 1
+      },
+      {
+        "id": 40,
+        "nome": "Lanches",
+        "ativo": 1
+      },
+      {
+        "id": 39,
+        "nome": "Restaurante",
+        "ativo": 1
+      },
+      {
+        "id": 56,
+        "nome": "Freelas",
+        "ativo": 1
+      },
+      {
+        "id": 57,
+        "nome": "Bônus",
+        "ativo": 1
+      },
+      {
+        "id": 43,
+        "nome": "Táxi",
+        "ativo": 1
+      },
+      {
+        "id": 51,
+        "nome": "Consulta",
+        "ativo": 1
+      },
+      {
+        "id": 45,
+        "nome": "Condomínio",
+        "ativo": 1
+      },
+      {
+        "id": 52,
+        "nome": "Medicamentos",
+        "ativo": 1
+      },
+      {
+        "id": 41,
+        "nome": "Combustível",
+        "ativo": 1
+      },
+      {
+        "id": 42,
+        "nome": "Ônibus",
+        "ativo": 1
+      },
+      {
+        "id": 49,
+        "nome": "Academia",
+        "ativo": 1
+      }
+    ]
+  },
+  "transacoes": [
+    {
+      "id": 968,
+      "tipo": "income",
+      "valor": 10337.74,
+      "data": "2025-08-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 969,
+      "tipo": "expense",
+      "valor": 54.18,
+      "data": "2025-08-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 970,
+      "tipo": "expense",
+      "valor": 100.2,
+      "data": "2025-08-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 971,
+      "tipo": "income",
+      "valor": 8505.73,
+      "data": "2025-07-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 972,
+      "tipo": "expense",
+      "valor": 1889.96,
+      "data": "2025-07-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 973,
+      "tipo": "expense",
+      "valor": 42.37,
+      "data": "2025-07-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 974,
+      "tipo": "expense",
+      "valor": 95.6,
+      "data": "2025-07-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 975,
+      "tipo": "expense",
+      "valor": 2327.99,
+      "data": "2025-08-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 976,
+      "tipo": "expense",
+      "valor": 46.7,
+      "data": "2025-06-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 977,
+      "tipo": "expense",
+      "valor": 32.58,
+      "data": "2025-05-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 978,
+      "tipo": "expense",
+      "valor": 112.32,
+      "data": "2025-06-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 979,
+      "tipo": "expense",
+      "valor": 2446,
+      "data": "2025-05-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 980,
+      "tipo": "expense",
+      "valor": 1789.38,
+      "data": "2025-06-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 981,
+      "tipo": "income",
+      "valor": 6900.05,
+      "data": "2025-06-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 982,
+      "tipo": "income",
+      "valor": 9528.21,
+      "data": "2025-04-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 983,
+      "tipo": "expense",
+      "valor": 39.54,
+      "data": "2025-04-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 984,
+      "tipo": "expense",
+      "valor": 1094.38,
+      "data": "2025-04-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 985,
+      "tipo": "income",
+      "valor": 6607.13,
+      "data": "2025-05-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 986,
+      "tipo": "expense",
+      "valor": 895.04,
+      "data": "2025-03-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 987,
+      "tipo": "expense",
+      "valor": 84.67,
+      "data": "2025-05-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 988,
+      "tipo": "expense",
+      "valor": 102.84,
+      "data": "2025-03-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 989,
+      "tipo": "expense",
+      "valor": 107.73,
+      "data": "2025-04-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 990,
+      "tipo": "income",
+      "valor": 2490.43,
+      "data": "2025-03-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 991,
+      "tipo": "expense",
+      "valor": 56.71,
+      "data": "2025-03-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 992,
+      "tipo": "expense",
+      "valor": 45.07,
+      "data": "2025-02-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 993,
+      "tipo": "expense",
+      "valor": 675.67,
+      "data": "2025-01-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 994,
+      "tipo": "expense",
+      "valor": 39.91,
+      "data": "2025-01-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 995,
+      "tipo": "expense",
+      "valor": 89.88,
+      "data": "2025-02-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 996,
+      "tipo": "expense",
+      "valor": 372.47,
+      "data": "2025-02-07T03:00:00.000Z",
+      "descricao": "material escolar",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 997,
+      "tipo": "income",
+      "valor": 3691.34,
+      "data": "2025-02-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 998,
+      "tipo": "expense",
+      "valor": 91.11,
+      "data": "2025-01-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 999,
+      "tipo": "expense",
+      "valor": 1696.48,
+      "data": "2024-12-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1000,
+      "tipo": "expense",
+      "valor": 1378.82,
+      "data": "2025-02-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1001,
+      "tipo": "income",
+      "valor": 11290.86,
+      "data": "2025-01-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1002,
+      "tipo": "expense",
+      "valor": 22.29,
+      "data": "2024-11-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1003,
+      "tipo": "expense",
+      "valor": 112.51,
+      "data": "2024-12-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1004,
+      "tipo": "expense",
+      "valor": 43.46,
+      "data": "2024-12-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1005,
+      "tipo": "income",
+      "valor": 11778.8,
+      "data": "2024-12-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1006,
+      "tipo": "expense",
+      "valor": 130.42,
+      "data": "2024-11-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1007,
+      "tipo": "expense",
+      "valor": 116.17,
+      "data": "2024-10-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1008,
+      "tipo": "expense",
+      "valor": 972.49,
+      "data": "2024-10-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1009,
+      "tipo": "income",
+      "valor": 11612.11,
+      "data": "2024-11-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1010,
+      "tipo": "expense",
+      "valor": 635.72,
+      "data": "2024-12-20T03:00:00.000Z",
+      "descricao": "compras de fim de ano",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1011,
+      "tipo": "expense",
+      "valor": 1414.63,
+      "data": "2024-11-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1012,
+      "tipo": "expense",
+      "valor": 41.02,
+      "data": "2024-10-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1013,
+      "tipo": "expense",
+      "valor": 2448.04,
+      "data": "2024-09-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1014,
+      "tipo": "expense",
+      "valor": 118.92,
+      "data": "2024-09-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1015,
+      "tipo": "expense",
+      "valor": 30.44,
+      "data": "2024-09-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1016,
+      "tipo": "income",
+      "valor": 11387.1,
+      "data": "2024-10-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1017,
+      "tipo": "income",
+      "valor": 10302,
+      "data": "2024-09-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:19.000Z",
+      "atualizadoEm": "2025-08-17T01:52:19.000Z"
+    },
+    {
+      "id": 1018,
+      "tipo": "income",
+      "valor": 8628.42,
+      "data": "2024-08-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1019,
+      "tipo": "expense",
+      "valor": 1446.22,
+      "data": "2024-08-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1020,
+      "tipo": "expense",
+      "valor": 122.24,
+      "data": "2024-08-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1021,
+      "tipo": "expense",
+      "valor": 726.53,
+      "data": "2024-06-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1022,
+      "tipo": "expense",
+      "valor": 41.93,
+      "data": "2024-08-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1023,
+      "tipo": "expense",
+      "valor": 45.35,
+      "data": "2024-07-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1024,
+      "tipo": "income",
+      "valor": 9898.55,
+      "data": "2024-06-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1025,
+      "tipo": "income",
+      "valor": 1341.68,
+      "data": "2024-07-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1026,
+      "tipo": "income",
+      "valor": 6777.73,
+      "data": "2024-04-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1027,
+      "tipo": "expense",
+      "valor": 1275.68,
+      "data": "2024-07-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1028,
+      "tipo": "expense",
+      "valor": 129.75,
+      "data": "2024-06-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1029,
+      "tipo": "income",
+      "valor": 11348.43,
+      "data": "2024-05-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1030,
+      "tipo": "expense",
+      "valor": 114.9,
+      "data": "2024-07-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1031,
+      "tipo": "expense",
+      "valor": 119.24,
+      "data": "2024-05-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1032,
+      "tipo": "expense",
+      "valor": 57.09,
+      "data": "2024-04-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1033,
+      "tipo": "expense",
+      "valor": 130.2,
+      "data": "2024-03-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1034,
+      "tipo": "expense",
+      "valor": 1060.35,
+      "data": "2024-04-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1035,
+      "tipo": "expense",
+      "valor": 20.09,
+      "data": "2024-05-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1036,
+      "tipo": "expense",
+      "valor": 1597.63,
+      "data": "2024-03-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1037,
+      "tipo": "expense",
+      "valor": 1181.51,
+      "data": "2024-05-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1038,
+      "tipo": "expense",
+      "valor": 535.67,
+      "data": "2024-01-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1039,
+      "tipo": "expense",
+      "valor": 87.7,
+      "data": "2024-04-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1040,
+      "tipo": "expense",
+      "valor": 1953.83,
+      "data": "2024-02-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1041,
+      "tipo": "expense",
+      "valor": 48.5,
+      "data": "2024-03-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1042,
+      "tipo": "expense",
+      "valor": 315.98,
+      "data": "2024-02-07T03:00:00.000Z",
+      "descricao": "material escolar",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1043,
+      "tipo": "expense",
+      "valor": 23.44,
+      "data": "2024-02-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1044,
+      "tipo": "income",
+      "valor": 5105.48,
+      "data": "2024-02-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1045,
+      "tipo": "income",
+      "valor": 9087.7,
+      "data": "2024-03-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1046,
+      "tipo": "expense",
+      "valor": 23.74,
+      "data": "2024-01-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1047,
+      "tipo": "income",
+      "valor": 4280.9,
+      "data": "2023-12-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1048,
+      "tipo": "expense",
+      "valor": 85.09,
+      "data": "2024-01-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1049,
+      "tipo": "income",
+      "valor": 11420.53,
+      "data": "2024-01-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1050,
+      "tipo": "expense",
+      "valor": 98.09,
+      "data": "2024-02-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1051,
+      "tipo": "expense",
+      "valor": 57.99,
+      "data": "2024-06-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1052,
+      "tipo": "expense",
+      "valor": 95.11,
+      "data": "2023-12-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1053,
+      "tipo": "expense",
+      "valor": 126.03,
+      "data": "2023-11-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1054,
+      "tipo": "expense",
+      "valor": 31.65,
+      "data": "2023-12-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1055,
+      "tipo": "expense",
+      "valor": 1432.04,
+      "data": "2023-11-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1056,
+      "tipo": "expense",
+      "valor": 984.47,
+      "data": "2023-12-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1057,
+      "tipo": "expense",
+      "valor": 58.15,
+      "data": "2023-11-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1058,
+      "tipo": "expense",
+      "valor": 90.04,
+      "data": "2023-09-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1059,
+      "tipo": "income",
+      "valor": 6974.37,
+      "data": "2023-09-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1060,
+      "tipo": "expense",
+      "valor": 672.75,
+      "data": "2023-12-20T03:00:00.000Z",
+      "descricao": "compras de fim de ano",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1061,
+      "tipo": "income",
+      "valor": 10774.19,
+      "data": "2023-11-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1062,
+      "tipo": "expense",
+      "valor": 1973.43,
+      "data": "2023-10-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1063,
+      "tipo": "income",
+      "valor": 11477.16,
+      "data": "2023-10-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1064,
+      "tipo": "expense",
+      "valor": 59.02,
+      "data": "2023-10-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1065,
+      "tipo": "expense",
+      "valor": 48.86,
+      "data": "2023-09-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1066,
+      "tipo": "expense",
+      "valor": 108.18,
+      "data": "2023-10-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1067,
+      "tipo": "expense",
+      "valor": 753.51,
+      "data": "2023-09-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1068,
+      "tipo": "expense",
+      "valor": 1671.68,
+      "data": "2023-07-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1069,
+      "tipo": "expense",
+      "valor": 88.32,
+      "data": "2023-07-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1070,
+      "tipo": "expense",
+      "valor": 2117.94,
+      "data": "2023-08-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1071,
+      "tipo": "expense",
+      "valor": 22.73,
+      "data": "2023-08-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1072,
+      "tipo": "income",
+      "valor": 6095.61,
+      "data": "2023-06-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1073,
+      "tipo": "expense",
+      "valor": 147.1,
+      "data": "2023-06-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1074,
+      "tipo": "expense",
+      "valor": 32,
+      "data": "2023-07-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1075,
+      "tipo": "expense",
+      "valor": 112.23,
+      "data": "2023-08-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1076,
+      "tipo": "income",
+      "valor": 5278.16,
+      "data": "2023-08-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1077,
+      "tipo": "income",
+      "valor": 6660.13,
+      "data": "2023-07-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1078,
+      "tipo": "expense",
+      "valor": 43.61,
+      "data": "2023-05-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1079,
+      "tipo": "expense",
+      "valor": 2063.11,
+      "data": "2023-05-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1080,
+      "tipo": "expense",
+      "valor": 111.39,
+      "data": "2023-05-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1081,
+      "tipo": "expense",
+      "valor": 46.53,
+      "data": "2023-06-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1082,
+      "tipo": "income",
+      "valor": 7546.81,
+      "data": "2023-04-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1083,
+      "tipo": "expense",
+      "valor": 723.36,
+      "data": "2023-06-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1084,
+      "tipo": "income",
+      "valor": 3041.38,
+      "data": "2023-05-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1085,
+      "tipo": "expense",
+      "valor": 143.66,
+      "data": "2023-04-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1086,
+      "tipo": "expense",
+      "valor": 43.49,
+      "data": "2023-04-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1087,
+      "tipo": "expense",
+      "valor": 108.23,
+      "data": "2023-03-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1088,
+      "tipo": "expense",
+      "valor": 1073.64,
+      "data": "2023-04-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1089,
+      "tipo": "expense",
+      "valor": 301.26,
+      "data": "2023-02-07T03:00:00.000Z",
+      "descricao": "material escolar",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1090,
+      "tipo": "income",
+      "valor": 9698.34,
+      "data": "2023-03-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1091,
+      "tipo": "expense",
+      "valor": 600.87,
+      "data": "2023-02-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1092,
+      "tipo": "expense",
+      "valor": 51.6,
+      "data": "2023-03-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1093,
+      "tipo": "expense",
+      "valor": 1381.26,
+      "data": "2023-01-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1094,
+      "tipo": "expense",
+      "valor": 27.45,
+      "data": "2023-02-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1095,
+      "tipo": "expense",
+      "valor": 115.3,
+      "data": "2023-01-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1096,
+      "tipo": "income",
+      "valor": 11397.19,
+      "data": "2023-02-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1097,
+      "tipo": "income",
+      "valor": 11674.69,
+      "data": "2023-01-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1098,
+      "tipo": "expense",
+      "valor": 100.18,
+      "data": "2023-02-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1099,
+      "tipo": "expense",
+      "valor": 788.91,
+      "data": "2022-12-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1100,
+      "tipo": "expense",
+      "valor": 54.44,
+      "data": "2023-01-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1101,
+      "tipo": "expense",
+      "valor": 133.82,
+      "data": "2022-12-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1102,
+      "tipo": "expense",
+      "valor": 729.33,
+      "data": "2022-12-20T03:00:00.000Z",
+      "descricao": "compras de fim de ano",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1103,
+      "tipo": "expense",
+      "valor": 1546.15,
+      "data": "2022-11-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1104,
+      "tipo": "income",
+      "valor": 4105.02,
+      "data": "2022-12-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1105,
+      "tipo": "expense",
+      "valor": 103.41,
+      "data": "2022-11-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1106,
+      "tipo": "expense",
+      "valor": 27.69,
+      "data": "2022-12-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1107,
+      "tipo": "expense",
+      "valor": 2174.7,
+      "data": "2023-03-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1108,
+      "tipo": "expense",
+      "valor": 56.44,
+      "data": "2022-11-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1109,
+      "tipo": "expense",
+      "valor": 1032.23,
+      "data": "2022-09-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1110,
+      "tipo": "income",
+      "valor": 5171.87,
+      "data": "2022-11-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1111,
+      "tipo": "expense",
+      "valor": 148.5,
+      "data": "2022-10-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1112,
+      "tipo": "expense",
+      "valor": 27.1,
+      "data": "2022-10-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1113,
+      "tipo": "expense",
+      "valor": 103.43,
+      "data": "2022-09-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1114,
+      "tipo": "expense",
+      "valor": 1935.28,
+      "data": "2022-10-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1115,
+      "tipo": "income",
+      "valor": 10333.68,
+      "data": "2022-10-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1116,
+      "tipo": "expense",
+      "valor": 25.75,
+      "data": "2022-09-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1117,
+      "tipo": "income",
+      "valor": 3092.21,
+      "data": "2022-09-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": true,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:20.000Z",
+      "atualizadoEm": "2025-08-17T01:52:20.000Z"
+    },
+    {
+      "id": 1121,
+      "tipo": "expense",
+      "valor": 835.06,
+      "data": "2024-10-18T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1129,
+      "tipo": "expense",
+      "valor": 396.95,
+      "data": "2025-03-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1132,
+      "tipo": "expense",
+      "valor": 175.41,
+      "data": "2025-05-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1137,
+      "tipo": "expense",
+      "valor": 35.62,
+      "data": "2023-11-19T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1141,
+      "tipo": "expense",
+      "valor": 31.37,
+      "data": "2024-10-27T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1146,
+      "tipo": "expense",
+      "valor": 24.13,
+      "data": "2024-12-20T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 39,
+        "nome": "Restaurante"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1148,
+      "tipo": "expense",
+      "valor": 1838.67,
+      "data": "2024-05-01T03:00:00.000Z",
+      "descricao": "compra recorrente",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1150,
+      "tipo": "expense",
+      "valor": 92.55,
+      "data": "2024-12-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1163,
+      "tipo": "expense",
+      "valor": 2304.84,
+      "data": "2023-10-26T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1188,
+      "tipo": "income",
+      "valor": 448.14,
+      "data": "2025-05-09T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 56,
+        "nome": "Freelas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1189,
+      "tipo": "expense",
+      "valor": 46.6,
+      "data": "2025-04-25T03:00:00.000Z",
+      "descricao": "cashback",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1192,
+      "tipo": "income",
+      "valor": 1496.84,
+      "data": "2025-02-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 56,
+        "nome": "Freelas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1193,
+      "tipo": "expense",
+      "valor": 541.54,
+      "data": "2024-09-11T03:00:00.000Z",
+      "descricao": "compra recorrente",
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1199,
+      "tipo": "expense",
+      "valor": 85.22,
+      "data": "2023-11-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1200,
+      "tipo": "income",
+      "valor": 573.99,
+      "data": "2024-06-03T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 57,
+        "nome": "Bônus"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1202,
+      "tipo": "expense",
+      "valor": 41.81,
+      "data": "2024-04-18T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1206,
+      "tipo": "expense",
+      "valor": 61.04,
+      "data": "2024-08-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1209,
+      "tipo": "expense",
+      "valor": 83.05,
+      "data": "2025-02-02T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1212,
+      "tipo": "expense",
+      "valor": 356.27,
+      "data": "2025-07-06T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 9,
+        "nome": "Conta Corrente",
+        "tipo": "checking",
+        "instituicao": "Banco Sol"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1127,
+      "tipo": "expense",
+      "valor": 196.15,
+      "data": "2024-03-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1130,
+      "tipo": "expense",
+      "valor": 22.01,
+      "data": "2025-04-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1134,
+      "tipo": "expense",
+      "valor": 117.39,
+      "data": "2025-04-07T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1136,
+      "tipo": "income",
+      "valor": 10751.04,
+      "data": "2024-09-11T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 55,
+        "nome": "Salário"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1143,
+      "tipo": "expense",
+      "valor": 639.41,
+      "data": "2023-10-26T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1145,
+      "tipo": "expense",
+      "valor": 141.86,
+      "data": "2025-05-18T03:00:00.000Z",
+      "descricao": "promoção",
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1149,
+      "tipo": "expense",
+      "valor": 49.29,
+      "data": "2023-03-20T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1151,
+      "tipo": "expense",
+      "valor": 324.08,
+      "data": "2024-04-02T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1153,
+      "tipo": "expense",
+      "valor": 51.91,
+      "data": "2024-07-05T03:00:00.000Z",
+      "descricao": "compra recorrente",
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1158,
+      "tipo": "expense",
+      "valor": 234.66,
+      "data": "2024-06-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1160,
+      "tipo": "expense",
+      "valor": 634.85,
+      "data": "2023-12-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1164,
+      "tipo": "expense",
+      "valor": 458.24,
+      "data": "2025-06-18T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1165,
+      "tipo": "expense",
+      "valor": 1477.2,
+      "data": "2024-02-21T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1166,
+      "tipo": "expense",
+      "valor": 195.22,
+      "data": "2024-05-24T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1167,
+      "tipo": "expense",
+      "valor": 271.07,
+      "data": "2024-05-24T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1169,
+      "tipo": "expense",
+      "valor": 69.48,
+      "data": "2025-03-21T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1176,
+      "tipo": "expense",
+      "valor": 66.45,
+      "data": "2024-12-20T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1180,
+      "tipo": "expense",
+      "valor": 52.89,
+      "data": "2024-10-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1184,
+      "tipo": "expense",
+      "valor": 635.43,
+      "data": "2025-02-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1187,
+      "tipo": "expense",
+      "valor": 352.29,
+      "data": "2024-03-26T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1195,
+      "tipo": "expense",
+      "valor": 190.79,
+      "data": "2024-09-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 41,
+        "nome": "Combustível"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1197,
+      "tipo": "expense",
+      "valor": 389.83,
+      "data": "2023-09-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1205,
+      "tipo": "expense",
+      "valor": 36.15,
+      "data": "2025-01-18T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 10,
+        "nome": "Conta Poupança",
+        "tipo": "savings",
+        "instituicao": "Banco Vanguarda"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 42,
+        "nome": "Ônibus"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1118,
+      "tipo": "expense",
+      "valor": 109.1,
+      "data": "2025-02-19T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1122,
+      "tipo": "expense",
+      "valor": 46.02,
+      "data": "2025-03-07T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1123,
+      "tipo": "expense",
+      "valor": 26.22,
+      "data": "2025-01-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1125,
+      "tipo": "expense",
+      "valor": 144.32,
+      "data": "2025-02-19T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 49,
+        "nome": "Academia"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1126,
+      "tipo": "expense",
+      "valor": 47.59,
+      "data": "2024-10-04T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1135,
+      "tipo": "expense",
+      "valor": 17.55,
+      "data": "2025-08-13T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 42,
+        "nome": "Ônibus"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1139,
+      "tipo": "expense",
+      "valor": 67.57,
+      "data": "2023-11-09T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1142,
+      "tipo": "expense",
+      "valor": 487.56,
+      "data": "2024-12-10T03:00:00.000Z",
+      "descricao": "cashback",
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1144,
+      "tipo": "expense",
+      "valor": 221.09,
+      "data": "2025-01-11T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1147,
+      "tipo": "expense",
+      "valor": 772.82,
+      "data": "2024-01-06T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1154,
+      "tipo": "expense",
+      "valor": 73.66,
+      "data": "2025-08-20T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1155,
+      "tipo": "expense",
+      "valor": 265.84,
+      "data": "2024-02-08T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1157,
+      "tipo": "expense",
+      "valor": 256.35,
+      "data": "2024-01-23T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1159,
+      "tipo": "income",
+      "valor": 2275.16,
+      "data": "2024-12-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 57,
+        "nome": "Bônus"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1161,
+      "tipo": "expense",
+      "valor": 1365.41,
+      "data": "2024-05-02T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1162,
+      "tipo": "expense",
+      "valor": 133.15,
+      "data": "2023-10-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1168,
+      "tipo": "expense",
+      "valor": 46.85,
+      "data": "2025-04-01T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1170,
+      "tipo": "expense",
+      "valor": 310.26,
+      "data": "2024-11-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1172,
+      "tipo": "expense",
+      "valor": 78.18,
+      "data": "2025-02-16T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1175,
+      "tipo": "expense",
+      "valor": 40.78,
+      "data": "2023-09-18T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1177,
+      "tipo": "income",
+      "valor": 996.81,
+      "data": "2025-05-12T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 57,
+        "nome": "Bônus"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1178,
+      "tipo": "expense",
+      "valor": 38.55,
+      "data": "2025-03-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1179,
+      "tipo": "income",
+      "valor": 697.74,
+      "data": "2024-08-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 56,
+        "nome": "Freelas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1181,
+      "tipo": "expense",
+      "valor": 127.17,
+      "data": "2024-06-07T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1191,
+      "tipo": "expense",
+      "valor": 79.2,
+      "data": "2023-09-08T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1201,
+      "tipo": "expense",
+      "valor": 197.84,
+      "data": "2023-11-28T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 41,
+        "nome": "Combustível"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1203,
+      "tipo": "expense",
+      "valor": 482.42,
+      "data": "2023-09-23T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1210,
+      "tipo": "expense",
+      "valor": 357.36,
+      "data": "2024-09-23T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1213,
+      "tipo": "expense",
+      "valor": 93.33,
+      "data": "2023-10-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1214,
+      "tipo": "expense",
+      "valor": 56.28,
+      "data": "2023-11-14T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1215,
+      "tipo": "expense",
+      "valor": 29.16,
+      "data": "2024-12-09T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 11,
+        "nome": "Carteira Digital",
+        "tipo": "other",
+        "instituicao": "LuzPay"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "account",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1119,
+      "tipo": "expense",
+      "valor": 35.11,
+      "data": "2024-03-03T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1120,
+      "tipo": "expense",
+      "valor": 183.48,
+      "data": "2024-11-04T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 52,
+        "nome": "Medicamentos"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1124,
+      "tipo": "expense",
+      "valor": 2107.35,
+      "data": "2024-10-04T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1128,
+      "tipo": "income",
+      "valor": 1647.26,
+      "data": "2025-07-19T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 57,
+        "nome": "Bônus"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1131,
+      "tipo": "expense",
+      "valor": 268.43,
+      "data": "2025-08-22T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1133,
+      "tipo": "expense",
+      "valor": 29.97,
+      "data": "2025-05-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 40,
+        "nome": "Lanches"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1138,
+      "tipo": "expense",
+      "valor": 171.41,
+      "data": "2022-11-11T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 22,
+        "nome": "Saúde",
+        "tipo": "expense",
+        "cor": "cyan"
+      },
+      "subcategoria": {
+        "id": 51,
+        "nome": "Consulta"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1140,
+      "tipo": "expense",
+      "valor": 516.63,
+      "data": "2025-04-25T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 44,
+        "nome": "Aluguel"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1152,
+      "tipo": "expense",
+      "valor": 176.34,
+      "data": "2025-01-24T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 41,
+        "nome": "Combustível"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1156,
+      "tipo": "expense",
+      "valor": 536.74,
+      "data": "2025-06-05T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 19,
+        "nome": "Moradia",
+        "tipo": "expense",
+        "cor": "green"
+      },
+      "subcategoria": {
+        "id": 45,
+        "nome": "Condomínio"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1171,
+      "tipo": "expense",
+      "valor": 30.19,
+      "data": "2024-07-09T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 17,
+        "nome": "Alimentação",
+        "tipo": "expense",
+        "cor": "red"
+      },
+      "subcategoria": {
+        "id": 39,
+        "nome": "Restaurante"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1173,
+      "tipo": "income",
+      "valor": 4101.67,
+      "data": "2024-12-16T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 57,
+        "nome": "Bônus"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1174,
+      "tipo": "expense",
+      "valor": 128.35,
+      "data": "2025-04-28T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 54,
+        "nome": "Viagem"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1182,
+      "tipo": "expense",
+      "valor": 369.45,
+      "data": "2025-07-02T03:00:00.000Z",
+      "descricao": "compra recorrente",
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1183,
+      "tipo": "income",
+      "valor": 2389.17,
+      "data": "2025-03-08T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 24,
+        "nome": "Receitas",
+        "tipo": "income",
+        "cor": "yellow"
+      },
+      "subcategoria": {
+        "id": 56,
+        "nome": "Freelas"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1185,
+      "tipo": "expense",
+      "valor": 40.12,
+      "data": "2025-06-06T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 43,
+        "nome": "Táxi"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1186,
+      "tipo": "expense",
+      "valor": 354.9,
+      "data": "2025-04-15T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1190,
+      "tipo": "expense",
+      "valor": 641.69,
+      "data": "2025-08-02T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 20,
+        "nome": "Mercado",
+        "tipo": "expense",
+        "cor": "orange"
+      },
+      "subcategoria": {
+        "id": 46,
+        "nome": "Supermercado"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1194,
+      "tipo": "expense",
+      "valor": 98.46,
+      "data": "2025-07-09T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1196,
+      "tipo": "expense",
+      "valor": 249.55,
+      "data": "2025-04-13T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 41,
+        "nome": "Combustível"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1198,
+      "tipo": "expense",
+      "valor": 54.36,
+      "data": "2023-11-02T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 50,
+        "nome": "Assinaturas"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1204,
+      "tipo": "expense",
+      "valor": 98.16,
+      "data": "2025-01-10T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 47,
+        "nome": "Internet"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1207,
+      "tipo": "expense",
+      "valor": 47.57,
+      "data": "2024-06-22T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 18,
+        "nome": "Transporte",
+        "tipo": "expense",
+        "cor": "blue"
+      },
+      "subcategoria": {
+        "id": 42,
+        "nome": "Ônibus"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1208,
+      "tipo": "expense",
+      "valor": 21.58,
+      "data": "2025-08-12T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1211,
+      "tipo": "expense",
+      "valor": 39.94,
+      "data": "2025-04-06T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 23,
+        "nome": "Lazer",
+        "tipo": "expense",
+        "cor": "pink"
+      },
+      "subcategoria": {
+        "id": 53,
+        "nome": "Cinema"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    },
+    {
+      "id": 1216,
+      "tipo": "expense",
+      "valor": 21.05,
+      "data": "2025-02-08T03:00:00.000Z",
+      "descricao": null,
+      "conta": {
+        "id": 12,
+        "nome": "Cartão Vagalume Platinum",
+        "tipo": "other",
+        "instituicao": "Cartões"
+      },
+      "categoria": {
+        "id": 21,
+        "nome": "Serviços",
+        "tipo": "expense",
+        "cor": "purple"
+      },
+      "subcategoria": {
+        "id": 48,
+        "nome": "Streaming"
+      },
+      "fonte": "creditCard",
+      "recorrente": false,
+      "parcelada": false,
+      "totalParcelas": null,
+      "criadoEm": "2025-08-17T01:52:21.000Z",
+      "atualizadoEm": "2025-08-17T01:52:21.000Z"
+    }
+  ]
+}

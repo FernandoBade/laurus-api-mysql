@@ -78,6 +78,9 @@ export abstract class DbService {
             | { operator: Operator.IN; value: T[K][] }
             | (T[K] extends string ? { operator: Operator.LIKE; value: string } : never)
             | (T[K] extends number | Date ? { operator: Operator.BETWEEN; value: [T[K], T[K]] } : never);
+        } & {
+            id?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+            sort?: { operator: Operator.EQUAL; value: string };
         },
         options?: QueryOptions<T>
     ): Promise<DbResponse<T[]>> {
