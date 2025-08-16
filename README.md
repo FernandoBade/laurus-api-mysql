@@ -33,4 +33,27 @@ With a strong focus on **performance, modularity, and scalability**, Laurus ensu
 
 ---
 
-With **Laurus**, users can take full control of their finances, **spend wisely, save smarter, and dream freely**. 🚀  
+With **Laurus**, users can take full control of their finances, **spend wisely, save smarter, and dream freely**. 🚀
+
+## 🌱 Dados de desenvolvimento
+
+Para popular o ambiente local com dados fictícios utilize:
+
+```bash
+npm run dev:create
+```
+
+### Opções
+
+- `SEED_DEV` – fixa a semente do gerador aleatório para repetir o mesmo conjunto de dados.
+- `USERS`, `MONTHS`, `TX_PER_USER_MIN`, `TX_PER_USER_MAX` – ajustam volumes gerados.
+
+Os arquivos `output/dev-access.csv` e `output/dev-stats.json` serão criados com credenciais e estatísticas básicas.
+
+Para remover todos os dados de desenvolvimento:
+
+```bash
+npm run dev:reset
+```
+
+> ⚠️ **Atenção:** os comandos acima destinam‑se apenas ao ambiente de desenvolvimento/testes.
