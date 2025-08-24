@@ -41,7 +41,13 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.TRANSACTION, created.data, created.data!.account_id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.CREATE,
+                LogCategory.TRANSACTION,
+                created.data,
+                created.data!.account_id ?? created.data!.credit_card_id
+            );
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), undefined, next);
@@ -222,7 +228,13 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.TRANSACTION, updated.data, updated.data!.account_id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.UPDATE,
+                LogCategory.TRANSACTION,
+                updated.data,
+                updated.data!.account_id ?? updated.data!.credit_card_id
+            );
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.TRANSACTION, formatError(error), id, next);

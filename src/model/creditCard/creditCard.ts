@@ -1,15 +1,14 @@
 import "reflect-metadata";
-import { Table, Column, ManyToOne, OneToMany, OneToOne } from "../../utils/database/schemas/dbDecorators";
-import { ColumnType, TableName, AccountType } from "../../utils/enum";
+import { Table, Column, ManyToOne, OneToOne, OneToMany } from "../../utils/database/schemas/dbDecorators";
+import { ColumnType, TableName, CreditCardFlag } from "../../utils/enum";
 import User from "../user/user";
+import Account from "../account/account";
 import Transaction from "../transaction/transaction";
-import CreditCard from "../creditCard/creditCard";
 
-@Table(TableName.ACCOUNT)
-class Account {
+@Table(TableName.CREDIT_CARD)
+class CreditCard {
     // id
     @Column({
-
         type: ColumnType.INTEGER
     }) id!: number;
 
@@ -19,18 +18,11 @@ class Account {
         defaultValue: null
     }) name!: string;
 
-    // institution
-    @Column({
-        type: ColumnType.VARCHAR,
-        defaultValue: null
-    }) institution!: string;
-
-    // type
+    // flag
     @Column({
         type: ColumnType.ENUM,
-        enumValues: Object.values(AccountType),
-        defaultValue: AccountType.OTHER
-    }) type!: AccountType;
+        enumValues: Object.values(CreditCardFlag),
+    }) flag!: CreditCardFlag;
 
     // observation
     @Column({
@@ -57,17 +49,17 @@ class Account {
         onUpdate: true
     }) updatedAt!: Date;
 
-    // account -> user | manyToOne
-    @ManyToOne(() => User, 'accounts')
+    // creditCard -> account | oneToOne
+    @OneToOne(() => Account, 'creditCard')
+    account?: Account;
+
+    // creditCard -> user | manyToOne
+    @ManyToOne(() => User, 'creditCards')
     user!: User;
 
-    // account -> creditCard | oneToOne
-    @OneToOne(() => CreditCard, 'account')
-    creditCard?: CreditCard;
-
-    // account -> transactions | oneToMany
-    @OneToMany(() => Transaction, 'account')
+    // creditCard -> transactions | oneToMany
+    @OneToMany(() => Transaction, 'creditCard')
     transactions?: Transaction[];
 }
 
-export default Account;
+export default CreditCard;

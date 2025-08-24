@@ -58,7 +58,8 @@ const baseTransactionSchema = (lang?: LanguageCode) =>
             .min(1, { message: t(Resource.PAYMENT_DAY_OUT_OF_RANGE, lang) })
             .max(31, { message: t(Resource.PAYMENT_DAY_OUT_OF_RANGE, lang) })
             .optional(),
-        account_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }),
+        account_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
+        credit_card_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
         active: z.boolean().optional(),
     }).strict();
 
@@ -137,6 +138,38 @@ const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode, i
                 code: z.ZodIssueCode.custom,
                 message: t(Resource.CONFLICT_INSTALLMENT_RECURRING, lang),
             });
+        }
+
+        if (data.transactionSource === TransactionSource.ACCOUNT) {
+            if (!data.account_id) {
+                ctx.addIssue({
+                    path: ['account_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.INVALID_ACCOUNT_ID, lang),
+                });
+            }
+            if (data.credit_card_id !== undefined) {
+                ctx.addIssue({
+                    path: ['credit_card_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.INVALID_CREDIT_CARD_ID, lang),
+                });
+            }
+        } else if (data.transactionSource === TransactionSource.CREDIT_CARD) {
+            if (!data.credit_card_id) {
+                ctx.addIssue({
+                    path: ['credit_card_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.INVALID_CREDIT_CARD_ID, lang),
+                });
+            }
+            if (data.account_id !== undefined) {
+                ctx.addIssue({
+                    path: ['account_id'],
+                    code: z.ZodIssueCode.custom,
+                    message: t(Resource.INVALID_ACCOUNT_ID, lang),
+                });
+            }
         }
     });
 

@@ -19,6 +19,7 @@ import accountRoutes from './routes/accountRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
+import creditCardRoutes from './routes/creditCardRoutes';
 // #endregion Imports
 
 const app = express();
@@ -43,6 +44,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Register application routes
 app.use('/auth', authRoutes);
 app.use("/accounts", accountRoutes);
+app.use("/credit-cards", creditCardRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/subcategories", subcategoryRoutes);
 app.use("/transactions", transactionRoutes);

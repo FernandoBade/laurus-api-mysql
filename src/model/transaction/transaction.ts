@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Table, Column, ManyToOne } from "../../utils/database/schemas/dbDecorators";
 import { ColumnType, TableName, TransactionSource, TransactionType } from "../../utils/enum";
 import Account from "../account/account";
+import CreditCard from "../creditCard/creditCard";
 import Category from "../category/category";
 import Subcategory from "../subcategory/subcategory";
 
@@ -86,7 +87,11 @@ class Transaction {
 
     // transaction -> account | manyToOne
     @ManyToOne(() => Account, 'transactions')
-    account!: Account;
+    account?: Account;
+
+    // transaction -> creditCard | manyToOne
+    @ManyToOne(() => CreditCard, 'transactions')
+    creditCard?: CreditCard;
 
     // transaction -> category | manyToOne
     @ManyToOne(() => Category, 'transactions')

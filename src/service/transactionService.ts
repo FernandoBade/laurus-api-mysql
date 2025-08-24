@@ -1,16 +1,18 @@
-import { TransactionSource, Operator, TableName } from '../utils/enum';
+import { TransactionSource, Operator, TableName, TransactionType } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
 import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
 import { AccountService } from './accountService';
+import { CreditCardService } from './creditCardService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
 import Transaction from '../model/transaction/transaction';
 import { QueryOptions } from '../utils/pagination';
 
 type TransactionRow = Transaction & {
-    account_id: number;
+    account_id: number | null;
+    credit_card_id: number | null;
     category_id: number | null;
     subcategory_id: number | null;
 };
@@ -34,19 +36,28 @@ export class TransactionService extends DbService {
         category_id: number;
         subcategory_id: number;
         observation?: string;
-        transactionType: TransactionSource;
+        transactionType: TransactionType;
+        transactionSource: TransactionSource;
         isInstallment: boolean;
         totalMonths?: number;
         isRecurring: boolean;
         paymentDay?: number;
-        account_id: number;
+        account_id?: number;
+        credit_card_id?: number;
         active?: boolean;
     }): Promise<DbResponse<TransactionRow>> {
-        const accountService = new AccountService();
-        const account = await accountService.getAccountById(data.account_id);
-
-        if (!account.success || !account.data) {
-            return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+        if (data.transactionSource === TransactionSource.ACCOUNT) {
+            const accountService = new AccountService();
+            const account = await accountService.getAccountById(Number(data.account_id));
+            if (!account.success || !account.data) {
+                return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+            }
+        } else {
+            const creditCardService = new CreditCardService();
+            const card = await creditCardService.getCreditCardById(Number(data.credit_card_id));
+            if (!card.success || !card.data) {
+                return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
+            }
         }
 
         if (!data.category_id && !data.subcategory_id) {
@@ -195,10 +206,25 @@ export class TransactionService extends DbService {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
 
-        if (data.account_id !== undefined) {
-            const account = await new AccountService().getAccountById(Number(data.account_id));
+        const effectiveSource = data.transactionSource !== undefined ? data.transactionSource : current.data.transactionSource;
+
+        if (effectiveSource === TransactionSource.ACCOUNT) {
+            const accId = data.account_id !== undefined ? data.account_id : current.data.account_id;
+            const account = await new AccountService().getAccountById(Number(accId));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+            }
+            if (data.credit_card_id !== undefined) {
+                (data as any).credit_card_id = null;
+            }
+        } else {
+            const cardId = data.credit_card_id !== undefined ? data.credit_card_id : current.data.credit_card_id;
+            const card = await new CreditCardService().getCreditCardById(Number(cardId));
+            if (!card.success || !card.data) {
+                return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
+            }
+            if (data.account_id !== undefined) {
+                (data as any).account_id = null;
             }
         }
 

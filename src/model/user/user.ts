@@ -5,6 +5,7 @@ import Log from '../log/log';
 import { OneToMany } from "../../utils/database/schemas/dbDecorators";
 import RefreshToken from "../refresh_token/refresh_token";
 import Account from "../account/account";
+import CreditCard from "../creditCard/creditCard";
 
 @Table(TableName.USER)
 class User {
@@ -114,6 +115,10 @@ class User {
     // user -> account | oneToMany
     @OneToMany(() => Account, 'user')
     accounts?: Account[];
+
+    // user -> creditCard | oneToMany
+    @OneToMany(() => CreditCard, 'user')
+    creditCards?: CreditCard[];
 }
 
 export default User;
