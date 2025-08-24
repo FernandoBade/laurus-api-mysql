@@ -7,6 +7,16 @@ export enum AccountType {
     OTHER = 'other',
 }
 
+export enum CreditCardFlag {
+    VISA = 'visa',
+    MASTERCARD = 'mastercard',
+    AMEX = 'amex',
+    ELO = 'elo',
+    HIPERCARD = 'hipercard',
+    DISCOVER = 'discover',
+    DINERS = 'diners',
+}
+
 export enum CategoryType {
     INCOME = 'income',
     EXPENSE = 'expense'
@@ -97,6 +107,7 @@ export enum LogCategory {
     SERVER = 'server',
     SUBCATEGORY = "subcategory",
     USER = 'user',
+    CREDIT_CARD = 'creditCard',
 }
 
 export enum LogType {
@@ -149,6 +160,7 @@ export enum TableName {
     CATEGORY = 'category',
     SUBCATEGORY = "subcategory",
     TRANSACTION = "transaction",
+    CREDIT_CARD = 'credit_card',
 }
 
 export enum Theme {

@@ -110,3 +110,20 @@ export function ManyToMany(target: () => Function, joinTable: string) {
         Reflect.defineMetadata("relationships", relationships, targetClass.constructor);
     };
 }
+
+/**
+ * Defines a One-to-One relationship.
+ * @param target The target class of the relationship.
+ * @param inverse The inverse property of the relationship.
+ * @returns A property decorator function.
+ */
+export function OneToOne(target: () => Function, inverse: string) {
+    return function (targetClass: any, propertyKey: string) {
+        if (!Reflect.hasMetadata("relationships", targetClass.constructor)) {
+            Reflect.defineMetadata("relationships", [], targetClass.constructor);
+        }
+        const relationships = Reflect.getMetadata("relationships", targetClass.constructor);
+        relationships.push({ type: "OneToOne", propertyKey, target, inverse });
+        Reflect.defineMetadata("relationships", relationships, targetClass.constructor);
+    };
+}
