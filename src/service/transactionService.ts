@@ -11,8 +11,8 @@ import Transaction from '../model/transaction/transaction';
 import { QueryOptions } from '../utils/pagination';
 
 type TransactionRow = Transaction & {
-    account_id: number | null;
-    credit_card_id: number | null;
+    account_id: number;
+    credit_card_id: number;
     category_id: number | null;
     subcategory_id: number | null;
 };
@@ -43,7 +43,7 @@ export class TransactionService extends DbService {
         isRecurring: boolean;
         paymentDay?: number;
         account_id?: number;
-        credit_card_id?: number;
+        creditCard_id?: number;
         active?: boolean;
     }): Promise<DbResponse<TransactionRow>> {
         if (data.transactionSource === TransactionSource.ACCOUNT) {
@@ -54,7 +54,7 @@ export class TransactionService extends DbService {
             }
         } else {
             const creditCardService = new CreditCardService();
-            const card = await creditCardService.getCreditCardById(Number(data.credit_card_id));
+            const card = await creditCardService.getCreditCardById(Number(data.creditCard_id));
             if (!card.success || !card.data) {
                 return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
             }

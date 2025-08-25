@@ -5,6 +5,7 @@ const enUS: LanguageResource = {
     CATEGORY_NOT_FOUND: "Category not found",
     CATEGORY_NOT_FOUND_OR_INACTIVE: "Category not found or inactive",
     CATEGORY_OR_SUBCATEGORY_REQUIRED: "Category or subcategory (active) is required",
+    CONFLICT_ACCOUNT_CREDIT_CARD: "A transaction cannot have both account_id and creditCard_id.",
     CONFLICT_INSTALLMENT_RECURRING: "A transaction cannot be both installment and recurring at the same time.",
     CREDIT_CARD_NOT_FOUND: "Credit card not found",
     EMAIL_IN_USE: "Email is already in use",

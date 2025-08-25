@@ -1,4 +1,4 @@
-import { Operator, TableName } from '../utils/enum';
+import { CreditCardFlag, Operator, TableName } from '../utils/enum';
 import { DbService } from '../utils/database/services/dbService';
 import { DbResponse } from '../utils/database/services/dbResponse';
 import { Resource } from '../utils/resources/resource';
@@ -17,7 +17,7 @@ export class CreditCardService extends DbService {
 
     async createCreditCard(data: {
         name: string;
-        flag: string;
+        flag: CreditCardFlag;
         observation?: string;
         user_id: number;
         account_id?: number;

@@ -59,7 +59,7 @@ const baseTransactionSchema = (lang?: LanguageCode) =>
             .max(31, { message: t(Resource.PAYMENT_DAY_OUT_OF_RANGE, lang) })
             .optional(),
         account_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
-        credit_card_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
+        creditCard_id: z.number().int().positive({ message: t(Resource.TOO_SMALL, lang) }).optional(),
         active: z.boolean().optional(),
     }).strict();
 
@@ -148,17 +148,17 @@ const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode, i
                     message: t(Resource.INVALID_ACCOUNT_ID, lang),
                 });
             }
-            if (data.credit_card_id !== undefined) {
+            if (data.creditCard_id !== undefined) {
                 ctx.addIssue({
-                    path: ['credit_card_id'],
+                    path: ['creditCard_id'],
                     code: z.ZodIssueCode.custom,
                     message: t(Resource.INVALID_CREDIT_CARD_ID, lang),
                 });
             }
         } else if (data.transactionSource === TransactionSource.CREDIT_CARD) {
-            if (!data.credit_card_id) {
+            if (!data.creditCard_id) {
                 ctx.addIssue({
-                    path: ['credit_card_id'],
+                    path: ['creditCard_id'],
                     code: z.ZodIssueCode.custom,
                     message: t(Resource.INVALID_CREDIT_CARD_ID, lang),
                 });
@@ -170,6 +170,31 @@ const withTransactionRefinements = (schema: z.ZodTypeAny, lang?: LanguageCode, i
                     message: t(Resource.INVALID_ACCOUNT_ID, lang),
                 });
             }
+        }
+
+        // Ensure either account_id or creditCard_id is provided, but not both
+        if (!data.account_id && !data.creditCard_id) {
+            ctx.addIssue({
+                path: ['account_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.INVALID_ACCOUNT_ID, lang),
+            });
+            ctx.addIssue({
+                path: ['creditCard_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.INVALID_CREDIT_CARD_ID, lang),
+            });
+        } else if (data.account_id && data.creditCard_id) {
+            ctx.addIssue({
+                path: ['account_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.CONFLICT_ACCOUNT_CREDIT_CARD, lang),
+            });
+            ctx.addIssue({
+                path: ['creditCard_id'],
+                code: z.ZodIssueCode.custom,
+                message: t(Resource.CONFLICT_ACCOUNT_CREDIT_CARD, lang),
+            });
         }
     });
 

@@ -5,6 +5,7 @@ const ptBR: LanguageResource = {
     CATEGORY_NOT_FOUND: "Categoria não encontrada",
     CATEGORY_NOT_FOUND_OR_INACTIVE: "Categoria não encontrada ou inativa",
     CATEGORY_OR_SUBCATEGORY_REQUIRED: "Categoria ou subcategoria (ativas) são obrigatórias",
+    CONFLICT_ACCOUNT_CREDIT_CARD: "Uma transação não pode ter tanto account_id quanto creditCard_id.",
     CONFLICT_INSTALLMENT_RECURRING: "A transação não pode ser parcelada e recorrente ao mesmo tempo.",
     CREDIT_CARD_NOT_FOUND: "Cartão de crédito não encontrado",
     EMAIL_IN_USE: "Email já está em uso",

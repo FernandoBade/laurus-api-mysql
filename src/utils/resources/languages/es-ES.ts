@@ -5,6 +5,7 @@ const esES: LanguageResource = {
     CATEGORY_NOT_FOUND: "Categoría no encontrada",
     CATEGORY_NOT_FOUND_OR_INACTIVE: "Categoría no encontrada o inactiva",
     CATEGORY_OR_SUBCATEGORY_REQUIRED: "Categoría o subcategoría (activas) son obligatorias",
+    CONFLICT_ACCOUNT_CREDIT_CARD: "Una transacción no puede tener tanto account_id como creditCard_id.",
     CONFLICT_INSTALLMENT_RECURRING: "Una transacción no puede ser a la vez parcelada y recurrente.",
     CREDIT_CARD_NOT_FOUND: "Tarjeta de crédito no encontrada",
     EMAIL_IN_USE: "El correo electrónico ya está en uso",
