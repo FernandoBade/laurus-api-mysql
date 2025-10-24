@@ -1,3 +1,9 @@
+<div align=center>
+  
+![Gemini_Generated_Image_bc7199bc7199bc71 (1)](https://github.com/user-attachments/assets/89b02cd0-cd45-447d-9caf-5ec1aeb1a06b)
+
+</div>
+
 # 🍀 Laurus – Spending wisely, dreaming freely  
 
 **Laurus** is an open-source **Node.js API**, currently in active development, designed to provide users with a powerful and intuitive solution for **personal finance management**. By enabling detailed tracking of expenses and income across customizable categories, Laurus offers clear insights into spending habits, allowing users to **monitor their accounts, track investments, control budgets, and visualize financial data**.  
