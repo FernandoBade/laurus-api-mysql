@@ -7,6 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 
+/** @summary Handles HTTP requests for category resources. */
 class CategoryController {
     /** @summary Creates a new category using validated input from the request body.
      * Logs the result and returns the created category on success.
@@ -40,8 +41,7 @@ class CategoryController {
         }
     }
 
-    /**
-     * Retrieves all categories from the database.
+    /** @summary Retrieves all categories from the database.
      *
      * @param req - Express request object.
      * @param res - Express response returning the list of categories.
@@ -62,9 +62,13 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), undefined, next);
@@ -72,8 +76,7 @@ class CategoryController {
         }
     }
 
-    /**
-     * Retrieves a category by its unique ID.
+    /** @summary Retrieves a category by its unique ID.
      *
      * @param req - Express request with category ID in the URL.
      * @param res - Express response returning the category or error.
@@ -102,8 +105,7 @@ class CategoryController {
         }
     }
 
-    /**
-     * Retrieves all categories for a specific user.
+    /** @summary Retrieves all categories for a specific user.
      * Validates the user ID before querying.
      *
      * @param req - Express request containing user ID.
@@ -130,9 +132,13 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), userId, next);
@@ -162,9 +168,9 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateCategorySchema, req.body, req.language as LanguageCode);
+            const parseResult = validateUpdateCategory(req.body, req.language as LanguageCode);
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const updated = await categoryService.updateCategory(id, parseResult.data);
@@ -180,8 +186,7 @@ class CategoryController {
         }
     }
 
-    /**
-     * Deletes a category by ID.
+    /** @summary Deletes a category by ID.
      * Validates the ID and logs the result on success.
      *
      * @param req - Express request with the ID of the category to delete.

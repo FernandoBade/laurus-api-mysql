@@ -9,6 +9,7 @@ import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 // #endregion Imports
 
+/** @summary Handles HTTP requests for transaction resources. */
 class TransactionController {
     /** @summary Creates a new transaction using validated input from the request body.
      * Logs the result and returns the created transaction on success.
@@ -46,7 +47,7 @@ class TransactionController {
                 LogOperation.CREATE,
                 LogCategory.TRANSACTION,
                 created.data,
-                created.data!.accountId ?? created.data!.creditCardId
+                created.data?.accountId ?? created.data?.creditCardId ?? undefined
             );
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
@@ -55,8 +56,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Retrieves all transactions from the database.
+    /** @summary Retrieves all transactions from the database.
      * Validates the ID before querying.
      *
      * @param req - Express request object.
@@ -78,9 +78,13 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), undefined, next);
@@ -88,8 +92,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Retrieves a specific transaction by its ID.
+    /** @summary Retrieves a specific transaction by its ID.
      * Validates the ID before querying.
      *
      * @param req - Express request containing transaction ID in the URL.
@@ -119,8 +122,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Retrieves all transactions for a specific account.
+    /** @summary Retrieves all transactions for a specific account.
      * Validates the account ID before querying.
      *
      * @param req - Express request with account ID in the URL.
@@ -147,9 +149,13 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), accountId, next);
@@ -157,8 +163,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Retrieves all transactions for a given user, grouped by account.
+    /** @summary Retrieves all transactions for a given user, grouped by account.
      * Validates the user ID before processing.
      *
      * @param req - Express request with user ID in the URL.
@@ -185,9 +190,13 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), userId, next);
@@ -223,7 +232,10 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
-            const updated = await transactionService.updateTransaction(id, parseResult.data);
+            const updated = await transactionService.updateTransaction(id, {
+                ...parseResult.data,
+                value: parseResult.data.value !== undefined ? parseResult.data.value.toString() : undefined,
+            });
             if (!updated.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
@@ -233,7 +245,7 @@ class TransactionController {
                 LogOperation.UPDATE,
                 LogCategory.TRANSACTION,
                 updated.data,
-                updated.data!.accountId ?? updated.data!.creditCardId
+                updated.data?.accountId ?? updated.data?.creditCardId ?? undefined
             );
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
@@ -242,8 +254,7 @@ class TransactionController {
         }
     }
 
-    /**
-     * Deletes an transaction by its unique ID.
+    /** @summary Deletes a transaction by its unique ID.
      * Validates the ID and logs the result upon successful deletion.
      *
      * @param req - Express request with the ID of the transaction to delete.

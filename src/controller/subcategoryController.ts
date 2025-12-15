@@ -7,6 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 
+/** @summary Handles HTTP requests for subcategory resources. */
 class SubcategoryController {
     /** @summary Creates a new subcategory using validated input from the request body.
      * Validates the category before proceeding and logs the result.
@@ -40,8 +41,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Retrieves all subcategories from the database.
+    /** @summary Retrieves all subcategories from the database.
      *
      * @param req - Express request object.
      * @param res - Express response with subcategory list.
@@ -62,9 +62,13 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), undefined, next);
@@ -72,8 +76,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Retrieves all subcategories for a given category ID.
+    /** @summary Retrieves all subcategories for a given category ID.
      * Validates the category ID before searching.
      *
      * @param req - Express request containing category ID.
@@ -100,9 +103,13 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), categoryId, next);
@@ -110,8 +117,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Retrieves a specific subcategory by ID.
+    /** @summary Retrieves a specific subcategory by ID.
      * Validates the ID before proceeding.
      *
      * @param req - Express request with subcategory ID.
@@ -141,8 +147,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Retrieves all subcategories associated with a specific user.
+    /** @summary Retrieves all subcategories associated with a specific user.
      * Validates the user ID and returns all subcategories from their categories.
      *
      * @param req - Express request with user ID in the URL.
@@ -169,9 +174,13 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), userId, next);
@@ -201,10 +210,10 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateSubcategorySchema, req.body, req.language as LanguageCode);
+            const parseResult = validateUpdateSubcategory(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const updated = await subcategoryService.updateSubcategory(id, parseResult.data, req.body.user_id);
@@ -221,8 +230,7 @@ class SubcategoryController {
         }
     }
 
-    /**
-     * Deletes a subcategory by its ID.
+    /** @summary Deletes a subcategory by its ID.
      * Validates the ID and logs the result on success.
      *
      * @param req - Express request with the ID to delete.
