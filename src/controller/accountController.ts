@@ -7,6 +7,7 @@ import { Resource } from '../utils/resources/resource';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
+/** @summary Handles HTTP requests for account resources. */
 class AccountController {
     /** @summary Creates a new financial account using validated input.
      * Logs the result and returns the created account on success.
@@ -47,8 +48,7 @@ class AccountController {
         }
     }
 
-    /**
-     * Retrieves all financial accounts from the database.
+    /** @summary Retrieves all financial accounts from the database.
      *
      * @param req - Express request object.
      * @param res - Express response returning the account list or an error.
@@ -69,9 +69,13 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), undefined, next);
@@ -79,8 +83,7 @@ class AccountController {
         }
     }
 
-    /**
-     * Retrieves a specific account by its ID.
+    /** @summary Retrieves a specific account by its ID.
      * Validates the ID before querying.
      *
      * @param req - Express request containing account ID in the URL.
@@ -110,8 +113,7 @@ class AccountController {
         }
     }
 
-    /**
-     * Retrieves all accounts belonging to a specific user.
+    /** @summary Retrieves all accounts belonging to a specific user.
      * Validates the user ID before searching.
      *
      * @param req - Express request containing user ID in the URL.
@@ -138,9 +140,13 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), userId, next);
@@ -170,10 +176,16 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateAccountSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateUpdateAccount(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(
+                    req,
+                    res,
+                    HTTPStatus.BAD_REQUEST,
+                    parseResult.errors,
+                    Resource.VALIDATION_ERROR
+                );
             }
 
             const updated = await accountService.updateAccount(id, parseResult.data);
@@ -189,8 +201,7 @@ class AccountController {
         }
     }
 
-    /**
-     * Deletes an account by its unique ID.
+    /** @summary Deletes an account by its unique ID.
      * Validates the ID and logs the result upon successful deletion.
      *
      * @param req - Express request with the ID of the account to delete.

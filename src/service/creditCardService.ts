@@ -8,8 +8,7 @@ import { QueryOptions } from '../utils/pagination';
 
 export type CreditCardRow = SelectCreditCard;
 
-/**
- * Service for credit card business logic.
+/** @summary Service for credit card business logic.
  * Handles credit card operations including validation and user/account linking.
  */
 export class CreditCardService {
@@ -178,17 +177,21 @@ export class CreditCardService {
         }
 
         if (data.accountId !== undefined) {
-            const accountService = new AccountService();
-            const account = await accountService.getAccountById(data.accountId);
-            if (!account.success || !account.data) {
-                return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
-            }
+            if (data.accountId === null) {
+                data.accountId = null;
+            } else {
+                const accountService = new AccountService();
+                const account = await accountService.getAccountById(data.accountId);
+                if (!account.success || !account.data) {
+                    return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+                }
 
-            const existing = await this.creditCardRepository.findMany({
-                accountId: { operator: Operator.EQUAL, value: data.accountId }
-            });
-            if (existing.length > 0 && existing[0].id !== id) {
-                return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
+                const existing = await this.creditCardRepository.findMany({
+                    accountId: { operator: Operator.EQUAL, value: data.accountId }
+                });
+                if (existing.length > 0 && existing[0].id !== id) {
+                    return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
+                }
             }
         }
 

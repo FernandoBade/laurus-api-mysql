@@ -7,7 +7,9 @@ import { Resource } from '../utils/resources/resource';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 
+/** @summary Handles HTTP requests for credit card resources. */
 class CreditCardController {
+    /** @summary Creates a credit card using validated input. */
     static async createCreditCard(req: Request, res: Response, next: NextFunction) {
         const creditCardService = new CreditCardService();
 
@@ -38,6 +40,7 @@ class CreditCardController {
         }
     }
 
+    /** @summary Retrieves all credit cards with optional pagination. */
     static async getCreditCards(req: Request, res: Response, next: NextFunction) {
         const creditCardService = new CreditCardService();
 
@@ -52,9 +55,13 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CREDIT_CARD, formatError(error), undefined, next);
@@ -62,6 +69,7 @@ class CreditCardController {
         }
     }
 
+    /** @summary Retrieves a credit card by its unique identifier. */
     static async getCreditCardById(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
@@ -84,6 +92,7 @@ class CreditCardController {
         }
     }
 
+    /** @summary Retrieves all credit cards owned by a specific user. */
     static async getCreditCardsByUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.userId);
         if (isNaN(userId) || userId <= 0) {
@@ -103,9 +112,13 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CREDIT_CARD, formatError(error), userId, next);
@@ -113,6 +126,7 @@ class CreditCardController {
         }
     }
 
+    /** @summary Updates credit card information using validated input. */
     static async updateCreditCard(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
         if (isNaN(id) || id <= 0) {
@@ -146,6 +160,7 @@ class CreditCardController {
         }
     }
 
+    /** @summary Deletes a credit card by ID. */
     static async deleteCreditCard(req: Request, res: Response, next: NextFunction) {
         const id = Number(req.params.id);
 
