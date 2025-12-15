@@ -1,21 +1,25 @@
-import { Operator, TableName } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { Operator } from '../utils/enum';
+import { CategoryRepository } from '../repositories/categoryRepository';
 import { UserService } from './userService';
-import Category from '../model/category/category';
+import { Resource } from '../utils/resources/resource';
+import { SelectCategory, InsertCategory } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
-type CategoryRow = Category & { user_id: number };
+/**
+ * Service for category business logic.
+ * Handles category operations including validation and user linking.
+ */
+export class CategoryService {
+    private categoryRepository: CategoryRepository;
 
-export class CategoryService extends DbService {
     constructor() {
-        super(TableName.CATEGORY);
+        this.categoryRepository = new CategoryRepository();
     }
 
-    /** @summary Creates a new category linked to a valid user.
+    /**
+     * Creates a new category linked to a valid user.
      *
+     * @summary Creates a new category for a user.
      * @param data - Category creation data.
      * @returns The created category record.
      */
@@ -24,113 +28,163 @@ export class CategoryService extends DbService {
         type: string;
         color?: string;
         active?: boolean;
-        user_id: number;
-    }): Promise<DbResponse<CategoryRow>> {
+        userId: number;
+    }): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
         const userService = new UserService();
-        const user = await userService.getUserById(data.user_id);
+        const user = await userService.getUserById(data.userId);
 
         if (!user.success || !user.data) {
             return { success: false, error: Resource.USER_NOT_FOUND };
         }
 
-        const result = await this.create<CategoryRow>(data);
-        if (!result.success || !result.data?.id) {
+        try {
+            const created = await this.categoryRepository.create({
+                ...data,
+                user_id: data.userId,
+            } as InsertCategory);
+            return { success: true, data: created };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<CategoryRow>(result.data.id);
     }
 
-
-    /** @summary Retrieves all category records from the database.
+    /**
+     * Retrieves all category records from the database.
      *
+     * @summary Gets all categories with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all categories.
      */
-    async getCategories(options?: QueryOptions<CategoryRow>): Promise<DbResponse<CategoryRow[]>> {
-        return findWithColumnFilters<CategoryRow>(TableName.CATEGORY, {}, {
-            orderBy: options?.sort as keyof CategoryRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getCategories(options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: SelectCategory[] } | { success: false; error: Resource }> {
+        try {
+            const categories = await this.categoryRepository.findMany(undefined, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectCategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: categories };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts all categories. */
-    async countCategories(): Promise<DbResponse<number>> {
-        return countWithColumnFilters<CategoryRow>(TableName.CATEGORY);
-    }
-
-    /** @summary Retrieves a category by its ID.
+    /**
+     * Counts all categories.
      *
+     * @summary Gets total count of categories.
+     * @returns Total category count.
+     */
+    async countCategories(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.categoryRepository.count();
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves a category by its ID.
+     *
+     * @summary Gets a category by ID.
      * @param id - ID of the category.
      * @returns The category if found.
      */
-    async getCategoryById(id: number): Promise<DbResponse<CategoryRow>> {
-        return this.findOne<CategoryRow>(id);
+    async getCategoryById(id: number): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
+        const category = await this.categoryRepository.findById(id);
+        if (!category) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+        return { success: true, data: category };
     }
 
-    /** @summary Retrieves all categories linked to a specific user.
+    /**
+     * Retrieves all categories linked to a specific user.
      *
+     * @summary Gets all categories for a user.
      * @param userId - ID of the user.
      * @returns A list of categories owned by the user.
      */
-    async getCategoriesByUser(userId: number, options?: QueryOptions<CategoryRow>): Promise<DbResponse<CategoryRow[]>> {
-        return findWithColumnFilters<CategoryRow>(TableName.CATEGORY, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        }, {
-            orderBy: options?.sort as keyof CategoryRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getCategoriesByUser(userId: number, options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: SelectCategory[] } | { success: false; error: Resource }> {
+        try {
+            const categories = await this.categoryRepository.findMany({
+                userId: { operator: Operator.EQUAL, value: userId }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectCategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: categories };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts categories belonging to a specific user. */
-    async countCategoriesByUser(userId: number): Promise<DbResponse<number>> {
-        return countWithColumnFilters<CategoryRow>(TableName.CATEGORY, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        });
-    }
-
-    /** @summary Updates a category by ID.
-     * Validates the user if the user_id is being changed.
+    /**
+     * Counts categories belonging to a specific user.
      *
+     * @summary Gets count of categories for a user.
+     * @param userId - User ID.
+     * @returns Count of user's categories.
+     */
+    async countCategoriesByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.categoryRepository.count({
+                userId: { operator: Operator.EQUAL, value: userId }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Updates a category by ID.
+     * Validates the user if the userId is being changed.
+     *
+     * @summary Updates category data.
      * @param id - ID of the category.
      * @param data - Partial category data to update.
      * @returns Updated category record.
      */
-    async updateCategory(id: number, data: Partial<CategoryRow>): Promise<DbResponse<CategoryRow>> {
-        if (data.user_id !== undefined) {
+    async updateCategory(id: number, data: Partial<InsertCategory>): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
+        if (data.userId !== undefined) {
             const userService = new UserService();
-            const user = await userService.getUserById(data.user_id);
+            const user = await userService.getUserById(data.userId);
 
             if (!user.success || !user.data) {
                 return { success: false, error: Resource.USER_NOT_FOUND };
             }
         }
 
-        const updateResult = await this.update<CategoryRow>(id, data);
-        if (!updateResult.success) {
+        try {
+            const updated = await this.categoryRepository.update(id, data);
+            return { success: true, data: updated };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<CategoryRow>(id);
     }
 
     /**
      * Deletes a category by ID after validating its existence.
      *
+     * @summary Removes a category from the database.
      * @param id - ID of the category to delete.
-     * @returns  Success with deleted ID, or error if category does not exist.
+     * @returns Success with deleted ID, or error if category does not exist.
      */
-    async deleteCategory(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne<CategoryRow>(id);
-
-        if (!existing.success) {
+    async deleteCategory(id: number): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
+        const existing = await this.categoryRepository.findById(id);
+        if (!existing) {
             return { success: false, error: Resource.CATEGORY_NOT_FOUND };
         }
 
-        return this.remove(id);
+        try {
+            await this.categoryRepository.delete(id);
+            return { success: true, data: { id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 }

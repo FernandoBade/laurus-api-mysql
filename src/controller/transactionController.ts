@@ -1,8 +1,8 @@
 // #region Imports
 import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../service/transactionService';
-import { createTransactionSchema, updateTransactionSchema } from '../model/transaction/transactionSchema';
-import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
+import { validateCreateTransaction, validateUpdateTransaction } from '../utils/validation/validateRequest';
+import { createLog, answerAPI, formatError } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
@@ -23,14 +23,14 @@ class TransactionController {
 
         try {
 
-            const parseResult = validateSchema(createTransactionSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateCreateTransaction(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
                     req,
                     res,
                     HTTPStatus.BAD_REQUEST,
-                    formatZodValidationErrors(parseResult.error),
+                    parseResult.errors,
                     Resource.VALIDATION_ERROR
                 );
             }
@@ -46,7 +46,7 @@ class TransactionController {
                 LogOperation.CREATE,
                 LogCategory.TRANSACTION,
                 created.data,
-                created.data!.account_id ?? created.data!.credit_card_id
+                created.data!.accountId ?? created.data!.creditCardId
             );
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
@@ -217,10 +217,10 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateTransactionSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateUpdateTransaction(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const updated = await transactionService.updateTransaction(id, parseResult.data);
@@ -233,7 +233,7 @@ class TransactionController {
                 LogOperation.UPDATE,
                 LogCategory.TRANSACTION,
                 updated.data,
-                updated.data!.account_id ?? updated.data!.credit_card_id
+                updated.data!.accountId ?? updated.data!.creditCardId
             );
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {

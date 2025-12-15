@@ -14,7 +14,6 @@
     "dev:list-users": "node -r ts-node/register -r dotenv/config ./src/dev/analyseUser.ts --list",
     "dev:db:diag": "node -r ts-node/register -r dotenv/config ./src/dev/dbDiag.ts",
     "dev:tx-stats": "node -r ts-node/register -r dotenv/config ./src/dev/txDiag.ts"
-
   },
   "keywords": [],
   "author": "",
@@ -25,19 +24,15 @@
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.36.4",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.12.0",
-    "redoc-express": "^2.1.0",
-    "reflect-metadata": "^0.2.2",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
     "translation-check": "^1.1.0",
     "typescript": "^5.7.3",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.24.1"
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -48,10 +43,9 @@
     "@types/joi": "^17.2.3",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/supertest": "^6.0.2",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
+    "drizzle-kit": "^0.30.0",
     "eslint": "^9.19.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0",

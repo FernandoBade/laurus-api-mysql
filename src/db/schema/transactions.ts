@@ -1,0 +1,31 @@
+import { mysqlTable, int, decimal, date, text, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+import { TransactionType, TransactionSource } from '../../utils/enum';
+
+/**
+ * Transactions table schema.
+ * Stores financial transactions linked to accounts or credit cards.
+ */
+export const transactions = mysqlTable('transaction', {
+    id: int('id').primaryKey().autoincrement(),
+    value: decimal('value', { precision: 10, scale: 2 }).notNull(),
+    date: date('date').notNull(),
+    transactionType: mysqlEnum('transactionType', Object.values(TransactionType) as [string, ...string[]]).notNull(),
+    observation: text('observation'),
+    transactionSource: mysqlEnum('transactionSource', Object.values(TransactionSource) as [string, ...string[]]).notNull(),
+    isInstallment: boolean('isInstallment').default(false).notNull(),
+    totalMonths: int('totalMonths'),
+    isRecurring: boolean('isRecurring').default(false).notNull(),
+    paymentDay: int('paymentDay'),
+    active: boolean('active').default(true).notNull(),
+    accountId: int('account_id'),
+    creditCardId: int('credit_card_id'),
+    categoryId: int('category_id'),
+    subcategoryId: int('subcategory_id'),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type SelectTransaction = InferSelectModel<typeof transactions>;
+export type InsertTransaction = InferInsertModel<typeof transactions>;
+

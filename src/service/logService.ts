@@ -1,31 +1,32 @@
-import { DbService } from '../utils/database/services/dbService';
-import { TableName, LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { insert, removeOlderThan } from '../utils/database/helpers/dbHelpers';
-import { createLog } from '../utils/commons';
+import { LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
+import { LogRepository } from '../repositories/logRepository';
+import { UserRepository } from '../repositories/userRepository';
 import { Resource } from '../utils/resources/resource';
-import Log from '../model/log/log';
+import { SelectLog, InsertLog } from '../db/schema';
+import { createLog } from '../utils/commons';
+import { db } from '../db';
+import { logs } from '../db/schema';
+import { lt } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
-type LogRow = Log & { user_id: number | null };
+/**
+ * Service for log business logic.
+ * Handles log operations including creation and cleanup.
+ */
+export class LogService {
+    private logRepository: LogRepository;
+    private userRepository: UserRepository;
 
-interface LogData {
-    type: LogType;
-    operation: LogOperation;
-    detail: string;
-    category: LogCategory;
-    user_id?: number | null;
-    timestamp?: Date;
-}
-
-export class LogService extends DbService {
     constructor() {
-        super(TableName.LOG);
+        this.logRepository = new LogRepository();
+        this.userRepository = new UserRepository();
     }
 
     /**
      * Creates a new log entry.
      * DEBUG logs are ignored and not persisted in the database.
      *
+     * @summary Creates a log entry (skips DEBUG logs).
      * @param type - Severity of the log (e.g., DEBUG, ERROR).
      * @param operation - Action performed (e.g., CREATE, DELETE).
      * @param category - Functional category (e.g., USER, AUTH).
@@ -39,81 +40,92 @@ export class LogService extends DbService {
         category: LogCategory,
         detail: string,
         userId?: number
-    ): Promise<DbResponse<{ id?: number }>> {
+    ): Promise<{ success: true; data?: { id: number } } | { success: false; error: Resource }> {
         const validUserId = await this.getValidUserId(userId);
 
-        const log: LogData = {
-            type,
-            operation,
-            category,
-            detail,
-            user_id: validUserId,
-            timestamp: new Date(),
-        };
-
         if (type !== LogType.DEBUG) {
-            return insert(TableName.LOG, log);
+            try {
+                const created = await this.logRepository.create({
+                    type,
+                    operation,
+                    category,
+                    detail,
+                    userId: validUserId,
+                } as InsertLog);
+                return { success: true, data: { id: created.id } };
+            } catch (error) {
+                return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+            }
         }
 
         return { success: true };
     }
 
-
     /**
      * Verifies whether a user ID exists before associating it with a log.
      *
+     * @summary Validates a user ID for log association.
      * @param userId - ID to validate.
      * @returns Validated user ID or null if invalid.
      */
     private async getValidUserId(userId?: number): Promise<number | null> {
         if (!userId || isNaN(userId)) return null;
 
-        const user = await this.findWithFilters<{ id: number }>({ id: { operator: Operator.EQUAL, value: userId } });
-        return user.success ? user.data?.[0]?.id ?? null : null;
+        const user = await this.userRepository.findById(userId);
+        return user?.id ?? null;
     }
-
 
     /**
      * Deletes all log entries older than 120 days based on the timestamp field.
      * A DEBUG log is created to record the number of deleted entries.
      *
+     * @summary Removes old log entries (older than 120 days).
      * @returns Total number of deleted entries or error on failure.
      */
-    async deleteOldLogs(): Promise<DbResponse<{ deleted: number }>> {
-        const result = await removeOlderThan(TableName.LOG, 'timestamp', 120);
+    async deleteOldLogs(): Promise<{ success: true; data: { deleted: number } } | { success: false; error: Resource }> {
+        try {
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 120);
 
-        const total = result.data?.deleted ?? 0;
+            const result = await db.delete(logs)
+                .where(lt(logs.createdAt, cutoffDate));
 
-        await createLog(
-            LogType.DEBUG,
-            LogOperation.DELETE,
-            LogCategory.LOG,
-            `Deleted ${total} logs older than 120 days`,
-            undefined,
-        );
+            const total = result[0]?.affectedRows ?? 0;
 
-        if (!result.success) {
+            await createLog(
+                LogType.DEBUG,
+                LogOperation.DELETE,
+                LogCategory.LOG,
+                `Deleted ${total} logs older than 120 days`,
+                undefined,
+            );
+
+            return { success: true, data: { deleted: total } };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return result;
     }
 
-    /** @summary Retrieves all logs associated with a given user ID.
+    /**
+     * Retrieves all logs associated with a given user ID.
      * Validates the input before executing the query.
      *
-     * @param user_id - User ID to filter logs by.
+     * @summary Gets all logs for a user.
+     * @param userId - User ID to filter logs by.
      * @returns Array of logs or error if ID is invalid.
      */
-    async getLogsByUser(user_id: number | null): Promise<DbResponse<LogRow[]>> {
-        if (user_id === null || isNaN(user_id) || user_id <= 0) {
+    async getLogsByUser(userId: number | null): Promise<{ success: true; data: SelectLog[] } | { success: false; error: Resource }> {
+        if (userId === null || isNaN(userId) || userId <= 0) {
             return { success: false, error: Resource.INVALID_USER_ID };
         }
 
-        return this.findWithFilters<LogRow>(
-            {
-                user_id: { operator: Operator.EQUAL, value: user_id }
+        try {
+            const logList = await this.logRepository.findMany({
+                userId: { operator: Operator.EQUAL, value: userId }
             });
+            return { success: true, data: logList };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
-
 }

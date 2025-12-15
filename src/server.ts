@@ -3,13 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from 'cookie-parser';
-import swaggerUi from 'swagger-ui-express';
-import redoc from 'redoc-express';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
-import { swaggerSpec } from './utils/docs/swaggerConfig';
-import './utils/docs/userDocs';
 
 import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
 import { LogCategory, LogOperation, LogType } from './utils/enum';
@@ -50,19 +46,6 @@ app.use("/subcategories", subcategoryRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/users", userRoutes);
 
-// Swagger UI (OpenAPI JSON)
-app.get('/docs/swagger.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
-});
-
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// Redoc rendering
-app.get('/redoc', redoc({
-    title: 'Laurus API Docs',
-    specUrl: '/docs/swagger.json'
-}));
 
 /**
  * Global error handler to catch unhandled exceptions.

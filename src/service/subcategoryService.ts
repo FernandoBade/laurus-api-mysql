@@ -1,110 +1,157 @@
-import { Operator, TableName } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { Operator } from '../utils/enum';
+import { SubcategoryRepository } from '../repositories/subcategoryRepository';
 import { CategoryService } from './categoryService';
-import Subcategory from '../model/subcategory/subcategory';
+import { Resource } from '../utils/resources/resource';
+import { SelectSubcategory, InsertSubcategory } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
-type SubcategoryRow = Subcategory & { category_id: number };
+/**
+ * Service for subcategory business logic.
+ * Handles subcategory operations including validation and category linking.
+ */
+export class SubcategoryService {
+    private subcategoryRepository: SubcategoryRepository;
 
-export class SubcategoryService extends DbService {
     constructor() {
-        super(TableName.SUBCATEGORY);
+        this.subcategoryRepository = new SubcategoryRepository();
     }
 
-    /** @summary Creates a new subcategory.
+    /**
+     * Creates a new subcategory.
      * Ensures the required data is present and linked to a valid and authorized category.
      *
+     * @summary Creates a new subcategory for a category.
      * @param data - Subcategory creation data.
      * @param userId - Optional ID of the user performing the operation.
      * @returns The created subcategory record.
      */
     async createSubcategory(data: {
         name: string;
-        category_id: number;
+        categoryId: number;
         active?: boolean;
-    }, userId?: number): Promise<DbResponse<SubcategoryRow>> {
+    }, userId?: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
-        const category = await categoryService.getCategoryById(data.category_id);
+        const category = await categoryService.getCategoryById(data.categoryId);
 
         if (!category.success || !category.data?.active) {
             return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
         }
 
-        if (userId !== undefined && category.data.user_id !== userId) {
+        if (userId !== undefined && category.data.userId !== userId) {
             return { success: false, error: Resource.UNAUTHORIZED_OPERATION };
         }
 
-        const result = await this.create<SubcategoryRow>(data);
-        if (!result.success || !result.data?.id) {
+        try {
+            const created = await this.subcategoryRepository.create({
+                ...data,
+                category_id: data.categoryId,
+            } as InsertSubcategory);
+            return { success: true, data: created };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<SubcategoryRow>(result.data.id);
     }
 
-
-
-    /** @summary Retrieves all subcategories from the database.
+    /**
+     * Retrieves all subcategories from the database.
      *
+     * @summary Gets all subcategories with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all subcategories.
      */
-    async getSubcategories(options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
-        return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {}, {
-            orderBy: options?.sort as keyof SubcategoryRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getSubcategories(options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
+        try {
+            const subcategories = await this.subcategoryRepository.findMany(undefined, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectSubcategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: subcategories };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts all subcategories. */
-    async countSubcategories(): Promise<DbResponse<number>> {
-        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY);
-    }
-
-    /** @summary Retrieves all subcategories for a given category ID.
+    /**
+     * Counts all subcategories.
      *
+     * @summary Gets total count of subcategories.
+     * @returns Total subcategory count.
+     */
+    async countSubcategories(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.subcategoryRepository.count();
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves all subcategories for a given category ID.
+     *
+     * @summary Gets all subcategories for a category.
      * @param categoryId - ID of the parent category.
      * @returns A list of subcategories under the specified category.
      */
-    async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
-        return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
-            category_id: { operator: Operator.EQUAL, value: categoryId }
-        }, {
-            orderBy: options?.sort as keyof SubcategoryRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
+        try {
+            const subcategories = await this.subcategoryRepository.findMany({
+                categoryId: { operator: Operator.EQUAL, value: categoryId }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectSubcategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: subcategories };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts subcategories for a specific category. */
-    async countSubcategoriesByCategory(categoryId: number): Promise<DbResponse<number>> {
-        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
-            category_id: { operator: Operator.EQUAL, value: categoryId }
-        });
-    }
-
-    /** @summary Retrieves a subcategory by its ID.
+    /**
+     * Counts subcategories for a specific category.
      *
+     * @summary Gets count of subcategories for a category.
+     * @param categoryId - Category ID.
+     * @returns Count of subcategories.
+     */
+    async countSubcategoriesByCategory(categoryId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.subcategoryRepository.count({
+                categoryId: { operator: Operator.EQUAL, value: categoryId }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves a subcategory by its ID.
+     *
+     * @summary Gets a subcategory by ID.
      * @param id - ID of the subcategory.
      * @returns Subcategory record if found.
      */
-    async getSubcategoryById(id: number): Promise<DbResponse<SubcategoryRow>> {
-        return this.findOne<SubcategoryRow>(id);
+    async getSubcategoryById(id: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
+        const subcategory = await this.subcategoryRepository.findById(id);
+        if (!subcategory) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+        return { success: true, data: subcategory };
     }
 
-
-    /** @summary Retrieves all subcategories linked to any category of a specific user.
+    /**
+     * Retrieves all subcategories linked to any category of a specific user.
      *
+     * @summary Gets all subcategories for a user's categories.
      * @param userId - ID of the user whose subcategories are being requested.
      * @returns A list of subcategories across all categories owned by the user.
      */
-    async getSubcategoriesByUser(userId: number, options?: QueryOptions<SubcategoryRow>): Promise<DbResponse<SubcategoryRow[]>> {
+    async getSubcategoriesByUser(userId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
         const userCategories = await categoryService.getCategoriesByUser(userId);
 
@@ -114,76 +161,108 @@ export class SubcategoryService extends DbService {
 
         const categoryIds = userCategories.data.map(c => c.id);
 
-        return findWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
-            category_id: { operator: Operator.IN, value: categoryIds }
-        }, {
-            orderBy: options?.sort as keyof SubcategoryRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
-    }
+        try {
+            const subcategories = await this.subcategoryRepository.findMany({
+                categoryId: { operator: Operator.EQUAL, value: categoryIds[0] }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectSubcategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
 
-    /** @summary Counts subcategories belonging to categories of a specific user. */
-    async countSubcategoriesByUser(userId: number): Promise<DbResponse<number>> {
-        const categoryService = new CategoryService();
-        const userCategories = await categoryService.getCategoriesByUser(userId);
+            const allSubcategories = await this.subcategoryRepository.findMany({
+                categoryId: { operator: Operator.IN, value: categoryIds }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectSubcategory,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
 
-        if (!userCategories.success || !userCategories.data?.length) {
-            return { success: false, error: Resource.NO_RECORDS_FOUND };
+            return { success: true, data: allSubcategories };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        const categoryIds = userCategories.data.map(c => c.id);
-
-        return countWithColumnFilters<SubcategoryRow>(TableName.SUBCATEGORY, {
-            category_id: { operator: Operator.IN, value: categoryIds }
-        });
     }
 
-
-    /** @summary Updates a subcategory by ID.
-     * Validates the category if the category_id is being changed, including ownership.
+    /**
+     * Counts subcategories belonging to categories of a specific user.
      *
+     * @summary Gets count of subcategories for a user's categories.
+     * @param userId - User ID.
+     * @returns Count of subcategories.
+     */
+    async countSubcategoriesByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        const categoryService = new CategoryService();
+        const userCategories = await categoryService.getCategoriesByUser(userId);
+
+        if (!userCategories.success || !userCategories.data?.length) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+
+        const categoryIds = userCategories.data.map(c => c.id);
+
+        try {
+            const total = await this.subcategoryRepository.count({
+                categoryId: { operator: Operator.IN, value: categoryIds }
+            });
+            return { success: true, data: total };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Updates a subcategory by ID.
+     * Validates the category if the categoryId is being changed, including ownership.
+     *
+     * @summary Updates subcategory data.
      * @param id - ID of the subcategory.
      * @param data - Partial subcategory data to update.
      * @param userId - Optional ID of the user performing the operation.
      * @returns Updated subcategory record.
      */
-    async updateSubcategory(id: number, data: Partial<SubcategoryRow>, userId?: number): Promise<DbResponse<SubcategoryRow>> {
-        if (data.category_id !== undefined) {
+    async updateSubcategory(id: number, data: Partial<InsertSubcategory>, userId?: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
+        if (data.categoryId !== undefined) {
             const categoryService = new CategoryService();
-            const category = await categoryService.getCategoryById(data.category_id);
+            const category = await categoryService.getCategoryById(data.categoryId);
 
             if (!category.success || !category.data?.active) {
                 return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
             }
 
-            if (userId !== undefined && category.data.user_id !== userId) {
+            if (userId !== undefined && category.data.userId !== userId) {
                 return { success: false, error: Resource.UNAUTHORIZED_OPERATION };
             }
         }
 
-        const updateResult = await this.update<SubcategoryRow>(id, data);
-        if (!updateResult.success) {
+        try {
+            const updated = await this.subcategoryRepository.update(id, data);
+            return { success: true, data: updated };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-        return this.findOne<SubcategoryRow>(id);
     }
-
 
     /**
      * Deletes a subcategory by ID after verifying its existence.
      *
+     * @summary Removes a subcategory from the database.
      * @param id - ID of the subcategory.
-     * @returns  Success with deleted ID, or error if subcategory does not exist.
+     * @returns Success with deleted ID, or error if subcategory does not exist.
      */
-    async deleteSubcategory(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne<SubcategoryRow>(id);
-
-        if (!existing.success) {
+    async deleteSubcategory(id: number): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
+        const existing = await this.subcategoryRepository.findById(id);
+        if (!existing) {
             return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND };
         }
 
-        return this.remove(id);
+        try {
+            await this.subcategoryRepository.delete(id);
+            return { success: true, data: { id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 }

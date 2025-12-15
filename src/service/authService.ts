@@ -1,24 +1,23 @@
 import bcrypt from 'bcrypt';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { LogCategory, LogType, LogOperation, TableName, Operator } from '../utils/enum';
+import { LogCategory, LogType, LogOperation, Operator } from '../utils/enum';
 import { TokenUtils } from '../utils/auth/tokenUtils';
 import { Resource } from '../utils/resources/resource';
-import User from '../model/user/user';
 import { RefreshTokenService } from './refreshTokenService';
 import { UserService } from './userService';
-import RefreshToken from '../model/refresh_token/refresh_token';
-
-type RefreshTokenRow = RefreshToken & { user_id: number };
+import { SelectUser, SelectRefreshToken } from '../db/schema';
 import { createLog } from '../utils/commons';
 
+/**
+ * Service for authentication operations.
+ * Handles user login, token refresh, and logout functionality.
+ */
 export class AuthService {
-    private userDb: DbService;
-    private tokenDb: DbService;
+    private userService: UserService;
+    private refreshTokenService: RefreshTokenService;
 
     constructor() {
-        this.userDb = new UserService();
-        this.tokenDb = new RefreshTokenService();
+        this.userService = new UserService();
+        this.refreshTokenService = new RefreshTokenService();
     }
 
     /**
@@ -26,25 +25,30 @@ export class AuthService {
      * If valid, generates and returns both access and refresh tokens.
      * The refresh token is persisted in the database with 1-year expiration.
      *
+     * @summary Authenticates user and generates tokens.
      * @param email - User's email.
      * @param password - User's plain-text password.
      * @returns Access and refresh tokens along with user data, or error if credentials are invalid.
      */
-    async login(email: string, password: string): Promise<DbResponse<{ token: string; refreshToken: string, user: User }>> {
+    async login(email: string, password: string): Promise<{ success: true; data: { token: string; refreshToken: string; user: SelectUser } } | { success: false; error: Resource }> {
         if (!password) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }
 
-        const users = await this.userDb.findWithFilters<User>(
-            {
-                email: {
-                    operator: Operator.EQUAL, value: email.trim().toLowerCase()
+        // Find user by email
+        const usersResult = await this.userService.getUsersByEmail(email.trim().toLowerCase());
+        if (!usersResult.success || !usersResult.data || usersResult.data.length === 0) {
+            return { success: false, error: Resource.INVALID_CREDENTIALS };
+        }
 
-                }
-            });
+        // Get full user with password for comparison
+        const userWithPassword = await this.userService.findOne(usersResult.data[0].id);
+        if (!userWithPassword.success || !userWithPassword.data) {
+            return { success: false, error: Resource.INVALID_CREDENTIALS };
+        }
 
-        const user = users.data?.[0];
-        if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
+        const user = userWithPassword.data;
+        if (!user.password || !(await bcrypt.compare(password, user.password))) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }
 
@@ -54,11 +58,15 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
-        await this.tokenDb.create<RefreshTokenRow>({
+        const tokenResult = await this.refreshTokenService.createRefreshToken({
             token: refreshToken,
-            user_id: user.id,
+            userId: user.id,
             expiresAt
         });
+
+        if (!tokenResult.success) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
 
         return {
             success: true,
@@ -74,17 +82,18 @@ export class AuthService {
      * Validates a refresh token and issues a new access token if valid.
      * Checks for token existence, expiration, and signature validity.
      *
+     * @summary Refreshes access token using refresh token.
      * @param token - Refresh token from cookies.
      * @returns New access token or error if the token is expired or invalid.
      */
-    async refresh(token: string): Promise<DbResponse<{ token: string }>> {
-        const existing = await this.tokenDb.findWithFilters<RefreshToken>(
-            {
-                token: { operator: Operator.EQUAL, value: token }
-            });
+    async refresh(token: string): Promise<{ success: true; data: { token: string } } | { success: false; error: Resource }> {
+        const tokenResult = await this.refreshTokenService.findByToken(token);
+        if (!tokenResult.success || !tokenResult.data) {
+            return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
+        }
 
-        const storedToken = existing.data?.[0];
-        if (!storedToken || new Date(storedToken.expiresAt) < new Date()) {
+        const storedToken = tokenResult.data;
+        if (new Date(storedToken.expiresAt) < new Date()) {
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
         }
 
@@ -102,14 +111,13 @@ export class AuthService {
      * Logs out the user by removing the refresh token from the database.
      * Logs the operation if the token is valid. Fails silently if token is not found.
      *
+     * @summary Invalidates refresh token on logout.
      * @param token - Refresh token to invalidate.
      * @returns Success status and user ID if logout succeeds, or error if token is not found.
      */
-    async logout(token: string): Promise<DbResponse<{ userId: number }>> {
-        const tokens = await this.tokenDb.findMany<RefreshTokenRow>({ token });
-        const stored = tokens.data?.[0];
-
-        if (!stored) {
+    async logout(token: string): Promise<{ success: true; data: { userId: number } } | { success: false; error: Resource }> {
+        const tokenResult = await this.refreshTokenService.findByToken(token);
+        if (!tokenResult.success || !tokenResult.data) {
             await createLog(
                 LogType.ALERT,
                 LogOperation.LOGOUT,
@@ -119,15 +127,17 @@ export class AuthService {
             return { success: false, error: Resource.TOKEN_NOT_FOUND };
         }
 
-        await this.tokenDb.remove(stored.id);
-        createLog(
+        const stored = tokenResult.data;
+        await this.refreshTokenService.deleteRefreshToken(stored.id);
+
+        await createLog(
             LogType.SUCCESS,
             LogOperation.LOGOUT,
             LogCategory.AUTH,
             `Refresh token ${stored.id} deleted.`,
-            stored.user_id
-        )
-        return { success: true, data: { userId: stored.user_id } }
+            stored.userId || undefined
+        );
 
+        return { success: true, data: { userId: stored.userId || 0 } };
     }
 }

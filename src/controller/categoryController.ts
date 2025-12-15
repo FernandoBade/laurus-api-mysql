@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CategoryService } from '../service/categoryService';
-import { createCategorySchema, updateCategorySchema } from '../model/category/categorySchema';
-import { validateSchema, formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
+import { validateCreateCategory, validateUpdateCategory } from '../utils/validation/validateRequest';
+import { createLog, answerAPI, formatError } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
@@ -20,10 +20,10 @@ class CategoryController {
         const categoryService = new CategoryService();
 
         try {
-            const parseResult = validateSchema(createCategorySchema, req.body, req.language as LanguageCode);
+            const parseResult = validateCreateCategory(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const created = await categoryService.createCategory(parseResult.data);
@@ -32,7 +32,7 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.user_id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.userId);
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), undefined, next);
@@ -172,7 +172,7 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.user_id);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.userId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CATEGORY, formatError(error), id, next);

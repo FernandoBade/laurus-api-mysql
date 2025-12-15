@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreditCardService } from '../service/creditCardService';
-import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
-import { createCreditCardSchema, updateCreditCardSchema } from '../model/creditCard/creditCardSchema';
+import { createLog, answerAPI, formatError } from '../utils/commons';
+import { validateCreateCreditCard, validateUpdateCreditCard } from '../utils/validation/validateRequest';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { parsePagination, buildMeta } from '../utils/pagination';
@@ -12,14 +12,14 @@ class CreditCardController {
         const creditCardService = new CreditCardService();
 
         try {
-            const parseResult = validateSchema(createCreditCardSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateCreateCreditCard(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
                     req,
                     res,
                     HTTPStatus.BAD_REQUEST,
-                    formatZodValidationErrors(parseResult.error),
+                    parseResult.errors,
                     Resource.VALIDATION_ERROR
                 );
             }
@@ -30,7 +30,7 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CREDIT_CARD, created.data, created.data!.user_id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CREDIT_CARD, created.data, created.data!.userId);
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CREDIT_CARD, formatError(error), undefined, next);
@@ -127,10 +127,10 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existing.error);
             }
 
-            const parseResult = validateSchema(updateCreditCardSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateUpdateCreditCard(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const updated = await creditCardService.updateCreditCard(id, parseResult.data);
@@ -138,7 +138,7 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CREDIT_CARD, updated.data, updated.data!.user_id);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CREDIT_CARD, updated.data, updated.data!.userId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CREDIT_CARD, formatError(error), id, next);

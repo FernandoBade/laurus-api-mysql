@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { SubcategoryService } from '../service/subcategoryService';
-import { createSubcategorySchema, updateSubcategorySchema } from '../model/subcategory/subcategorySchema';
-import { validateSchema, formatZodValidationErrors, createLog, answerAPI, formatError } from '../utils/commons';
+import { validateCreateSubcategory, validateUpdateSubcategory } from '../utils/validation/validateRequest';
+import { createLog, answerAPI, formatError } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
@@ -20,19 +20,19 @@ class SubcategoryController {
         const subcategoryService = new SubcategoryService();
 
         try {
-            const parseResult = validateSchema(createSubcategorySchema, req.body, req.language as LanguageCode);
+            const parseResult = validateCreateSubcategory(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
-            const created = await subcategoryService.createSubcategory(parseResult.data, req.body.user_id);
+            const created = await subcategoryService.createSubcategory(parseResult.data, (req.body as any).user_id);
 
             if (!created.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.category_id);
+            await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.CATEGORY, created.data, created.data!.categoryId);
             return answerAPI(req, res, HTTPStatus.CREATED, created.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), undefined, next);
@@ -213,7 +213,7 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.category_id);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.categoryId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CATEGORY, formatError(error), id, next);

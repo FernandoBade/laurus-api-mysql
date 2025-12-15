@@ -13,8 +13,8 @@ export function parsePagination(query: any) {
     const limit = query.limit ? parseInt(query.limit as string) : pageSize;
     const offset = query.offset ? parseInt(query.offset as string) : (page - 1) * pageSize;
     const sort = query.sort as string | undefined;
-    const orderParam = (query.order as string | undefined)?.toUpperCase();
-    const order = orderParam === Operator.DESC ? Operator.DESC : Operator.ASC;
+    const orderParam = (query.order as string | undefined)?.toLowerCase();
+    const order = orderParam === 'desc' ? Operator.DESC : Operator.ASC;
     return { page, pageSize, limit, offset, sort, order };
 }
 

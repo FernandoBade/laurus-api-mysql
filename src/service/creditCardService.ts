@@ -1,130 +1,223 @@
-import { CreditCardFlag, Operator, TableName } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { CreditCardFlag, Operator } from '../utils/enum';
+import { CreditCardRepository } from '../repositories/creditCardRepository';
 import { UserService } from './userService';
 import { AccountService } from './accountService';
-import CreditCard from '../model/creditCard/creditCard';
+import { Resource } from '../utils/resources/resource';
+import { SelectCreditCard, InsertCreditCard } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
-export type CreditCardRow = CreditCard & { user_id: number; account_id: number | null };
+export type CreditCardRow = SelectCreditCard;
 
-export class CreditCardService extends DbService {
+/**
+ * Service for credit card business logic.
+ * Handles credit card operations including validation and user/account linking.
+ */
+export class CreditCardService {
+    private creditCardRepository: CreditCardRepository;
+
     constructor() {
-        super(TableName.CREDIT_CARD);
+        this.creditCardRepository = new CreditCardRepository();
     }
 
+    /**
+     * Creates a new credit card.
+     *
+     * @summary Creates a new credit card for a user.
+     * @param data - Credit card creation data.
+     * @returns The created credit card record.
+     */
     async createCreditCard(data: {
         name: string;
         flag: CreditCardFlag;
         observation?: string;
-        user_id: number;
-        account_id?: number;
+        userId: number;
+        accountId?: number;
         active?: boolean;
-    }): Promise<DbResponse<CreditCardRow>> {
+    }): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
         const userService = new UserService();
-        const user = await userService.getUserById(data.user_id);
+        const user = await userService.getUserById(data.userId);
 
         if (!user.success || !user.data) {
             return { success: false, error: Resource.USER_NOT_FOUND };
         }
 
-        if (data.account_id !== undefined) {
+        if (data.accountId !== undefined) {
             const accountService = new AccountService();
-            const account = await accountService.getAccountById(data.account_id);
+            const account = await accountService.getAccountById(data.accountId);
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
 
-            const existing = await findWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD, {
-                account_id: { operator: Operator.EQUAL, value: data.account_id }
+            const existing = await this.creditCardRepository.findMany({
+                accountId: { operator: Operator.EQUAL, value: data.accountId }
             });
-            if (existing.success && existing.data && existing.data.length > 0) {
-                return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+            if (existing.length > 0) {
+                return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
             }
         }
 
-        const result = await this.create<CreditCardRow>(data);
-        if (!result.success || !result.data?.id) {
+        try {
+            const created = await this.creditCardRepository.create({
+                ...data,
+                user_id: data.userId,
+                account_id: data.accountId,
+            } as InsertCreditCard);
+            return { success: true, data: created };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<CreditCardRow>(result.data.id);
     }
 
-    async getCreditCards(options?: QueryOptions<CreditCardRow>): Promise<DbResponse<CreditCardRow[]>> {
-        return findWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD, {}, {
-            orderBy: options?.sort as keyof CreditCardRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    /**
+     * Retrieves all credit cards.
+     *
+     * @summary Gets all credit cards with optional pagination and sorting.
+     * @param options - Query options for pagination and sorting.
+     * @returns A list of all credit cards.
+     */
+    async getCreditCards(options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: SelectCreditCard[] } | { success: false; error: Resource }> {
+        try {
+            const creditCards = await this.creditCardRepository.findMany(undefined, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectCreditCard,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: creditCards };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    async countCreditCards(): Promise<DbResponse<number>> {
-        return countWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD);
+    /**
+     * Counts all credit cards.
+     *
+     * @summary Gets total count of credit cards.
+     * @returns Total credit card count.
+     */
+    async countCreditCards(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.creditCardRepository.count();
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    async getCreditCardById(id: number): Promise<DbResponse<CreditCardRow>> {
-        return this.findOne<CreditCardRow>(id);
+    /**
+     * Retrieves a credit card by its ID.
+     *
+     * @summary Gets a credit card by ID.
+     * @param id - ID of the credit card.
+     * @returns Credit card record if found.
+     */
+    async getCreditCardById(id: number): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+        const creditCard = await this.creditCardRepository.findById(id);
+        if (!creditCard) {
+            return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
+        }
+        return { success: true, data: creditCard };
     }
 
-    async getCreditCardsByUser(userId: number, options?: QueryOptions<CreditCardRow>): Promise<DbResponse<CreditCardRow[]>> {
-        return findWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        }, {
-            orderBy: options?.sort as keyof CreditCardRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    /**
+     * Retrieves all credit cards for a user.
+     *
+     * @summary Gets all credit cards for a user.
+     * @param userId - User ID.
+     * @returns A list of credit cards owned by the user.
+     */
+    async getCreditCardsByUser(userId: number, options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: SelectCreditCard[] } | { success: false; error: Resource }> {
+        try {
+            const creditCards = await this.creditCardRepository.findMany({
+                userId: { operator: Operator.EQUAL, value: userId }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectCreditCard,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: creditCards };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    async countCreditCardsByUser(userId: number): Promise<DbResponse<number>> {
-        return countWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        });
+    /**
+     * Counts credit cards for a user.
+     *
+     * @summary Gets count of credit cards for a user.
+     * @param userId - User ID.
+     * @returns Count of user's credit cards.
+     */
+    async countCreditCardsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.creditCardRepository.count({
+                userId: { operator: Operator.EQUAL, value: userId }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    async updateCreditCard(id: number, data: Partial<CreditCardRow>): Promise<DbResponse<CreditCardRow>> {
-        if (data.user_id !== undefined) {
+    /**
+     * Updates a credit card by ID.
+     *
+     * @summary Updates credit card data.
+     * @param id - ID of the credit card.
+     * @param data - Partial credit card data to update.
+     * @returns Updated credit card record.
+     */
+    async updateCreditCard(id: number, data: Partial<InsertCreditCard>): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+        if (data.userId !== undefined) {
             const userService = new UserService();
-            const user = await userService.getUserById(data.user_id);
+            const user = await userService.getUserById(data.userId);
             if (!user.success || !user.data) {
                 return { success: false, error: Resource.USER_NOT_FOUND };
             }
         }
 
-        if (data.account_id !== undefined) {
+        if (data.accountId !== undefined) {
             const accountService = new AccountService();
-            const account = await accountService.getAccountById(Number(data.account_id));
+            const account = await accountService.getAccountById(data.accountId);
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
 
-            const existing = await findWithColumnFilters<CreditCardRow>(TableName.CREDIT_CARD, {
-                account_id: { operator: Operator.EQUAL, value: data.account_id }
+            const existing = await this.creditCardRepository.findMany({
+                accountId: { operator: Operator.EQUAL, value: data.accountId }
             });
-            if (existing.success && existing.data && existing.data.length > 0 && existing.data[0].id !== id) {
-                return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
+            if (existing.length > 0 && existing[0].id !== id) {
+                return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
             }
         }
 
-        const updateResult = await this.update<CreditCardRow>(id, data);
-        if (!updateResult.success) {
+        try {
+            const updated = await this.creditCardRepository.update(id, data);
+            return { success: true, data: updated };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<CreditCardRow>(id);
     }
 
-    async deleteCreditCard(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne<CreditCardRow>(id);
-        if (!existing.success) {
+    /**
+     * Deletes a credit card by ID.
+     *
+     * @summary Removes a credit card from the database.
+     * @param id - ID of the credit card to delete.
+     * @returns Success with deleted ID, or error if credit card does not exist.
+     */
+    async deleteCreditCard(id: number): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
+        const existing = await this.creditCardRepository.findById(id);
+        if (!existing) {
             return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
         }
-        return this.remove(id);
+
+        try {
+            await this.creditCardRepository.delete(id);
+            return { success: true, data: { id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 }
-

@@ -1,22 +1,26 @@
-import { Operator, TableName } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { Operator } from '../utils/enum';
+import { AccountRepository } from '../repositories/accountRepository';
 import { UserService } from './userService';
-import Account from '../model/account/account';
+import { Resource } from '../utils/resources/resource';
+import { SelectAccount, InsertAccount } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
-type AccountRow = Account & { user_id: number };
+/**
+ * Service for account business logic.
+ * Handles account operations including validation and user linking.
+ */
+export class AccountService {
+    private accountRepository: AccountRepository;
 
-export class AccountService extends DbService {
     constructor() {
-        super(TableName.ACCOUNT);
+        this.accountRepository = new AccountRepository();
     }
 
-    /** @summary Creates a new financial account.
+    /**
+     * Creates a new financial account.
      * Ensures the required data is present and linked to a valid user.
      *
+     * @summary Creates a new account linked to a user.
      * @param data - Account creation data.
      * @returns The created account record.
      */
@@ -25,113 +29,164 @@ export class AccountService extends DbService {
         institution: string;
         type: string;
         observation?: string;
-        user_id: number;
+        userId: number;
         active?: boolean;
-    }): Promise<DbResponse<AccountRow>> {
+    }): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
         const userService = new UserService();
-        const user = await userService.getUserById(data.user_id);
+        const user = await userService.getUserById(data.userId);
 
         if (!user.success || !user.data) {
             return { success: false, error: Resource.USER_NOT_FOUND };
         }
 
-        const result = await this.create<AccountRow>(data);
-        if (!result.success || !result.data?.id) {
+        try {
+            const created = await this.accountRepository.create({
+                ...data,
+                user_id: data.userId,
+            } as InsertAccount);
+            return { success: true, data: created };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<AccountRow>(result.data.id);
     }
 
-    /** @summary Retrieves all financial accounts from the database.
+    /**
+     * Retrieves all financial accounts from the database.
      *
+     * @summary Gets all accounts with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all account records.
      */
-    async getAccounts(options?: QueryOptions<AccountRow>): Promise<DbResponse<AccountRow[]>> {
-        return findWithColumnFilters<AccountRow>(TableName.ACCOUNT, {}, {
-            orderBy: options?.sort as keyof AccountRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getAccounts(options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: SelectAccount[] } | { success: false; error: Resource }> {
+        try {
+            const accounts = await this.accountRepository.findMany(undefined, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectAccount,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: accounts };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts all financial accounts in the database. */
-    async countAccounts(): Promise<DbResponse<number>> {
-        return countWithColumnFilters<AccountRow>(TableName.ACCOUNT);
-    }
-
-    /** @summary Retrieves a single account by its ID.
+    /**
+     * Counts all financial accounts in the database.
      *
+     * @summary Gets total count of accounts.
+     * @returns Total account count.
+     */
+    async countAccounts(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.accountRepository.count();
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves a single account by its ID.
+     *
+     * @summary Gets an account by ID.
      * @param id - ID of the account.
      * @returns Account record if found.
      */
-    async getAccountById(id: number): Promise<DbResponse<AccountRow>> {
-        return this.findOne<AccountRow>(id);
+    async getAccountById(id: number): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+        const account = await this.accountRepository.findById(id);
+        if (!account) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+        return { success: true, data: account };
     }
 
-    /** @summary Retrieves all accounts associated with a given user ID.
+    /**
+     * Retrieves all accounts associated with a given user ID.
      *
+     * @summary Gets all accounts for a user.
      * @param userId - ID of the user.
      * @returns A list of accounts owned by the user.
      */
-    async getAccountsByUser(userId: number, options?: QueryOptions<AccountRow>): Promise<DbResponse<AccountRow[]>> {
-        return findWithColumnFilters<AccountRow>(TableName.ACCOUNT, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        }, {
-            orderBy: options?.sort as keyof AccountRow,
-            direction: options?.order,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getAccountsByUser(userId: number, options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: SelectAccount[] } | { success: false; error: Resource }> {
+        try {
+            const accounts = await this.accountRepository.findMany({
+                userId: { operator: Operator.EQUAL, value: userId }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectAccount,
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: accounts };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts accounts associated with a user. */
-    async countAccountsByUser(userId: number): Promise<DbResponse<number>> {
-        return countWithColumnFilters<AccountRow>(TableName.ACCOUNT, {
-            user_id: { operator: Operator.EQUAL, value: userId }
-        });
-    }
-
-    /** @summary Updates an account by ID.
-     * Validates the user if the user_id is being changed.
+    /**
+     * Counts accounts associated with a user.
      *
+     * @summary Gets count of accounts for a user.
+     * @param userId - User ID.
+     * @returns Count of user's accounts.
+     */
+    async countAccountsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.accountRepository.count({
+                userId: { operator: Operator.EQUAL, value: userId }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Updates an account by ID.
+     * Validates the user if the userId is being changed.
+     *
+     * @summary Updates account data.
      * @param id - ID of the account.
      * @param data - Partial account data to update.
      * @returns Updated account record.
      */
-    async updateAccount(id: number, data: Partial<AccountRow>): Promise<DbResponse<AccountRow>> {
-        if (data.user_id !== undefined) {
+    async updateAccount(id: number, data: Partial<InsertAccount>): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+        if (data.userId !== undefined) {
             const userService = new UserService();
-            const user = await userService.getUserById(data.user_id);
+            const user = await userService.getUserById(data.userId);
 
             if (!user.success || !user.data) {
                 return { success: false, error: Resource.USER_NOT_FOUND };
             }
         }
 
-        const updateResult = await this.update<AccountRow>(id, data);
-        if (!updateResult.success) {
+        try {
+            const updated = await this.accountRepository.update(id, data);
+            return { success: true, data: updated };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<AccountRow>(id);
     }
 
     /**
      * Deletes an account by ID after validating its existence.
      *
+     * @summary Removes an account from the database.
      * @param id - ID of the account to delete.
      * @returns Success with deleted ID, or error if account does not exist.
      */
-    async deleteAccount(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne<AccountRow>(id);
-
-        if (!existing.success) {
+    async deleteAccount(id: number): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
+        const existing = await this.accountRepository.findById(id);
+        if (!existing) {
             return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
         }
 
-        return this.remove(id);
+        try {
+            await this.accountRepository.delete(id);
+            return { success: true, data: { id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 }

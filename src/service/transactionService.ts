@@ -1,40 +1,40 @@
-import { TransactionSource, Operator, TableName, TransactionType } from '../utils/enum';
-import { DbService } from '../utils/database/services/dbService';
-import { DbResponse } from '../utils/database/services/dbResponse';
-import { Resource } from '../utils/resources/resource';
-import { findWithColumnFilters, countWithColumnFilters } from '../utils/database/helpers/dbHelpers';
+import { TransactionSource, Operator, TransactionType } from '../utils/enum';
+import { TransactionRepository } from '../repositories/transactionRepository';
 import { AccountService } from './accountService';
 import { CreditCardService } from './creditCardService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
-import Transaction from '../model/transaction/transaction';
+import { Resource } from '../utils/resources/resource';
+import { SelectTransaction, InsertTransaction } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
-type TransactionRow = Transaction & {
-    account_id: number;
-    credit_card_id: number;
-    category_id: number | null;
-    subcategory_id: number | null;
-};
-
+export type TransactionRow = SelectTransaction;
 type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
 
-export class TransactionService extends DbService {
+/**
+ * Service for transaction business logic.
+ * Handles transaction operations including validation and account/card linking.
+ */
+export class TransactionService {
+    private transactionRepository: TransactionRepository;
+
     constructor() {
-        super(TableName.TRANSACTION);
+        this.transactionRepository = new TransactionRepository();
     }
 
-    /** @summary Creates a new transaction linked to a valid account.
+    /**
+     * Creates a new transaction linked to a valid account.
      * Validates required fields and the existence of the target account.
      *
+     * @summary Creates a new transaction.
      * @param data - Transaction creation data.
      * @returns The created transaction record.
      */
     async createTransaction(data: {
         value: number;
         date: Date;
-        category_id: number;
-        subcategory_id: number;
+        categoryId?: number;
+        subcategoryId?: number;
         observation?: string;
         transactionType: TransactionType;
         transactionSource: TransactionSource;
@@ -42,107 +42,165 @@ export class TransactionService extends DbService {
         totalMonths?: number;
         isRecurring: boolean;
         paymentDay?: number;
-        account_id?: number;
-        creditCard_id?: number;
+        accountId?: number;
+        creditCardId?: number;
         active?: boolean;
-    }): Promise<DbResponse<TransactionRow>> {
+    }): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
         if (data.transactionSource === TransactionSource.ACCOUNT) {
             const accountService = new AccountService();
-            const account = await accountService.getAccountById(Number(data.account_id));
+            const account = await accountService.getAccountById(Number(data.accountId));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
         } else {
             const creditCardService = new CreditCardService();
-            const card = await creditCardService.getCreditCardById(Number(data.creditCard_id));
+            const card = await creditCardService.getCreditCardById(Number(data.creditCardId));
             if (!card.success || !card.data) {
                 return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
             }
         }
 
-        if (!data.category_id && !data.subcategory_id) {
+        if (!data.categoryId && !data.subcategoryId) {
             return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
         }
 
-        if (data.category_id) {
-            const category = await new CategoryService().getCategoryById(data.category_id);
+        if (data.categoryId) {
+            const category = await new CategoryService().getCategoryById(data.categoryId);
             if (!category.success || !category.data?.active) {
                 return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
-        if (data.subcategory_id) {
-            const subcategory = await new SubcategoryService().getSubcategoryById(data.subcategory_id);
+        if (data.subcategoryId) {
+            const subcategory = await new SubcategoryService().getSubcategoryById(data.subcategoryId);
             if (!subcategory.success || !subcategory.data?.active) {
                 return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
-
-        const result = await this.create<TransactionRow>(data);
-        if (!result.success || !result.data?.id) {
+        try {
+            const created = await this.transactionRepository.create({
+                value: data.value.toString(),
+                date: data.date,
+                transactionType: data.transactionType,
+                transactionSource: data.transactionSource,
+                isInstallment: data.isInstallment,
+                totalMonths: data.totalMonths,
+                isRecurring: data.isRecurring,
+                paymentDay: data.paymentDay,
+                active: data.active,
+                observation: data.observation,
+                accountId: data.accountId,
+                creditCardId: data.creditCardId,
+                categoryId: data.categoryId,
+                subcategoryId: data.subcategoryId,
+            } as InsertTransaction);
+            return { success: true, data: created };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<TransactionRow>(result.data.id);
     }
 
-    /** @summary Retrieves all transaction records in the system.
+    /**
+     * Retrieves all transaction records in the system.
      *
+     * @summary Gets all transactions with optional pagination and sorting.
+     * @param options - Query options for pagination and sorting.
      * @returns A list of all transaction records.
      */
-    async getTransactions(options?: QueryOptions<TransactionRow>): Promise<DbResponse<TransactionRow[]>> {
-        return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {}, {
-            orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
-            direction: options?.order ?? Operator.DESC,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getTransactions(options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: SelectTransaction[] } | { success: false; error: Resource }> {
+        try {
+            const transactions = await this.transactionRepository.findMany(undefined, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: (options?.sort as keyof SelectTransaction) || 'date',
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: transactions };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts all transactions. */
-    async countTransactions(): Promise<DbResponse<number>> {
-        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION);
-    }
-
-    /** @summary Retrieves a single transaction by its ID.
+    /**
+     * Counts all transactions.
      *
+     * @summary Gets total count of transactions.
+     * @returns Total transaction count.
+     */
+    async countTransactions(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.transactionRepository.count();
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves a single transaction by its ID.
+     *
+     * @summary Gets a transaction by ID.
      * @param id - ID of the transaction.
      * @returns Transaction record if found.
      */
-    async getTransactionById(id: number): Promise<DbResponse<TransactionRow>> {
-        return this.findOne<TransactionRow>(id);
+    async getTransactionById(id: number): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+        const transaction = await this.transactionRepository.findById(id);
+        if (!transaction) {
+            return { success: false, error: Resource.NO_RECORDS_FOUND };
+        }
+        return { success: true, data: transaction };
     }
 
-    /** @summary Retrieves all transactions associated with a specific account.
+    /**
+     * Retrieves all transactions associated with a specific account.
      *
+     * @summary Gets all transactions for an account.
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
-    async getTransactionsByAccount(accountId: number, options?: QueryOptions<TransactionRow>): Promise<DbResponse<TransactionRow[]>> {
-        return findWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
-            account_id: { operator: Operator.EQUAL, value: accountId }
-        }, {
-            orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
-            direction: options?.order ?? Operator.DESC,
-            limit: options?.limit,
-            offset: options?.offset,
-        });
+    async getTransactionsByAccount(accountId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: SelectTransaction[] } | { success: false; error: Resource }> {
+        try {
+            const transactions = await this.transactionRepository.findMany({
+                accountId: { operator: Operator.EQUAL, value: accountId }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: (options?.sort as keyof SelectTransaction) || 'date',
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
+            return { success: true, data: transactions };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Counts transactions for a specific account. */
-    async countTransactionsByAccount(accountId: number): Promise<DbResponse<number>> {
-        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
-            account_id: { operator: Operator.EQUAL, value: accountId }
-        });
-    }
-
-    /** @summary Retrieves all transactions for a given user, grouped by their accounts.
+    /**
+     * Counts transactions for a specific account.
      *
+     * @summary Gets count of transactions for an account.
+     * @param accountId - Account ID.
+     * @returns Count of transactions.
+     */
+    async countTransactionsByAccount(accountId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+        try {
+            const count = await this.transactionRepository.count({
+                accountId: { operator: Operator.EQUAL, value: accountId }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Retrieves all transactions for a given user, grouped by their accounts.
+     *
+     * @summary Gets all transactions for a user grouped by account.
      * @param userId - ID of the user.
      * @returns A list of grouped transactions by account.
      */
-    async getTransactionsByUser(userId: number, options?: QueryOptions<TransactionRow>): Promise<DbResponse<AccountTransactions[]>> {
+    async getTransactionsByUser(userId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: AccountTransactions[] } | { success: false; error: Resource }> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -152,34 +210,35 @@ export class TransactionService extends DbService {
 
         const accountIds = userAccounts.data.map(acc => acc.id);
 
-        const allTransactions = await findWithColumnFilters<TransactionRow>(
-            TableName.TRANSACTION,
-            { account_id: { operator: Operator.IN, value: accountIds } },
-            {
-                orderBy: (options?.sort as keyof TransactionRow) ?? 'date',
-                direction: options?.order ?? Operator.DESC,
+        try {
+            const allTransactions = await this.transactionRepository.findMany({
+                accountId: { operator: Operator.IN, value: accountIds }
+            }, {
                 limit: options?.limit,
                 offset: options?.offset,
-            }
-        );
+                sort: (options?.sort as keyof SelectTransaction) || 'date',
+                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+            });
 
-        if (!allTransactions.success || !allTransactions.data) {
-            return { ...allTransactions, data: undefined } as DbResponse<AccountTransactions[]>;
+            const grouped: AccountTransactions[] = accountIds.map(accountId => ({
+                accountId,
+                transactions: allTransactions.filter(t => t.accountId === accountId)
+            }));
+
+            return { success: true, data: grouped };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        const grouped: AccountTransactions[] = accountIds.map(accountId => ({
-            accountId,
-            transactions: allTransactions.data?.filter(e => e.account_id === accountId)
-        }));
-
-        return {
-            success: true,
-            data: grouped
-        };
     }
 
-    /** @summary Counts transactions across all accounts for a specific user. */
-    async countTransactionsByUser(userId: number): Promise<DbResponse<number>> {
+    /**
+     * Counts transactions across all accounts for a specific user.
+     *
+     * @summary Gets count of transactions for a user.
+     * @param userId - User ID.
+     * @returns Count of transactions.
+     */
+    async countTransactionsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -189,88 +248,99 @@ export class TransactionService extends DbService {
 
         const accountIds = userAccounts.data.map(acc => acc.id);
 
-        return countWithColumnFilters<TransactionRow>(TableName.TRANSACTION, {
-            account_id: { operator: Operator.IN, value: accountIds }
-        });
+        try {
+            const count = await this.transactionRepository.count({
+                accountId: { operator: Operator.IN, value: accountIds }
+            });
+            return { success: true, data: count };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 
-    /** @summary Updates an transaction by ID.
+    /**
+     * Updates a transaction by ID.
      *
+     * @summary Updates transaction data.
      * @param id - ID of the transaction.
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: Partial<TransactionRow>): Promise<DbResponse<TransactionRow>> {
-        const current = await this.findOne<TransactionRow>(id);
-        if (!current.success || !current.data) {
+    async updateTransaction(id: number, data: Partial<InsertTransaction>): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+        const current = await this.transactionRepository.findById(id);
+        if (!current) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
 
-        const effectiveSource = data.transactionSource !== undefined ? data.transactionSource : current.data.transactionSource;
+        const effectiveSource = data.transactionSource !== undefined ? data.transactionSource : current.transactionSource;
 
         if (effectiveSource === TransactionSource.ACCOUNT) {
-            const accId = data.account_id !== undefined ? data.account_id : current.data.account_id;
+            const accId = data.accountId !== undefined ? data.accountId : current.accountId;
             const account = await new AccountService().getAccountById(Number(accId));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
-            if (data.credit_card_id !== undefined) {
-                (data as any).credit_card_id = null;
+            if (data.creditCardId !== undefined) {
+                data.creditCardId = null;
             }
         } else {
-            const cardId = data.credit_card_id !== undefined ? data.credit_card_id : current.data.credit_card_id;
+            const cardId = data.creditCardId !== undefined ? data.creditCardId : current.creditCardId;
             const card = await new CreditCardService().getCreditCardById(Number(cardId));
             if (!card.success || !card.data) {
                 return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
             }
-            if (data.account_id !== undefined) {
-                (data as any).account_id = null;
+            if (data.accountId !== undefined) {
+                data.accountId = null;
             }
         }
 
-        const effectiveCategoryId = data.category_id !== undefined ? data.category_id : current.data.category_id;
-        const effectiveSubcategoryId = data.subcategory_id !== undefined ? data.subcategory_id : current.data.subcategory_id;
+        const effectiveCategoryId = data.categoryId !== undefined ? data.categoryId : current.categoryId;
+        const effectiveSubcategoryId = data.subcategoryId !== undefined ? data.subcategoryId : current.subcategoryId;
 
         if (!effectiveCategoryId && !effectiveSubcategoryId) {
             return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
         }
 
-        if (data.category_id !== undefined) {
-            const category = await new CategoryService().getCategoryById(Number(data.category_id));
+        if (data.categoryId !== undefined) {
+            const category = await new CategoryService().getCategoryById(Number(data.categoryId));
             if (!category.success || !category.data?.active) {
                 return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
-        if (data.subcategory_id !== undefined) {
-            const subcategory = await new SubcategoryService().getSubcategoryById(Number(data.subcategory_id));
+        if (data.subcategoryId !== undefined) {
+            const subcategory = await new SubcategoryService().getSubcategoryById(Number(data.subcategoryId));
             if (!subcategory.success || !subcategory.data?.active) {
                 return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
-        const updateResult = await this.update<TransactionRow>(id, data);
-        if (!updateResult.success) {
+        try {
+            const updated = await this.transactionRepository.update(id, data);
+            return { success: true, data: updated };
+        } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        return this.findOne<TransactionRow>(id);
     }
 
-
     /**
-     * Deletes an transaction by ID after verifying its existence.
+     * Deletes a transaction by ID after verifying its existence.
      *
+     * @summary Removes a transaction from the database.
      * @param id - ID of the transaction to delete.
-     * @returns  Success with deleted ID, or error if transaction does not exist.
+     * @returns Success with deleted ID, or error if transaction does not exist.
      */
-    async deleteTransaction(id: number): Promise<DbResponse<{ id: number }>> {
-        const existing = await this.findOne<TransactionRow>(id);
-
-        if (!existing.success) {
+    async deleteTransaction(id: number): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
+        const existing = await this.transactionRepository.findById(id);
+        if (!existing) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
 
-        return this.remove(id);
+        try {
+            await this.transactionRepository.delete(id);
+            return { success: true, data: { id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
     }
 }

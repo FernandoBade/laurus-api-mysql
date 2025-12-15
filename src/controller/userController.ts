@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
-import { formatZodValidationErrors, createLog, answerAPI, formatError, validateSchema } from '../utils/commons';
+import { createLog, answerAPI, formatError } from '../utils/commons';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
-import { createUserSchema, updateUserSchema } from '../model/user/userSchema';
+import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
@@ -21,15 +21,14 @@ class UserController {
         const userService = new UserService();
 
         try {
-
-            const parseResult = validateSchema(createUserSchema, req.body, req.language as LanguageCode);
+            const parseResult = validateCreateUser(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
                 return answerAPI(
                     req,
                     res,
                     HTTPStatus.BAD_REQUEST,
-                    formatZodValidationErrors(parseResult.error),
+                    parseResult.errors,
                     Resource.VALIDATION_ERROR
                 );
             }
@@ -77,9 +76,13 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
@@ -146,9 +149,13 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, rows.error);
             }
 
+            if (!total.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, total.error);
+            }
+
             return answerAPI(req, res, HTTPStatus.OK, {
                 data: rows.data,
-                meta: buildMeta({ page, pageSize, total: total.data ?? 0 })
+                meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), undefined, next);
@@ -174,15 +181,14 @@ class UserController {
 
         try {
             const existingUser = await userService.findOne(userId);
-            if (existingUser.error) {
+            if (!existingUser.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, existingUser.error);
             }
 
-            const parseResult = validateSchema(updateUserSchema, req.body, req.language as LanguageCode);
-
+            const parseResult = validateUpdateUser(req.body, req.language as LanguageCode);
 
             if (!parseResult.success) {
-                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, formatZodValidationErrors(parseResult.error), Resource.VALIDATION_ERROR);
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
             const updatedUser = await userService.updateUser(userId, parseResult.data);
