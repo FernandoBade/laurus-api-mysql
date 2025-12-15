@@ -51,7 +51,7 @@ export class CreditCardService {
                 accountId: { operator: Operator.EQUAL, value: data.accountId }
             });
             if (existing.length > 0) {
-                return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
+                return { success: false, error: Resource.DATA_ALREADY_EXISTS };
             }
         }
 
@@ -190,7 +190,7 @@ export class CreditCardService {
                     accountId: { operator: Operator.EQUAL, value: data.accountId }
                 });
                 if (existing.length > 0 && existing[0].id !== id) {
-                    return { success: false, error: Resource.CONFLICT_ACCOUNT_CREDIT_CARD };
+                    return { success: false, error: Resource.DATA_ALREADY_EXISTS };
                 }
             }
         }
