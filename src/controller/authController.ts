@@ -16,7 +16,8 @@ export class AuthController {
      * @returns HTTP 200 with access token or appropriate error.
      */
     static async login(req: Request, res: Response, next: NextFunction) {
-        const { email, password } = req.body;
+        const email = (req.body?.email ?? '').toString().trim().toLowerCase();
+        const password = req.body?.password as string | undefined;
 
         if (!email || !password) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_CREDENTIALS);
@@ -34,7 +35,13 @@ export class AuthController {
 
             res.cookie(RefreshTokenCookie.name, result.data.refreshToken, RefreshTokenCookie.options);
 
-            await createLog(LogType.DEBUG, LogOperation.LOGIN, LogCategory.AUTH, `User ${result.data.user.id} logged in`, result.data.user.id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.LOGIN,
+                LogCategory.AUTH,
+                { userId: result.data.user.id },
+                result.data.user.id
+            );
 
             return answerAPI(req, res, HTTPStatus.OK, { token: result.data.token });
         } catch (error) {
@@ -88,7 +95,6 @@ export class AuthController {
         const refreshToken = req.cookies?.refreshToken;
 
         if (!refreshToken) {
-            await createLog(LogType.ALERT, LogOperation.LOGOUT, LogCategory.AUTH, Resource.LOGOUT_ATTEMPT_WITH_MISSING_TOKEN);
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
         }
 
@@ -103,19 +109,21 @@ export class AuthController {
 
             res.clearCookie(RefreshTokenCookie.name, ClearCookieOptions);
 
-
             await createLog(
-                LogType.DEBUG,
+                LogType.SUCCESS,
                 LogOperation.LOGOUT,
                 LogCategory.AUTH,
-                `User ${result.data.userId} logged out`
+                { userId: result.data.userId },
+                result.data.userId
             );
 
             return answerAPI(req, res, HTTPStatus.OK);
 
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
-            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, formatError(error), Resource.INTERNAL_SERVER_ERROR);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
 }
+
+export default AuthController;

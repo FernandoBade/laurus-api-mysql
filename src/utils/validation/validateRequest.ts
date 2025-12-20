@@ -32,7 +32,7 @@ function validateObject(
     // Check required fields
     for (const field of requiredFields) {
         if (!(field in body) || body[field] === undefined || body[field] === null) {
-            errors.push(createValidationError(field, `${field} is required`));
+            errors.push(createValidationError(field, ResourceBase.translate(Resource.FIELD_REQUIRED, lang)));
         }
     }
 
@@ -90,7 +90,7 @@ export function validateCreateUser(
     }
 
     if (body.phone !== undefined && !isString(body.phone)) {
-        errors.push(createValidationError('phone', 'Phone must be a string'));
+        errors.push(createValidationError('phone', ResourceBase.translate(Resource.INVALID_PHONE_TYPE, lang)));
     }
 
     if (body.birthDate !== undefined && !isDate(body.birthDate)) {
@@ -114,11 +114,11 @@ export function validateCreateUser(
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
-        errors.push(createValidationError('profile', 'Invalid profile value'));
+        errors.push(createValidationError('profile', ResourceBase.translate(Resource.INVALID_PROFILE_VALUE, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', 'Active must be a boolean'));
+        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
     }
 
     if (errors.length > 0) {
@@ -199,7 +199,7 @@ export function validateUpdateUser(
 
     if (body.phone !== undefined && body.phone !== null) {
         if (!isString(body.phone)) {
-            errors.push(createValidationError('phone', 'Phone must be a string'));
+            errors.push(createValidationError('phone', ResourceBase.translate(Resource.INVALID_PHONE_TYPE, lang)));
         } else {
             result.phone = body.phone;
         }
@@ -238,13 +238,13 @@ export function validateUpdateUser(
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
-        errors.push(createValidationError('profile', 'Invalid profile value'));
+        errors.push(createValidationError('profile', ResourceBase.translate(Resource.INVALID_PROFILE_VALUE, lang)));
     } else if (body.profile !== undefined) {
         result.profile = body.profile;
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', 'Active must be a boolean'));
+        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -289,7 +289,7 @@ export function validateCreateAccount(
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', 'Observation must be a string'));
+        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
@@ -364,7 +364,7 @@ export function validateUpdateAccount(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', 'Observation must be a string'));
+            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -638,7 +638,7 @@ export function validateCreateCreditCard(
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', 'Observation must be a string'));
+        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
@@ -709,7 +709,7 @@ export function validateUpdateCreditCard(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', 'Observation must be a string'));
+            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -826,7 +826,7 @@ export function validateCreateTransaction(
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', 'Observation must be a string'));
+        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
@@ -979,7 +979,7 @@ export function validateUpdateTransaction(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', 'Observation must be a string'));
+            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -997,4 +997,3 @@ export function validateUpdateTransaction(
 
     return { success: true, data: result };
 }
-

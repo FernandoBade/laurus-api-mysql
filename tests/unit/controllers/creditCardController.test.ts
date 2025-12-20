@@ -1,0 +1,642 @@
+import CreditCardController from '../../../src/controller/creditCardController';
+import { CreditCardService } from '../../../src/service/creditCardService';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../src/utils/enum';
+import { Resource } from '../../../src/utils/resources/resource';
+import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import * as commons from '../../../src/utils/commons';
+import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
+
+const makeCreditCardInput = (
+  overrides: Partial<{ name: string; flag: string; observation?: string; userId: number; accountId?: number; active?: boolean }> = {}
+) => ({
+  name: overrides.name ?? 'Visa Card',
+  flag: overrides.flag ?? 'visa',
+  observation: overrides.observation,
+  user_id: overrides.userId ?? 1,
+  account_id: overrides.accountId,
+  active: overrides.active ?? true,
+});
+
+const makeCreditCard = (
+  overrides: Partial<{ id: number; name: string; flag: string; observation?: string; userId: number; accountId?: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
+) => ({
+  id: overrides.id ?? 1,
+  name: overrides.name ?? 'Visa Card',
+  flag: overrides.flag ?? 'visa',
+  observation: overrides.observation ?? null,
+  userId: overrides.userId ?? 1,
+  accountId: overrides.accountId ?? null,
+  active: overrides.active ?? true,
+  createdAt: overrides.createdAt ?? new Date('2024-01-01T00:00:00Z'),
+  updatedAt: overrides.updatedAt ?? new Date('2024-01-01T00:00:00Z'),
+});
+
+describe('CreditCardController', () => {
+  let logSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    logSpy = jest.spyOn(commons, 'createLog').mockResolvedValue();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('createCreditCard', () => {
+    it('returns 400 without calling service when validation fails', async () => {
+      const createSpy = jest.spyOn(CreditCardService.prototype, 'createCreditCard');
+      const req = createMockRequest({ body: { name: '', flag: 'invalid', user_id: 0 } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.createCreditCard(req, res, next);
+
+      expect(createSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('maps service error to HTTP 400', async () => {
+      const input = makeCreditCardInput({ userId: 3 });
+      const createSpy = jest
+        .spyOn(CreditCardService.prototype, 'createCreditCard')
+        .mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
+      const req = createMockRequest({ body: input });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.createCreditCard(req, res, next);
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: input.name,
+          flag: input.flag,
+          observation: input.observation,
+          userId: input.user_id,
+          accountId: input.account_id,
+          active: input.active,
+        })
+      );
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns 201 and logs when credit card is created', async () => {
+      const input = makeCreditCardInput({ userId: 2 });
+      const created = makeCreditCard({ id: 10, userId: input.user_id });
+      const createSpy = jest.spyOn(CreditCardService.prototype, 'createCreditCard').mockResolvedValue({ success: true, data: created });
+      const req = createMockRequest({ body: input });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.createCreditCard(req, res, next);
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: input.name,
+          flag: input.flag,
+          observation: input.observation,
+          userId: input.user_id,
+          accountId: input.account_id,
+          active: input.active,
+        })
+      );
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.CREATED);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: created }));
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.SUCCESS,
+        LogOperation.CREATE,
+        LogCategory.CREDIT_CARD,
+        created,
+        created.userId
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      const input = makeCreditCardInput({ userId: 3 });
+      jest.spyOn(CreditCardService.prototype, 'createCreditCard').mockRejectedValue(new Error('boom'));
+      const req = createMockRequest({ body: input });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.createCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.CREATE,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        undefined,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCreditCards', () => {
+    it('returns 200 with data and pagination when service succeeds', async () => {
+      const cards = [makeCreditCard({ id: 1 }), makeCreditCard({ id: 2 })];
+      jest.spyOn(CreditCardService.prototype, 'getCreditCards').mockResolvedValue({ success: true, data: cards });
+      jest.spyOn(CreditCardService.prototype, 'countCreditCards').mockResolvedValue({ success: true, data: cards.length });
+      const req = createMockRequest({ query: { page: '1', pageSize: '1', sort: 'name', order: 'asc' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCards(req, res, next);
+
+      expect(CreditCardService.prototype.getCreditCards).toHaveBeenCalledWith({
+        limit: 1,
+        offset: 0,
+        sort: 'name',
+        order: Operator.ASC,
+      });
+      expect(CreditCardService.prototype.countCreditCards).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: cards,
+          page: 1,
+          pageSize: 1,
+          pageCount: expect.any(Number),
+          totalItems: cards.length,
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when list service fails', async () => {
+      const listSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCards').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+      const countSpy = jest.spyOn(CreditCardService.prototype, 'countCreditCards').mockResolvedValue({ success: true, data: 0 });
+      const req = createMockRequest({ query: {} });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCards(req, res, next);
+
+      expect(listSpy).toHaveBeenCalledTimes(1);
+      expect(countSpy).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when count service fails', async () => {
+      const listSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCards').mockResolvedValue({ success: true, data: [] });
+      const countSpy = jest.spyOn(CreditCardService.prototype, 'countCreditCards').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+      const req = createMockRequest({ query: {} });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCards(req, res, next);
+
+      expect(listSpy).toHaveBeenCalledTimes(1);
+      expect(countSpy).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(CreditCardService.prototype, 'getCreditCards').mockRejectedValue(new Error('boom'));
+      jest.spyOn(CreditCardService.prototype, 'countCreditCards').mockResolvedValue({ success: true, data: 0 });
+      const req = createMockRequest({ query: {} });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCards(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.SEARCH,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        undefined,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCreditCardById', () => {
+    it('returns 400 when id is invalid', async () => {
+      const getSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCardById');
+      const req = createMockRequest({ params: { id: 'abc' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardById(req, res, next);
+
+      expect(getSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when service reports not found', async () => {
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: false, error: Resource.NO_RECORDS_FOUND });
+      const req = createMockRequest({ params: { id: '5' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardById(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 200 when credit card is found', async () => {
+      const card = makeCreditCard({ id: 6 });
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: card });
+      const req = createMockRequest({ params: { id: '6' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardById(req, res, next);
+
+      expect(CreditCardService.prototype.getCreditCardById).toHaveBeenCalledWith(6);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: card }));
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockRejectedValue(new Error('boom'));
+      const req = createMockRequest({ params: { id: '7' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardById(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.SEARCH,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        7,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCreditCardsByUser', () => {
+    it('returns 400 when userId is invalid', async () => {
+      const getSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCardsByUser');
+      const req = createMockRequest({ params: { userId: 'abc' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardsByUser(req, res, next);
+
+      expect(getSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 200 with data when service succeeds', async () => {
+      const cards = [makeCreditCard({ id: 3, userId: 2 })];
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardsByUser').mockResolvedValue({ success: true, data: cards });
+      jest.spyOn(CreditCardService.prototype, 'countCreditCardsByUser').mockResolvedValue({ success: true, data: cards.length });
+      const req = createMockRequest({ params: { userId: '2' }, query: { page: '1', pageSize: '2' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardsByUser(req, res, next);
+
+      expect(CreditCardService.prototype.getCreditCardsByUser).toHaveBeenCalledWith(2, {
+        limit: 2,
+        offset: 0,
+        sort: undefined,
+        order: Operator.ASC,
+      });
+      expect(CreditCardService.prototype.countCreditCardsByUser).toHaveBeenCalledWith(2);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: cards,
+          page: 1,
+          pageSize: 2,
+          totalItems: cards.length,
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when count service fails', async () => {
+      const listSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCardsByUser').mockResolvedValue({ success: true, data: [] });
+      const countSpy = jest.spyOn(CreditCardService.prototype, 'countCreditCardsByUser').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+      const req = createMockRequest({ params: { userId: '2' }, query: {} });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardsByUser(req, res, next);
+
+      expect(listSpy).toHaveBeenCalledTimes(1);
+      expect(countSpy).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardsByUser').mockRejectedValue(new Error('boom'));
+      jest.spyOn(CreditCardService.prototype, 'countCreditCardsByUser').mockResolvedValue({ success: true, data: 0 });
+      const req = createMockRequest({ params: { userId: '4' }, query: {} });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.getCreditCardsByUser(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.SEARCH,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        4,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateCreditCard', () => {
+    it('returns 400 for invalid id', async () => {
+      const getSpy = jest.spyOn(CreditCardService.prototype, 'getCreditCardById');
+      const req = createMockRequest({ params: { id: '0' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(getSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when credit card does not exist', async () => {
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: false, error: Resource.NO_RECORDS_FOUND });
+      const req = createMockRequest({ params: { id: '6' }, body: { name: 'Updated' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when validation fails', async () => {
+      const existing = makeCreditCard({ id: 8 });
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
+      const updateSpy = jest.spyOn(CreditCardService.prototype, 'updateCreditCard');
+      const req = createMockRequest({ params: { id: '8' }, body: { flag: 'invalid' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when update service returns error', async () => {
+      const existing = makeCreditCard({ id: 9 });
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
+      jest.spyOn(CreditCardService.prototype, 'updateCreditCard').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
+      const req = createMockRequest({ params: { id: '9' }, body: { user_id: 99 } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 200 and logs when update succeeds', async () => {
+      const existing = makeCreditCard({ id: 11, userId: 3 });
+      const updated = makeCreditCard({ id: 11, userId: 3, name: 'Updated' });
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
+      jest.spyOn(CreditCardService.prototype, 'updateCreditCard').mockResolvedValue({ success: true, data: updated });
+      const req = createMockRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(CreditCardService.prototype.updateCreditCard).toHaveBeenCalledWith(11, {
+        name: 'Updated',
+        userId: existing.userId,
+      });
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: updated }));
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.SUCCESS,
+        LogOperation.UPDATE,
+        LogCategory.CREDIT_CARD,
+        updated,
+        updated.userId
+      );
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      const existing = makeCreditCard({ id: 12 });
+      jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
+      jest.spyOn(CreditCardService.prototype, 'updateCreditCard').mockRejectedValue(new Error('boom'));
+      const req = createMockRequest({ params: { id: '12' }, body: { name: 'Updated' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.updateCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.UPDATE,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        12,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteCreditCard', () => {
+    it('returns 400 for invalid id', async () => {
+      const deleteSpy = jest.spyOn(CreditCardService.prototype, 'deleteCreditCard');
+      const req = createMockRequest({ params: { id: 'abc' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.deleteCreditCard(req, res, next);
+
+      expect(deleteSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when service signals failure', async () => {
+      jest.spyOn(CreditCardService.prototype, 'deleteCreditCard').mockResolvedValue({ success: false, error: Resource.CREDIT_CARD_NOT_FOUND });
+      const req = createMockRequest({ params: { id: '20' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.deleteCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.CREDIT_CARD_NOT_FOUND, 'en-US') })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 200 and logs when deletion succeeds', async () => {
+      jest.spyOn(CreditCardService.prototype, 'deleteCreditCard').mockResolvedValue({ success: true, data: { id: 21 } });
+      const req = createMockRequest({ params: { id: '21' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.deleteCreditCard(req, res, next);
+
+      expect(CreditCardService.prototype.deleteCreditCard).toHaveBeenCalledWith(21);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { id: 21 } }));
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.SUCCESS,
+        LogOperation.DELETE,
+        LogCategory.CREDIT_CARD,
+        { id: 21 },
+        21
+      );
+    });
+
+    it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(CreditCardService.prototype, 'deleteCreditCard').mockRejectedValue(new Error('boom'));
+      const req = createMockRequest({ params: { id: '22' } });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await CreditCardController.deleteCreditCard(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+        })
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.ERROR,
+        LogOperation.DELETE,
+        LogCategory.CREDIT_CARD,
+        expect.any(Object),
+        22,
+        next
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+});
