@@ -294,6 +294,10 @@ export class TransactionService {
             }
         }
 
+        if (data.categoryId === undefined && data.subcategoryId === undefined) {
+            return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
+        }
+
         const effectiveCategoryId = data.categoryId !== undefined ? data.categoryId : current.categoryId;
         const effectiveSubcategoryId = data.subcategoryId !== undefined ? data.subcategoryId : current.subcategoryId;
 
