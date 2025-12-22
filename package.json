@@ -4,7 +4,10 @@
     "main": "index.js",
     "scripts": {
         "dev": "nodemon src/server.ts",
-        "dev:sync": "ts-node src/utils/database/sync/dbSync.ts && nodemon src/server.ts",
+
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "ts-node src/db/index.ts",
+        "db:sync": "npm run db:generate && npm run db:migrate",
 
         "prebuild": "echo \"Running tests before build...\"",
         "build": "npm run prebuild && npm run test:ci && tsc",
@@ -15,14 +18,7 @@
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
-        "test:ci": "jest --runInBand --coverage",
-
-        "dev:create": "ts-node src/dev/seedDevDatabase.ts",
-        "dev:reset": "ts-node src/dev/resetDevDatabase.ts",
-        "dev:analyze": "node -r ts-node/register -r dotenv/config ./src/dev/analyseUser.ts",
-        "dev:list-users": "node -r ts-node/register -r dotenv/config ./src/dev/analyseUser.ts --list",
-        "dev:db:diag": "node -r ts-node/register -r dotenv/config ./src/dev/dbDiag.ts",
-        "dev:tx-stats": "node -r ts-node/register -r dotenv/config ./src/dev/txDiag.ts"
+        "test:ci": "jest --runInBand --coverage"
     },
     "keywords": [ ],
     "author": "",
