@@ -5,15 +5,12 @@
     "scripts": {
         "dev": "nodemon src/server.ts",
 
-        "db:generate": "drizzle-kit generate",
-        "db:migrate": "ts-node src/db/index.ts",
-        "db:sync": "npm run db:generate && npm run db:migrate",
-
-        "prebuild": "echo \"Running tests before build...\"",
-        "build": "npm run prebuild && npm run test:ci && tsc",
-        "postbuild": "echo \"Project successfully compiled\"",
-
+        "build": "npm run test:ci && tsc",
         "start": "node dist/server.js",
+
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "ts-node src/db/migrate.ts",
+        "db:sync": "npm run db:generate && npm run db:migrate",
 
         "test": "jest",
         "test:watch": "jest --watch",
