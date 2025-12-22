@@ -17,13 +17,9 @@ module.exports = {
     collectCoverageFrom: [
         'src/**/*.{ts,js}',
         '!src/**/index.ts',
-        '!src/server.ts',
-        '!src/repositories/**',
         '!src/routes/**',
+        '!src/server.ts',
         '!src/db/**',
-        '!src/utils/database/migrations/**',
-        '!src/utils/database/sync/**',
-        '!src/dev/**',
     ],
 
     coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/tests/'],

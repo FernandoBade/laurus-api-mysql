@@ -35,28 +35,6 @@ export enum CategoryColor {
     INDIGO = 'indigo'
 }
 
-export enum ColumnType {
-    VARCHAR = "VARCHAR(255)",
-    CHAR = "CHAR(255)",
-    TEXT = "TEXT",
-    TINYINT = "TINYINT",
-    INTEGER = "INT",
-    MEDIUMINT = "MEDIUMINT",
-    BIGINT = "BIGINT",
-    FLOAT = "FLOAT",
-    DOUBLE = "DOUBLE",
-    DECIMAL = "DECIMAL(10,2)",
-    BOOLEAN = "BOOLEAN",
-    DATE = "DATE",
-    DATETIME = "DATETIME",
-    TIME = "TIME",
-    TIMESTAMP = "TIMESTAMP",
-    CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP",
-    YEAR = "YEAR",
-    ENUM = "ENUM",
-    BLOB = "BLOB"
-}
-
 export enum Currency {
     ARS = 'ARS',
     COP = 'COP',
@@ -144,24 +122,6 @@ export enum Profile {
     STARTER = 'starter',
     PRO = 'pro',
     MASTER = 'master'
-}
-
-export enum SortOrder {
-    ASC = 'asc',
-    DESC = 'desc'
-}
-
-export enum TableName {
-    ACCOUNT = 'account',
-    LOG = 'log',
-    MIGRATION = "migration",
-    MIGRATION_GROUP = "migration_group",
-    REFRESH_TOKEN = "refresh_token",
-    USER = 'user',
-    CATEGORY = 'category',
-    SUBCATEGORY = "subcategory",
-    TRANSACTION = "transaction",
-    CREDIT_CARD = 'credit_card',
 }
 
 export enum Theme {

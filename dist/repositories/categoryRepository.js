@@ -13,11 +13,11 @@ class CategoryRepository {
      * Finds a category by its ID.
      *
      * @summary Retrieves a single category by ID.
-     * @param id - Category ID to search for.
+     * @param categoryId - Category ID to search for.
      * @returns Category record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.categories).where((0, drizzle_orm_1.eq)(schema_1.categories.id, id)).limit(1);
+    async findById(categoryId) {
+        const result = await db_1.db.select().from(schema_1.categories).where((0, drizzle_orm_1.eq)(schema_1.categories.id, categoryId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -88,7 +88,7 @@ class CategoryRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created category');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -96,15 +96,15 @@ class CategoryRepository {
      * Updates an existing category by ID.
      *
      * @summary Updates category record with new data.
-     * @param id - Category ID to update.
+     * @param categoryId - Category ID to update.
      * @param data - Partial category data to update.
      * @returns The updated category record.
      */
-    async update(id, data) {
-        await db_1.db.update(schema_1.categories).set(data).where((0, drizzle_orm_1.eq)(schema_1.categories.id, id));
-        const updated = await this.findById(id);
+    async update(categoryId, data) {
+        await db_1.db.update(schema_1.categories).set(data).where((0, drizzle_orm_1.eq)(schema_1.categories.id, categoryId));
+        const updated = await this.findById(categoryId);
         if (!updated) {
-            throw new Error('Category not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -112,10 +112,10 @@ class CategoryRepository {
      * Deletes a category by ID.
      *
      * @summary Removes a category record from the database.
-     * @param id - Category ID to delete.
+     * @param categoryId - Category ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.categories).where((0, drizzle_orm_1.eq)(schema_1.categories.id, id));
+    async delete(categoryId) {
+        await db_1.db.delete(schema_1.categories).where((0, drizzle_orm_1.eq)(schema_1.categories.id, categoryId));
     }
 }
 exports.CategoryRepository = CategoryRepository;

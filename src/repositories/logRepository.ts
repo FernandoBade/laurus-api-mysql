@@ -12,11 +12,11 @@ export class LogRepository {
      * Finds a log by its ID.
      *
      * @summary Retrieves a single log by ID.
-     * @param id - Log ID to search for.
+     * @param logId - Log ID to search for.
      * @returns Log record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectLog | null> {
-        const result = await db.select().from(logs).where(eq(logs.id, id)).limit(1);
+    async findById(logId: number): Promise<SelectLog | null> {
+        const result = await db.select().from(logs).where(eq(logs.id, logId)).limit(1);
         return result[0] || null;
     }
 
@@ -107,7 +107,7 @@ export class LogRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created log');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }

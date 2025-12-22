@@ -1,14 +1,13 @@
-import { LanguageCode } from "../utils/resources/resourceTypes";
+import 'express-serve-static-core';
+import { LanguageCode } from '../utils/resources/resourceTypes';
 
-declare global {
-    namespace Express {
-        interface Request {
-            language?: LanguageCode,
-            user?: {
-                id: number;
-            };
-        }
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    language?: LanguageCode;
+    user?: {
+      id: number;
+    };
+  }
 }
 
-export { };
+export {};

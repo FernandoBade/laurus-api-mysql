@@ -14,11 +14,11 @@ class TransactionRepository {
      * Finds a transaction by its ID.
      *
      * @summary Retrieves a single transaction by ID.
-     * @param id - Transaction ID to search for.
+     * @param transactionId - Transaction ID to search for.
      * @returns Transaction record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.transactions).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, id)).limit(1);
+    async findById(transactionId) {
+        const result = await db_1.db.select().from(schema_1.transactions).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, transactionId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -150,7 +150,7 @@ class TransactionRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created transaction');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -158,15 +158,15 @@ class TransactionRepository {
      * Updates an existing transaction by ID.
      *
      * @summary Updates transaction record with new data.
-     * @param id - Transaction ID to update.
+     * @param transactionId - Transaction ID to update.
      * @param data - Partial transaction data to update.
      * @returns The updated transaction record.
      */
-    async update(id, data) {
-        await db_1.db.update(schema_1.transactions).set(data).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, id));
-        const updated = await this.findById(id);
+    async update(transactionId, data) {
+        await db_1.db.update(schema_1.transactions).set(data).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, transactionId));
+        const updated = await this.findById(transactionId);
         if (!updated) {
-            throw new Error('Transaction not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -174,10 +174,10 @@ class TransactionRepository {
      * Deletes a transaction by ID.
      *
      * @summary Removes a transaction record from the database.
-     * @param id - Transaction ID to delete.
+     * @param transactionId - Transaction ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.transactions).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, id));
+    async delete(transactionId) {
+        await db_1.db.delete(schema_1.transactions).where((0, drizzle_orm_1.eq)(schema_1.transactions.id, transactionId));
     }
 }
 exports.TransactionRepository = TransactionRepository;

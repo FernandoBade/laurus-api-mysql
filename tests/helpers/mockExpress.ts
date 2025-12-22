@@ -3,7 +3,9 @@ import { NextFunction, Request, Response } from 'express';
 /**
  * @summary Creates a lightweight mock of Express.Request for controller tests.
  */
-export function createMockRequest(overrides: Partial<Request> = {}): Request {
+export function createMockRequest(
+    overrides: Partial<Request> & { language?: string } = {}
+): Request & { language?: string } {
     return {
         body: {},
         params: {},
@@ -11,7 +13,7 @@ export function createMockRequest(overrides: Partial<Request> = {}): Request {
         headers: {},
         language: 'en-US',
         ...overrides,
-    } as Request;
+    } as Request & { language?: string };
 }
 
 /**

@@ -263,6 +263,9 @@ class TransactionService {
                 data.accountId = null;
             }
         }
+        if (data.categoryId === undefined && data.subcategoryId === undefined) {
+            return { success: false, error: resource_1.Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
+        }
         const effectiveCategoryId = data.categoryId !== undefined ? data.categoryId : current.categoryId;
         const effectiveSubcategoryId = data.subcategoryId !== undefined ? data.subcategoryId : current.subcategoryId;
         if (!effectiveCategoryId && !effectiveSubcategoryId) {

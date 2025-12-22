@@ -12,11 +12,11 @@ export class UserRepository {
      * Finds a user by their ID.
      *
      * @summary Retrieves a single user by ID.
-     * @param id - User ID to search for.
+     * @param userId - User ID to search for.
      * @returns User record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectUser | null> {
-        const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    async findById(userId: number): Promise<SelectUser | null> {
+        const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
         return result[0] || null;
     }
 
@@ -123,7 +123,7 @@ export class UserRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created user');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -132,15 +132,15 @@ export class UserRepository {
      * Updates an existing user by ID.
      *
      * @summary Updates user record with new data.
-     * @param id - User ID to update.
+     * @param userId - User ID to update.
      * @param data - Partial user data to update.
      * @returns The updated user record.
      */
-    async update(id: number, data: Partial<InsertUser>): Promise<SelectUser> {
-        await db.update(users).set(data).where(eq(users.id, id));
-        const updated = await this.findById(id);
+    async update(userId: number, data: Partial<InsertUser>): Promise<SelectUser> {
+        await db.update(users).set(data).where(eq(users.id, userId));
+        const updated = await this.findById(userId);
         if (!updated) {
-            throw new Error('User not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -149,10 +149,10 @@ export class UserRepository {
      * Deletes a user by ID.
      *
      * @summary Removes a user record from the database.
-     * @param id - User ID to delete.
+     * @param userId - User ID to delete.
      */
-    async delete(id: number): Promise<void> {
-        await db.delete(users).where(eq(users.id, id));
+    async delete(userId: number): Promise<void> {
+        await db.delete(users).where(eq(users.id, userId));
     }
 }
 

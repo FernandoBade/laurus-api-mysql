@@ -13,11 +13,11 @@ class CreditCardRepository {
      * Finds a credit card by its ID.
      *
      * @summary Retrieves a single credit card by ID.
-     * @param id - Credit card ID to search for.
+     * @param creditCardId - Credit card ID to search for.
      * @returns Credit card record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.creditCards).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, id)).limit(1);
+    async findById(creditCardId) {
+        const result = await db_1.db.select().from(schema_1.creditCards).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, creditCardId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -94,7 +94,7 @@ class CreditCardRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created credit card');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -102,15 +102,15 @@ class CreditCardRepository {
      * Updates an existing credit card by ID.
      *
      * @summary Updates credit card record with new data.
-     * @param id - Credit card ID to update.
+     * @param creditCardId - Credit card ID to update.
      * @param data - Partial credit card data to update.
      * @returns The updated credit card record.
      */
-    async update(id, data) {
-        await db_1.db.update(schema_1.creditCards).set(data).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, id));
-        const updated = await this.findById(id);
+    async update(creditCardId, data) {
+        await db_1.db.update(schema_1.creditCards).set(data).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, creditCardId));
+        const updated = await this.findById(creditCardId);
         if (!updated) {
-            throw new Error('Credit card not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -118,10 +118,10 @@ class CreditCardRepository {
      * Deletes a credit card by ID.
      *
      * @summary Removes a credit card record from the database.
-     * @param id - Credit card ID to delete.
+     * @param creditCardId - Credit card ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.creditCards).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, id));
+    async delete(creditCardId) {
+        await db_1.db.delete(schema_1.creditCards).where((0, drizzle_orm_1.eq)(schema_1.creditCards.id, creditCardId));
     }
 }
 exports.CreditCardRepository = CreditCardRepository;

@@ -7,8 +7,6 @@ import { subcategories } from './subcategories';
 import { creditCards } from './creditCards';
 import { logs } from './logs';
 import { refreshTokens } from './refreshTokens';
-import { migrations } from './migrations';
-import { migrationGroups } from './migrationGroups';
 
 /**
  * User relations.
@@ -119,24 +117,5 @@ export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
         fields: [refreshTokens.userId],
         references: [users.id],
     }),
-}));
-
-/**
- * Migration relations.
- * Defines relationships between migrations and migration groups.
- */
-export const migrationsRelations = relations(migrations, ({ one }) => ({
-    migrationGroup: one(migrationGroups, {
-        fields: [migrations.migrationGroupId],
-        references: [migrationGroups.id],
-    }),
-}));
-
-/**
- * Migration group relations.
- * Defines one-to-many relationships from migration groups to migrations.
- */
-export const migrationGroupsRelations = relations(migrationGroups, ({ many }) => ({
-    migrations: many(migrations),
 }));
 

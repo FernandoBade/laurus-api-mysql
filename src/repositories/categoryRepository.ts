@@ -12,11 +12,11 @@ export class CategoryRepository {
      * Finds a category by its ID.
      *
      * @summary Retrieves a single category by ID.
-     * @param id - Category ID to search for.
+     * @param categoryId - Category ID to search for.
      * @returns Category record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectCategory | null> {
-        const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
+    async findById(categoryId: number): Promise<SelectCategory | null> {
+        const result = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
         return result[0] || null;
     }
 
@@ -115,7 +115,7 @@ export class CategoryRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created category');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -124,15 +124,15 @@ export class CategoryRepository {
      * Updates an existing category by ID.
      *
      * @summary Updates category record with new data.
-     * @param id - Category ID to update.
+     * @param categoryId - Category ID to update.
      * @param data - Partial category data to update.
      * @returns The updated category record.
      */
-    async update(id: number, data: Partial<InsertCategory>): Promise<SelectCategory> {
-        await db.update(categories).set(data).where(eq(categories.id, id));
-        const updated = await this.findById(id);
+    async update(categoryId: number, data: Partial<InsertCategory>): Promise<SelectCategory> {
+        await db.update(categories).set(data).where(eq(categories.id, categoryId));
+        const updated = await this.findById(categoryId);
         if (!updated) {
-            throw new Error('Category not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -141,10 +141,10 @@ export class CategoryRepository {
      * Deletes a category by ID.
      *
      * @summary Removes a category record from the database.
-     * @param id - Category ID to delete.
+     * @param categoryId - Category ID to delete.
      */
-    async delete(id: number): Promise<void> {
-        await db.delete(categories).where(eq(categories.id, id));
+    async delete(categoryId: number): Promise<void> {
+        await db.delete(categories).where(eq(categories.id, categoryId));
     }
 }
 

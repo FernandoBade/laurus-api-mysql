@@ -21,15 +21,3 @@ export interface ValidationError {
 export function createValidationError(property: string, error: string): ValidationError {
     return { property, error };
 }
-
-/**
- * Formats validation errors in a consistent structure.
- *
- * @summary Formats validation errors for API responses.
- * @param errors - Array of validation errors.
- * @returns Formatted error array.
- */
-export function formatValidationErrors(errors: ValidationError[]): ValidationError[] {
-    return errors;
-}
-

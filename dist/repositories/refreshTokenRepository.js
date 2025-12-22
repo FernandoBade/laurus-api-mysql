@@ -13,11 +13,11 @@ class RefreshTokenRepository {
      * Finds a refresh token by its ID.
      *
      * @summary Retrieves a single refresh token by ID.
-     * @param id - Refresh token ID to search for.
+     * @param refreshTokenId - Refresh token ID to search for.
      * @returns Refresh token record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.refreshTokens).where((0, drizzle_orm_1.eq)(schema_1.refreshTokens.id, id)).limit(1);
+    async findById(refreshTokenId) {
+        const result = await db_1.db.select().from(schema_1.refreshTokens).where((0, drizzle_orm_1.eq)(schema_1.refreshTokens.id, refreshTokenId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -93,7 +93,7 @@ class RefreshTokenRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created refresh token');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -101,10 +101,10 @@ class RefreshTokenRepository {
      * Deletes a refresh token by ID.
      *
      * @summary Removes a refresh token record from the database.
-     * @param id - Refresh token ID to delete.
+     * @param refreshTokenId - Refresh token ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.refreshTokens).where((0, drizzle_orm_1.eq)(schema_1.refreshTokens.id, id));
+    async delete(refreshTokenId) {
+        await db_1.db.delete(schema_1.refreshTokens).where((0, drizzle_orm_1.eq)(schema_1.refreshTokens.id, refreshTokenId));
     }
     /**
      * Deletes a refresh token by token string.

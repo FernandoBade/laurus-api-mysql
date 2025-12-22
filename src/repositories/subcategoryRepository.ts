@@ -12,11 +12,11 @@ export class SubcategoryRepository {
      * Finds a subcategory by its ID.
      *
      * @summary Retrieves a single subcategory by ID.
-     * @param id - Subcategory ID to search for.
+     * @param subcategoryId - Subcategory ID to search for.
      * @returns Subcategory record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectSubcategory | null> {
-        const result = await db.select().from(subcategories).where(eq(subcategories.id, id)).limit(1);
+    async findById(subcategoryId: number): Promise<SelectSubcategory | null> {
+        const result = await db.select().from(subcategories).where(eq(subcategories.id, subcategoryId)).limit(1);
         return result[0] || null;
     }
 
@@ -126,7 +126,7 @@ export class SubcategoryRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created subcategory');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -135,15 +135,15 @@ export class SubcategoryRepository {
      * Updates an existing subcategory by ID.
      *
      * @summary Updates subcategory record with new data.
-     * @param id - Subcategory ID to update.
+     * @param subcategoryId - Subcategory ID to update.
      * @param data - Partial subcategory data to update.
      * @returns The updated subcategory record.
      */
-    async update(id: number, data: Partial<InsertSubcategory>): Promise<SelectSubcategory> {
-        await db.update(subcategories).set(data).where(eq(subcategories.id, id));
-        const updated = await this.findById(id);
+    async update(subcategoryId: number, data: Partial<InsertSubcategory>): Promise<SelectSubcategory> {
+        await db.update(subcategories).set(data).where(eq(subcategories.id, subcategoryId));
+        const updated = await this.findById(subcategoryId);
         if (!updated) {
-            throw new Error('Subcategory not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -152,10 +152,10 @@ export class SubcategoryRepository {
      * Deletes a subcategory by ID.
      *
      * @summary Removes a subcategory record from the database.
-     * @param id - Subcategory ID to delete.
+     * @param subcategoryId - Subcategory ID to delete.
      */
-    async delete(id: number): Promise<void> {
-        await db.delete(subcategories).where(eq(subcategories.id, id));
+    async delete(subcategoryId: number): Promise<void> {
+        await db.delete(subcategories).where(eq(subcategories.id, subcategoryId));
     }
 }
 

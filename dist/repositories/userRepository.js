@@ -14,11 +14,11 @@ class UserRepository {
      * Finds a user by their ID.
      *
      * @summary Retrieves a single user by ID.
-     * @param id - User ID to search for.
+     * @param userId - User ID to search for.
      * @returns User record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id)).limit(1);
+    async findById(userId) {
+        const result = await db_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, userId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -99,7 +99,7 @@ class UserRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created user');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -107,15 +107,15 @@ class UserRepository {
      * Updates an existing user by ID.
      *
      * @summary Updates user record with new data.
-     * @param id - User ID to update.
+     * @param userId - User ID to update.
      * @param data - Partial user data to update.
      * @returns The updated user record.
      */
-    async update(id, data) {
-        await db_1.db.update(schema_1.users).set(data).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
-        const updated = await this.findById(id);
+    async update(userId, data) {
+        await db_1.db.update(schema_1.users).set(data).where((0, drizzle_orm_1.eq)(schema_1.users.id, userId));
+        const updated = await this.findById(userId);
         if (!updated) {
-            throw new Error('User not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -123,10 +123,10 @@ class UserRepository {
      * Deletes a user by ID.
      *
      * @summary Removes a user record from the database.
-     * @param id - User ID to delete.
+     * @param userId - User ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
+    async delete(userId) {
+        await db_1.db.delete(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, userId));
     }
 }
 exports.UserRepository = UserRepository;

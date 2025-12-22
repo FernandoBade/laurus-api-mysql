@@ -13,11 +13,11 @@ class AccountRepository {
      * Finds an account by its ID.
      *
      * @summary Retrieves a single account by ID.
-     * @param id - Account ID to search for.
+     * @param accountId - Account ID to search for.
      * @returns Account record if found, null otherwise.
      */
-    async findById(id) {
-        const result = await db_1.db.select().from(schema_1.accounts).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, id)).limit(1);
+    async findById(accountId) {
+        const result = await db_1.db.select().from(schema_1.accounts).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, accountId)).limit(1);
         return result[0] || null;
     }
     /**
@@ -88,7 +88,7 @@ class AccountRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created account');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -96,15 +96,15 @@ class AccountRepository {
      * Updates an existing account by ID.
      *
      * @summary Updates account record with new data.
-     * @param id - Account ID to update.
+     * @param accountId - Account ID to update.
      * @param data - Partial account data to update.
      * @returns The updated account record.
      */
-    async update(id, data) {
-        await db_1.db.update(schema_1.accounts).set(data).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, id));
-        const updated = await this.findById(id);
+    async update(accountId, data) {
+        await db_1.db.update(schema_1.accounts).set(data).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, accountId));
+        const updated = await this.findById(accountId);
         if (!updated) {
-            throw new Error('Account not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -112,10 +112,10 @@ class AccountRepository {
      * Deletes an account by ID.
      *
      * @summary Removes an account record from the database.
-     * @param id - Account ID to delete.
+     * @param accountId - Account ID to delete.
      */
-    async delete(id) {
-        await db_1.db.delete(schema_1.accounts).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, id));
+    async delete(accountId) {
+        await db_1.db.delete(schema_1.accounts).where((0, drizzle_orm_1.eq)(schema_1.accounts.id, accountId));
     }
 }
 exports.AccountRepository = AccountRepository;

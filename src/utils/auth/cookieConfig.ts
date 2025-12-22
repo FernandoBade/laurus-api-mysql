@@ -2,7 +2,7 @@
  * Base configuration for cookies used in authentication.
  * Ensures security settings based on environment and usage restrictions.
  */
-export const CookieOptions = {
+const CookieOptions = {
     httpOnly: true, // Prevents JavaScript access to the cookie (protects from XSS)
     secure: process.env.NODE_ENV === 'production', // Only sends cookie over HTTPS in production
     sameSite: 'strict' as const // Prevents cookie from being sent in cross-site requests

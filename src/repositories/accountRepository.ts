@@ -12,11 +12,11 @@ export class AccountRepository {
      * Finds an account by its ID.
      *
      * @summary Retrieves a single account by ID.
-     * @param id - Account ID to search for.
+     * @param accountId - Account ID to search for.
      * @returns Account record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectAccount | null> {
-        const result = await db.select().from(accounts).where(eq(accounts.id, id)).limit(1);
+    async findById(accountId: number): Promise<SelectAccount | null> {
+        const result = await db.select().from(accounts).where(eq(accounts.id, accountId)).limit(1);
         return result[0] || null;
     }
 
@@ -115,7 +115,7 @@ export class AccountRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created account');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -124,15 +124,15 @@ export class AccountRepository {
      * Updates an existing account by ID.
      *
      * @summary Updates account record with new data.
-     * @param id - Account ID to update.
+     * @param accountId - Account ID to update.
      * @param data - Partial account data to update.
      * @returns The updated account record.
      */
-    async update(id: number, data: Partial<InsertAccount>): Promise<SelectAccount> {
-        await db.update(accounts).set(data).where(eq(accounts.id, id));
-        const updated = await this.findById(id);
+    async update(accountId: number, data: Partial<InsertAccount>): Promise<SelectAccount> {
+        await db.update(accounts).set(data).where(eq(accounts.id, accountId));
+        const updated = await this.findById(accountId);
         if (!updated) {
-            throw new Error('Account not found after update');
+            throw new Error('RepositoryInvariantViolation: updated record not found');
         }
         return updated;
     }
@@ -141,10 +141,10 @@ export class AccountRepository {
      * Deletes an account by ID.
      *
      * @summary Removes an account record from the database.
-     * @param id - Account ID to delete.
+     * @param accountId - Account ID to delete.
      */
-    async delete(id: number): Promise<void> {
-        await db.delete(accounts).where(eq(accounts.id, id));
+    async delete(accountId: number): Promise<void> {
+        await db.delete(accounts).where(eq(accounts.id, accountId));
     }
 }
 

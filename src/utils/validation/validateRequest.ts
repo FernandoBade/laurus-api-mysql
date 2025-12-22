@@ -1,57 +1,9 @@
-import { isString, isNumber, isBoolean, isDate, isEnum, hasRequiredFields, isValidEmail, hasMinLength } from './guards';
+import { isString, isNumber, isBoolean, isDate, isEnum, isValidEmail, hasMinLength } from './guards';
 import { createValidationError, ValidationError } from './errors';
 import { Theme, Language, Currency, DateFormat, Profile, AccountType, CategoryType, CategoryColor, CreditCardFlag, TransactionType, TransactionSource } from '../enum';
 import { ResourceBase } from '../resources/languages/resourceService';
 import { Resource } from '../resources/resource';
 import { LanguageCode } from '../resources/resourceTypes';
-
-/**
- * Generic validation helper that validates required fields and basic types.
- *
- * @summary Validates object structure with required fields and type checks.
- * @param data - Data to validate.
- * @param requiredFields - Array of required field names.
- * @param fieldValidators - Object mapping field names to validation functions.
- * @param lang - Language code for error messages.
- * @returns Validation result.
- */
-function validateObject(
-    data: unknown,
-    requiredFields: string[],
-    fieldValidators: Record<string, (value: unknown, lang?: LanguageCode) => ValidationError | null>,
-    lang?: LanguageCode
-): { success: true; data: Record<string, unknown> } | { success: false; errors: ValidationError[] } {
-    const errors: ValidationError[] = [];
-
-    if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
-    }
-
-    const body = data as Record<string, unknown>;
-
-    // Check required fields
-    for (const field of requiredFields) {
-        if (!(field in body) || body[field] === undefined || body[field] === null) {
-            errors.push(createValidationError(field, ResourceBase.translate(Resource.FIELD_REQUIRED, lang)));
-        }
-    }
-
-    // Validate each field
-    for (const [field, validator] of Object.entries(fieldValidators)) {
-        if (field in body && body[field] !== undefined && body[field] !== null) {
-            const error = validator(body[field], lang);
-            if (error) {
-                errors.push(error);
-            }
-        }
-    }
-
-    if (errors.length > 0) {
-        return { success: false, errors };
-    }
-
-    return { success: true, data: body };
-}
 
 /**
  * Validates user creation data.

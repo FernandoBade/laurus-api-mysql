@@ -2,12 +2,11 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { createLog } from '../commons';
 import { LogCategory, LogType, LogOperation } from '../enum';
-import { Resource } from '../resources/resource';
+
+dotenv.config();
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
-
-dotenv.config();
 
 /**
  * Ensures that required JWT secrets are defined.
@@ -28,7 +27,7 @@ function ensureSecrets() {
         `;
 
         createLog(LogType.DEBUG, LogOperation.AUTH, LogCategory.AUTH, message);
-        throw new Error(Resource.INTERNAL_SERVER_ERROR);
+        throw new Error('TokenUtilsInvariantViolation: jwt secrets missing');
     }
 }
 

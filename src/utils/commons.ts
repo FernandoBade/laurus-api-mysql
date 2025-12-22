@@ -1,10 +1,9 @@
 // #region Imports
-import { HTTPStatus, LogType, LogOperation, LogCategory, SortOrder, Operator } from './enum';
+import { HTTPStatus, LogType, LogOperation, LogCategory } from './enum';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
 import { ResourceBase } from './resources/languages/resourceService';
 import { Resource } from './resources/resource';
-import { LanguageCode } from './resources/resourceTypes';
 // #endregion Imports
 
 // #region Logger Configuration
@@ -77,23 +76,6 @@ export async function createLog(
     if (logType !== LogType.DEBUG) {
         const logService = await getLogService();
         await logService.createLog(logType, operation, category, logMessage, userId);
-    }
-}
-
-/**
- * Retrieves all logs associated with a specific user ID.
- * Uses the log service internally. If an error occurs during retrieval, a debug log is recorded.
- *
- * @param userId - User ID to retrieve logs for.
- * @returns A list of logs or throws an internal server error resource key.
- */
-export async function getLogsByUser(userId: number) {
-    try {
-        const logService = await getLogService();
-        return await logService.getLogsByUser(userId);
-    } catch (error) {
-        await createLog(LogType.DEBUG, LogOperation.SEARCH, LogCategory.LOG, error, userId);
-        throw Resource.INTERNAL_SERVER_ERROR;
     }
 }
 
@@ -179,7 +161,7 @@ export function formatError(error: unknown): Record<string, unknown> {
             error.message ||
             detailedError.sqlMessage ||
             detailedError.code ||
-            'Unknown error';
+            Resource.UNEXPECTED_ERROR;
         return {
             message,
             name: error.name,
@@ -217,8 +199,6 @@ export function sendErrorResponse(
     error?: any
 ) {
     const language = req.language ?? 'pt-BR';
-    const requestTimeMs = getDurationMs(res);
-
     return res.status(status).json({
         success: false,
         message: ResourceBase.translate(resource, language),
@@ -228,83 +208,6 @@ export function sendErrorResponse(
     });
 }
 
-
-
-/**
- * Parsed pagination parameters.
- */
-export interface Pagination {
-    page: number;
-    pageSize: number;
-    limit: number;
-    offset: number;
-    sort?: string;
-    order?: SortOrder;
-}
-
-export type QueryOptions<T = any> = {
-    limit?: number;
-    offset?: number;
-    sort?: keyof T | string;
-    order?: Operator;
-};
-
-
-/**
- * Parses pagination information from a query object.
- *
- * @param query - The request query parameters.
- * @returns Pagination data with defaults applied.
- */
-export function parsePagination(query: Record<string, unknown>): Pagination {
-    const DEFAULT_PAGE = 1;
-    const DEFAULT_PAGE_SIZE = 50;
-    const MAX_PAGE_SIZE = 100;
-
-    let page = Number(query.page) || DEFAULT_PAGE;
-    page = page > 0 ? page : DEFAULT_PAGE;
-
-    let pageSize = Number(query.pageSize) || DEFAULT_PAGE_SIZE;
-    pageSize = pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
-    pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
-
-    const sort = typeof query.sort === 'string' && query.sort.length > 0 ? query.sort : undefined;
-
-    const orderParam = typeof query.order === 'string' ? query.order.toLowerCase() : undefined;
-    const order: SortOrder = orderParam === SortOrder.ASC ? SortOrder.ASC : SortOrder.DESC;
-
-    const offset = (page - 1) * pageSize;
-
-    return {
-        page,
-        pageSize,
-        limit: pageSize,
-        offset,
-        ...(sort ? { sort } : {}),
-        order
-    };
-}
-
-
-/**
- * Builds pagination metadata for API responses.
- *
- * @param params - Current pagination data and total item count.
- * @returns Metadata including total pages and navigation flags.
- */
-export function buildMeta({ page, pageSize, total }: { page: number; pageSize: number; total: number }) {
-    const totalPages = Math.ceil(total / pageSize);
-
-    return {
-        page,
-        pageSize,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-    };
-}
-
 export function requestTimer() {
     return (_req: Request, res: Response, next: NextFunction) => {
         res.locals._startNs = process.hrtime.bigint();
@@ -312,7 +215,7 @@ export function requestTimer() {
     };
 }
 
-export function getDurationMs(res: Response): number {
+function getDurationMs(res: Response): number {
     const start: bigint | undefined = res.locals?._startNs;
     if (!start) return 0;
     const end = process.hrtime.bigint();

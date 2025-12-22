@@ -12,11 +12,11 @@ export class RefreshTokenRepository {
      * Finds a refresh token by its ID.
      *
      * @summary Retrieves a single refresh token by ID.
-     * @param id - Refresh token ID to search for.
+     * @param refreshTokenId - Refresh token ID to search for.
      * @returns Refresh token record if found, null otherwise.
      */
-    async findById(id: number): Promise<SelectRefreshToken | null> {
-        const result = await db.select().from(refreshTokens).where(eq(refreshTokens.id, id)).limit(1);
+    async findById(refreshTokenId: number): Promise<SelectRefreshToken | null> {
+        const result = await db.select().from(refreshTokens).where(eq(refreshTokens.id, refreshTokenId)).limit(1);
         return result[0] || null;
     }
 
@@ -119,7 +119,7 @@ export class RefreshTokenRepository {
         const insertedId = result[0].insertId;
         const created = await this.findById(Number(insertedId));
         if (!created) {
-            throw new Error('Failed to retrieve created refresh token');
+            throw new Error('RepositoryInvariantViolation: created record not found');
         }
         return created;
     }
@@ -128,10 +128,10 @@ export class RefreshTokenRepository {
      * Deletes a refresh token by ID.
      *
      * @summary Removes a refresh token record from the database.
-     * @param id - Refresh token ID to delete.
+     * @param refreshTokenId - Refresh token ID to delete.
      */
-    async delete(id: number): Promise<void> {
-        await db.delete(refreshTokens).where(eq(refreshTokens.id, id));
+    async delete(refreshTokenId: number): Promise<void> {
+        await db.delete(refreshTokens).where(eq(refreshTokens.id, refreshTokenId));
     }
 
     /**

@@ -70,21 +70,6 @@ export function isEnum<T extends Record<string, string | number>>(
 }
 
 /**
- * Checks if an object has all required fields.
- *
- * @summary Validates required fields presence.
- * @param obj - Object to check.
- * @param fields - Array of required field names.
- * @returns True if all required fields are present, false otherwise.
- */
-export function hasRequiredFields(obj: object, fields: string[]): boolean {
-    if (!obj || typeof obj !== 'object') {
-        return false;
-    }
-    return fields.every(field => field in obj && obj[field as keyof typeof obj] !== undefined && obj[field as keyof typeof obj] !== null);
-}
-
-/**
  * Validates email format (basic check).
  *
  * @summary Validates email format.
