@@ -112,19 +112,19 @@ export const seedConfig: SeedConfig = {
     },
     dateRangeYears: 3,
     firstNames: [
-        'Ana','Aline','Beatriz','Bruno','Caio','Carla','Claudio','Daniela','Diego','Eduardo','Elias','Fabiana','Fernanda','Gabriela','Gustavo','Helena','Henrique','Igor','Isabela','Joao',
-        'Julia','Karla','Larissa','Lucas','Mariana','Mateus','Matheus','Nicolas','Natalia','Otavio','Olivia','Paula','Pedro','Rafael','Roberto','Sofia','Simone','Thiago','Vanessa','Victor',
-        'Walter','Xavier','Yasmin','Zoe','Luan','Bianca','Camila','Mateo'
+        'Ana', 'Aline', 'Beatriz', 'Bruno', 'Caio', 'Carla', 'Claudio', 'Daniela', 'Diego', 'Eduardo', 'Elias', 'Fabiana', 'Fernanda', 'Gabriela', 'Gustavo', 'Helena', 'Henrique', 'Igor', 'Isabela', 'Joao',
+        'Julia', 'Karla', 'Larissa', 'Lucas', 'Mariana', 'Mateus', 'Matheus', 'Nicolas', 'Natalia', 'Otavio', 'Olivia', 'Paula', 'Pedro', 'Rafael', 'Roberto', 'Sofia', 'Simone', 'Thiago', 'Vanessa', 'Victor',
+        'Walter', 'Xavier', 'Yasmin', 'Zoe', 'Luan', 'Bianca', 'Camila', 'Mateo'
     ],
     lastNames: [
-        'Silva','Santos','Oliveira','Souza','Lima','Pereira','Ferreira','Almeida','Gomes','Ribeiro',
-        'Costa','Carvalho','Martins','Araujo','Barbosa','Rocha','Dias','Moura','Cardoso','Teixeira',
-        'Nunes','Mendes','Pinto','Soares','Barros','Ramos','Neto','Castro','Farias','Monteiro',
-        'Vieira','Mendonca','Freitas','Santos Filho'
+        'Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Pereira', 'Ferreira', 'Almeida', 'Gomes', 'Ribeiro',
+        'Costa', 'Carvalho', 'Martins', 'Araujo', 'Barbosa', 'Rocha', 'Dias', 'Moura', 'Cardoso', 'Teixeira',
+        'Nunes', 'Mendes', 'Pinto', 'Soares', 'Barros', 'Ramos', 'Neto', 'Castro', 'Farias', 'Monteiro',
+        'Vieira', 'Mendonca', 'Freitas', 'Santos Filho'
     ],
-    phoneAreaCodes: ['11','12','13','14','15','16','17','18','19','21','22','31','32','41','42','51','61','71','81','91','92'],
+    phoneAreaCodes: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22', '31', '32', '41', '42', '51', '61', '71', '81', '91', '92'],
     institutions: [
-        'Nubank','Itau','Bradesco','Santander','Banco do Brasil','Caixa','Inter','C6 Bank','Neon','Original','Next','PagBank','HSBC','Banco Mercantil','Agibank','N26','Banco Pan'
+        'Nubank', 'Itau', 'Bradesco', 'Santander', 'Banco do Brasil', 'Caixa', 'Inter', 'C6 Bank', 'Neon', 'Original', 'Next', 'PagBank', 'HSBC', 'Banco Mercantil', 'Agibank', 'N26', 'Banco Pan'
     ],
     accountTemplates: [
         { name: 'Conta Principal', type: AccountType.CHECKING, observation: 'Conta principal para uso diário.' },
