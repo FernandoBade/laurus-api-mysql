@@ -112,23 +112,31 @@ export const seedConfig: SeedConfig = {
     },
     dateRangeYears: 3,
     firstNames: [
-        'Ana', 'Bruno', 'Carla', 'Diego', 'Eduardo', 'Fernanda', 'Gabriela', 'Henrique', 'Isabela', 'Joao',
-        'Larissa', 'Mateus', 'Natalia', 'Otavio', 'Paula', 'Rafael', 'Sofia', 'Tiago', 'Vanessa', 'William',
+        'Ana','Aline','Beatriz','Bruno','Caio','Carla','Claudio','Daniela','Diego','Eduardo','Elias','Fabiana','Fernanda','Gabriela','Gustavo','Helena','Henrique','Igor','Isabela','Joao',
+        'Julia','Karla','Larissa','Lucas','Mariana','Mateus','Matheus','Nicolas','Natalia','Otavio','Olivia','Paula','Pedro','Rafael','Roberto','Sofia','Simone','Thiago','Vanessa','Victor',
+        'Walter','Xavier','Yasmin','Zoe','Luan','Bianca','Camila','Mateo'
     ],
     lastNames: [
-        'Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Pereira', 'Ferreira', 'Almeida', 'Gomes', 'Ribeiro',
-        'Costa', 'Carvalho', 'Martins', 'Araujo', 'Barbosa', 'Rocha', 'Dias', 'Moura', 'Cardoso', 'Teixeira',
+        'Silva','Santos','Oliveira','Souza','Lima','Pereira','Ferreira','Almeida','Gomes','Ribeiro',
+        'Costa','Carvalho','Martins','Araujo','Barbosa','Rocha','Dias','Moura','Cardoso','Teixeira',
+        'Nunes','Mendes','Pinto','Soares','Barros','Ramos','Neto','Castro','Farias','Monteiro',
+        'Vieira','Mendonca','Freitas','Santos Filho'
     ],
-    phoneAreaCodes: ['11', '21', '31', '41', '51', '61', '71', '81'],
+    phoneAreaCodes: ['11','12','13','14','15','16','17','18','19','21','22','31','32','41','42','51','61','71','81','91','92'],
     institutions: [
-        'Nubank', 'Itau', 'Bradesco', 'Santander', 'Banco do Brasil', 'Caixa', 'Inter', 'C6 Bank', 'Neon'
+        'Nubank','Itau','Bradesco','Santander','Banco do Brasil','Caixa','Inter','C6 Bank','Neon','Original','Next','PagBank','HSBC','Banco Mercantil','Agibank','N26','Banco Pan'
     ],
     accountTemplates: [
         { name: 'Main Account', type: AccountType.CHECKING, observation: 'Primary daily account.' },
         { name: 'Payroll Account', type: AccountType.PAYROLL, observation: 'Salary deposits.' },
         { name: 'Savings Account', type: AccountType.SAVINGS, observation: 'Reserved savings.' },
+        { name: 'Emergency Fund', type: AccountType.SAVINGS, observation: 'Emergency savings.' },
+        { name: 'Travel Account', type: AccountType.SAVINGS, observation: 'Trips and vacations.' },
         { name: 'Investment Account', type: AccountType.INVESTMENT, observation: 'Long-term investments.' },
+        { name: 'Crypto Account', type: AccountType.INVESTMENT, observation: 'Crypto holdings.' },
+        { name: 'Credit Line', type: AccountType.LOAN, observation: 'Personal credit line.' },
         { name: 'Bills Account', type: AccountType.CHECKING, observation: 'Monthly expenses.' },
+        { name: 'Business Account', type: AccountType.CHECKING, observation: 'Business transactions.' },
     ],
     creditCardProducts: [
         { name: 'Nubank Platinum', flag: CreditCardFlag.MASTERCARD, observation: 'Primary credit card.' },
@@ -139,6 +147,12 @@ export const seedConfig: SeedConfig = {
         { name: 'C6 Carbon', flag: CreditCardFlag.MASTERCARD, observation: 'Travel perks.' },
         { name: 'Ourocard Internacional', flag: CreditCardFlag.VISA, observation: 'Everyday use.' },
         { name: 'Amex Green', flag: CreditCardFlag.AMEX, observation: 'Premium benefits.' },
+        { name: 'Santander Ultimate', flag: CreditCardFlag.VISA, observation: 'High-tier rewards.' },
+        { name: 'Itaú Platinum', flag: CreditCardFlag.MASTERCARD, observation: 'Exclusive benefits.' },
+        { name: 'PagBank Elo', flag: CreditCardFlag.ELO, observation: 'Digital bank card.' },
+        { name: 'Hipercard Standard', flag: CreditCardFlag.HIPERCARD, observation: 'Brazilian network card.' },
+        { name: 'Diners Club', flag: CreditCardFlag.DINERS, observation: 'Lounge and travel perks.' },
+        { name: 'Discover Cashback', flag: CreditCardFlag.DISCOVER, observation: 'Cashback rewards.' },
     ],
     categories: [
         {
@@ -187,6 +201,26 @@ export const seedConfig: SeedConfig = {
             recurringChance: 0.4,
         },
         {
+            name: 'Refunds',
+            type: CategoryType.INCOME,
+            color: CategoryColor.GREEN,
+            subcategories: ['Product Return', 'Service Refund'],
+            amountRange: { min: 5, max: 1500 },
+            merchants: ['Store', 'Marketplace', 'Seller'],
+            observationTemplates: ['Refund - {merchant}', '{merchant} return'],
+            recurringChance: 0.02,
+        },
+        {
+            name: 'Gifts',
+            type: CategoryType.INCOME,
+            color: CategoryColor.CYAN,
+            subcategories: ['Birthday', 'Anniversary', 'Other Gifts'],
+            amountRange: { min: 10, max: 2000 },
+            merchants: ['Friend', 'Family'],
+            observationTemplates: ['Gift from {merchant}', '{merchant} present'],
+            recurringChance: 0.01,
+        },
+        {
             name: 'Housing',
             type: CategoryType.EXPENSE,
             color: CategoryColor.RED,
@@ -218,21 +252,21 @@ export const seedConfig: SeedConfig = {
             name: 'Groceries',
             type: CategoryType.EXPENSE,
             color: CategoryColor.ORANGE,
-            subcategories: ['Supermarket', 'Bakery', 'Butcher', 'Convenience', 'Farmers Market'],
+            subcategories: ['Supermarket', 'Bakery', 'Butcher', 'Convenience', 'Farmers Market', 'Online Groceries'],
             amountRange: { min: 20, max: 650 },
-            merchants: ['Carrefour', 'Pao de Acucar', 'Assai', 'Local Market', 'Extra'],
+            merchants: ['Carrefour', 'Pao de Acucar', 'Assai', 'Local Market', 'Extra', 'Mercado Livre'],
             observationTemplates: [
                 'Groceries - {merchant}',
                 '{merchant} purchase',
                 'Food supplies - {merchant}'
             ],
-            recurringChance: 0.1,
+            recurringChance: 0.3,
         },
         {
             name: 'Transport',
             type: CategoryType.EXPENSE,
             color: CategoryColor.GRAY,
-            subcategories: ['Fuel', 'Ride Share', 'Public Transit', 'Parking', 'Toll'],
+            subcategories: ['Fuel', 'Ride Share', 'Public Transit', 'Parking', 'Toll', 'Taxi'],
             amountRange: { min: 8, max: 380 },
             merchants: ['Uber', '99', 'Shell', 'Petrobras', 'Metro'],
             observationTemplates: [
@@ -270,6 +304,113 @@ export const seedConfig: SeedConfig = {
             ],
             recurringChance: 0.08,
             installmentChance: 0.35,
+        },
+        {
+            name: 'Health',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.RED,
+            subcategories: ['Doctor', 'Pharmacy', 'Dentist', 'Therapy', 'Exams'],
+            amountRange: { min: 30, max: 2500 },
+            merchants: ['Hospital', 'Clinica', 'DrogaRaia', 'Drogasil', 'Local Clinic'],
+            observationTemplates: [
+                'Health expense - {merchant}',
+                '{merchant} payment',
+                'Medical service - {merchant}'
+            ],
+            recurringChance: 0.05,
+        },
+        {
+            name: 'Education',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.BLUE,
+            subcategories: ['Tuition', 'Books', 'Courses', 'Workshops', 'Online Course'],
+            amountRange: { min: 50, max: 7000 },
+            merchants: ['Coursera', 'Udemy', 'University', 'School', 'Bookstore'],
+            observationTemplates: [
+                'Education - {merchant}',
+                '{merchant} fee',
+                'Course payment - {merchant}'
+            ],
+            recurringChance: 0.1,
+        },
+        {
+            name: 'Travel',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.CYAN,
+            subcategories: ['Flight', 'Hotel', 'Transportation', 'Tour', 'Visa'],
+            amountRange: { min: 100, max: 8000 },
+            merchants: ['Airline', 'Booking', 'Hotel', 'Travel Agency'],
+            observationTemplates: [
+                'Travel - {merchant}',
+                '{merchant} reservation',
+                'Trip expense - {merchant}'
+            ],
+            recurringChance: 0.02,
+        },
+        {
+            name: 'Insurance',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.GRAY,
+            subcategories: ['Car Insurance', 'Home Insurance', 'Health Insurance', 'Life Insurance'],
+            amountRange: { min: 30, max: 1200 },
+            merchants: ['Insurance Co', 'Broker', 'Seguradora'],
+            observationTemplates: [
+                'Insurance - {merchant}',
+                'Premium payment - {merchant}'
+            ],
+            recurringChance: 0.7,
+        },
+        {
+            name: 'Pets',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.PINK,
+            subcategories: ['Vet', 'Food', 'Grooming', 'Accessories'],
+            amountRange: { min: 15, max: 400 },
+            merchants: ['Pet Shop', 'Veterinary', 'Petcare'],
+            observationTemplates: [
+                'Pet expense - {merchant}',
+                '{merchant} purchase'
+            ],
+            recurringChance: 0.05,
+        },
+        {
+            name: 'Subscriptions',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.INDIGO,
+            subcategories: ['Streaming', 'Software', 'Gym', 'News', 'Cloud Storage'],
+            amountRange: { min: 5, max: 60 },
+            merchants: ['Netflix', 'Spotify', 'Adobe', 'Gym', 'Apple'],
+            observationTemplates: [
+                'Subscription - {merchant}',
+                'Monthly subscription - {merchant}'
+            ],
+            recurringChance: 0.9,
+        },
+        {
+            name: 'Taxes',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.RED,
+            subcategories: ['Income Tax', 'Property Tax', 'Sales Tax', 'Other Taxes'],
+            amountRange: { min: 10, max: 15000 },
+            merchants: ['Tax Authority', 'Receita Federal'],
+            observationTemplates: [
+                'Tax payment - {merchant}',
+                'Tax - {merchant}'
+            ],
+            recurringChance: 0.2,
+        },
+        {
+            name: 'Personal Care',
+            type: CategoryType.EXPENSE,
+            color: CategoryColor.PURPLE,
+            subcategories: ['Haircut', 'Salon', 'Cosmetics', 'Spa'],
+            amountRange: { min: 20, max: 300 },
+            merchants: ['Salon', 'Spa', 'Beauty Store'],
+            observationTemplates: [
+                'Personal care - {merchant}',
+                '{merchant} service'
+            ],
+            recurringChance: 0.05,
         },
         {
             name: 'Entertainment',
