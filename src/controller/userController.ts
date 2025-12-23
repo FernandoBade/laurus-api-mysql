@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
-import { createLog, answerAPI, formatError } from '../utils/commons';
+import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
 import { Resource } from '../utils/resources/resource';
@@ -85,7 +85,7 @@ class UserController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -115,7 +115,7 @@ class UserController {
 
             return answerAPI(req, res, HTTPStatus.OK, user.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -158,7 +158,7 @@ class UserController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.USER, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -196,7 +196,8 @@ class UserController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updatedUser.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, updatedUser.data, updatedUser.data!.id);
+            const delta = buildLogDelta(existingUser.data, updatedUser.data, ['password']);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, delta, updatedUser.data!.id);
             return answerAPI(req, res, HTTPStatus.OK, updatedUser.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.USER, formatError(error), req.user?.id, next);
@@ -223,13 +224,21 @@ class UserController {
         const userService = new UserService();
 
         try {
+            const snapshotResult = await userService.getUserById(userId);
+            const snapshot = snapshotResult.success ? sanitizeLogDetail(snapshotResult.data) : undefined;
             const result = await userService.deleteUser(userId);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.USER, result.data, userId);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.USER,
+                snapshot ?? result.data,
+                userId
+            );
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.USER, formatError(error), req.user?.id, next);

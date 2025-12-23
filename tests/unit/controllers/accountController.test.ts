@@ -261,7 +261,7 @@ describe('AccountController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.ACCOUNT,
         expect.any(Object),
         authUser.id,
@@ -341,7 +341,7 @@ describe('AccountController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.ACCOUNT,
         expect.any(Object),
         authUser.id,
@@ -440,7 +440,7 @@ describe('AccountController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.ACCOUNT,
         expect.any(Object),
         authUser.id,
@@ -520,6 +520,7 @@ describe('AccountController', () => {
     it('returns 200 and logs when update succeeds', async () => {
       const existing = makeAccount({ id: 11, userId: 3 });
       const updated = makeAccount({ id: 11, userId: 3, name: 'Updated' });
+      const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(AccountService.prototype, 'updateAccount').mockResolvedValue({ success: true, data: updated });
       const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
@@ -538,7 +539,7 @@ describe('AccountController', () => {
         LogType.SUCCESS,
         LogOperation.UPDATE,
         LogCategory.ACCOUNT,
-        updated,
+        expectedDelta,
         updated.userId
       );
     });
@@ -590,6 +591,7 @@ describe('AccountController', () => {
     });
 
     it('returns 400 when service signals failure', async () => {
+      jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 20 }) });
       jest.spyOn(AccountService.prototype, 'deleteAccount').mockResolvedValue({ success: false, error: Resource.ACCOUNT_NOT_FOUND });
       const req = createMockRequest({ params: { id: '20' } });
       const res = createMockResponse();
@@ -605,6 +607,17 @@ describe('AccountController', () => {
     });
 
     it('returns 200 and logs when deletion succeeds', async () => {
+      const snapshot = makeAccount({ id: 21, userId: authUser.id });
+      const expectedSnapshot = {
+        id: snapshot.id,
+        name: snapshot.name,
+        institution: snapshot.institution,
+        type: snapshot.type,
+        observation: snapshot.observation,
+        active: snapshot.active,
+        userId: snapshot.userId,
+      };
+      jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: snapshot });
       jest.spyOn(AccountService.prototype, 'deleteAccount').mockResolvedValue({ success: true, data: { id: 21 } });
       const req = createAuthRequest({ params: { id: '21' } });
       const res = createMockResponse();
@@ -619,12 +632,13 @@ describe('AccountController', () => {
         LogType.SUCCESS,
         LogOperation.DELETE,
         LogCategory.ACCOUNT,
-        { id: 21 },
+        expectedSnapshot,
         authUser.id
       );
     });
 
     it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 22 }) });
       jest.spyOn(AccountService.prototype, 'deleteAccount').mockRejectedValue(new Error('boom'));
       const req = createAuthRequest({ params: { id: '22' } });
       const res = createMockResponse();

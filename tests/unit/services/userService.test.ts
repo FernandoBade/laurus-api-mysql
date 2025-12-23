@@ -7,8 +7,8 @@ import { ResourceBase } from '../../../src/utils/resources/languages/resourceSer
 import { makeCreateUserInput, makeUser } from '../../helpers/factories';
 
 jest.mock('bcrypt', () => ({
-  hash: jest.fn(),
-  compare: jest.fn(),
+    hash: jest.fn(),
+    compare: jest.fn(),
 }));
 
 type HashFn = (data: string | Buffer, saltOrRounds: string | number) => Promise<string>;
@@ -21,488 +21,488 @@ const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-U
 const isResource = (value: string): value is Resource => value in Resource;
 
 describe('UserService', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  describe('createUser', () => {
-    it('returns email in use when existing user is found', async () => {
-      const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
-      const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([makeUser()]);
-      const createSpy = jest.spyOn(UserRepository.prototype, 'create');
-
-      const service = new UserService();
-      const result = await service.createUser(payload);
-
-      expect(findManySpy).toHaveBeenCalledTimes(1);
-      expect(findManySpy).toHaveBeenCalledWith({
-        email: { operator: Operator.EQUAL, value: 'test@example.com' },
-      });
-      expect(createSpy).not.toHaveBeenCalled();
-      expect(hashMock).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: false, error: Resource.EMAIL_IN_USE });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.EMAIL_IN_USE);
-        expect(translate(result.error)).toBe(translate(Resource.EMAIL_IN_USE));
-      }
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('returns sanitized user when creation succeeds', async () => {
-      const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ' });
-      const originalPassword = payload.password;
-      const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
-      hashMock.mockResolvedValue('hashed-password');
-      const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password' });
-      const createSpy = jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
-
-      const service = new UserService();
-      const result = await service.createUser(payload);
-
-      expect(findManySpy).toHaveBeenCalledWith({
-        email: { operator: Operator.EQUAL, value: 'jane.doe@example.com' },
-      });
-      expect(hashMock).toHaveBeenCalledWith(originalPassword, 10);
-      expect(createSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: 'jane.doe@example.com',
-          password: 'hashed-password',
-        })
-      );
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.objectContaining({
-            id: created.id,
-            email: created.email,
-          }),
-        })
-      );
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).not.toHaveProperty('password');
-      }
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
-    it('throws when repository create rejects', async () => {
-      const payload = makeCreateUserInput();
-      jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
-      hashMock.mockResolvedValue('hashed-password');
-      jest.spyOn(UserRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('createUser', () => {
+        it('returns email in use when existing user is found', async () => {
+            const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([makeUser()]);
+            const createSpy = jest.spyOn(UserRepository.prototype, 'create');
 
-      const service = new UserService();
-      let caught: unknown;
+            const service = new UserService();
+            const result = await service.createUser(payload);
 
-      try {
-        await service.createUser(payload);
-      } catch (error) {
-        caught = error;
-      }
-
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
-    });
-  });
-
-  describe('getUsers', () => {
-    it('returns sanitized users when repository succeeds', async () => {
-      const users = [makeUser({ id: 1, password: 'hash1' }), makeUser({ id: 2, password: 'hash2' })];
-      const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
-
-      const service = new UserService();
-      const result = await service.getUsers({ limit: 2, offset: 4, sort: 'email', order: Operator.DESC });
-
-      expect(findManySpy).toHaveBeenCalledWith(undefined, {
-        limit: 2,
-        offset: 4,
-        sort: 'email',
-        order: 'desc',
-      });
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.any(Array),
-        })
-      );
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).toHaveLength(2);
-        result.data.forEach(user => {
-          expect(user).not.toHaveProperty('password');
+            expect(findManySpy).toHaveBeenCalledTimes(1);
+            expect(findManySpy).toHaveBeenCalledWith({
+                email: { operator: Operator.EQUAL, value: 'test@example.com' },
+            });
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(hashMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.EMAIL_IN_USE });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.EMAIL_IN_USE);
+                expect(translate(result.error)).toBe(translate(Resource.EMAIL_IN_USE));
+            }
         });
-      }
+
+        it('returns sanitized user when creation succeeds', async () => {
+            const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ' });
+            const originalPassword = payload.password;
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
+            hashMock.mockResolvedValue('hashed-password');
+            const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password' });
+            const createSpy = jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
+
+            const service = new UserService();
+            const result = await service.createUser(payload);
+
+            expect(findManySpy).toHaveBeenCalledWith({
+                email: { operator: Operator.EQUAL, value: 'jane.doe@example.com' },
+            });
+            expect(hashMock).toHaveBeenCalledWith(originalPassword, 10);
+            expect(createSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    email: 'jane.doe@example.com',
+                    password: 'hashed-password',
+                })
+            );
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({
+                        id: created.id,
+                        email: created.email,
+                    }),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).not.toHaveProperty('password');
+            }
+        });
+
+        it('throws when repository create rejects', async () => {
+            const payload = makeCreateUserInput();
+            jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
+            hashMock.mockResolvedValue('hashed-password');
+            jest.spyOn(UserRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            let caught: unknown;
+
+            try {
+                await service.createUser(payload);
+            } catch (error) {
+                caught = error;
+            }
+
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
 
-    it('returns internal server error when repository throws', async () => {
-      jest.spyOn(UserRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('getUsers', () => {
+        it('returns sanitized users when repository succeeds', async () => {
+            const users = [makeUser({ id: 1, password: 'hash1' }), makeUser({ id: 2, password: 'hash2' })];
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
-      const service = new UserService();
-      const result = await service.getUsers();
+            const service = new UserService();
+            const result = await service.getUsers({ limit: 2, offset: 4, sort: 'email', order: Operator.DESC });
 
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
+            expect(findManySpy).toHaveBeenCalledWith(undefined, {
+                limit: 2,
+                offset: 4,
+                sort: 'email',
+                order: 'desc',
+            });
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.any(Array),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).toHaveLength(2);
+                result.data.forEach(user => {
+                    expect(user).not.toHaveProperty('password');
+                });
+            }
+        });
 
-  describe('countUsers', () => {
-    it('returns total count when repository succeeds', async () => {
-      const countSpy = jest.spyOn(UserRepository.prototype, 'count').mockResolvedValue(12);
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(UserRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
-      const service = new UserService();
-      const result = await service.countUsers();
+            const service = new UserService();
+            const result = await service.getUsers();
 
-      expect(countSpy).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ success: true, data: 12 });
-    });
-
-    it('returns internal server error when repository throws', async () => {
-      jest.spyOn(UserRepository.prototype, 'count').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
-
-      const service = new UserService();
-      const result = await service.countUsers();
-
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
-
-  describe('getUserById', () => {
-    it('returns user not found when repository returns null', async () => {
-      const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
-
-      const service = new UserService();
-      const result = await service.getUserById(9);
-
-      expect(findSpy).toHaveBeenCalledWith(9);
-      expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.USER_NOT_FOUND);
-        expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
-      }
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
 
-    it('returns sanitized user when repository returns a record', async () => {
-      const user = makeUser({ id: 7, password: 'hash' });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+    describe('countUsers', () => {
+        it('returns total count when repository succeeds', async () => {
+            const countSpy = jest.spyOn(UserRepository.prototype, 'count').mockResolvedValue(12);
 
-      const service = new UserService();
-      const result = await service.getUserById(7);
+            const service = new UserService();
+            const result = await service.countUsers();
 
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.objectContaining({ id: 7, email: user.email }),
-        })
-      );
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).not.toHaveProperty('password');
-      }
+            expect(countSpy).toHaveBeenCalledTimes(1);
+            expect(result).toEqual({ success: true, data: 12 });
+        });
+
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(UserRepository.prototype, 'count').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            const result = await service.countUsers();
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
 
-    it('throws when repository lookup rejects', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('getUserById', () => {
+        it('returns user not found when repository returns null', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
 
-      const service = new UserService();
-      let caught: unknown;
+            const service = new UserService();
+            const result = await service.getUserById(9);
 
-      try {
-        await service.getUserById(3);
-      } catch (error) {
-        caught = error;
-      }
+            expect(findSpy).toHaveBeenCalledWith(9);
+            expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.USER_NOT_FOUND);
+                expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
+            }
+        });
 
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
-    });
-  });
+        it('returns sanitized user when repository returns a record', async () => {
+            const user = makeUser({ id: 7, password: 'hash' });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
 
-  describe('getUsersByEmail', () => {
-    it('returns sanitized users when repository succeeds', async () => {
-      const users = [makeUser({ id: 4, password: 'hash' })];
-      const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
+            const service = new UserService();
+            const result = await service.getUserById(7);
 
-      const service = new UserService();
-      const result = await service.getUsersByEmail('example', { limit: 5, offset: 10, sort: 'email', order: Operator.ASC });
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ id: 7, email: user.email }),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).not.toHaveProperty('password');
+            }
+        });
 
-      expect(findManySpy).toHaveBeenCalledWith(
-        { email: { operator: Operator.LIKE, value: 'example' } },
-        { limit: 5, offset: 10, sort: 'email', order: 'asc' }
-      );
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.any(Array),
-        })
-      );
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).toHaveLength(1);
-        expect(result.data[0]).not.toHaveProperty('password');
-      }
-    });
+        it('throws when repository lookup rejects', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
-    it('returns internal server error when repository throws', async () => {
-      jest.spyOn(UserRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+            const service = new UserService();
+            let caught: unknown;
 
-      const service = new UserService();
-      const result = await service.getUsersByEmail('example');
+            try {
+                await service.getUserById(3);
+            } catch (error) {
+                caught = error;
+            }
 
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
-
-  describe('countUsersByEmail', () => {
-    it('returns total count when repository succeeds', async () => {
-      const countSpy = jest.spyOn(UserRepository.prototype, 'count').mockResolvedValue(3);
-
-      const service = new UserService();
-      const result = await service.countUsersByEmail('tester');
-
-      expect(countSpy).toHaveBeenCalledWith({ email: { operator: Operator.LIKE, value: 'tester' } });
-      expect(result).toEqual({ success: true, data: 3 });
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
 
-    it('returns internal server error when repository throws', async () => {
-      jest.spyOn(UserRepository.prototype, 'count').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('getUsersByEmail', () => {
+        it('returns sanitized users when repository succeeds', async () => {
+            const users = [makeUser({ id: 4, password: 'hash' })];
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
-      const service = new UserService();
-      const result = await service.countUsersByEmail('tester');
+            const service = new UserService();
+            const result = await service.getUsersByEmail('example', { limit: 5, offset: 10, sort: 'email', order: Operator.ASC });
 
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
+            expect(findManySpy).toHaveBeenCalledWith(
+                { email: { operator: Operator.LIKE, value: 'example' } },
+                { limit: 5, offset: 10, sort: 'email', order: 'asc' }
+            );
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.any(Array),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).toHaveLength(1);
+                expect(result.data[0]).not.toHaveProperty('password');
+            }
+        });
 
-  describe('updateUser', () => {
-    it('returns no records found when current user does not exist', async () => {
-      const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
-      const updateSpy = jest.spyOn(UserRepository.prototype, 'update');
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(UserRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
-      const service = new UserService();
-      const result = await service.updateUser(4, { firstName: 'New' });
+            const service = new UserService();
+            const result = await service.getUsersByEmail('example');
 
-      expect(findSpy).toHaveBeenCalledWith(4);
-      expect(updateSpy).not.toHaveBeenCalled();
-      expect(compareMock).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: false, error: Resource.NO_RECORDS_FOUND });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.NO_RECORDS_FOUND);
-        expect(translate(result.error)).toBe(translate(Resource.NO_RECORDS_FOUND));
-      }
-    });
-
-    it('removes password update when password matches current hash', async () => {
-      const current = makeUser({ id: 5, password: 'hashed' });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
-      compareMock.mockResolvedValue(true);
-      const updated = makeUser({ id: 5, password: current.password, firstName: 'Updated' });
-      const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
-
-      const service = new UserService();
-      const result = await service.updateUser(5, { password: 'hashed', firstName: 'Updated' });
-
-      expect(compareMock).toHaveBeenCalledWith('hashed', current.password);
-      expect(hashMock).not.toHaveBeenCalled();
-      expect(updateSpy).toHaveBeenCalledTimes(1);
-      const updateArg = updateSpy.mock.calls[0][1];
-      expect(updateArg).not.toHaveProperty('password');
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.objectContaining({ id: 5, firstName: 'Updated' }),
-        })
-      );
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
 
-    it('rehashes password when updated password differs', async () => {
-      const current = makeUser({ id: 6, password: 'hashed-old' });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
-      compareMock.mockResolvedValue(false);
-      hashMock.mockResolvedValue('hashed-new');
-      const updated = makeUser({ id: 6, password: 'hashed-new' });
-      const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
+    describe('countUsersByEmail', () => {
+        it('returns total count when repository succeeds', async () => {
+            const countSpy = jest.spyOn(UserRepository.prototype, 'count').mockResolvedValue(3);
 
-      const service = new UserService();
-      const result = await service.updateUser(6, { password: 'new-password' });
+            const service = new UserService();
+            const result = await service.countUsersByEmail('tester');
 
-      expect(compareMock).toHaveBeenCalledWith('new-password', current.password);
-      expect(hashMock).toHaveBeenCalledWith('new-password', 10);
-      expect(updateSpy).toHaveBeenCalledWith(6, expect.objectContaining({ password: 'hashed-new' }));
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: expect.objectContaining({ id: 6 }),
-        })
-      );
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).not.toHaveProperty('password');
-      }
+            expect(countSpy).toHaveBeenCalledWith({ email: { operator: Operator.LIKE, value: 'tester' } });
+            expect(result).toEqual({ success: true, data: 3 });
+        });
+
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(UserRepository.prototype, 'count').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            const result = await service.countUsersByEmail('tester');
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
 
-    it('throws when repository update rejects', async () => {
-      const current = makeUser({ id: 7, password: 'hashed-old' });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
-      compareMock.mockResolvedValue(false);
-      hashMock.mockResolvedValue('hashed-new');
-      jest.spyOn(UserRepository.prototype, 'update').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('updateUser', () => {
+        it('returns no records found when current user does not exist', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
+            const updateSpy = jest.spyOn(UserRepository.prototype, 'update');
 
-      const service = new UserService();
-      let caught: unknown;
+            const service = new UserService();
+            const result = await service.updateUser(4, { firstName: 'New' });
 
-      try {
-        await service.updateUser(7, { password: 'new-password' });
-      } catch (error) {
-        caught = error;
-      }
+            expect(findSpy).toHaveBeenCalledWith(4);
+            expect(updateSpy).not.toHaveBeenCalled();
+            expect(compareMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.NO_RECORDS_FOUND });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.NO_RECORDS_FOUND);
+                expect(translate(result.error)).toBe(translate(Resource.NO_RECORDS_FOUND));
+            }
+        });
 
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
-    });
-  });
+        it('removes password update when password matches current hash', async () => {
+            const current = makeUser({ id: 5, password: 'hashed' });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
+            compareMock.mockResolvedValue(true);
+            const updated = makeUser({ id: 5, password: current.password, firstName: 'Updated' });
+            const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
 
-  describe('deleteUser', () => {
-    it('returns user not found when repository returns null', async () => {
-      const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
-      const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete');
+            const service = new UserService();
+            const result = await service.updateUser(5, { password: 'hashed', firstName: 'Updated' });
 
-      const service = new UserService();
-      const result = await service.deleteUser(10);
+            expect(compareMock).toHaveBeenCalledWith('hashed', current.password);
+            expect(hashMock).not.toHaveBeenCalled();
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            const updateArg = updateSpy.mock.calls[0][1];
+            expect(updateArg).not.toHaveProperty('password');
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ id: 5, firstName: 'Updated' }),
+                })
+            );
+        });
 
-      expect(findSpy).toHaveBeenCalledWith(10);
-      expect(deleteSpy).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.USER_NOT_FOUND);
-        expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
-      }
-    });
+        it('rehashes password when updated password differs', async () => {
+            const current = makeUser({ id: 6, password: 'hashed-old' });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
+            compareMock.mockResolvedValue(false);
+            hashMock.mockResolvedValue('hashed-new');
+            const updated = makeUser({ id: 6, password: 'hashed-new' });
+            const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
 
-    it('deletes and returns id when user exists', async () => {
-      const user = makeUser({ id: 11 });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
-      const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete').mockResolvedValue();
+            const service = new UserService();
+            const result = await service.updateUser(6, { password: 'new-password' });
 
-      const service = new UserService();
-      const result = await service.deleteUser(11);
+            expect(compareMock).toHaveBeenCalledWith('new-password', current.password);
+            expect(hashMock).toHaveBeenCalledWith('new-password', 10);
+            expect(updateSpy).toHaveBeenCalledWith(6, expect.objectContaining({ password: 'hashed-new' }));
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ id: 6 }),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).not.toHaveProperty('password');
+            }
+        });
 
-      expect(deleteSpy).toHaveBeenCalledWith(11);
-      expect(result).toEqual({ success: true, data: { id: 11 } });
-    });
+        it('throws when repository update rejects', async () => {
+            const current = makeUser({ id: 7, password: 'hashed-old' });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
+            compareMock.mockResolvedValue(false);
+            hashMock.mockResolvedValue('hashed-new');
+            jest.spyOn(UserRepository.prototype, 'update').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
-    it('throws when repository delete rejects', async () => {
-      const user = makeUser({ id: 12 });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
-      jest.spyOn(UserRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+            const service = new UserService();
+            let caught: unknown;
 
-      const service = new UserService();
-      let caught: unknown;
+            try {
+                await service.updateUser(7, { password: 'new-password' });
+            } catch (error) {
+                caught = error;
+            }
 
-      try {
-        await service.deleteUser(12);
-      } catch (error) {
-        caught = error;
-      }
-
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
-    });
-  });
-
-  describe('findOne', () => {
-    it('returns user not found when repository returns null', async () => {
-      const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
-
-      const service = new UserService();
-      const result = await service.findOne(20);
-
-      expect(findSpy).toHaveBeenCalledWith(20);
-      expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.USER_NOT_FOUND);
-        expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
-      }
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
 
-    it('returns user when repository returns a record', async () => {
-      const user = makeUser({ id: 21 });
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+    describe('deleteUser', () => {
+        it('returns user not found when repository returns null', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
+            const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete');
 
-      const service = new UserService();
-      const result = await service.findOne(21);
+            const service = new UserService();
+            const result = await service.deleteUser(10);
 
-      expect(result).toEqual({ success: true, data: user });
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data).toHaveProperty('password');
-      }
+            expect(findSpy).toHaveBeenCalledWith(10);
+            expect(deleteSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.USER_NOT_FOUND);
+                expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
+            }
+        });
+
+        it('deletes and returns id when user exists', async () => {
+            const user = makeUser({ id: 11 });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+            const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete').mockResolvedValue();
+
+            const service = new UserService();
+            const result = await service.deleteUser(11);
+
+            expect(deleteSpy).toHaveBeenCalledWith(11);
+            expect(result).toEqual({ success: true, data: { id: 11 } });
+        });
+
+        it('throws when repository delete rejects', async () => {
+            const user = makeUser({ id: 12 });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+            jest.spyOn(UserRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            let caught: unknown;
+
+            try {
+                await service.deleteUser(12);
+            } catch (error) {
+                caught = error;
+            }
+
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
 
-    it('throws when repository lookup rejects', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('findOne', () => {
+        it('returns user not found when repository returns null', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
 
-      const service = new UserService();
-      let caught: unknown;
+            const service = new UserService();
+            const result = await service.findOne(20);
 
-      try {
-        await service.findOne(22);
-      } catch (error) {
-        caught = error;
-      }
+            expect(findSpy).toHaveBeenCalledWith(20);
+            expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.USER_NOT_FOUND);
+                expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
+            }
+        });
 
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
+        it('returns user when repository returns a record', async () => {
+            const user = makeUser({ id: 21 });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+
+            const service = new UserService();
+            const result = await service.findOne(21);
+
+            expect(result).toEqual({ success: true, data: user });
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).toHaveProperty('password');
+            }
+        });
+
+        it('throws when repository lookup rejects', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            let caught: unknown;
+
+            try {
+                await service.findOne(22);
+            } catch (error) {
+                caught = error;
+            }
+
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
-  });
 });

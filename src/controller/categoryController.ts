@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CategoryService } from '../service/categoryService';
 import { validateCreateCategory, validateUpdateCategory } from '../utils/validation/validateRequest';
-import { createLog, answerAPI, formatError } from '../utils/commons';
+import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
@@ -71,7 +71,7 @@ class CategoryController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -100,7 +100,7 @@ class CategoryController {
 
             return answerAPI(req, res, HTTPStatus.OK, category.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -141,7 +141,7 @@ class CategoryController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -178,7 +178,8 @@ class CategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, updated.data, updated.data!.userId);
+            const delta = buildLogDelta(existing.data, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CATEGORY, delta, updated.data!.userId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CATEGORY, formatError(error), req.user?.id, next);
@@ -203,13 +204,21 @@ class CategoryController {
         const categoryService = new CategoryService();
 
         try {
+            const snapshotResult = await categoryService.getCategoryById(id);
+            const snapshot = snapshotResult.success ? sanitizeLogDetail(snapshotResult.data) : undefined;
             const result = await categoryService.deleteCategory(id);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.CATEGORY, result.data, req.user?.id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.CATEGORY,
+                snapshot ?? result.data,
+                req.user?.id
+            );
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.CATEGORY, formatError(error), req.user?.id, next);

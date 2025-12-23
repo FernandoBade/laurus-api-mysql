@@ -13,7 +13,18 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     try {
         await AuthController.login(req, res, next);
     } catch (error) {
-        await createLog(LogType.ERROR, LogOperation.LOGIN, LogCategory.AUTH, formatError(error), undefined, next);
+        await createLog(
+            LogType.ERROR,
+            LogOperation.LOGIN,
+            LogCategory.AUTH,
+            {
+                error: formatError(error),
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            },
+            undefined,
+            next
+        );
     }
 });
 

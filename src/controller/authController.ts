@@ -39,13 +39,28 @@ export class AuthController {
                 LogType.SUCCESS,
                 LogOperation.LOGIN,
                 LogCategory.AUTH,
-                { userId: result.data.user.id },
+                {
+                    userId: result.data.user.id,
+                    ip: req.ip,
+                    userAgent: req.headers['user-agent']
+                },
                 result.data.user.id
             );
 
             return answerAPI(req, res, HTTPStatus.OK, { token: result.data.token });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.LOGIN, LogCategory.AUTH, formatError(error), undefined, next);
+            await createLog(
+                LogType.ERROR,
+                LogOperation.LOGIN,
+                LogCategory.AUTH,
+                {
+                    error: formatError(error),
+                    ip: req.ip,
+                    userAgent: req.headers['user-agent']
+                },
+                undefined,
+                next
+            );
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }

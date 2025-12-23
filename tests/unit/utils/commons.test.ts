@@ -26,7 +26,7 @@ describe('commons utils', () => {
         const winston = await import('winston');
         loggerMock = { log: jest.fn() };
         jest.spyOn(winston, 'createLogger').mockReturnValue(loggerMock as any);
-        jest.spyOn(winston, 'addColors').mockImplementation(() => {});
+        jest.spyOn(winston, 'addColors').mockImplementation(() => { });
         commons = await import('../../../src/utils/commons');
     };
 
@@ -39,20 +39,47 @@ describe('commons utils', () => {
     });
 
     describe('createLog', () => {
-        it('logs to console and does not persist DEBUG logs', async () => {
+        it('logs to console and delegates empty UPDATE details', async () => {
+            const logServiceModule = await import('../../../src/service/logService');
+            const logServiceSpy = jest
+                .spyOn(logServiceModule.LogService.prototype, 'createLog')
+                .mockResolvedValue({ success: true } as any);
+
+            await commons.createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, {});
+
+            expect(loggerMock.log).toHaveBeenCalledWith(
+                LogType.SUCCESS,
+                `[${LogOperation.UPDATE}][${LogCategory.USER}]: {}`
+            );
+            expect(logServiceSpy).toHaveBeenCalledWith(
+                LogType.SUCCESS,
+                LogOperation.UPDATE,
+                LogCategory.USER,
+                '{}',
+                undefined
+            );
+        });
+
+        it('logs to console and delegates DEBUG logs', async () => {
             const logServiceModule = await import('../../../src/service/logService');
             const logServiceSpy = jest
                 .spyOn(logServiceModule.LogService.prototype, 'createLog')
                 .mockResolvedValue({ success: true } as any);
 
             const detail = { ok: true };
-            await commons.createLog(LogType.DEBUG, LogOperation.AUTH, LogCategory.AUTH, detail, 5);
+            await commons.createLog(LogType.DEBUG, LogOperation.CREATE, LogCategory.AUTH, detail, 5);
 
             expect(loggerMock.log).toHaveBeenCalledWith(
                 LogType.DEBUG,
-                `[${LogOperation.AUTH}][${LogCategory.AUTH}]: ${JSON.stringify(detail)}`
+                `[${LogOperation.CREATE}][${LogCategory.AUTH}]: ${JSON.stringify(detail)}`
             );
-            expect(logServiceSpy).not.toHaveBeenCalled();
+            expect(logServiceSpy).toHaveBeenCalledWith(
+                LogType.DEBUG,
+                LogOperation.CREATE,
+                LogCategory.AUTH,
+                JSON.stringify(detail),
+                5
+            );
         });
 
         it('persists non-DEBUG logs with correct arguments and handles missing userId', async () => {

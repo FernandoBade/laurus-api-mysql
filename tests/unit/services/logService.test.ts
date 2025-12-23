@@ -14,196 +14,226 @@ const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-U
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {
-  const now = new Date('2024-01-01T00:00:00Z');
-  return {
-    id: overrides.id ?? 1,
-    type: overrides.type ?? LogType.SUCCESS,
-    operation: overrides.operation ?? LogOperation.CREATE,
-    category: overrides.category ?? LogCategory.USER,
-    detail: overrides.detail ?? 'detail',
-    userId: overrides.userId ?? 1,
-    createdAt: overrides.createdAt ?? now,
-    updatedAt: overrides.updatedAt ?? now,
-  };
+    const now = new Date('2024-01-01T00:00:00Z');
+    return {
+        id: overrides.id ?? 1,
+        type: overrides.type ?? LogType.SUCCESS,
+        operation: overrides.operation ?? LogOperation.CREATE,
+        category: overrides.category ?? LogCategory.USER,
+        detail: overrides.detail ?? 'detail',
+        userId: overrides.userId ?? 1,
+        createdAt: overrides.createdAt ?? now,
+        updatedAt: overrides.updatedAt ?? now,
+    };
 };
 
 describe('LogService', () => {
-  let logSpy: jest.SpyInstance;
+    let logSpy: jest.SpyInstance;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    logSpy = jest.spyOn(commons, 'createLog').mockResolvedValue();
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  describe('createLog', () => {
-    it('creates log when type is not debug', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 3 }));
-      const createSpy = jest.spyOn(LogRepository.prototype, 'create').mockResolvedValue(makeLog({ id: 10 }));
-
-      const service = new LogService();
-      const result = await service.createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, 'message', 3);
-
-      expect(createSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: LogType.SUCCESS,
-          operation: LogOperation.CREATE,
-          category: LogCategory.USER,
-          detail: 'message',
-          userId: 3,
-        })
-      );
-      expect(result).toEqual({ success: true, data: { id: 10 } });
+    beforeEach(() => {
+        jest.clearAllMocks();
+        logSpy = jest.spyOn(commons, 'createLog').mockResolvedValue();
     });
 
-    it('creates log with null user when user id is invalid', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
-      const createSpy = jest.spyOn(LogRepository.prototype, 'create').mockResolvedValue(makeLog({ id: 11, userId: null }));
-
-      const service = new LogService();
-      const result = await service.createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, 'message', 999);
-
-      expect(createSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: null,
-        })
-      );
-      expect(result).toEqual({ success: true, data: { id: 11 } });
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
-    it('returns success without persisting when type is debug', async () => {
-      const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 1 }));
-      const createSpy = jest.spyOn(LogRepository.prototype, 'create');
+    describe('createLog', () => {
+        it('returns success without persisting when audit rules skip', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById');
+            const createSpy = jest.spyOn(LogRepository.prototype, 'create');
 
-      const service = new LogService();
-      const result = await service.createLog(LogType.DEBUG, LogOperation.CREATE, LogCategory.LOG, 'debug', 1);
+            const service = new LogService();
+            const result = await service.createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, 'message', 3);
+            expect(result.success).toBe(true);
+            expect(result).not.toHaveProperty('data');
+            expect(findSpy).not.toHaveBeenCalled();
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: true });
+        });
 
-      expect(findSpy).toHaveBeenCalledWith(1);
-      expect(createSpy).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
+        it('creates log with null user when user id is invalid', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
+            const createSpy = jest.spyOn(LogRepository.prototype, 'create').mockResolvedValue(makeLog({ id: 11, userId: null }));
+
+            const service = new LogService();
+            const result = await service.createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, 'message', 999);
+
+            expect(createSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: LogType.ERROR,
+                    userId: null,
+                })
+            );
+            expect(result).toEqual({ success: true, data: { id: 11 } });
+        });
+
+        it('returns success without persisting when type is debug', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById');
+            const createSpy = jest.spyOn(LogRepository.prototype, 'create');
+
+            const service = new LogService();
+            const result = await service.createLog(LogType.DEBUG, LogOperation.CREATE, LogCategory.LOG, 'debug', 1);
+
+            expect(findSpy).not.toHaveBeenCalled();
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: true });
+        });
+
+        it('creates log for UPDATE when detail is not empty', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 4 }));
+            const createSpy = jest.spyOn(LogRepository.prototype, 'create').mockResolvedValue(makeLog({ id: 13 }));
+
+            const service = new LogService();
+            const result = await service.createLog(
+                LogType.SUCCESS,
+                LogOperation.UPDATE,
+                LogCategory.USER,
+                '{"name":{"from":"Old","to":"New"}}',
+                4
+            );
+
+            expect(createSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    operation: LogOperation.UPDATE,
+                    detail: '{"name":{"from":"Old","to":"New"}}',
+                    userId: 4,
+                })
+            );
+            expect(result).toEqual({ success: true, data: { id: 13 } });
+        });
+
+        it('returns success without persisting when UPDATE detail is empty', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById');
+            const createSpy = jest.spyOn(LogRepository.prototype, 'create');
+
+            const service = new LogService();
+            const result = await service.createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, '{}', 2);
+
+            expect(findSpy).not.toHaveBeenCalled();
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: true });
+        });
+
+        it('returns internal server error when repository create fails', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 2 }));
+            jest.spyOn(LogRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new LogService();
+            const result = await service.createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, 'message', 2);
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
+
+        it('throws when user lookup rejects', async () => {
+            jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new LogService();
+            let caught: unknown;
+
+            try {
+                await service.createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, 'message', 2);
+            } catch (error) {
+                caught = error;
+            }
+
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(isResource(caught.message)).toBe(true);
+                if (isResource(caught.message)) {
+                    expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+                }
+            }
+        });
     });
 
-    it('returns internal server error when repository create fails', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 2 }));
-      jest.spyOn(LogRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('deleteOldLogs', () => {
+        it('deletes old logs and writes debug log', async () => {
+            const whereSpy = jest.fn().mockResolvedValue([{ affectedRows: 3 }]);
+            const originalDelete = db.delete.bind(db);
+            const deleteSpy = jest.spyOn(db, 'delete').mockImplementation((...args) => {
+                const builder = originalDelete(...args);
+                jest.spyOn(builder, 'where').mockImplementation(whereSpy);
+                return builder;
+            });
 
-      const service = new LogService();
-      const result = await service.createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, 'message', 2);
+            const service = new LogService();
+            const result = await service.deleteOldLogs();
 
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
+            expect(deleteSpy).toHaveBeenCalledWith(logs);
+            expect(whereSpy).toHaveBeenCalledWith(expect.any(Object));
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.DEBUG,
+                LogOperation.DELETE,
+                LogCategory.LOG,
+                expect.stringContaining('Deleted 3 logs'),
+                undefined
+            );
+            expect(result).toEqual({ success: true, data: { deleted: 3 } });
+        });
+
+        it('returns internal server error when deletion fails', async () => {
+            jest.spyOn(db, 'delete').mockImplementation(() => {
+                throw new Error(Resource.INTERNAL_SERVER_ERROR);
+            });
+
+            const service = new LogService();
+            const result = await service.deleteOldLogs();
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
 
-    it('throws when user lookup rejects', async () => {
-      jest.spyOn(UserRepository.prototype, 'findById').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+    describe('getLogsByUser', () => {
+        it('returns invalid user id when userId is invalid', async () => {
+            const findManySpy = jest.spyOn(LogRepository.prototype, 'findMany');
 
-      const service = new LogService();
-      let caught: unknown;
+            const service = new LogService();
+            const result = await service.getLogsByUser(0);
 
-      try {
-        await service.createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, 'message', 2);
-      } catch (error) {
-        caught = error;
-      }
+            expect(findManySpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.INVALID_USER_ID });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INVALID_USER_ID);
+                expect(translate(result.error)).toBe(translate(Resource.INVALID_USER_ID));
+            }
+        });
 
-      expect(caught).toBeInstanceOf(Error);
-      if (caught instanceof Error) {
-        expect(isResource(caught.message)).toBe(true);
-        if (isResource(caught.message)) {
-          expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-        }
-      }
+        it('returns logs when repository succeeds', async () => {
+            const logList = [makeLog({ id: 1 }), makeLog({ id: 2 })];
+            const findManySpy = jest.spyOn(LogRepository.prototype, 'findMany').mockResolvedValue(logList);
+
+            const service = new LogService();
+            const result = await service.getLogsByUser(2);
+
+            expect(findManySpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 2 } });
+            expect(result).toEqual({ success: true, data: logList });
+        });
+
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(LogRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new LogService();
+            const result = await service.getLogsByUser(3);
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
     });
-  });
-
-  describe('deleteOldLogs', () => {
-    it('deletes old logs and writes debug log', async () => {
-      const whereSpy = jest.fn().mockResolvedValue([{ affectedRows: 3 }]);
-      const originalDelete = db.delete.bind(db);
-      const deleteSpy = jest.spyOn(db, 'delete').mockImplementation((...args) => {
-        const builder = originalDelete(...args);
-        jest.spyOn(builder, 'where').mockImplementation(whereSpy);
-        return builder;
-      });
-
-      const service = new LogService();
-      const result = await service.deleteOldLogs();
-
-      expect(deleteSpy).toHaveBeenCalledWith(logs);
-      expect(whereSpy).toHaveBeenCalledWith(expect.any(Object));
-      expect(logSpy).toHaveBeenCalledWith(
-        LogType.DEBUG,
-        LogOperation.DELETE,
-        LogCategory.LOG,
-        expect.stringContaining('Deleted 3 logs'),
-        undefined
-      );
-      expect(result).toEqual({ success: true, data: { deleted: 3 } });
-    });
-
-    it('returns internal server error when deletion fails', async () => {
-      jest.spyOn(db, 'delete').mockImplementation(() => {
-        throw new Error(Resource.INTERNAL_SERVER_ERROR);
-      });
-
-      const service = new LogService();
-      const result = await service.deleteOldLogs();
-
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
-
-  describe('getLogsByUser', () => {
-    it('returns invalid user id when userId is invalid', async () => {
-      const findManySpy = jest.spyOn(LogRepository.prototype, 'findMany');
-
-      const service = new LogService();
-      const result = await service.getLogsByUser(0);
-
-      expect(findManySpy).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: false, error: Resource.INVALID_USER_ID });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INVALID_USER_ID);
-        expect(translate(result.error)).toBe(translate(Resource.INVALID_USER_ID));
-      }
-    });
-
-    it('returns logs when repository succeeds', async () => {
-      const logList = [makeLog({ id: 1 }), makeLog({ id: 2 })];
-      const findManySpy = jest.spyOn(LogRepository.prototype, 'findMany').mockResolvedValue(logList);
-
-      const service = new LogService();
-      const result = await service.getLogsByUser(2);
-
-      expect(findManySpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 2 } });
-      expect(result).toEqual({ success: true, data: logList });
-    });
-
-    it('returns internal server error when repository throws', async () => {
-      jest.spyOn(LogRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
-
-      const service = new LogService();
-      const result = await service.getLogsByUser(3);
-
-      expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
-        expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
-      }
-    });
-  });
 });

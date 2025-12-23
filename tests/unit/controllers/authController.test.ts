@@ -64,7 +64,12 @@ describe('AuthController', () => {
         it('returns 200 and logs on successful login', async () => {
             const data = { token: 'token123', refreshToken: 'refresh', user: makeUser({ id: 7 }) };
             const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: true, data } as any);
-            const req = createMockRequest({ body: { email: 'a@b.com', password: 'secret' }, cookies: {} });
+            const req = createMockRequest({
+                body: { email: 'a@b.com', password: 'secret' },
+                cookies: {},
+                ip: '127.0.0.1',
+                headers: { 'user-agent': 'jest' } as any
+            });
             const res = createMockResponse();
             const next = createNext();
 
@@ -78,7 +83,7 @@ describe('AuthController', () => {
                 LogType.SUCCESS,
                 LogOperation.LOGIN,
                 LogCategory.AUTH,
-                { "userId": 7 },
+                { userId: 7, ip: '127.0.0.1', userAgent: 'jest' },
                 7
             );
             expect(next).not.toHaveBeenCalled();
@@ -86,7 +91,11 @@ describe('AuthController', () => {
 
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(AuthService.prototype, 'login').mockRejectedValue(new Error('boom'));
-            const req = createMockRequest({ body: { email: 'a@b.com', password: 'secret' } });
+            const req = createMockRequest({
+                body: { email: 'a@b.com', password: 'secret' },
+                ip: '127.0.0.1',
+                headers: { 'user-agent': 'jest' } as any
+            });
             const res = createMockResponse();
             const next = createNext();
 
@@ -103,7 +112,7 @@ describe('AuthController', () => {
                 LogType.ERROR,
                 LogOperation.LOGIN,
                 LogCategory.AUTH,
-                expect.any(Object),
+                expect.objectContaining({ error: expect.any(Object), ip: '127.0.0.1', userAgent: 'jest' }),
                 undefined,
                 next
             );

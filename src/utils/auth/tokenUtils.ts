@@ -11,6 +11,8 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 /**
  * Ensures that required JWT secrets are defined.
  * If any secret is missing, logs a DEBUG message and throws an internal error.
+ *
+ * @summary Validates required JWT secrets.
  */
 function ensureSecrets() {
     if (!ACCESS_SECRET || !REFRESH_SECRET) {
@@ -26,7 +28,7 @@ function ensureSecrets() {
             JWT_REFRESH_SECRET=your_other_super_secret_key
         `;
 
-        createLog(LogType.DEBUG, LogOperation.AUTH, LogCategory.AUTH, message);
+        createLog(LogType.DEBUG, LogOperation.CREATE, LogCategory.AUTH, message);
         throw new Error('TokenUtilsInvariantViolation: jwt secrets missing');
     }
 }

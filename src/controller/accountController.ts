@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AccountService } from '../service/accountService';
-import { createLog, answerAPI, formatError } from '../utils/commons';
+import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { validateCreateAccount, validateUpdateAccount } from '../utils/validation/validateRequest';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
@@ -78,7 +78,7 @@ class AccountController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -108,7 +108,7 @@ class AccountController {
 
             return answerAPI(req, res, HTTPStatus.OK, account.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -149,7 +149,7 @@ class AccountController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -193,7 +193,8 @@ class AccountController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.ACCOUNT, updated.data, updated.data!.userId);
+            const delta = buildLogDelta(existing.data, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.ACCOUNT, delta, updated.data!.userId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);
@@ -219,13 +220,21 @@ class AccountController {
         const accountService = new AccountService();
 
         try {
+            const snapshotResult = await accountService.getAccountById(id);
+            const snapshot = snapshotResult.success ? sanitizeLogDetail(snapshotResult.data) : undefined;
             const result = await accountService.deleteAccount(id);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.ACCOUNT, result.data, req.user?.id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.ACCOUNT,
+                snapshot ?? result.data,
+                req.user?.id
+            );
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.ACCOUNT, formatError(error), req.user?.id, next);

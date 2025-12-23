@@ -7,7 +7,6 @@ import { createLog } from '../utils/commons';
 import { db } from '../db';
 import { logs } from '../db/schema';
 import { lt } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
 
 /**
  * Service for log business logic.
@@ -24,9 +23,8 @@ export class LogService {
 
     /**
      * Creates a new log entry.
-     * DEBUG logs are ignored and not persisted in the database.
      *
-     * @summary Creates a log entry (skips DEBUG logs).
+     * @summary Creates a log entry when audit rules allow persistence.
      * @param type - Severity of the log (e.g., DEBUG, ERROR).
      * @param operation - Action performed (e.g., CREATE, DELETE).
      * @param category - Functional category (e.g., USER, AUTH).
@@ -41,24 +39,78 @@ export class LogService {
         detail: string,
         userId?: number
     ): Promise<{ success: true; data?: { id: number } } | { success: false; error: Resource }> {
+        if (!this.shouldPersistLog(type, operation, detail)) {
+            return { success: true };
+        }
+
         const validUserId = await this.getValidUserId(userId);
 
-        if (type !== LogType.DEBUG) {
+        try {
+            const created = await this.logRepository.create({
+                type,
+                operation,
+                category,
+                detail,
+                userId: validUserId,
+            } as InsertLog);
+            return { success: true, data: { id: created.id } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
+     * Determines whether a log should be persisted based on audit rules.
+     *
+     * @summary Applies audit persistence rules for logs.
+     * @param type - Severity of the log.
+     * @param operation - Operation associated with the log.
+     * @param detail - Serialized log detail payload.
+     * @returns True when the log should be persisted.
+     */
+    private shouldPersistLog(type: LogType, operation: LogOperation, detail: string): boolean {
+        if (type === LogType.DEBUG) return false;
+
+        if (operation === LogOperation.UPDATE && this.isEmptyUpdateDetail(detail)) {
+            return false;
+        }
+
+        if (type === LogType.ERROR || type === LogType.ALERT) {
+            return true;
+        }
+
+        return (
+            operation === LogOperation.UPDATE ||
+            operation === LogOperation.DELETE ||
+            operation === LogOperation.LOGIN ||
+            operation === LogOperation.LOGOUT
+        );
+    }
+
+    /**
+     * Checks whether a serialized UPDATE detail payload is empty.
+     *
+     * @summary Detects empty update deltas.
+     * @param detail - Serialized log detail payload.
+     * @returns True when the detail is an empty object.
+     */
+    private isEmptyUpdateDetail(detail: string): boolean {
+        const trimmed = detail.trim();
+        if (!trimmed) return true;
+        if (trimmed === '{}') return true;
+
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
             try {
-                const created = await this.logRepository.create({
-                    type,
-                    operation,
-                    category,
-                    detail,
-                    userId: validUserId,
-                } as InsertLog);
-                return { success: true, data: { id: created.id } };
+                const parsed = JSON.parse(trimmed);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    return Object.keys(parsed).length === 0;
+                }
             } catch (error) {
-                return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+                return false;
             }
         }
 
-        return { success: true };
+        return false;
     }
 
     /**

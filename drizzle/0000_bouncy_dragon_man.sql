@@ -90,8 +90,8 @@ CREATE TABLE `credit_card` (
 CREATE TABLE `log` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`type` enum('alert','debug','error','success') NOT NULL,
-	`operation` enum('apply','create','delete','login','logout','update','rollback','search','status','auth') NOT NULL DEFAULT 'create',
-	`category` enum('account','auth','category','database','transaction','log','migration','migrationGroup','server','subcategory','user','creditCard') NOT NULL DEFAULT 'log',
+	`operation` enum('create','delete','login','logout','update') NOT NULL DEFAULT 'create',
+	`category` enum('account','auth','category','transaction','log','subcategory','user','creditCard') NOT NULL DEFAULT 'log',
 	`detail` text,
 	`user_id` int,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),

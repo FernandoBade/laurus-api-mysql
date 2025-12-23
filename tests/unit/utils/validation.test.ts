@@ -213,7 +213,8 @@ describe('validateRequest', () => {
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('type', t(Resource.INVALID_ENUM))]);
+            expect(result.errors[0].property).toBe('type');
+            expect(result.errors[0].error).toContain('income');
         });
 
         it('returns normalized data for valid input', () => {
@@ -309,7 +310,8 @@ describe('validateRequest', () => {
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('flag', t(Resource.INVALID_ENUM))]);
+            expect(result.errors[0].property).toBe('flag');
+            expect(result.errors[0].error).toContain('visa');
         });
 
         it('returns normalized data for valid input', () => {

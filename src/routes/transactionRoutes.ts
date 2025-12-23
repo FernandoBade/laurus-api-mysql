@@ -35,7 +35,7 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.SEARCH,
+            LogOperation.CREATE,
             LogCategory.TRANSACTION,
             formatError(error),
             undefined,
@@ -54,7 +54,7 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.SEARCH,
+            LogOperation.CREATE,
             LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.id) || undefined,
@@ -73,7 +73,7 @@ router.get('/account/:accountId', verifyToken, async (req: Request, res: Respons
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.SEARCH,
+            LogOperation.CREATE,
             LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.accountId) || undefined,
@@ -92,7 +92,7 @@ router.get('/user/:userId', verifyToken, async (req: Request, res: Response, nex
     } catch (error) {
         await createLog(
             LogType.DEBUG,
-            LogOperation.SEARCH,
+            LogOperation.CREATE,
             LogCategory.TRANSACTION,
             formatError(error),
             Number(req.params.userId) || undefined,

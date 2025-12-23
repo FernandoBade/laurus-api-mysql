@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreditCardService } from '../service/creditCardService';
-import { createLog, answerAPI, formatError } from '../utils/commons';
+import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { validateCreateCreditCard, validateUpdateCreditCard } from '../utils/validation/validateRequest';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
@@ -64,7 +64,7 @@ class CreditCardController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -87,7 +87,7 @@ class CreditCardController {
 
             return answerAPI(req, res, HTTPStatus.OK, creditCard.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -121,7 +121,7 @@ class CreditCardController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -152,7 +152,8 @@ class CreditCardController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CREDIT_CARD, updated.data, updated.data!.userId);
+            const delta = buildLogDelta(existing.data, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.CREDIT_CARD, delta, updated.data!.userId);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);
@@ -171,13 +172,21 @@ class CreditCardController {
         const creditCardService = new CreditCardService();
 
         try {
+            const snapshotResult = await creditCardService.getCreditCardById(id);
+            const snapshot = snapshotResult.success ? sanitizeLogDetail(snapshotResult.data) : undefined;
             const result = await creditCardService.deleteCreditCard(id);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.CREDIT_CARD, result.data, req.user?.id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.CREDIT_CARD,
+                snapshot ?? result.data,
+                req.user?.id
+            );
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.CREDIT_CARD, formatError(error), req.user?.id, next);

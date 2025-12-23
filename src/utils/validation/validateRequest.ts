@@ -229,15 +229,25 @@ export function validateCreateAccount(
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'name',
+            min: 1
+        })));
     }
 
     if (!isString(body.institution) || body.institution.length < 1) {
-        errors.push(createValidationError('institution', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('institution', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'institution',
+            min: 1
+        })));
     }
 
     if (!isEnum(body.type, AccountType)) {
-        errors.push(createValidationError('type', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'type',
+            received: body.type === undefined ? 'undefined' : String(body.type),
+            options: Object.values(AccountType).join(', ')
+        })));
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
@@ -249,7 +259,11 @@ export function validateCreateAccount(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
     }
 
     if (errors.length > 0) {
@@ -292,7 +306,10 @@ export function validateUpdateAccount(
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'name',
+                min: 1
+            })));
         } else {
             result.name = body.name;
         }
@@ -300,7 +317,10 @@ export function validateUpdateAccount(
 
     if (body.institution !== undefined) {
         if (!isString(body.institution) || body.institution.length < 1) {
-            errors.push(createValidationError('institution', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('institution', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'institution',
+                min: 1
+            })));
         } else {
             result.institution = body.institution;
         }
@@ -308,7 +328,11 @@ export function validateUpdateAccount(
 
     if (body.type !== undefined) {
         if (!isEnum(body.type, AccountType)) {
-            errors.push(createValidationError('type', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'type',
+                received: body.type === undefined ? 'undefined' : String(body.type),
+                options: Object.values(AccountType).join(', ')
+            })));
         } else {
             result.type = body.type;
         }
@@ -331,7 +355,11 @@ export function validateUpdateAccount(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -364,19 +392,34 @@ export function validateCreateCategory(
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'name',
+            min: 1
+        })));
     }
 
     if (!isEnum(body.type, CategoryType)) {
-        errors.push(createValidationError('type', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'type',
+            received: body.type === undefined ? 'undefined' : String(body.type),
+            options: Object.values(CategoryType).join(', ')
+        })));
     }
 
     if (body.color !== undefined && !isEnum(body.color, CategoryColor)) {
-        errors.push(createValidationError('color', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('color', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'color',
+            received: body.color === undefined ? 'undefined' : String(body.color),
+            options: Object.values(CategoryColor).join(', ')
+        })));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
@@ -422,7 +465,10 @@ export function validateUpdateCategory(
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'name',
+                min: 1
+            })));
         } else {
             result.name = body.name;
         }
@@ -430,7 +476,11 @@ export function validateUpdateCategory(
 
     if (body.type !== undefined) {
         if (!isEnum(body.type, CategoryType)) {
-            errors.push(createValidationError('type', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'type',
+                received: body.type === undefined ? 'undefined' : String(body.type),
+                options: Object.values(CategoryType).join(', ')
+            })));
         } else {
             result.type = body.type;
         }
@@ -438,14 +488,22 @@ export function validateUpdateCategory(
 
     if (body.color !== undefined) {
         if (!isEnum(body.color, CategoryColor)) {
-            errors.push(createValidationError('color', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('color', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'color',
+                received: body.color === undefined ? 'undefined' : String(body.color),
+                options: Object.values(CategoryColor).join(', ')
+            })));
         } else {
             result.color = body.color;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -486,7 +544,10 @@ export function validateCreateSubcategory(
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'name',
+            min: 1
+        })));
     }
 
     if (!isNumber(body.category_id) || body.category_id <= 0) {
@@ -494,7 +555,11 @@ export function validateCreateSubcategory(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
     }
 
     if (errors.length > 0) {
@@ -534,7 +599,10 @@ export function validateUpdateSubcategory(
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'name',
+                min: 1
+            })));
         } else {
             result.name = body.name;
         }
@@ -582,11 +650,18 @@ export function validateCreateCreditCard(
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'name',
+            min: 1
+        })));
     }
 
     if (!isEnum(body.flag, CreditCardFlag)) {
-        errors.push(createValidationError('flag', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('flag', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'flag',
+            received: body.flag === undefined ? 'undefined' : String(body.flag),
+            options: Object.values(CreditCardFlag).join(', ')
+        })));
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
@@ -645,7 +720,10 @@ export function validateUpdateCreditCard(
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'name',
+                min: 1
+            })));
         } else {
             result.name = body.name;
         }
@@ -653,7 +731,11 @@ export function validateUpdateCreditCard(
 
     if (body.flag !== undefined) {
         if (!isEnum(body.flag, CreditCardFlag)) {
-            errors.push(createValidationError('flag', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('flag', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'flag',
+                received: body.flag === undefined ? 'undefined' : String(body.flag),
+                options: Object.values(CreditCardFlag).join(', ')
+            })));
         } else {
             result.flag = body.flag;
         }
@@ -717,7 +799,10 @@ export function validateCreateTransaction(
     const body = data as Record<string, unknown>;
 
     if (!isNumber(body.value) || body.value <= 0) {
-        errors.push(createValidationError('value', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+        errors.push(createValidationError('value', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'value',
+            min: 1
+        })));
     }
 
     if (!isDate(body.date)) {
@@ -738,15 +823,27 @@ export function validateCreateTransaction(
     }
 
     if (!isEnum(body.transactionType, TransactionType)) {
-        errors.push(createValidationError('transactionType', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('transactionType', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'transactionType',
+            received: body.transactionType === undefined ? 'undefined' : String(body.transactionType),
+            options: Object.values(TransactionType).join(', ')
+        })));
     }
 
     if (!isEnum(body.transactionSource, TransactionSource)) {
-        errors.push(createValidationError('transactionSource', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+        errors.push(createValidationError('transactionSource', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            path: 'transactionSource',
+            received: body.transactionSource === undefined ? 'undefined' : String(body.transactionSource),
+            options: Object.values(TransactionSource).join(', ')
+        })));
     }
 
     if (!isBoolean(body.isInstallment)) {
-        errors.push(createValidationError('isInstallment', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('isInstallment', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'isInstallment',
+            expected: 'boolean',
+            received: String(body.isInstallment)
+        })));
     }
 
     if (body.isInstallment && (!isNumber(body.totalMonths) || body.totalMonths <= 0)) {
@@ -754,7 +851,11 @@ export function validateCreateTransaction(
     }
 
     if (!isBoolean(body.isRecurring)) {
-        errors.push(createValidationError('isRecurring', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('isRecurring', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'isRecurring',
+            expected: 'boolean',
+            received: String(body.isRecurring)
+        })));
     }
 
     if (body.isRecurring && (!isNumber(body.paymentDay) || body.paymentDay < 1 || body.paymentDay > 31)) {
@@ -835,7 +936,10 @@ export function validateUpdateTransaction(
 
     if (body.value !== undefined) {
         if (!isNumber(body.value) || body.value <= 0) {
-            errors.push(createValidationError('value', ResourceBase.translate(Resource.TOO_SMALL, lang)));
+            errors.push(createValidationError('value', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'value',
+                min: 1
+            })));
         } else {
             result.value = body.value;
         }
@@ -867,7 +971,11 @@ export function validateUpdateTransaction(
 
     if (body.transactionType !== undefined) {
         if (!isEnum(body.transactionType, TransactionType)) {
-            errors.push(createValidationError('transactionType', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('transactionType', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'transactionType',
+                received: body.transactionType === undefined ? 'undefined' : String(body.transactionType),
+                options: Object.values(TransactionType).join(', ')
+            })));
         } else {
             result.transactionType = body.transactionType;
         }
@@ -875,7 +983,11 @@ export function validateUpdateTransaction(
 
     if (body.transactionSource !== undefined) {
         if (!isEnum(body.transactionSource, TransactionSource)) {
-            errors.push(createValidationError('transactionSource', ResourceBase.translate(Resource.INVALID_ENUM, lang)));
+            errors.push(createValidationError('transactionSource', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+                path: 'transactionSource',
+                received: body.transactionSource === undefined ? 'undefined' : String(body.transactionSource),
+                options: Object.values(TransactionSource).join(', ')
+            })));
         } else {
             result.transactionSource = body.transactionSource;
         }
@@ -891,15 +1003,23 @@ export function validateUpdateTransaction(
 
     if (body.totalMonths !== undefined && body.totalMonths !== null) {
         if (!isNumber(body.totalMonths) || body.totalMonths <= 0) {
-            errors.push(createValidationError('totalMonths', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('isInstallment', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'isInstallment',
+                expected: 'boolean',
+                received: String(body.isInstallment)
+            })));
         } else {
-            result.totalMonths = body.totalMonths;
+            result.isInstallment = body.isInstallment;
         }
     }
 
     if (body.isRecurring !== undefined) {
         if (!isBoolean(body.isRecurring)) {
-            errors.push(createValidationError('isRecurring', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+            errors.push(createValidationError('isRecurring', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'isRecurring',
+                expected: 'boolean',
+                received: String(body.isRecurring)
+            })));
         } else {
             result.isRecurring = body.isRecurring;
         }

@@ -248,7 +248,7 @@ describe('CategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -328,7 +328,7 @@ describe('CategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -427,7 +427,7 @@ describe('CategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -507,6 +507,7 @@ describe('CategoryController', () => {
     it('returns 200 and logs when update succeeds', async () => {
       const existing = makeCategory({ id: 11, userId: 3 });
       const updated = makeCategory({ id: 11, userId: 3, name: 'Updated' });
+      const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CategoryService.prototype, 'updateCategory').mockResolvedValue({ success: true, data: updated });
       const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
@@ -525,7 +526,7 @@ describe('CategoryController', () => {
         LogType.SUCCESS,
         LogOperation.UPDATE,
         LogCategory.CATEGORY,
-        updated,
+        expectedDelta,
         updated.userId
       );
     });
@@ -577,6 +578,7 @@ describe('CategoryController', () => {
     });
 
     it('returns 400 when service signals failure', async () => {
+      jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: makeCategory({ id: 20 }) });
       jest.spyOn(CategoryService.prototype, 'deleteCategory').mockResolvedValue({ success: false, error: Resource.CATEGORY_NOT_FOUND });
       const req = createMockRequest({ params: { id: '20' } });
       const res = createMockResponse();
@@ -592,6 +594,16 @@ describe('CategoryController', () => {
     });
 
     it('returns 200 and logs when deletion succeeds', async () => {
+      const snapshot = makeCategory({ id: 21, userId: authUser.id });
+      const expectedSnapshot = {
+        id: snapshot.id,
+        name: snapshot.name,
+        type: snapshot.type,
+        color: snapshot.color,
+        active: snapshot.active,
+        userId: snapshot.userId,
+      };
+      jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: snapshot });
       jest.spyOn(CategoryService.prototype, 'deleteCategory').mockResolvedValue({ success: true, data: { id: 21 } });
       const req = createAuthRequest({ params: { id: '21' } });
       const res = createMockResponse();
@@ -606,12 +618,13 @@ describe('CategoryController', () => {
         LogType.SUCCESS,
         LogOperation.DELETE,
         LogCategory.CATEGORY,
-        { id: 21 },
+        expectedSnapshot,
         authUser.id
       );
     });
 
     it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: makeCategory({ id: 22 }) });
       jest.spyOn(CategoryService.prototype, 'deleteCategory').mockRejectedValue(new Error('boom'));
       const req = createAuthRequest({ params: { id: '22' } });
       const res = createMockResponse();

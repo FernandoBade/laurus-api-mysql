@@ -255,7 +255,7 @@ describe('UserController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.USER,
         expect.any(Object),
         undefined,
@@ -390,6 +390,7 @@ describe('UserController', () => {
     it('returns 200 when update succeeds', async () => {
       const existing = makeUser({ id: 3 });
       const sanitized = makeSanitizedUser({ id: 3, firstName: 'Jane' });
+      const expectedDelta = { firstName: { from: existing.firstName, to: sanitized.firstName } };
       jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(UserService.prototype, 'updateUser').mockResolvedValue({ success: true, data: sanitized });
 
@@ -409,7 +410,7 @@ describe('UserController', () => {
         LogType.SUCCESS,
         LogOperation.UPDATE,
         LogCategory.USER,
-        sanitized,
+        expectedDelta,
         sanitized.id
       );
     });
@@ -431,6 +432,7 @@ describe('UserController', () => {
     });
 
     it('returns 400 when service signals failure', async () => {
+      jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: makeSanitizedUser({ id: 10 }) });
       jest.spyOn(UserService.prototype, 'deleteUser').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
       const req = createMockRequest({ params: { id: '10' } });
       const res = createMockResponse();
@@ -444,6 +446,9 @@ describe('UserController', () => {
     });
 
     it('returns 200 when deletion succeeds', async () => {
+      const snapshot = makeSanitizedUser({ id: 1 });
+      const { createdAt, updatedAt, ...expectedSnapshot } = snapshot;
+      jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: snapshot });
       jest.spyOn(UserService.prototype, 'deleteUser').mockResolvedValue({ success: true, data: { id: 1 } });
       const req = createMockRequest({ params: { id: '1' } });
       const res = createMockResponse();
@@ -458,7 +463,7 @@ describe('UserController', () => {
         LogType.SUCCESS,
         LogOperation.DELETE,
         LogCategory.USER,
-        { id: 1 },
+        expectedSnapshot,
         1
       );
     });

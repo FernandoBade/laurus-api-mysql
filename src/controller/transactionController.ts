@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../service/transactionService';
 import { validateCreateTransaction, validateUpdateTransaction } from '../utils/validation/validateRequest';
-import { createLog, answerAPI, formatError } from '../utils/commons';
+import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
@@ -87,7 +87,7 @@ class TransactionController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -117,7 +117,7 @@ class TransactionController {
 
             return answerAPI(req, res, HTTPStatus.OK, transaction.data);
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -158,7 +158,7 @@ class TransactionController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -199,7 +199,7 @@ class TransactionController {
                 meta: buildMeta({ page, pageSize, total: total.data })
             });
         } catch (error) {
-            await createLog(LogType.ERROR, LogOperation.SEARCH, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
+            await createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }
@@ -240,13 +240,8 @@ class TransactionController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);
             }
 
-            await createLog(
-                LogType.SUCCESS,
-                LogOperation.UPDATE,
-                LogCategory.TRANSACTION,
-                updated.data,
-                req.user?.id
-            );
+            const delta = buildLogDelta(existing.data, updated.data);
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.TRANSACTION, delta, req.user?.id);
             return answerAPI(req, res, HTTPStatus.OK, updated.data!);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);
@@ -272,13 +267,21 @@ class TransactionController {
         const transactionService = new TransactionService();
 
         try {
+            const snapshotResult = await transactionService.getTransactionById(id);
+            const snapshot = snapshotResult.success ? sanitizeLogDetail(snapshotResult.data) : undefined;
             const result = await transactionService.deleteTransaction(id);
 
             if (!result.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            await createLog(LogType.SUCCESS, LogOperation.DELETE, LogCategory.TRANSACTION, result.data, req.user?.id);
+            await createLog(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.TRANSACTION,
+                snapshot ?? result.data,
+                req.user?.id
+            );
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.TRANSACTION, formatError(error), req.user?.id, next);

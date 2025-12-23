@@ -40,7 +40,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Register application routes
 app.use('/auth', authRoutes);
 app.use("/accounts", accountRoutes);
-app.use("/credit-cards", creditCardRoutes);
+app.use("/creditCards", creditCardRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/subcategories", subcategoryRoutes);
 app.use("/transactions", transactionRoutes);
@@ -77,8 +77,8 @@ function startServer() {
     app.listen(port, () => {
         createLog(
             LogType.DEBUG,
-            LogOperation.STATUS,
-            LogCategory.SERVER,
+            LogOperation.CREATE,
+            LogCategory.LOG,
             `🚀 Server running on port ${port}`
         );
     });

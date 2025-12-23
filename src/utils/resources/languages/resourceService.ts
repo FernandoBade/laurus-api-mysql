@@ -29,6 +29,24 @@ class ResourceService {
     }
 
     /**
+     * Retrieves a translated string and replaces template placeholders with provided params.
+     * Placeholders follow the `{name}` format and will be replaced when a corresponding key
+     * exists in `params`. Unknown placeholders are left as-is.
+     *
+     * @param key - Resource key
+     * @param lang - Language code
+     * @param params - Mapping of placeholder names to replacement values
+     */
+    public translateWithParams(key: Resource, lang?: LanguageCode, params?: Record<string, string | number | undefined>): string {
+        let value = this.translate(key, lang);
+        if (!params) return value;
+        return value.replace(/\{(\w+)\}/g, (_match, name) => {
+            const replacement = params[name];
+            return replacement === undefined ? _match : String(replacement);
+        });
+    }
+
+    /**
      * Adds support for a new language dynamically.
      *
      * @param lang - Language code (e.g., 'fr-FR')

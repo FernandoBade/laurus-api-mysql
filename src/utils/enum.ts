@@ -51,6 +51,7 @@ export enum DateFormat {
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
+    NO_CONTENT = 204,
     MOVED_PERMANENTLY = 301,
     NOT_MODIFIED = 304,
     BAD_REQUEST = 400,
@@ -77,12 +78,8 @@ export enum LogCategory {
     ACCOUNT = "account",
     AUTH = 'auth',
     CATEGORY = 'category',
-    DATABASE = 'database',
     TRANSACTION = 'transaction',
     LOG = 'log',
-    MIGRATION = "migration",
-    MIGRATION_GROUP = "migrationGroup",
-    SERVER = 'server',
     SUBCATEGORY = "subcategory",
     USER = 'user',
     CREDIT_CARD = 'creditCard',
@@ -96,16 +93,11 @@ export enum LogType {
 }
 
 export enum LogOperation {
-    APPLY = 'apply',
     CREATE = 'create',
     DELETE = 'delete',
     LOGIN = 'login',
     LOGOUT = 'logout',
     UPDATE = 'update',
-    ROLLBACK = 'rollback',
-    SEARCH = 'search',
-    STATUS = 'status',
-    AUTH = "auth",
 }
 
 export enum Operator {

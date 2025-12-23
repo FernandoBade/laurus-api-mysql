@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "213ccbe9-fb46-4a21-96ad-8f944d2d95a7",
+  "id": "26cee508-48c8-4065-bb63-7d5680c8a584",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user": {
@@ -613,7 +613,7 @@
         },
         "operation": {
           "name": "operation",
-          "type": "enum('apply','create','delete','login','logout','update','rollback','search','status','auth')",
+          "type": "enum('create','delete','login','logout','update')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -621,7 +621,7 @@
         },
         "category": {
           "name": "category",
-          "type": "enum('account','auth','category','database','transaction','log','migration','migrationGroup','server','subcategory','user','creditCard')",
+          "type": "enum('account','auth','category','transaction','log','subcategory','user','creditCard')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,

@@ -50,10 +50,94 @@ const logger = createLogger({
     ]
 });
 
+const LOG_DETAIL_IGNORED_FIELDS = ['createdAt', 'updatedAt'];
+
+/**
+ * Checks whether a value is a plain object.
+ *
+ * @summary Detects plain objects for log normalization.
+ * @param value - Value to inspect.
+ * @returns True when the value is a plain object.
+ */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === 'object' && value?.constructor === Object;
+}
+
+/**
+ * Removes timestamp fields from a log detail payload.
+ *
+ * @summary Strips timestamps from log detail objects.
+ * @param detail - Log detail object to sanitize.
+ * @param ignoreKeys - Optional list of extra keys to remove.
+ * @returns Sanitized log detail without timestamp fields.
+ */
+export function sanitizeLogDetail<T extends Record<string, unknown>>(detail: T, ignoreKeys: string[] = []): Record<string, unknown> {
+    const ignored = new Set([...LOG_DETAIL_IGNORED_FIELDS, ...ignoreKeys]);
+    return Object.keys(detail).reduce((acc, key) => {
+        if (!ignored.has(key)) {
+            acc[key] = detail[key];
+        }
+        return acc;
+    }, {} as Record<string, unknown>);
+}
+
+/**
+ * Compares two log values with support for Date objects.
+ *
+ * @summary Checks equality for audit log comparisons.
+ * @param left - Previous value.
+ * @param right - Current value.
+ * @returns True when the values are equivalent.
+ */
+function areLogValuesEqual(left: unknown, right: unknown): boolean {
+    if (left === right) return true;
+
+    if (left instanceof Date && right instanceof Date) {
+        return left.getTime() === right.getTime();
+    }
+
+    if (left && right && typeof left === 'object' && typeof right === 'object') {
+        return JSON.stringify(left) === JSON.stringify(right);
+    }
+
+    return false;
+}
+
+/**
+ * Builds a delta payload for update audit logs.
+ *
+ * @summary Generates field-level changes between two objects.
+ * @param before - Previous state of the entity.
+ * @param after - Current state of the entity.
+ * @param ignoreKeys - Optional list of keys to exclude from the delta.
+ * @returns Object containing only changed fields with from/to values.
+ */
+export function buildLogDelta<T extends Record<string, unknown>>(
+    before: T,
+    after: T,
+    ignoreKeys: string[] = []
+): Record<string, { from: unknown; to: unknown }> {
+    const safeBefore = sanitizeLogDetail(before, ignoreKeys);
+    const safeAfter = sanitizeLogDetail(after, ignoreKeys);
+    const keys = new Set([...Object.keys(safeBefore), ...Object.keys(safeAfter)]);
+    const delta: Record<string, { from: unknown; to: unknown }> = {};
+
+    for (const key of keys) {
+        const previousValue = safeBefore[key];
+        const currentValue = safeAfter[key];
+        if (!areLogValuesEqual(previousValue, currentValue)) {
+            delta[key] = { from: previousValue, to: currentValue };
+        }
+    }
+
+    return delta;
+}
+
 /**
  * Logs a message to the console and, if appropriate, persists it to the database.
  * Used across the system for centralized logging with support for log levels, user context, and categories.
  *
+ * @summary Logs to console and delegates persistence.
  * @param logType - Severity level of the log (e.g., ERROR, DEBUG).
  * @param operation - Type of operation being logged (e.g., CREATE, DELETE).
  * @param category - Area of the system the log relates to (e.g., USER, AUTH).
@@ -69,14 +153,13 @@ export async function createLog(
     userId?: number,
     next?: NextFunction
 ) {
-    const logMessage = typeof detail === 'object' ? JSON.stringify(detail) : String(detail);
+    const normalizedDetail = isPlainObject(detail) ? sanitizeLogDetail(detail) : detail;
+    const logMessage = typeof normalizedDetail === 'object' ? JSON.stringify(normalizedDetail) : String(normalizedDetail);
 
     logger.log(logType, `[${operation}][${category}]: ${logMessage}`.trim());
 
-    if (logType !== LogType.DEBUG) {
-        const logService = await getLogService();
-        await logService.createLog(logType, operation, category, logMessage, userId);
-    }
+    const logService = await getLogService();
+    await logService.createLog(logType, operation, category, logMessage, userId);
 }
 
 // #endregion Logger Configuration

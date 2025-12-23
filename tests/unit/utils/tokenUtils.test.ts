@@ -50,7 +50,7 @@ describe('TokenUtils', () => {
         expect(() => TokenUtils.generateAccessToken({ id: 1 })).toThrow('TokenUtilsInvariantViolation: jwt secrets missing');
         expect(createLogSpy).toHaveBeenCalledWith(
             LogType.DEBUG,
-            LogOperation.AUTH,
+            LogOperation.CREATE,
             LogCategory.AUTH,
             expect.stringContaining('JWT_ACCESS_SECRET')
         );

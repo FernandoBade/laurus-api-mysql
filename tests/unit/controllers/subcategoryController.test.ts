@@ -243,7 +243,7 @@ describe('SubcategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -342,7 +342,7 @@ describe('SubcategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -422,7 +422,7 @@ describe('SubcategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -521,7 +521,7 @@ describe('SubcategoryController', () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         LogType.ERROR,
-        LogOperation.SEARCH,
+        LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
         authUser.id,
@@ -601,6 +601,7 @@ describe('SubcategoryController', () => {
     it('returns 200 and logs when update succeeds', async () => {
       const existing = makeSubcategory({ id: 11, categoryId: 3 });
       const updated = makeSubcategory({ id: 11, categoryId: 3, name: 'Updated' });
+      const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(SubcategoryService.prototype, 'updateSubcategory').mockResolvedValue({ success: true, data: updated });
       const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: 1 } });
@@ -616,7 +617,7 @@ describe('SubcategoryController', () => {
         LogType.SUCCESS,
         LogOperation.UPDATE,
         LogCategory.CATEGORY,
-        updated,
+        expectedDelta,
         authUser.id
       );
     });
@@ -668,6 +669,7 @@ describe('SubcategoryController', () => {
     });
 
     it('returns 400 when service signals failure', async () => {
+      jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: makeSubcategory({ id: 20 }) });
       jest.spyOn(SubcategoryService.prototype, 'deleteSubcategory').mockResolvedValue({ success: false, error: Resource.SUBCATEGORY_NOT_FOUND });
       const req = createMockRequest({ params: { id: '20' } });
       const res = createMockResponse();
@@ -683,6 +685,14 @@ describe('SubcategoryController', () => {
     });
 
     it('returns 200 and logs when deletion succeeds', async () => {
+      const snapshot = makeSubcategory({ id: 21 });
+      const expectedSnapshot = {
+        id: snapshot.id,
+        name: snapshot.name,
+        categoryId: snapshot.categoryId,
+        active: snapshot.active,
+      };
+      jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: snapshot });
       jest.spyOn(SubcategoryService.prototype, 'deleteSubcategory').mockResolvedValue({ success: true, data: { id: 21 } });
       const req = createAuthRequest({ params: { id: '21' } });
       const res = createMockResponse();
@@ -697,12 +707,13 @@ describe('SubcategoryController', () => {
         LogType.SUCCESS,
         LogOperation.DELETE,
         LogCategory.CATEGORY,
-        { id: 21 },
+        expectedSnapshot,
         authUser.id
       );
     });
 
     it('returns 500 and logs when service throws', async () => {
+      jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: makeSubcategory({ id: 22 }) });
       jest.spyOn(SubcategoryService.prototype, 'deleteSubcategory').mockRejectedValue(new Error('boom'));
       const req = createAuthRequest({ params: { id: '22' } });
       const res = createMockResponse();
