@@ -12,6 +12,11 @@
         "db:migrate": "ts-node src/db/migrate.ts",
         "db:sync": "npm run db:generate && npm run db:migrate",
 
+        "seed": "ts-node src/dev/seed.ts",
+        "seed:10": "ts-node src/dev/seed.ts 10",
+        "seed:100": "ts-node src/dev/seed.ts 100",
+        "seed:1000": "ts-node src/dev/seed.ts 1000",
+
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",

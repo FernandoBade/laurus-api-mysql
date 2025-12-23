@@ -18,6 +18,7 @@ module.exports = {
         'src/**/*.{ts,js}',
         '!src/**/index.ts',
         '!src/routes/**',
+        '!src/dev/**',
         '!src/server.ts',
         '!src/db/**',
     ],

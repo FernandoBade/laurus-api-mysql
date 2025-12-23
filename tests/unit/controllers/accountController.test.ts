@@ -7,6 +7,10 @@ import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeAccount, makeAccountInput } from '../../helpers/factories';
 
+const authUser = { id: 999 };
+const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
+  createMockRequest({ user: authUser, ...overrides });
+
 describe('AccountController', () => {
   let logSpy: jest.SpyInstance;
 
@@ -84,7 +88,7 @@ describe('AccountController', () => {
       const serviceInput = makeAccountInput({ userId: 2 });
       const created = makeAccount({ id: 10, userId: serviceInput.userId });
       const createSpy = jest.spyOn(AccountService.prototype, 'createAccount').mockResolvedValue({ success: true, data: created });
-      const req = createMockRequest({
+      const req = createAuthRequest({
         body: {
           name: serviceInput.name,
           institution: serviceInput.institution,
@@ -130,7 +134,7 @@ describe('AccountController', () => {
     it('returns 500 and logs when service throws', async () => {
       const serviceInput = makeAccountInput({ userId: 3 });
       jest.spyOn(AccountService.prototype, 'createAccount').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({
+      const req = createAuthRequest({
         body: {
           name: serviceInput.name,
           institution: serviceInput.institution,
@@ -156,7 +160,7 @@ describe('AccountController', () => {
         LogOperation.CREATE,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        undefined,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -242,7 +246,7 @@ describe('AccountController', () => {
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(AccountService.prototype, 'getAccounts').mockRejectedValue(new Error('boom'));
       jest.spyOn(AccountService.prototype, 'countAccounts').mockResolvedValue({ success: true, data: 0 });
-      const req = createMockRequest({ query: {} });
+      const req = createAuthRequest({ query: {} });
       const res = createMockResponse();
       const next = createNext();
 
@@ -260,7 +264,7 @@ describe('AccountController', () => {
         LogOperation.SEARCH,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        undefined,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -322,7 +326,7 @@ describe('AccountController', () => {
 
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(AccountService.prototype, 'getAccountById').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '5' } });
+      const req = createAuthRequest({ params: { id: '5' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -340,7 +344,7 @@ describe('AccountController', () => {
         LogOperation.SEARCH,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        5,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -421,7 +425,7 @@ describe('AccountController', () => {
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(AccountService.prototype, 'getAccountsByUser').mockRejectedValue(new Error('boom'));
       jest.spyOn(AccountService.prototype, 'countAccountsByUser').mockResolvedValue({ success: true, data: 0 });
-      const req = createMockRequest({ params: { userId: '4' }, query: {} });
+      const req = createAuthRequest({ params: { userId: '4' }, query: {} });
       const res = createMockResponse();
       const next = createNext();
 
@@ -439,7 +443,7 @@ describe('AccountController', () => {
         LogOperation.SEARCH,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        4,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -518,7 +522,7 @@ describe('AccountController', () => {
       const updated = makeAccount({ id: 11, userId: 3, name: 'Updated' });
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(AccountService.prototype, 'updateAccount').mockResolvedValue({ success: true, data: updated });
-      const req = createMockRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -543,7 +547,7 @@ describe('AccountController', () => {
       const existing = makeAccount({ id: 12 });
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(AccountService.prototype, 'updateAccount').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '12' }, body: { name: 'Updated' } });
+      const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Updated' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -561,7 +565,7 @@ describe('AccountController', () => {
         LogOperation.UPDATE,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        12,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -602,7 +606,7 @@ describe('AccountController', () => {
 
     it('returns 200 and logs when deletion succeeds', async () => {
       jest.spyOn(AccountService.prototype, 'deleteAccount').mockResolvedValue({ success: true, data: { id: 21 } });
-      const req = createMockRequest({ params: { id: '21' } });
+      const req = createAuthRequest({ params: { id: '21' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -616,13 +620,13 @@ describe('AccountController', () => {
         LogOperation.DELETE,
         LogCategory.ACCOUNT,
         { id: 21 },
-        21
+        authUser.id
       );
     });
 
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(AccountService.prototype, 'deleteAccount').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '22' } });
+      const req = createAuthRequest({ params: { id: '22' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -640,7 +644,7 @@ describe('AccountController', () => {
         LogOperation.DELETE,
         LogCategory.ACCOUNT,
         expect.any(Object),
-        22,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();

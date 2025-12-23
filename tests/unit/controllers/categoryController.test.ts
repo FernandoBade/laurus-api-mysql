@@ -6,6 +6,10 @@ import { ResourceBase } from '../../../src/utils/resources/languages/resourceSer
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 
+const authUser = { id: 999 };
+const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
+  createMockRequest({ user: authUser, ...overrides });
+
 const makeCategoryInput = (overrides: Partial<{ name: string; type: string; color?: string; userId: number; active?: boolean }> = {}) => ({
   name: overrides.name ?? 'Food',
   type: overrides.type ?? 'expense',
@@ -96,7 +100,7 @@ describe('CategoryController', () => {
       const input = makeCategoryInput({ userId: 4 });
       const created = makeCategory({ id: 12, userId: input.user_id });
       const createSpy = jest.spyOn(CategoryService.prototype, 'createCategory').mockResolvedValue({ success: true, data: created });
-      const req = createMockRequest({ body: input });
+      const req = createAuthRequest({ body: input });
       const res = createMockResponse();
       const next = createNext();
 
@@ -127,7 +131,7 @@ describe('CategoryController', () => {
     it('returns 500 and logs when service throws', async () => {
       const input = makeCategoryInput({ userId: 3 });
       jest.spyOn(CategoryService.prototype, 'createCategory').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ body: input });
+      const req = createAuthRequest({ body: input });
       const res = createMockResponse();
       const next = createNext();
 
@@ -145,7 +149,7 @@ describe('CategoryController', () => {
         LogOperation.CREATE,
         LogCategory.CATEGORY,
         expect.any(Object),
-        undefined,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -229,7 +233,7 @@ describe('CategoryController', () => {
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(CategoryService.prototype, 'getCategories').mockRejectedValue(new Error('boom'));
       jest.spyOn(CategoryService.prototype, 'countCategories').mockResolvedValue({ success: true, data: 0 });
-      const req = createMockRequest({ query: {} });
+      const req = createAuthRequest({ query: {} });
       const res = createMockResponse();
       const next = createNext();
 
@@ -247,7 +251,7 @@ describe('CategoryController', () => {
         LogOperation.SEARCH,
         LogCategory.CATEGORY,
         expect.any(Object),
-        undefined,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -309,7 +313,7 @@ describe('CategoryController', () => {
 
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '7' } });
+      const req = createAuthRequest({ params: { id: '7' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -327,7 +331,7 @@ describe('CategoryController', () => {
         LogOperation.SEARCH,
         LogCategory.CATEGORY,
         expect.any(Object),
-        7,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -408,7 +412,7 @@ describe('CategoryController', () => {
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(CategoryService.prototype, 'getCategoriesByUser').mockRejectedValue(new Error('boom'));
       jest.spyOn(CategoryService.prototype, 'countCategoriesByUser').mockResolvedValue({ success: true, data: 0 });
-      const req = createMockRequest({ params: { userId: '4' }, query: {} });
+      const req = createAuthRequest({ params: { userId: '4' }, query: {} });
       const res = createMockResponse();
       const next = createNext();
 
@@ -426,7 +430,7 @@ describe('CategoryController', () => {
         LogOperation.SEARCH,
         LogCategory.CATEGORY,
         expect.any(Object),
-        4,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -505,7 +509,7 @@ describe('CategoryController', () => {
       const updated = makeCategory({ id: 11, userId: 3, name: 'Updated' });
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CategoryService.prototype, 'updateCategory').mockResolvedValue({ success: true, data: updated });
-      const req = createMockRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -530,7 +534,7 @@ describe('CategoryController', () => {
       const existing = makeCategory({ id: 12 });
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CategoryService.prototype, 'updateCategory').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '12' }, body: { name: 'Updated' } });
+      const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Updated' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -548,7 +552,7 @@ describe('CategoryController', () => {
         LogOperation.UPDATE,
         LogCategory.CATEGORY,
         expect.any(Object),
-        12,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();
@@ -589,7 +593,7 @@ describe('CategoryController', () => {
 
     it('returns 200 and logs when deletion succeeds', async () => {
       jest.spyOn(CategoryService.prototype, 'deleteCategory').mockResolvedValue({ success: true, data: { id: 21 } });
-      const req = createMockRequest({ params: { id: '21' } });
+      const req = createAuthRequest({ params: { id: '21' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -603,13 +607,13 @@ describe('CategoryController', () => {
         LogOperation.DELETE,
         LogCategory.CATEGORY,
         { id: 21 },
-        21
+        authUser.id
       );
     });
 
     it('returns 500 and logs when service throws', async () => {
       jest.spyOn(CategoryService.prototype, 'deleteCategory').mockRejectedValue(new Error('boom'));
-      const req = createMockRequest({ params: { id: '22' } });
+      const req = createAuthRequest({ params: { id: '22' } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -627,7 +631,7 @@ describe('CategoryController', () => {
         LogOperation.DELETE,
         LogCategory.CATEGORY,
         expect.any(Object),
-        22,
+        authUser.id,
         next
       );
       expect(next).not.toHaveBeenCalled();

@@ -7,6 +7,10 @@ import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeTransaction, makeTransactionInput } from '../../helpers/factories';
 
+const authUser = { id: 999 };
+const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
+    createMockRequest({ user: authUser, ...overrides });
+
 describe('TransactionController', () => {
     let logSpy: jest.SpyInstance;
 
@@ -80,7 +84,7 @@ describe('TransactionController', () => {
             const input = makeTransactionInput({ accountId: 2 });
             const created = makeTransaction({ id: 10, accountId: input.account_id as number });
             const createSpy = jest.spyOn(TransactionService.prototype, 'createTransaction').mockResolvedValue({ success: true, data: created });
-            const req = createMockRequest({ body: input });
+            const req = createAuthRequest({ body: input });
             const res = createMockResponse();
             const next = createNext();
 
@@ -108,7 +112,7 @@ describe('TransactionController', () => {
                 LogOperation.CREATE,
                 LogCategory.TRANSACTION,
                 created,
-                created.accountId ?? created.creditCardId
+                authUser.id
             );
             expect(next).not.toHaveBeenCalled();
         });
@@ -116,7 +120,7 @@ describe('TransactionController', () => {
         it('returns 500 and logs when service throws', async () => {
             const input = makeTransactionInput({ accountId: 3 });
             jest.spyOn(TransactionService.prototype, 'createTransaction').mockRejectedValue(new Error('boom'));
-            const req = createMockRequest({ body: input });
+            const req = createAuthRequest({ body: input });
             const res = createMockResponse();
             const next = createNext();
 
@@ -134,7 +138,7 @@ describe('TransactionController', () => {
                 LogOperation.CREATE,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                undefined,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -218,7 +222,7 @@ describe('TransactionController', () => {
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(TransactionService.prototype, 'getTransactions').mockRejectedValue(new Error('boom'));
             jest.spyOn(TransactionService.prototype, 'countTransactions').mockResolvedValue({ success: true, data: 0 });
-            const req = createMockRequest({ query: {} });
+            const req = createAuthRequest({ query: {} });
             const res = createMockResponse();
             const next = createNext();
 
@@ -236,7 +240,7 @@ describe('TransactionController', () => {
                 LogOperation.SEARCH,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                undefined,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -298,7 +302,7 @@ describe('TransactionController', () => {
 
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockRejectedValue(new Error('boom'));
-            const req = createMockRequest({ params: { id: '7' } });
+            const req = createAuthRequest({ params: { id: '7' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -316,7 +320,7 @@ describe('TransactionController', () => {
                 LogOperation.SEARCH,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                7,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -419,7 +423,7 @@ describe('TransactionController', () => {
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(TransactionService.prototype, 'getTransactionsByAccount').mockRejectedValue(new Error('boom'));
             jest.spyOn(TransactionService.prototype, 'countTransactionsByAccount').mockResolvedValue({ success: true, data: 0 });
-            const req = createMockRequest({ params: { accountId: '4' }, query: {} });
+            const req = createAuthRequest({ params: { accountId: '4' }, query: {} });
             const res = createMockResponse();
             const next = createNext();
 
@@ -437,7 +441,7 @@ describe('TransactionController', () => {
                 LogOperation.SEARCH,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                4,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -539,7 +543,7 @@ describe('TransactionController', () => {
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(TransactionService.prototype, 'getTransactionsByUser').mockRejectedValue(new Error('boom'));
             jest.spyOn(TransactionService.prototype, 'countTransactionsByUser').mockResolvedValue({ success: true, data: 0 });
-            const req = createMockRequest({ params: { userId: '4' }, query: {} });
+            const req = createAuthRequest({ params: { userId: '4' }, query: {} });
             const res = createMockResponse();
             const next = createNext();
 
@@ -557,7 +561,7 @@ describe('TransactionController', () => {
                 LogOperation.SEARCH,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                4,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -639,7 +643,7 @@ describe('TransactionController', () => {
             const updated = makeTransaction({ id: 11, accountId: 3, value: '200' });
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: true, data: existing });
             jest.spyOn(TransactionService.prototype, 'updateTransaction').mockResolvedValue({ success: true, data: updated });
-            const req = createMockRequest({
+            const req = createAuthRequest({
                 params: { id: '11' },
                 body: { value: 200, account_id: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
             });
@@ -663,7 +667,7 @@ describe('TransactionController', () => {
                 LogOperation.UPDATE,
                 LogCategory.TRANSACTION,
                 updated,
-                updated.accountId ?? updated.creditCardId
+                authUser.id
             );
         });
 
@@ -671,7 +675,7 @@ describe('TransactionController', () => {
             const existing = makeTransaction({ id: 12 });
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: true, data: existing });
             jest.spyOn(TransactionService.prototype, 'updateTransaction').mockRejectedValue(new Error('boom'));
-            const req = createMockRequest({
+            const req = createAuthRequest({
                 params: { id: '12' },
                 body: { value: 150, account_id: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
             });
@@ -692,7 +696,7 @@ describe('TransactionController', () => {
                 LogOperation.UPDATE,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                12,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
@@ -733,7 +737,7 @@ describe('TransactionController', () => {
 
         it('returns 200 and logs when deletion succeeds', async () => {
             jest.spyOn(TransactionService.prototype, 'deleteTransaction').mockResolvedValue({ success: true, data: { id: 21 } });
-            const req = createMockRequest({ params: { id: '21' } });
+            const req = createAuthRequest({ params: { id: '21' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -747,13 +751,13 @@ describe('TransactionController', () => {
                 LogOperation.DELETE,
                 LogCategory.TRANSACTION,
                 { id: 21 },
-                21
+                authUser.id
             );
         });
 
         it('returns 500 and logs when service throws', async () => {
             jest.spyOn(TransactionService.prototype, 'deleteTransaction').mockRejectedValue(new Error('boom'));
-            const req = createMockRequest({ params: { id: '22' } });
+            const req = createAuthRequest({ params: { id: '22' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -771,7 +775,7 @@ describe('TransactionController', () => {
                 LogOperation.DELETE,
                 LogCategory.TRANSACTION,
                 expect.any(Object),
-                22,
+                authUser.id,
                 next
             );
             expect(next).not.toHaveBeenCalled();
