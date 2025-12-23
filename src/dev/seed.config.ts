@@ -127,16 +127,16 @@ export const seedConfig: SeedConfig = {
         'Nubank','Itau','Bradesco','Santander','Banco do Brasil','Caixa','Inter','C6 Bank','Neon','Original','Next','PagBank','HSBC','Banco Mercantil','Agibank','N26','Banco Pan'
     ],
     accountTemplates: [
-        { name: 'Main Account', type: AccountType.CHECKING, observation: 'Primary daily account.' },
-        { name: 'Payroll Account', type: AccountType.PAYROLL, observation: 'Salary deposits.' },
-        { name: 'Savings Account', type: AccountType.SAVINGS, observation: 'Reserved savings.' },
-        { name: 'Emergency Fund', type: AccountType.SAVINGS, observation: 'Emergency savings.' },
-        { name: 'Travel Account', type: AccountType.SAVINGS, observation: 'Trips and vacations.' },
-        { name: 'Investment Account', type: AccountType.INVESTMENT, observation: 'Long-term investments.' },
-        { name: 'Crypto Account', type: AccountType.INVESTMENT, observation: 'Crypto holdings.' },
-        { name: 'Credit Line', type: AccountType.LOAN, observation: 'Personal credit line.' },
-        { name: 'Bills Account', type: AccountType.CHECKING, observation: 'Monthly expenses.' },
-        { name: 'Business Account', type: AccountType.CHECKING, observation: 'Business transactions.' },
+        { name: 'Conta Principal', type: AccountType.CHECKING, observation: 'Conta principal para uso diário.' },
+        { name: 'Cuenta Nómina', type: AccountType.PAYROLL, observation: 'Depósitos de nómina / Salary deposits.' },
+        { name: 'Savings Account', type: AccountType.SAVINGS, observation: 'Reservas / Ahorros / Poupança.' },
+        { name: 'Fundo de Emergência', type: AccountType.SAVINGS, observation: 'Reserva para emergências.' },
+        { name: 'Cuenta de Viaje', type: AccountType.SAVINGS, observation: 'Ahorros para viajes / Trips and vacations.' },
+        { name: 'Conta de Investimento', type: AccountType.INVESTMENT, observation: 'Investimentos de longo prazo.' },
+        { name: 'Crypto Wallet', type: AccountType.INVESTMENT, observation: 'Cripto / Crypto holdings.' },
+        { name: 'Linha de Crédito', type: AccountType.LOAN, observation: 'Crédito pessoal / Línea de crédito.' },
+        { name: 'Contas a Pagar', type: AccountType.CHECKING, observation: 'Despesas mensais / Monthly expenses.' },
+        { name: 'Cuenta Empresarial', type: AccountType.CHECKING, observation: 'Transações comerciais / Business transactions.' },
     ],
     creditCardProducts: [
         { name: 'Nubank Platinum', flag: CreditCardFlag.MASTERCARD, observation: 'Primary credit card.' },
@@ -161,7 +161,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.GREEN,
             subcategories: ['Monthly Salary', 'Bonus', 'Overtime', 'Commission', 'Allowance'],
             amountRange: { min: 2500, max: 18000 },
-            merchants: ['Payroll', 'Employer', 'HR Department', 'Finance Team'],
+            merchants: ['Folha de Pagamento', 'Payroll', 'Empresa', 'Employer', 'Departamento de RH', 'HR Department', 'Equipe Financeira', 'Finance Team'],
             observationTemplates: [
                 'Payroll from {merchant}',
                 '{merchant} salary deposit',
@@ -176,7 +176,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.CYAN,
             subcategories: ['Consulting', 'Design', 'Development', 'Writing', 'Support'],
             amountRange: { min: 300, max: 9000 },
-            merchants: ['Client Project', 'Contract Work', 'Side Gig', 'Freelance Client'],
+            merchants: ['Projeto Cliente', 'Client Project', 'Trabajo por contrato', 'Contract Work', 'Side Gig', 'Freelance Client', 'Cliente Freelance'],
             observationTemplates: [
                 'Freelance payment - {merchant}',
                 '{merchant} invoice',
@@ -191,7 +191,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.BLUE,
             subcategories: ['Dividends', 'Interest', 'Capital Gains', 'Savings Yield', 'Crypto'],
             amountRange: { min: 50, max: 3500 },
-            merchants: ['Brokerage', 'Savings', 'Investment Platform', 'Dividend'],
+            merchants: ['Corretora', 'Brokerage', 'Poupança', 'Savings', 'Plataforma de Investimentos', 'Investment Platform', 'Dividend', 'Dividendos'],
             observationTemplates: [
                 'Investment income - {merchant}',
                 '{merchant} yield',
@@ -206,7 +206,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.GREEN,
             subcategories: ['Product Return', 'Service Refund'],
             amountRange: { min: 5, max: 1500 },
-            merchants: ['Store', 'Marketplace', 'Seller'],
+            merchants: ['Loja', 'Store', 'Tienda', 'Marketplace', 'Vendedor', 'Seller'],
             observationTemplates: ['Refund - {merchant}', '{merchant} return'],
             recurringChance: 0.02,
         },
@@ -216,7 +216,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.CYAN,
             subcategories: ['Birthday', 'Anniversary', 'Other Gifts'],
             amountRange: { min: 10, max: 2000 },
-            merchants: ['Friend', 'Family'],
+            merchants: ['Amigo', 'Friend', 'Familia', 'Family'],
             observationTemplates: ['Gift from {merchant}', '{merchant} present'],
             recurringChance: 0.01,
         },
@@ -226,7 +226,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.RED,
             subcategories: ['Rent', 'Mortgage', 'Condo Fees', 'Maintenance', 'Insurance'],
             amountRange: { min: 400, max: 5500 },
-            merchants: ['Property Manager', 'Condo Office', 'Housing Services'],
+            merchants: ['Síndico', 'Property Manager', 'Condomínio', 'Condo Office', 'Serviços de Habitação', 'Housing Services'],
             observationTemplates: [
                 '{merchant} - housing payment',
                 'Monthly housing - {merchant}',
@@ -240,7 +240,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.YELLOW,
             subcategories: ['Electricity', 'Water', 'Internet', 'Mobile', 'Gas'],
             amountRange: { min: 40, max: 450 },
-            merchants: ['Utility Provider', 'Telecom', 'Internet Service'],
+            merchants: ['Fornecedor de Serviços', 'Utility Provider', 'Telecom', 'Proveedor de Telecom', 'Serviço de Internet', 'Internet Service'],
             observationTemplates: [
                 'Utility bill - {merchant}',
                 '{merchant} invoice',
@@ -254,7 +254,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.ORANGE,
             subcategories: ['Supermarket', 'Bakery', 'Butcher', 'Convenience', 'Farmers Market', 'Online Groceries'],
             amountRange: { min: 20, max: 650 },
-            merchants: ['Carrefour', 'Pao de Acucar', 'Assai', 'Local Market', 'Extra', 'Mercado Livre'],
+            merchants: ['Carrefour', 'Pao de Acucar', 'Assai', 'Mercado Local', 'Local Market', 'Extra', 'Mercado Livre', 'Supermercado'],
             observationTemplates: [
                 'Groceries - {merchant}',
                 '{merchant} purchase',
@@ -268,7 +268,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.GRAY,
             subcategories: ['Fuel', 'Ride Share', 'Public Transit', 'Parking', 'Toll', 'Taxi'],
             amountRange: { min: 8, max: 380 },
-            merchants: ['Uber', '99', 'Shell', 'Petrobras', 'Metro'],
+            merchants: ['Uber', '99', 'Shell', 'Petrobras', 'Metro', 'Táxi', 'Taxi', 'Transporte Público'],
             observationTemplates: [
                 'Transport - {merchant}',
                 '{merchant} ride',
@@ -282,7 +282,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.PINK,
             subcategories: ['Restaurant', 'Fast Food', 'Coffee', 'Delivery', 'Bar'],
             amountRange: { min: 12, max: 420 },
-            merchants: ['iFood', 'Burger King', 'Starbucks', 'Local Cafe', 'Outback'],
+            merchants: ['iFood', 'iFood (Delivery)', 'Burger King', 'Starbucks', 'Local Cafe', 'Cafetería', 'Restaurante Local', 'Outback'],
             observationTemplates: [
                 'Dining - {merchant}',
                 '{merchant} meal',
@@ -296,7 +296,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.PURPLE,
             subcategories: ['Clothing', 'Electronics', 'Home Goods', 'Pharmacy', 'Gifts'],
             amountRange: { min: 25, max: 2200 },
-            merchants: ['Amazon', 'Mercado Livre', 'Renner', 'Magazine Luiza', 'Farmacia'],
+            merchants: ['Amazon', 'Mercado Livre', 'Renner', 'Magazine Luiza', 'Farmacia', 'Farmacia (Pharmacy)', 'Tienda'],
             observationTemplates: [
                 'Shopping - {merchant}',
                 '{merchant} purchase',
@@ -311,7 +311,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.RED,
             subcategories: ['Doctor', 'Pharmacy', 'Dentist', 'Therapy', 'Exams'],
             amountRange: { min: 30, max: 2500 },
-            merchants: ['Hospital', 'Clinica', 'DrogaRaia', 'Drogasil', 'Local Clinic'],
+            merchants: ['Hospital', 'Clínica', 'Clinica', 'DrogaRaia', 'Drogasil', 'Local Clinic', 'Farmácia'],
             observationTemplates: [
                 'Health expense - {merchant}',
                 '{merchant} payment',
@@ -325,7 +325,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.BLUE,
             subcategories: ['Tuition', 'Books', 'Courses', 'Workshops', 'Online Course'],
             amountRange: { min: 50, max: 7000 },
-            merchants: ['Coursera', 'Udemy', 'University', 'School', 'Bookstore'],
+            merchants: ['Coursera', 'Udemy', 'University', 'Universidad', 'School', 'Escola', 'Bookstore', 'Livraria'],
             observationTemplates: [
                 'Education - {merchant}',
                 '{merchant} fee',
@@ -339,7 +339,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.CYAN,
             subcategories: ['Flight', 'Hotel', 'Transportation', 'Tour', 'Visa'],
             amountRange: { min: 100, max: 8000 },
-            merchants: ['Airline', 'Booking', 'Hotel', 'Travel Agency'],
+            merchants: ['Airline', 'Aerolinea', 'Booking', 'Reserva (Booking)', 'Hotel', 'Hotel (Hotel)', 'Agência de Viagens', 'Travel Agency'],
             observationTemplates: [
                 'Travel - {merchant}',
                 '{merchant} reservation',
@@ -353,7 +353,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.GRAY,
             subcategories: ['Car Insurance', 'Home Insurance', 'Health Insurance', 'Life Insurance'],
             amountRange: { min: 30, max: 1200 },
-            merchants: ['Insurance Co', 'Broker', 'Seguradora'],
+            merchants: ['Seguradora', 'Insurance Co', 'Corretora', 'Broker'],
             observationTemplates: [
                 'Insurance - {merchant}',
                 'Premium payment - {merchant}'
@@ -366,7 +366,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.PINK,
             subcategories: ['Vet', 'Food', 'Grooming', 'Accessories'],
             amountRange: { min: 15, max: 400 },
-            merchants: ['Pet Shop', 'Veterinary', 'Petcare'],
+            merchants: ['Pet Shop', 'Loja Pet', 'Veterinário', 'Veterinary', 'Petcare'],
             observationTemplates: [
                 'Pet expense - {merchant}',
                 '{merchant} purchase'
@@ -379,7 +379,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.INDIGO,
             subcategories: ['Streaming', 'Software', 'Gym', 'News', 'Cloud Storage'],
             amountRange: { min: 5, max: 60 },
-            merchants: ['Netflix', 'Spotify', 'Adobe', 'Gym', 'Apple'],
+            merchants: ['Netflix', 'Spotify', 'Adobe', 'Gym', 'Apple', 'Plataforma', 'Serviço de Assinatura'],
             observationTemplates: [
                 'Subscription - {merchant}',
                 'Monthly subscription - {merchant}'
@@ -392,7 +392,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.RED,
             subcategories: ['Income Tax', 'Property Tax', 'Sales Tax', 'Other Taxes'],
             amountRange: { min: 10, max: 15000 },
-            merchants: ['Tax Authority', 'Receita Federal'],
+            merchants: ['Tax Authority', 'Receita Federal', 'Hacienda', 'Autoridad Fiscal'],
             observationTemplates: [
                 'Tax payment - {merchant}',
                 'Tax - {merchant}'
@@ -405,7 +405,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.PURPLE,
             subcategories: ['Haircut', 'Salon', 'Cosmetics', 'Spa'],
             amountRange: { min: 20, max: 300 },
-            merchants: ['Salon', 'Spa', 'Beauty Store'],
+            merchants: ['Salão', 'Salon', 'Spa', 'Loja de Beleza', 'Beauty Store'],
             observationTemplates: [
                 'Personal care - {merchant}',
                 '{merchant} service'
@@ -418,7 +418,7 @@ export const seedConfig: SeedConfig = {
             color: CategoryColor.INDIGO,
             subcategories: ['Streaming', 'Movies', 'Games', 'Books', 'Events'],
             amountRange: { min: 10, max: 320 },
-            merchants: ['Netflix', 'Spotify', 'Steam', 'Cinemark', 'Ticketmaster'],
+            merchants: ['Netflix', 'Spotify', 'Steam', 'Cinemark', 'Ticketmaster', 'Teatro', 'Cinema', 'Plataforma'],
             observationTemplates: [
                 'Entertainment - {merchant}',
                 '{merchant} subscription',
