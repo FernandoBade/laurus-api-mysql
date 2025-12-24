@@ -99,13 +99,17 @@ CREATE TABLE `log` (
 	CONSTRAINT `log_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `refresh_token` (
+CREATE TABLE `token` (
 	`id` int AUTO_INCREMENT NOT NULL,
-	`token` varchar(255) NOT NULL,
-	`expiresAt` timestamp NOT NULL,
-	`user_id` int,
-	`createdAt` timestamp NOT NULL DEFAULT (now()),
-	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `refresh_token_id` PRIMARY KEY(`id`),
-	CONSTRAINT `refresh_token_token_unique` UNIQUE(`token`)
+	`user_id` int NOT NULL,
+	`type` enum('refresh') NOT NULL,
+	`token_hash` varchar(64) NOT NULL,
+	`expires_at` timestamp NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `token_id` PRIMARY KEY(`id`),
+	CONSTRAINT `token_token_hash_unique` UNIQUE(`token_hash`)
 );
+--> statement-breakpoint
+CREATE INDEX `token_user_id_idx` ON `token` (`user_id`);--> statement-breakpoint
+CREATE INDEX `token_expires_at_idx` ON `token` (`expires_at`);

@@ -1,14 +1,15 @@
 import { and, asc, desc, eq } from 'drizzle-orm';
-import { RefreshTokenRepository } from '../../../src/repositories/refreshTokenRepository';
+import { TokenRepository } from '../../../src/repositories/tokenRepository';
 import { db } from '../../../src/db';
-import { refreshTokens, SelectRefreshToken } from '../../../src/db/schema';
-import { Operator } from '../../../src/utils/enum';
+import { tokens, SelectToken } from '../../../src/db/schema';
+import { Operator, TokenType } from '../../../src/utils/enum';
 
-const makeRefreshToken = (overrides: Partial<SelectRefreshToken> = {}): SelectRefreshToken => {
+const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
-        token: overrides.token ?? 'token-1',
+        tokenHash: overrides.tokenHash ?? 'token-hash-1',
+        type: overrides.type ?? TokenType.REFRESH,
         expiresAt: overrides.expiresAt ?? now,
         userId: overrides.userId ?? 1,
         createdAt: overrides.createdAt ?? now,
@@ -41,8 +42,8 @@ const makeInsertChain = (insertId: number) => {
     return { insert, values };
 };
 
-const makeDeleteChain = () => {
-    const where = jest.fn().mockResolvedValue(undefined);
+const makeDeleteChain = (affectedRows = 1) => {
+    const where = jest.fn().mockResolvedValue([{ affectedRows }]);
     const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as any);
     return { deleteSpy, where };
 };
@@ -52,11 +53,11 @@ const expectSelectChain = (select: jest.SpyInstance, from: jest.Mock, table: unk
     expect(from).toHaveBeenCalledWith(table);
 };
 
-describe('RefreshTokenRepository', () => {
-    let repo: RefreshTokenRepository;
+describe('TokenRepository', () => {
+    let repo: TokenRepository;
 
     beforeEach(() => {
-        repo = new RefreshTokenRepository();
+        repo = new TokenRepository();
         jest.clearAllMocks();
     });
 
@@ -65,14 +66,14 @@ describe('RefreshTokenRepository', () => {
     });
 
     describe('findById', () => {
-        it('returns refresh token when found', async () => {
-            const token = makeRefreshToken({ id: 1 });
+        it('returns token when found', async () => {
+            const token = makeToken({ id: 1 });
             const { select, from, query } = makeSelectChain([token]);
 
             const result = await repo.findById(1);
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.id, 1));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(eq(tokens.id, 1));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toEqual(token);
         });
@@ -82,22 +83,22 @@ describe('RefreshTokenRepository', () => {
 
             const result = await repo.findById(99);
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.id, 99));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(eq(tokens.id, 99));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toBeNull();
         });
     });
 
-    describe('findByToken', () => {
-        it('returns refresh token when found', async () => {
-            const token = makeRefreshToken({ token: 'token-123' });
+    describe('findByTokenHash', () => {
+        it('returns token when found', async () => {
+            const token = makeToken({ tokenHash: 'token-123' });
             const { select, from, query } = makeSelectChain([token]);
 
-            const result = await repo.findByToken('token-123');
+            const result = await repo.findByTokenHash('token-123');
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.token, 'token-123'));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'token-123'), eq(tokens.type, TokenType.REFRESH)));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toEqual(token);
         });
@@ -105,24 +106,24 @@ describe('RefreshTokenRepository', () => {
         it('returns null when not found', async () => {
             const { select, from, query } = makeSelectChain([]);
 
-            const result = await repo.findByToken('missing');
+            const result = await repo.findByTokenHash('missing');
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.token, 'missing'));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'missing'), eq(tokens.type, TokenType.REFRESH)));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toBeNull();
         });
     });
 
     describe('findMany', () => {
-        it('returns all refresh tokens when no filters', async () => {
-            const list = [makeRefreshToken({ id: 1 }), makeRefreshToken({ id: 2 })];
+        it('returns all tokens when no filters', async () => {
+            const list = [makeToken({ id: 1 }), makeToken({ id: 2 })];
             const { select, from, query } = makeSelectChain(list);
 
             const result = await repo.findMany();
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).not.toHaveBeenCalled();
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH)));
             expect(query.orderBy).not.toHaveBeenCalled();
             expect(query.limit).not.toHaveBeenCalled();
             expect(query.offset).not.toHaveBeenCalled();
@@ -130,38 +131,38 @@ describe('RefreshTokenRepository', () => {
         });
 
         it('applies userId filter', async () => {
-            const { select, from, query } = makeSelectChain([makeRefreshToken({ id: 1, userId: 7 })]);
+            const { select, from, query } = makeSelectChain([makeToken({ id: 1, userId: 7 })]);
 
             await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(and(eq(refreshTokens.userId, 7)));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH), eq(tokens.userId, 7)));
         });
 
         it('applies sorting asc', async () => {
-            const { select, from, query } = makeSelectChain([makeRefreshToken({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeToken({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'createdAt', order: 'asc' });
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.orderBy).toHaveBeenCalledWith(asc(refreshTokens.createdAt));
+            expectSelectChain(select, from, tokens);
+            expect(query.orderBy).toHaveBeenCalledWith(asc(tokens.createdAt));
         });
 
         it('applies sorting desc', async () => {
-            const { select, from, query } = makeSelectChain([makeRefreshToken({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeToken({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'createdAt', order: 'desc' });
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.orderBy).toHaveBeenCalledWith(desc(refreshTokens.createdAt));
+            expectSelectChain(select, from, tokens);
+            expect(query.orderBy).toHaveBeenCalledWith(desc(tokens.createdAt));
         });
 
         it('applies pagination', async () => {
-            const { select, from, query } = makeSelectChain([makeRefreshToken({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeToken({ id: 1 })]);
 
             await repo.findMany(undefined, { limit: 5, offset: 10 });
 
-            expectSelectChain(select, from, refreshTokens);
+            expectSelectChain(select, from, tokens);
             expect(query.limit).toHaveBeenCalledWith(5);
             expect(query.offset).toHaveBeenCalledWith(10);
         });
@@ -171,8 +172,8 @@ describe('RefreshTokenRepository', () => {
 
             const result = await repo.findMany();
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).not.toHaveBeenCalled();
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH)));
             expect(result).toEqual([]);
         });
     });
@@ -183,9 +184,9 @@ describe('RefreshTokenRepository', () => {
 
             const result = await repo.count();
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(select).toHaveBeenCalledWith({ count: refreshTokens.id });
-            expect(query.where).not.toHaveBeenCalled();
+            expectSelectChain(select, from, tokens);
+            expect(select).toHaveBeenCalledWith({ count: tokens.id });
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH)));
             expect(result).toBe(3);
         });
 
@@ -194,47 +195,50 @@ describe('RefreshTokenRepository', () => {
 
             const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(select).toHaveBeenCalledWith({ count: refreshTokens.id });
-            expect(query.where).toHaveBeenCalledWith(and(eq(refreshTokens.userId, 2)));
+            expectSelectChain(select, from, tokens);
+            expect(select).toHaveBeenCalledWith({ count: tokens.id });
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH), eq(tokens.userId, 2)));
             expect(result).toBe(2);
         });
 
         it('returns 0 when no results', async () => {
-            const { select, from } = makeSelectChain([]);
+            const { select, from, query } = makeSelectChain([]);
 
             const result = await repo.count();
 
-            expectSelectChain(select, from, refreshTokens);
-            expect(select).toHaveBeenCalledWith({ count: refreshTokens.id });
+            expectSelectChain(select, from, tokens);
+            expect(select).toHaveBeenCalledWith({ count: tokens.id });
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH)));
             expect(result).toBe(0);
         });
     });
 
     describe('create', () => {
-        it('inserts and returns created refresh token', async () => {
+        it('inserts and returns created token', async () => {
             const data = {
-                token: 'token-123',
+                tokenHash: 'token-hash-123',
+                type: TokenType.REFRESH,
                 expiresAt: new Date('2024-01-01T00:00:00Z'),
                 userId: 4,
             };
-            const created = makeRefreshToken({ id: 10, token: data.token, userId: 4 });
+            const created = makeToken({ id: 10, tokenHash: data.tokenHash, userId: 4 });
             const { insert, values } = makeInsertChain(10);
             const { select, from, query } = makeSelectChain([created]);
 
             const result = await repo.create(data);
 
-            expect(insert).toHaveBeenCalledWith(refreshTokens);
+            expect(insert).toHaveBeenCalledWith(tokens);
             expect(values).toHaveBeenCalledWith(data);
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.id, 10));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(eq(tokens.id, 10));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toEqual(created);
         });
 
         it('throws invariant error when created record is missing', async () => {
             const data = {
-                token: 'token-123',
+                tokenHash: 'token-hash-123',
+                type: TokenType.REFRESH,
                 expiresAt: new Date('2024-01-01T00:00:00Z'),
                 userId: 4,
             };
@@ -243,10 +247,10 @@ describe('RefreshTokenRepository', () => {
 
             await expect(repo.create(data)).rejects.toThrow('RepositoryInvariantViolation: created record not found');
 
-            expect(insert).toHaveBeenCalledWith(refreshTokens);
+            expect(insert).toHaveBeenCalledWith(tokens);
             expect(values).toHaveBeenCalledWith(data);
-            expectSelectChain(select, from, refreshTokens);
-            expect(query.where).toHaveBeenCalledWith(eq(refreshTokens.id, 12));
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(eq(tokens.id, 12));
             expect(query.limit).toHaveBeenCalledWith(1);
         });
     });
@@ -257,20 +261,20 @@ describe('RefreshTokenRepository', () => {
 
             const result = await repo.delete(5);
 
-            expect(deleteSpy).toHaveBeenCalledWith(refreshTokens);
-            expect(where).toHaveBeenCalledWith(eq(refreshTokens.id, 5));
-            expect(result).toBeUndefined();
+            expect(deleteSpy).toHaveBeenCalledWith(tokens);
+            expect(where).toHaveBeenCalledWith(eq(tokens.id, 5));
+            expect(result).toBe(1);
         });
     });
 
-    describe('deleteByToken', () => {
+    describe('deleteByTokenHash', () => {
         it('executes delete by token query', async () => {
             const { deleteSpy, where } = makeDeleteChain();
 
-            const result = await repo.deleteByToken('token-9');
+            const result = await repo.deleteByTokenHash('token-hash-9');
 
-            expect(deleteSpy).toHaveBeenCalledWith(refreshTokens);
-            expect(where).toHaveBeenCalledWith(eq(refreshTokens.token, 'token-9'));
+            expect(deleteSpy).toHaveBeenCalledWith(tokens);
+            expect(where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'token-hash-9'), eq(tokens.type, TokenType.REFRESH)));
             expect(result).toBeUndefined();
         });
     });

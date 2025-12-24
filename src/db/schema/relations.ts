@@ -6,7 +6,7 @@ import { categories } from './categories';
 import { subcategories } from './subcategories';
 import { creditCards } from './creditCards';
 import { logs } from './logs';
-import { refreshTokens } from './refreshTokens';
+import { tokens } from './tokens';
 
 /**
  * User relations.
@@ -14,7 +14,7 @@ import { refreshTokens } from './refreshTokens';
  */
 export const usersRelations = relations(users, ({ many }) => ({
     logs: many(logs),
-    refreshTokens: many(refreshTokens),
+    tokens: many(tokens),
     accounts: many(accounts),
     creditCards: many(creditCards),
     categories: many(categories),
@@ -109,12 +109,12 @@ export const logsRelations = relations(logs, ({ one }) => ({
 }));
 
 /**
- * Refresh token relations.
- * Defines relationships between refresh tokens and users.
+ * Token relations.
+ * Defines relationships between tokens and users.
  */
-export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
+export const tokensRelations = relations(tokens, ({ one }) => ({
     user: one(users, {
-        fields: [refreshTokens.userId],
+        fields: [tokens.userId],
         references: [users.id],
     }),
 }));

@@ -2,6 +2,7 @@ import AuthController from '../../../src/controller/authController';
 import { makeUser } from '../../helpers/factories';
 import { AuthService } from '../../../src/service/authService';
 import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
+import { TokenCookie } from '../../../src/utils/auth/cookieConfig';
 import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
 import * as commons from '../../../src/utils/commons';
@@ -162,7 +163,7 @@ describe('AuthController', () => {
         });
 
         it('returns 200 on success', async () => {
-            const payload = { token: 'new-token' };
+            const payload = { token: 'new-token', refreshToken: 'new-refresh' };
             const refreshSpy = jest.spyOn(AuthService.prototype, 'refresh').mockResolvedValue({ success: true, data: payload });
             const req = createMockRequest({ cookies: { refreshToken: 'good' } });
             const res = createMockResponse();
@@ -171,8 +172,9 @@ describe('AuthController', () => {
             await AuthController.refresh(req, res, next);
 
             expect(refreshSpy).toHaveBeenCalledWith('good');
+            expect(res.cookie).toHaveBeenCalledWith(TokenCookie.name, 'new-refresh', TokenCookie.options);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: payload }));
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { token: 'new-token' } }));
             expect(logSpy).not.toHaveBeenCalled();
             expect(next).not.toHaveBeenCalled();
         });

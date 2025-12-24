@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.use((req: Request, res: Response, next: NextFunction) => {
     const acceptedLanguages: LanguageCode[] = ['en-US', 'pt-BR', 'es-ES'];
     const lang = req.headers['accept-language'] as LanguageCode;
-    req.language = acceptedLanguages.includes(lang) ? lang : 'pt-BR';
+    req.language = acceptedLanguages.includes(lang) ? lang : 'en-US';
     next();
 });
 

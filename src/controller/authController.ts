@@ -3,12 +3,12 @@ import { AuthService } from '../service/authService';
 import { answerAPI, formatError, createLog } from '../utils/commons';
 import { LogType, LogCategory, LogOperation, HTTPStatus } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
-import { RefreshTokenCookie, ClearCookieOptions } from '../utils/auth/cookieConfig';
+import { TokenCookie, ClearCookieOptions } from '../utils/auth/cookieConfig';
 
 export class AuthController {
     /**
      * Authenticates a user using email and password credentials.
-     * If valid, generates an access token and sets a refresh token as an HTTP-only cookie.
+     * If valid, generates an access token and sets a token cookie for rotation.
      *
      * @param req - Express request containing email and password.
      * @param res - Express response used to return the access token.
@@ -33,7 +33,7 @@ export class AuthController {
             }
 
 
-            res.cookie(RefreshTokenCookie.name, result.data.refreshToken, RefreshTokenCookie.options);
+            res.cookie(TokenCookie.name, result.data.refreshToken, TokenCookie.options);
 
             await createLog(
                 LogType.SUCCESS,
@@ -66,31 +66,33 @@ export class AuthController {
     }
 
     /**
-     * Issues a new access token using a valid refresh token from the cookie.
+     * Issues a new access token and rotates the token cookie.
      * If the token is missing or invalid, responds with HTTP 401 Unauthorized.
      *
-     * @param req - Express request containing the refresh token in cookies.
+     * @param req - Express request containing the token in cookies.
      * @param res - Express response used to return the new access token.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with new access token or appropriate error.
      */
     static async refresh(req: Request, res: Response, next: NextFunction) {
-        const refreshToken = req.cookies?.refreshToken;
+        const token = req.cookies?.refreshToken;
 
-        if (!refreshToken) {
+        if (!token) {
             return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
         }
 
         const authService = new AuthService();
 
         try {
-            const result = await authService.refresh(refreshToken);
+            const result = await authService.refresh(token);
 
             if (!result.success || !result.data) {
                 return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
             }
 
-            return answerAPI(req, res, HTTPStatus.OK, result.data);
+            res.cookie(TokenCookie.name, result.data.refreshToken, TokenCookie.options);
+
+            return answerAPI(req, res, HTTPStatus.OK, { token: result.data.token });
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -98,31 +100,31 @@ export class AuthController {
     }
 
     /**
-     * Logs out the user by removing the refresh token from the database and clearing the cookie.
+     * Logs out the user by removing the token from the database and clearing the cookie.
      * Logs the operation and handles invalid or missing token cases gracefully.
      *
-     * @param req - Express request containing the refresh token.
+     * @param req - Express request containing the token.
      * @param res - Express response confirming logout.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on successful logout or appropriate error.
      */
     static async logout(req: Request, res: Response, next: NextFunction) {
-        const refreshToken = req.cookies?.refreshToken;
+        const token = req.cookies?.refreshToken;
 
-        if (!refreshToken) {
+        if (!token) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
         }
 
         const authService = new AuthService();
 
         try {
-            const result = await authService.logout(refreshToken);
+            const result = await authService.logout(token);
 
             if (!result.success || !result.data) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
             }
 
-            res.clearCookie(RefreshTokenCookie.name, ClearCookieOptions);
+            res.clearCookie(TokenCookie.name, ClearCookieOptions);
 
             await createLog(
                 LogType.SUCCESS,

@@ -255,8 +255,9 @@ export function parseUserCount(args: string[], env: NodeJS.ProcessEnv): number {
     const directArg = args.find(arg => /^\d+$/.test(arg));
     const lifecycleMatch = env.npm_lifecycle_event?.match(/seed:(\d+)$/);
     const envValue = env.SEED_USERS;
+    const fallbackValue = env.SEED_USERS_DEFAULT ?? '1';
 
-    const value = envValue ?? directArg ?? lifecycleMatch?.[1];
+    const value = envValue ?? directArg ?? lifecycleMatch?.[1] ?? fallbackValue;
 
     if (!value) {
         throw new Error('Seed requires a user count. Example: npm run seed:10 or npm run seed -- 10');

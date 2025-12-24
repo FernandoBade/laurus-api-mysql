@@ -142,6 +142,33 @@ export class UserService {
     }
 
     /**
+     * Retrieves users by exact email match.
+     *
+     * @summary Gets users with exact email match.
+     * @param email - Email to match exactly.
+     * @returns List of users matching the exact email.
+     */
+    async getUserByEmailExact(email: string, options?: QueryOptions<SelectUser>): Promise<{ success: true; data: SanitizedUser[] } | { success: false; error: Resource }> {
+        try {
+            const normalized = email.trim().toLowerCase();
+            const result = await this.userRepository.findMany({
+                email: { operator: Operator.EQUAL, value: normalized }
+            }, {
+                limit: options?.limit,
+                offset: options?.offset,
+                sort: options?.sort as keyof SelectUser,
+                order: options?.order === Operator.DESC ? "desc" : "asc",
+            });
+            return {
+                success: true,
+                data: result.map(u => this.sanitizeUser(u))
+            };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+    }
+
+    /**
      * Counts users matching an email term.
      *
      * @summary Gets count of users matching email pattern.

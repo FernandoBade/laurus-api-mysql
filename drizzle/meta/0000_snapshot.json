@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "26cee508-48c8-4065-bb63-7d5680c8a584",
+  "id": "d46d993a-3908-4dfb-af9f-374168455ffe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user": {
@@ -672,8 +672,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "refresh_token": {
-      "name": "refresh_token",
+    "token": {
+      "name": "token",
       "columns": {
         "id": {
           "name": "id",
@@ -682,37 +682,44 @@
           "notNull": true,
           "autoincrement": true
         },
-        "token": {
-          "name": "token",
-          "type": "varchar(255)",
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "expiresAt": {
-          "name": "expiresAt",
+        "type": {
+          "name": "type",
+          "type": "enum('refresh')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": "(now())"
         },
-        "updatedAt": {
-          "name": "updatedAt",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -721,21 +728,36 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "token_user_id_idx": {
+          "name": "token_user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "token_expires_at_idx": {
+          "name": "token_expires_at_idx",
+          "columns": [
+            "expires_at"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "refresh_token_id": {
-          "name": "refresh_token_id",
+        "token_id": {
+          "name": "token_id",
           "columns": [
             "id"
           ]
         }
       },
       "uniqueConstraints": {
-        "refresh_token_token_unique": {
-          "name": "refresh_token_token_unique",
+        "token_token_hash_unique": {
+          "name": "token_token_hash_unique",
           "columns": [
-            "token"
+            "token_hash"
           ]
         }
       },

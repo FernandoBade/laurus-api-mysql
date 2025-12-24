@@ -100,6 +100,10 @@ export enum LogOperation {
     UPDATE = 'update',
 }
 
+export enum TokenType {
+    REFRESH = 'refresh',
+}
+
 export enum Operator {
     EQUAL = '=',
     IN = 'IN',

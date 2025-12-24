@@ -1,12 +1,17 @@
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { createLog } from '../commons';
 import { LogCategory, LogType, LogOperation } from '../enum';
+import { PERSISTED_TOKEN_EXPIRES_IN } from './tokenConfig';
 
 dotenv.config();
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const TOKEN_ISSUER = process.env.JWT_ISSUER;
+const TOKEN_AUDIENCE = process.env.JWT_AUDIENCE;
+const JWT_ALGORITHM: jwt.Algorithm = 'HS256';
 
 /**
  * Ensures that required JWT secrets are defined.
@@ -33,6 +38,40 @@ function ensureSecrets() {
     }
 }
 
+/**
+ * Builds JWT sign options with optional issuer/audience.
+ */
+function buildSignOptions(expiresIn: jwt.SignOptions['expiresIn']): jwt.SignOptions {
+    const options: jwt.SignOptions = { expiresIn, algorithm: JWT_ALGORITHM };
+
+    if (TOKEN_ISSUER) {
+        options.issuer = TOKEN_ISSUER;
+    }
+
+    if (TOKEN_AUDIENCE) {
+        options.audience = TOKEN_AUDIENCE;
+    }
+
+    return options;
+}
+
+/**
+ * Builds JWT verify options with optional issuer/audience enforcement.
+ */
+function buildVerifyOptions(): jwt.VerifyOptions {
+    const options: jwt.VerifyOptions = { algorithms: [JWT_ALGORITHM] };
+
+    if (TOKEN_ISSUER) {
+        options.issuer = TOKEN_ISSUER;
+    }
+
+    if (TOKEN_AUDIENCE) {
+        options.audience = TOKEN_AUDIENCE;
+    }
+
+    return options;
+}
+
 export const TokenUtils = {
     /**
      * Generates a JWT access token with 1-hour expiration.
@@ -43,11 +82,11 @@ export const TokenUtils = {
      */
     generateAccessToken(payload: object): string {
         ensureSecrets();
-        return jwt.sign(payload, ACCESS_SECRET!, { expiresIn: '1h' });
+        return jwt.sign(payload, ACCESS_SECRET!, buildSignOptions('1h'));
     },
 
     /**
-     * Generates a JWT refresh token with 1-year expiration.
+     * Generates a JWT refresh token with a finite rotation lifetime.
      * Throws if required secrets are missing.
      *
      * @param payload - Data to embed in the token.
@@ -55,7 +94,7 @@ export const TokenUtils = {
      */
     generateRefreshToken(payload: object): string {
         ensureSecrets();
-        return jwt.sign(payload, REFRESH_SECRET!, { expiresIn: '365d' });
+        return jwt.sign(payload, REFRESH_SECRET!, buildSignOptions(PERSISTED_TOKEN_EXPIRES_IN));
     },
 
     /**
@@ -67,7 +106,7 @@ export const TokenUtils = {
      */
     verifyAccessToken(token: string) {
         ensureSecrets();
-        return jwt.verify(token, ACCESS_SECRET!);
+        return jwt.verify(token, ACCESS_SECRET!, buildVerifyOptions());
     },
 
     /**
@@ -79,6 +118,17 @@ export const TokenUtils = {
      */
     verifyRefreshToken(token: string) {
         ensureSecrets();
-        return jwt.verify(token, REFRESH_SECRET!);
+        return jwt.verify(token, REFRESH_SECRET!, buildVerifyOptions());
+    },
+
+    /**
+     * Hashes a refresh token using HMAC-SHA256.
+     *
+     * @param token - Refresh token to hash.
+     * @returns HMAC-SHA256 hash in hex format.
+     */
+    hashRefreshToken(token: string): string {
+        ensureSecrets();
+        return crypto.createHmac('sha256', REFRESH_SECRET!).update(token).digest('hex');
     }
 };

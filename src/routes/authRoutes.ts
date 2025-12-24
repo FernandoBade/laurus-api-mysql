@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @route POST /login
- * @description Authenticates a user and sets a refresh token cookie.
+ * @description Authenticates a user and sets a token cookie for rotation.
  */
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -30,7 +30,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
 /**
  * @route POST /refresh
- * @description Issues a new access token using a valid refresh token from cookies.
+ * @description Issues a new access token using a valid token from cookies.
  */
 router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -42,7 +42,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
 
 /**
  * @route POST /logout
- * @description Logs out the user by revoking the refresh token and clearing the cookie.
+ * @description Logs out the user by revoking the token and clearing the cookie.
  */
 router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
     try {

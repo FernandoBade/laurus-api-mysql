@@ -280,6 +280,46 @@ describe('UserService', () => {
         });
     });
 
+    describe('getUserByEmailExact', () => {
+        it('returns sanitized users when repository succeeds', async () => {
+            const users = [makeUser({ id: 4, password: 'hash' })];
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
+
+            const service = new UserService();
+            const result = await service.getUserByEmailExact('  Test@Example.com ', { limit: 5, offset: 10, sort: 'email', order: Operator.ASC });
+
+            expect(findManySpy).toHaveBeenCalledWith(
+                { email: { operator: Operator.EQUAL, value: 'test@example.com' } },
+                { limit: 5, offset: 10, sort: 'email', order: 'asc' }
+            );
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.any(Array),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).toHaveLength(1);
+                expect(result.data[0]).not.toHaveProperty('password');
+            }
+        });
+
+        it('returns internal server error when repository throws', async () => {
+            jest.spyOn(UserRepository.prototype, 'findMany').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+
+            const service = new UserService();
+            const result = await service.getUserByEmailExact('test@example.com');
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
+    });
+
     describe('countUsersByEmail', () => {
         it('returns total count when repository succeeds', async () => {
             const countSpy = jest.spyOn(UserRepository.prototype, 'count').mockResolvedValue(3);
