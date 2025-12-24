@@ -4,25 +4,21 @@
     "main": "index.js",
     "scripts": {
         "dev": "nodemon --exec \"ts-node --files\" src/server.ts",
-
         "build": "npm run test:ci && tsc",
         "start": "node dist/server.js",
-
         "db:generate": "drizzle-kit generate",
         "db:migrate": "ts-node src/db/migrate.ts",
         "db:sync": "npm run db:generate && npm run db:migrate",
-
         "seed": "ts-node --files src/dev/seed.ts",
         "seed:10": "ts-node --files src/dev/seed.ts 10",
         "seed:100": "ts-node --files src/dev/seed.ts 100",
         "seed:1000": "ts-node --files src/dev/seed.ts 1000",
-
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
         "test:ci": "jest --runInBand --coverage"
     },
-    "keywords": [ ],
+    "keywords": [],
     "author": "",
     "license": "ISC",
     "description": "",

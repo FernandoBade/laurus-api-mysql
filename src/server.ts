@@ -6,16 +6,17 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
-
-import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
-import { LogCategory, LogOperation, LogType } from './utils/enum';
-import { LanguageCode } from './utils/resources/resourceTypes';
-import { Resource } from './utils/resources/resource';
 import accountRoutes from './routes/accountRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
 import creditCardRoutes from './routes/creditCardRoutes';
+
+import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
+import { LogCategory, LogOperation, LogType } from './utils/enum';
+import { LanguageCode } from './utils/resources/resourceTypes';
+import { Resource } from './utils/resources/resource';
+
 // #endregion Imports
 
 const app = express();
