@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean, decimal } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 import { AccountType } from '../../utils/enum';
 
@@ -12,6 +12,7 @@ export const accounts = mysqlTable('account', {
     institution: varchar('institution', { length: 255 }),
     type: mysqlEnum('type', Object.values(AccountType) as [string, ...string[]]).default(AccountType.OTHER).notNull(),
     observation: text('observation'),
+    balance: decimal('balance', { precision: 10, scale: 2 }).default('0.00').notNull(),
     active: boolean('active').default(true).notNull(),
     userId: int('user_id').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),

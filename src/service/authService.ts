@@ -37,13 +37,13 @@ export class AuthService {
         }
 
         // Find user by email
-        const usersResult = await this.userService.getUserByEmailExact(email.trim().toLowerCase());
-        if (!usersResult.success || !usersResult.data || usersResult.data.length === 0) {
+        const userResult = await this.userService.findUserByEmailExact(email.trim().toLowerCase());
+        if (!userResult.success || !userResult.data) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }
 
         // Get full user with password for comparison
-        const userWithPassword = await this.userService.findOne(usersResult.data[0].id);
+        const userWithPassword = await this.userService.findOne(userResult.data.id);
         if (!userWithPassword.success || !userWithPassword.data) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }

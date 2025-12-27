@@ -1,12 +1,13 @@
 import CreditCardController from '../../controller/creditCardController';
 import { SelectAccount, SelectCreditCard } from '../../db/schema';
 import { CreditCardFlag } from '../../utils/enum';
-import { SeedContext, executeController } from '../seed.utils';
+import { SeedContext, executeController, roundCurrency } from '../seed.utils';
 
 type CreditCardRequestBody = {
     name: string;
     flag: CreditCardFlag;
     observation?: string;
+    limit?: number;
     user_id: number;
     account_id?: number;
     active?: boolean;
@@ -38,11 +39,13 @@ export async function createCreditCards(
         const shouldLinkAccount = shuffledAccounts.length > 0 && context.random.chance(0.6) && accountIndex < shuffledAccounts.length;
         const accountId = shouldLinkAccount ? shuffledAccounts[accountIndex++].id : undefined;
         const observation = context.random.chance(0.8) ? product.observation : undefined;
+        const limit = roundCurrency(context.random.float(context.config.creditCardLimitRange.min, context.config.creditCardLimitRange.max));
 
         const body: CreditCardRequestBody = {
             name: product.name,
             flag: product.flag,
             ...(observation ? { observation } : {}),
+            limit,
             user_id: userId,
             ...(accountId ? { account_id: accountId } : {}),
             active: true,

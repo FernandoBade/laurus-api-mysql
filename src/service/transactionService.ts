@@ -1,12 +1,17 @@
+import { eq } from 'drizzle-orm';
 import { TransactionSource, Operator, TransactionType } from '../utils/enum';
 import { TransactionRepository } from '../repositories/transactionRepository';
+import { AccountRepository } from '../repositories/accountRepository';
+import { CreditCardRepository } from '../repositories/creditCardRepository';
+import { TagRepository } from '../repositories/tagRepository';
 import { AccountService } from './accountService';
 import { CreditCardService } from './creditCardService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
 import { Resource } from '../utils/resources/resource';
-import { SelectTransaction, InsertTransaction } from '../db/schema';
+import { SelectTransaction, InsertTransaction, InsertAccount, InsertCreditCard, transactionTags } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import { withTransaction, db } from '../db';
 
 export type TransactionRow = SelectTransaction;
 type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
@@ -17,9 +22,132 @@ type AccountTransactions = { accountId: number; transactions: TransactionRow[] |
  */
 export class TransactionService {
     private transactionRepository: TransactionRepository;
+    private accountRepository: AccountRepository;
+    private creditCardRepository: CreditCardRepository;
+    private tagRepository: TagRepository;
 
     constructor() {
         this.transactionRepository = new TransactionRepository();
+        this.accountRepository = new AccountRepository();
+        this.creditCardRepository = new CreditCardRepository();
+        this.tagRepository = new TagRepository();
+    }
+
+    private normalizeTagIds(tags?: number[]): number[] | undefined {
+        if (!tags) return undefined;
+        const unique = new Set(tags);
+        return Array.from(unique);
+    }
+
+    private normalizeAmount(value: string | number | null | undefined): number {
+        if (value === null || value === undefined) return 0;
+        const parsed = typeof value === 'number' ? value : Number(value);
+        return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    private formatAmount(value: number): string {
+        const rounded = Math.round(value * 100) / 100;
+        return rounded.toFixed(2);
+    }
+
+    private getSignedAmount(transactionType: SelectTransaction['transactionType'], source: SelectTransaction['transactionSource'], value: string | number): number {
+        const amount = this.normalizeAmount(value);
+        if (source === TransactionSource.ACCOUNT) {
+            return transactionType === TransactionType.INCOME ? amount : -amount;
+        }
+        return transactionType === TransactionType.EXPENSE ? amount : -amount;
+    }
+
+    private async applyBalanceDelta(
+        connection: typeof db,
+        transaction: SelectTransaction,
+        delta: number
+    ): Promise<void> {
+        if (!delta) return;
+
+        if (transaction.transactionSource === TransactionSource.ACCOUNT) {
+            if (!transaction.accountId) {
+                throw new Error('BalanceInvariantViolation: accountId required.');
+            }
+            const account = await this.accountRepository.findById(transaction.accountId, connection);
+            if (!account) {
+                throw new Error('BalanceInvariantViolation: account not found.');
+            }
+            const nextBalance = this.normalizeAmount(account.balance) + delta;
+            await this.accountRepository.update(
+                transaction.accountId,
+                { balance: this.formatAmount(nextBalance) } as Partial<InsertAccount>,
+                connection
+            );
+            return;
+        }
+
+        if (!transaction.creditCardId) {
+            throw new Error('BalanceInvariantViolation: creditCardId required.');
+        }
+        const card = await this.creditCardRepository.findById(transaction.creditCardId, connection);
+        if (!card) {
+            throw new Error('BalanceInvariantViolation: credit card not found.');
+        }
+        const nextBalance = this.normalizeAmount(card.balance) + delta;
+        await this.creditCardRepository.update(
+            transaction.creditCardId,
+            { balance: this.formatAmount(nextBalance) } as Partial<InsertCreditCard>,
+            connection
+        );
+    }
+
+    private async applyBalanceUpdate(
+        connection: typeof db,
+        current: SelectTransaction,
+        updated: SelectTransaction
+    ): Promise<void> {
+        const currentDelta = this.getSignedAmount(current.transactionType, current.transactionSource, current.value);
+        const updatedDelta = this.getSignedAmount(updated.transactionType, updated.transactionSource, updated.value);
+
+        const sameSource = current.transactionSource === updated.transactionSource;
+        const sameAccount = current.accountId === updated.accountId;
+        const sameCard = current.creditCardId === updated.creditCardId;
+
+        if (sameSource && ((current.transactionSource === TransactionSource.ACCOUNT && sameAccount) || (current.transactionSource === TransactionSource.CREDIT_CARD && sameCard))) {
+            const diff = updatedDelta - currentDelta;
+            if (diff !== 0) {
+                await this.applyBalanceDelta(connection, updated, diff);
+            }
+            return;
+        }
+
+        await this.applyBalanceDelta(connection, current, -currentDelta);
+        await this.applyBalanceDelta(connection, updated, updatedDelta);
+    }
+
+    private async validateTagsByUser(userId: number, tagIds: number[]): Promise<boolean> {
+        if (tagIds.length === 0) return true;
+
+        const existing = await this.tagRepository.findMany({
+            id: { operator: Operator.IN, value: tagIds },
+            userId: { operator: Operator.EQUAL, value: userId },
+            active: { operator: Operator.EQUAL, value: true },
+        });
+
+        return existing.length === tagIds.length;
+    }
+
+    private async replaceTransactionTags(
+        connection: typeof db,
+        transactionId: number,
+        tagIds: number[]
+    ): Promise<void> {
+        await connection.delete(transactionTags).where(eq(transactionTags.transactionId, transactionId));
+
+        if (tagIds.length === 0) return;
+
+        await connection.insert(transactionTags).values(
+            tagIds.map(tagId => ({
+                transactionId,
+                tagId,
+            }))
+        );
     }
 
     /**
@@ -44,20 +172,25 @@ export class TransactionService {
         paymentDay?: number;
         accountId?: number;
         creditCardId?: number;
+        tags?: number[];
         active?: boolean;
     }): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+        let ownerUserId: number | undefined;
+
         if (data.transactionSource === TransactionSource.ACCOUNT) {
             const accountService = new AccountService();
             const account = await accountService.getAccountById(Number(data.accountId));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
+            ownerUserId = account.data.userId;
         } else {
             const creditCardService = new CreditCardService();
             const card = await creditCardService.getCreditCardById(Number(data.creditCardId));
             if (!card.success || !card.data) {
                 return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
             }
+            ownerUserId = card.data.userId;
         }
 
         if (!data.categoryId && !data.subcategoryId) {
@@ -79,22 +212,41 @@ export class TransactionService {
         }
 
         try {
-            const created = await this.transactionRepository.create({
-                value: data.value.toString(),
-                date: data.date,
-                transactionType: data.transactionType,
-                transactionSource: data.transactionSource,
-                isInstallment: data.isInstallment,
-                totalMonths: data.totalMonths,
-                isRecurring: data.isRecurring,
-                paymentDay: data.paymentDay,
-                active: data.active,
-                observation: data.observation,
-                accountId: data.accountId,
-                creditCardId: data.creditCardId,
-                categoryId: data.categoryId,
-                subcategoryId: data.subcategoryId,
-            } as InsertTransaction);
+            const tagIds = this.normalizeTagIds(data.tags);
+            if (tagIds && ownerUserId !== undefined) {
+                const isValid = await this.validateTagsByUser(ownerUserId, tagIds);
+                if (!isValid) {
+                    return { success: false, error: Resource.TAG_NOT_FOUND };
+                }
+            }
+
+            const created = await withTransaction(async (connection) => {
+                const created = await this.transactionRepository.create({
+                    value: data.value.toString(),
+                    date: data.date,
+                    transactionType: data.transactionType,
+                    transactionSource: data.transactionSource,
+                    isInstallment: data.isInstallment,
+                    totalMonths: data.totalMonths,
+                    isRecurring: data.isRecurring,
+                    paymentDay: data.paymentDay,
+                    active: data.active,
+                    observation: data.observation,
+                    accountId: data.accountId,
+                    creditCardId: data.creditCardId,
+                    categoryId: data.categoryId,
+                    subcategoryId: data.subcategoryId,
+                } as InsertTransaction, connection);
+
+                const delta = this.getSignedAmount(data.transactionType, data.transactionSource, data.value);
+                await this.applyBalanceDelta(connection, created, delta);
+
+                if (tagIds) {
+                    await this.replaceTransactionTags(connection, created.id, tagIds);
+                }
+
+                return created;
+            });
             return { success: true, data: created };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
@@ -266,61 +418,80 @@ export class TransactionService {
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: Partial<InsertTransaction>): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+    async updateTransaction(id: number, data: Partial<InsertTransaction> & { tags?: number[] }): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
         const current = await this.transactionRepository.findById(id);
         if (!current) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
 
-        const effectiveSource = data.transactionSource !== undefined ? data.transactionSource : current.transactionSource;
+        const { tags, ...updateData } = data;
+        let ownerUserId: number | undefined;
+        const effectiveSource = updateData.transactionSource !== undefined ? updateData.transactionSource : current.transactionSource;
 
         if (effectiveSource === TransactionSource.ACCOUNT) {
-            const accId = data.accountId !== undefined ? data.accountId : current.accountId;
+            const accId = updateData.accountId !== undefined ? updateData.accountId : current.accountId;
             const account = await new AccountService().getAccountById(Number(accId));
             if (!account.success || !account.data) {
                 return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
             }
-            if (data.creditCardId !== undefined) {
-                data.creditCardId = null;
+            ownerUserId = account.data.userId;
+            if (updateData.creditCardId !== undefined) {
+                updateData.creditCardId = null;
             }
         } else {
-            const cardId = data.creditCardId !== undefined ? data.creditCardId : current.creditCardId;
+            const cardId = updateData.creditCardId !== undefined ? updateData.creditCardId : current.creditCardId;
             const card = await new CreditCardService().getCreditCardById(Number(cardId));
             if (!card.success || !card.data) {
                 return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
             }
-            if (data.accountId !== undefined) {
-                data.accountId = null;
+            ownerUserId = card.data.userId;
+            if (updateData.accountId !== undefined) {
+                updateData.accountId = null;
             }
         }
 
-        if (data.categoryId === undefined && data.subcategoryId === undefined) {
+        if (updateData.categoryId === undefined && updateData.subcategoryId === undefined) {
             return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
         }
 
-        const effectiveCategoryId = data.categoryId !== undefined ? data.categoryId : current.categoryId;
-        const effectiveSubcategoryId = data.subcategoryId !== undefined ? data.subcategoryId : current.subcategoryId;
+        const effectiveCategoryId = updateData.categoryId !== undefined ? updateData.categoryId : current.categoryId;
+        const effectiveSubcategoryId = updateData.subcategoryId !== undefined ? updateData.subcategoryId : current.subcategoryId;
 
         if (!effectiveCategoryId && !effectiveSubcategoryId) {
             return { success: false, error: Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED };
         }
 
-        if (data.categoryId !== undefined) {
-            const category = await new CategoryService().getCategoryById(Number(data.categoryId));
+        if (updateData.categoryId !== undefined) {
+            const category = await new CategoryService().getCategoryById(Number(updateData.categoryId));
             if (!category.success || !category.data?.active) {
                 return { success: false, error: Resource.CATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
-        if (data.subcategoryId !== undefined) {
-            const subcategory = await new SubcategoryService().getSubcategoryById(Number(data.subcategoryId));
+        if (updateData.subcategoryId !== undefined) {
+            const subcategory = await new SubcategoryService().getSubcategoryById(Number(updateData.subcategoryId));
             if (!subcategory.success || !subcategory.data?.active) {
                 return { success: false, error: Resource.SUBCATEGORY_NOT_FOUND_OR_INACTIVE };
             }
         }
 
         try {
-            const updated = await this.transactionRepository.update(id, data);
+            const tagIds = this.normalizeTagIds(tags);
+            if (tagIds && ownerUserId !== undefined) {
+                const isValid = await this.validateTagsByUser(ownerUserId, tagIds);
+                if (!isValid) {
+                    return { success: false, error: Resource.TAG_NOT_FOUND };
+                }
+            }
+
+            const updated = await withTransaction(async (connection) => {
+                const updated = await this.transactionRepository.update(id, updateData, connection);
+                await this.applyBalanceUpdate(connection, current, updated);
+                if (tagIds) {
+                    await this.replaceTransactionTags(connection, updated.id, tagIds);
+                }
+                return updated;
+            });
             return { success: true, data: updated };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
@@ -341,7 +512,12 @@ export class TransactionService {
         }
 
         try {
-            await this.transactionRepository.delete(id);
+            await withTransaction(async (connection) => {
+                await this.transactionRepository.delete(id, connection);
+                await connection.delete(transactionTags).where(eq(transactionTags.transactionId, id));
+                const delta = -this.getSignedAmount(existing.transactionType, existing.transactionSource, existing.value);
+                await this.applyBalanceDelta(connection, existing, delta);
+            });
             return { success: true, data: { id } };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };

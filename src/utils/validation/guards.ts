@@ -26,6 +26,17 @@ export function isNumber(value: unknown): value is number {
 }
 
 /**
+ * Checks if a value is an array of numbers.
+ *
+ * @summary Validates that a value is a number array.
+ * @param value - Value to check.
+ * @returns True if value is a number array, false otherwise.
+ */
+export function isNumberArray(value: unknown): value is number[] {
+    return Array.isArray(value) && value.every(isNumber);
+}
+
+/**
  * Checks if a value is a boolean.
  *
  * @summary Validates that a value is a boolean.

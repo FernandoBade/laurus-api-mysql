@@ -19,6 +19,7 @@ export const users = mysqlTable('user', {
     dateFormat: mysqlEnum('dateFormat', Object.values(DateFormat) as [string, ...string[]]).default(DateFormat.DD_MM_YYYY).notNull(),
     currency: mysqlEnum('currency', Object.values(Currency) as [string, ...string[]]).default(Currency.BRL).notNull(),
     profile: mysqlEnum('profile', Object.values(Profile) as [string, ...string[]]).default(Profile.STARTER).notNull(),
+    hideValues: boolean('hideValues').default(false).notNull(),
     active: boolean('active').default(true).notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),

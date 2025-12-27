@@ -29,6 +29,7 @@ export class AccountService {
         institution: string;
         type: string;
         observation?: string;
+        balance?: number | string;
         userId: number;
         active?: boolean;
     }): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
@@ -41,8 +42,13 @@ export class AccountService {
 
         try {
             const created = await this.accountRepository.create({
-                ...data,
-                user_id: data.userId,
+                name: data.name,
+                institution: data.institution,
+                type: data.type,
+                observation: data.observation,
+                balance: data.balance !== undefined ? (typeof data.balance === 'number' ? data.balance.toFixed(2) : String(data.balance)) : undefined,
+                active: data.active,
+                userId: data.userId,
             } as InsertAccount);
             return { success: true, data: created };
         } catch (error) {
@@ -151,7 +157,7 @@ export class AccountService {
      * @param data - Partial account data to update.
      * @returns Updated account record.
      */
-    async updateAccount(id: number, data: Partial<InsertAccount>): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+    async updateAccount(id: number, data: Partial<Omit<InsertAccount, 'balance'>> & { balance?: number | string }): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
         if (data.userId !== undefined) {
             const userService = new UserService();
             const user = await userService.getUserById(data.userId);
@@ -162,7 +168,12 @@ export class AccountService {
         }
 
         try {
-            const updated = await this.accountRepository.update(id, data);
+            const { balance, ...safeData } = data;
+            const dbData: Partial<InsertAccount> = { ...safeData };
+            if (balance !== undefined) {
+                dbData.balance = typeof balance === 'number' ? balance.toFixed(2) : String(balance);
+            }
+            const updated = await this.accountRepository.update(id, dbData);
             return { success: true, data: updated };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };

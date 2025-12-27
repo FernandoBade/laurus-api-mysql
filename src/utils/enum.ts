@@ -83,6 +83,7 @@ export enum LogCategory {
     SUBCATEGORY = "subcategory",
     USER = 'user',
     CREDIT_CARD = 'creditCard',
+    TAG = 'tag',
 }
 
 export enum LogType {

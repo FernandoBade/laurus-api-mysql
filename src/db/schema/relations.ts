@@ -5,19 +5,51 @@ import { transactions } from './transactions';
 import { categories } from './categories';
 import { subcategories } from './subcategories';
 import { creditCards } from './creditCards';
+import { tags } from './tags';
+import { transactionTags } from './transactionTags';
 import { logs } from './logs';
 import { tokens } from './tokens';
 
-/**
- * User relations.
- * Defines one-to-many relationships from users to other entities.
- */
 export const usersRelations = relations(users, ({ many }) => ({
     logs: many(logs),
     tokens: many(tokens),
     accounts: many(accounts),
     creditCards: many(creditCards),
     categories: many(categories),
+    tags: many(tags),
+}));
+
+export const tagsRelations = relations(tags, ({ one, many }) => ({
+    user: one(users, {
+        fields: [tags.userId],
+        references: [users.id],
+    }),
+    transactionTags: many(transactionTags),
+}));
+
+export const transactionTagsRelations = relations(transactionTags, ({ one }) => ({
+    transaction: one(transactions, {
+        fields: [transactionTags.transactionId],
+        references: [transactions.id],
+    }),
+    tag: one(tags, {
+        fields: [transactionTags.tagId],
+        references: [tags.id],
+    }),
+}));
+
+export const logsRelations = relations(logs, ({ one }) => ({
+    user: one(users, {
+        fields: [logs.userId],
+        references: [users.id],
+    }),
+}));
+
+export const tokensRelations = relations(tokens, ({ one }) => ({
+    user: one(users, {
+        fields: [tokens.userId],
+        references: [users.id],
+    }),
 }));
 
 /**
@@ -37,7 +69,7 @@ export const accountsRelations = relations(accounts, ({ one, many }) => ({
  * Transaction relations.
  * Defines relationships between transactions and accounts, credit cards, categories, and subcategories.
  */
-export const transactionsRelations = relations(transactions, ({ one }) => ({
+export const transactionsRelations = relations(transactions, ({ one, many }) => ({
     account: one(accounts, {
         fields: [transactions.accountId],
         references: [accounts.id],
@@ -54,6 +86,7 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
         fields: [transactions.subcategoryId],
         references: [subcategories.id],
     }),
+    transactionTags: many(transactionTags),
 }));
 
 /**
@@ -97,25 +130,6 @@ export const creditCardsRelations = relations(creditCards, ({ one, many }) => ({
     transactions: many(transactions),
 }));
 
-/**
- * Log relations.
- * Defines relationships between logs and users.
- */
-export const logsRelations = relations(logs, ({ one }) => ({
-    user: one(users, {
-        fields: [logs.userId],
-        references: [users.id],
-    }),
-}));
 
-/**
- * Token relations.
- * Defines relationships between tokens and users.
- */
-export const tokensRelations = relations(tokens, ({ one }) => ({
-    user: one(users, {
-        fields: [tokens.userId],
-        references: [users.id],
-    }),
-}));
+
 

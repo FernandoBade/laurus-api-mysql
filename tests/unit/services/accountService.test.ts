@@ -56,7 +56,7 @@ describe('AccountService', () => {
                     institution: payload.institution,
                     type: payload.type,
                     observation: payload.observation,
-                    user_id: payload.userId,
+                    userId: payload.userId,
                     active: payload.active,
                 })
             );

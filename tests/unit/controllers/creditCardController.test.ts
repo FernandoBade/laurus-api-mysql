@@ -22,12 +22,14 @@ const makeCreditCardInput = (
 });
 
 const makeCreditCard = (
-  overrides: Partial<{ id: number; name: string; flag: string; observation?: string; userId: number; accountId?: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
+  overrides: Partial<{ id: number; name: string; flag: string; observation?: string; balance?: string; limit?: string; userId: number; accountId?: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
 ) => ({
   id: overrides.id ?? 1,
   name: overrides.name ?? 'Visa Card',
   flag: overrides.flag ?? 'visa',
   observation: overrides.observation ?? null,
+  balance: overrides.balance ?? '0.00',
+  limit: overrides.limit ?? '0.00',
   userId: overrides.userId ?? 1,
   accountId: overrides.accountId ?? null,
   active: overrides.active ?? true,
@@ -615,6 +617,8 @@ describe('CreditCardController', () => {
         name: snapshot.name,
         flag: snapshot.flag,
         observation: snapshot.observation,
+        balance: snapshot.balance,
+        limit: snapshot.limit,
         userId: snapshot.userId,
         accountId: snapshot.accountId,
         active: snapshot.active,

@@ -614,6 +614,7 @@ describe('AccountController', () => {
         institution: snapshot.institution,
         type: snapshot.type,
         observation: snapshot.observation,
+        balance: snapshot.balance,
         active: snapshot.active,
         userId: snapshot.userId,
       };

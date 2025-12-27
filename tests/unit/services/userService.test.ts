@@ -53,11 +53,11 @@ describe('UserService', () => {
         });
 
         it('returns sanitized user when creation succeeds', async () => {
-            const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ' });
+            const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ', hideValues: true });
             const originalPassword = payload.password;
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
             hashMock.mockResolvedValue('hashed-password');
-            const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password' });
+            const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password', hideValues: true });
             const createSpy = jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new UserService();
@@ -71,6 +71,7 @@ describe('UserService', () => {
                 expect.objectContaining({
                     email: 'jane.doe@example.com',
                     password: 'hashed-password',
+                    hideValues: true,
                 })
             );
             expect(result).toEqual(
@@ -316,6 +317,71 @@ describe('UserService', () => {
             if (!result.success) {
                 expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
                 expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
+            }
+        });
+    });
+
+    describe('findUserByEmailExact', () => {
+        it('returns user not found when repository returns no results', async () => {
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
+
+            const service = new UserService();
+            const result = await service.findUserByEmailExact('  Test@Example.com ');
+
+            expect(findManySpy).toHaveBeenCalledWith(
+                { email: { operator: Operator.EQUAL, value: 'test@example.com' } },
+                { limit: 2 }
+            );
+            expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.USER_NOT_FOUND);
+                expect(translate(result.error)).toBe(translate(Resource.USER_NOT_FOUND));
+            }
+        });
+
+        it('returns sanitized user when repository returns a record', async () => {
+            const user = makeUser({ id: 9, password: 'hash' });
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([user]);
+
+            const service = new UserService();
+            const result = await service.findUserByEmailExact('USER@example.com');
+
+            expect(findManySpy).toHaveBeenCalledWith(
+                { email: { operator: Operator.EQUAL, value: 'user@example.com' } },
+                { limit: 2 }
+            );
+            expect(result).toEqual(
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ id: user.id, email: user.email }),
+                })
+            );
+            expect(result.success).toBe(true);
+            if (result.success) {
+                expect(result.data).not.toHaveProperty('password');
+            }
+        });
+
+        it('throws when multiple users share the same email', async () => {
+            const users = [
+                makeUser({ id: 1, email: 'dup@example.com' }),
+                makeUser({ id: 2, email: 'dup@example.com' }),
+            ];
+            jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
+
+            const service = new UserService();
+            let caught: unknown;
+
+            try {
+                await service.findUserByEmailExact('dup@example.com');
+            } catch (error) {
+                caught = error;
+            }
+
+            expect(caught).toBeInstanceOf(Error);
+            if (caught instanceof Error) {
+                expect(caught.message).toBe('RepositoryInvariantViolation: multiple users found');
             }
         });
     });

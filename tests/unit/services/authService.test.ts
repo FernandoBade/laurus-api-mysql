@@ -54,7 +54,7 @@ describe('AuthService', () => {
 
     describe('login', () => {
         it('returns invalid credentials when password is missing', async () => {
-            const getUsersSpy = jest.spyOn(UserService.prototype, 'getUserByEmailExact');
+            const getUsersSpy = jest.spyOn(UserService.prototype, 'findUserByEmailExact');
 
             const service = new AuthService();
             const result = await service.login('user@example.com', '');
@@ -70,7 +70,10 @@ describe('AuthService', () => {
         });
 
         it('returns invalid credentials when user lookup yields no data', async () => {
-            const getUsersSpy = jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({ success: true, data: [] });
+            const getUsersSpy = jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({
+                success: false,
+                error: Resource.USER_NOT_FOUND,
+            });
             const findOneSpy = jest.spyOn(UserService.prototype, 'findOne');
 
             const service = new AuthService();
@@ -89,7 +92,7 @@ describe('AuthService', () => {
 
         it('returns invalid credentials when full user lookup fails', async () => {
             const sanitized = makeSanitizedUser({ id: 3 });
-            jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({ success: true, data: [sanitized] });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             const findOneSpy = jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({
                 success: false,
                 error: Resource.USER_NOT_FOUND,
@@ -111,7 +114,7 @@ describe('AuthService', () => {
         it('returns invalid credentials when user is inactive', async () => {
             const user = makeUser({ id: 4, email: 'user@example.com', active: false });
             const sanitized = makeSanitizedUser({ id: user.id, email: user.email, active: false });
-            jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({ success: true, data: [sanitized] });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
 
             const service = new AuthService();
@@ -130,7 +133,7 @@ describe('AuthService', () => {
         it('returns invalid credentials when password does not match', async () => {
             const user = makeUser({ id: 4, email: 'user@example.com' });
             const sanitized = makeSanitizedUser({ id: user.id, email: user.email });
-            jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({ success: true, data: [sanitized] });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
             compareMock.mockResolvedValue(false);
 
@@ -150,7 +153,7 @@ describe('AuthService', () => {
         it('returns internal server error when refresh token persistence fails', async () => {
             const user = makeUser({ id: 5, email: 'user@example.com' });
             const sanitized = makeSanitizedUser({ id: user.id, email: user.email });
-            jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({ success: true, data: [sanitized] });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
             compareMock.mockResolvedValue(true);
             jest.spyOn(TokenUtils, 'generateAccessToken').mockReturnValue('access-token');
@@ -187,9 +190,9 @@ describe('AuthService', () => {
 
             try {
                 const user = makeUser({ id: 6, email: 'user@example.com' });
-                const getUsersSpy = jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockResolvedValue({
+                const getUsersSpy = jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({
                     success: true,
-                    data: [makeSanitizedUser({ id: user.id, email: user.email })],
+                    data: makeSanitizedUser({ id: user.id, email: user.email }),
                 });
                 const findOneSpy = jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
                 compareMock.mockResolvedValue(true);
@@ -234,7 +237,7 @@ describe('AuthService', () => {
         });
 
         it('throws when user lookup rejects', async () => {
-            jest.spyOn(UserService.prototype, 'getUserByEmailExact').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
             const service = new AuthService();
             let caught: unknown;

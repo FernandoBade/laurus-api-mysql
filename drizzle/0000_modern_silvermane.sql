@@ -11,6 +11,7 @@ CREATE TABLE `user` (
 	`dateFormat` enum('DD/MM/YYYY','MM/DD/YYYY') NOT NULL DEFAULT 'DD/MM/YYYY',
 	`currency` enum('ARS','COP','BRL','EUR','USD') NOT NULL DEFAULT 'BRL',
 	`profile` enum('starter','pro','master') NOT NULL DEFAULT 'starter',
+	`hideValues` boolean NOT NULL DEFAULT false,
 	`active` boolean NOT NULL DEFAULT true,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -24,6 +25,7 @@ CREATE TABLE `account` (
 	`institution` varchar(255),
 	`type` enum('checking','payroll','savings','investment','loan','other') NOT NULL DEFAULT 'other',
 	`observation` text,
+	`balance` decimal(10,2) NOT NULL DEFAULT '0.00',
 	`active` boolean NOT NULL DEFAULT true,
 	`user_id` int NOT NULL,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
@@ -79,6 +81,8 @@ CREATE TABLE `credit_card` (
 	`name` varchar(255),
 	`flag` enum('visa','mastercard','amex','elo','hipercard','discover','diners') NOT NULL,
 	`observation` text,
+	`balance` decimal(10,2) NOT NULL DEFAULT '0.00',
+	`limit` decimal(10,2) NOT NULL DEFAULT '0.00',
 	`active` boolean NOT NULL DEFAULT true,
 	`user_id` int NOT NULL,
 	`account_id` int,
@@ -87,11 +91,30 @@ CREATE TABLE `credit_card` (
 	CONSTRAINT `credit_card_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `tag` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`user_id` int NOT NULL,
+	`name` varchar(255),
+	`active` boolean NOT NULL DEFAULT true,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `tag_id` PRIMARY KEY(`id`),
+	CONSTRAINT `tag_user_id_name_unique` UNIQUE(`user_id`,`name`)
+);
+--> statement-breakpoint
+CREATE TABLE `transaction_tag` (
+	`transaction_id` int NOT NULL,
+	`tag_id` int NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `transaction_tag_unique` UNIQUE(`transaction_id`,`tag_id`)
+);
+--> statement-breakpoint
 CREATE TABLE `log` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`type` enum('alert','debug','error','success') NOT NULL,
 	`operation` enum('create','delete','login','logout','update') NOT NULL DEFAULT 'create',
-	`category` enum('account','auth','category','transaction','log','subcategory','user','creditCard') NOT NULL DEFAULT 'log',
+	`category` enum('account','auth','category','transaction','log','subcategory','user','creditCard','tag') NOT NULL DEFAULT 'log',
 	`detail` text,
 	`user_id` int,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),

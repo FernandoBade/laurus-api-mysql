@@ -1,5 +1,8 @@
 import { TransactionService } from '../../../src/service/transactionService';
 import { TransactionRepository } from '../../../src/repositories/transactionRepository';
+import { AccountRepository } from '../../../src/repositories/accountRepository';
+import { CreditCardRepository } from '../../../src/repositories/creditCardRepository';
+import { TagRepository } from '../../../src/repositories/tagRepository';
 import { AccountService } from '../../../src/service/accountService';
 import { CreditCardService } from '../../../src/service/creditCardService';
 import { CategoryService } from '../../../src/service/categoryService';
@@ -7,11 +10,23 @@ import { SubcategoryService } from '../../../src/service/subcategoryService';
 import { CategoryColor, CategoryType, CreditCardFlag, Operator, TransactionSource, TransactionType } from '../../../src/utils/enum';
 import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-import { SelectCategory, SelectCreditCard, SelectSubcategory } from '../../../src/db/schema';
+import { SelectCategory, SelectCreditCard, SelectSubcategory, transactionTags } from '../../../src/db/schema';
 import { makeAccount, makeTransaction, makeTransactionInput } from '../../helpers/factories';
+import * as database from '../../../src/db';
 
 const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
+
+const makeConnection = () => ({
+    delete: jest.fn().mockReturnValue({
+        where: jest.fn().mockResolvedValue(undefined),
+    }),
+    insert: jest.fn().mockReturnValue({
+        values: jest.fn().mockResolvedValue([{ insertId: 1 }]),
+    }),
+});
+
+let connection: ReturnType<typeof makeConnection>;
 
 const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -46,6 +61,8 @@ const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCredit
         name: overrides.name ?? 'Card',
         flag: overrides.flag ?? CreditCardFlag.VISA,
         observation: overrides.observation ?? 'Primary card',
+        balance: overrides.balance ?? '0.00',
+        limit: overrides.limit ?? '0.00',
         active: overrides.active ?? true,
         userId: overrides.userId ?? 1,
         accountId: overrides.accountId ?? null,
@@ -57,6 +74,10 @@ const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCredit
 describe('TransactionService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        connection = makeConnection();
+        jest.spyOn(database, 'withTransaction').mockImplementation(async (callback) => {
+            return callback(connection as unknown as typeof database.db);
+        });
     });
 
     afterEach(() => {
@@ -215,6 +236,9 @@ describe('TransactionService', () => {
         it('creates transaction when validations succeed', async () => {
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 1 }) });
             jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: makeCategory({ id: 2, active: true }) });
+            const accountRow = makeAccount({ id: 1, balance: '250.00' });
+            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(accountRow);
+            const balanceSpy = jest.spyOn(AccountRepository.prototype, 'update').mockResolvedValue(accountRow);
             const created = makeTransaction({ id: 10, accountId: 1, categoryId: 2 });
             const createSpy = jest.spyOn(TransactionRepository.prototype, 'create').mockResolvedValue(created);
 
@@ -241,14 +265,61 @@ describe('TransactionService', () => {
                     accountId: 1,
                     categoryId: 2,
                     active: true,
-                })
+                }),
+                expect.anything()
             );
+            expect(balanceSpy).toHaveBeenCalledWith(1, { balance: '100.00' }, expect.anything());
+            expect(result).toEqual({ success: true, data: created });
+        });
+
+        it('links tags when provided', async () => {
+            const account = makeAccount({ id: 1 });
+            jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: account });
+            jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: makeCategory({ id: 2, active: true }) });
+            const accountRow = makeAccount({ id: 1, balance: '100.00' });
+            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(accountRow);
+            jest.spyOn(AccountRepository.prototype, 'update').mockResolvedValue(accountRow);
+            const tagSpy = jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([
+                { id: 1, name: 'Urgent', userId: account.userId, active: true, createdAt: new Date(), updatedAt: new Date() },
+                { id: 2, name: 'Family', userId: account.userId, active: true, createdAt: new Date(), updatedAt: new Date() },
+            ]);
+            const created = makeTransaction({ id: 12, accountId: 1, categoryId: 2 });
+            jest.spyOn(TransactionRepository.prototype, 'create').mockResolvedValue(created);
+
+            const service = new TransactionService();
+            const result = await service.createTransaction({
+                value: 75,
+                date: new Date('2024-02-05T00:00:00Z'),
+                transactionType: TransactionType.EXPENSE,
+                transactionSource: TransactionSource.ACCOUNT,
+                isInstallment: false,
+                isRecurring: false,
+                accountId: 1,
+                categoryId: 2,
+                tags: [1, 2],
+            });
+
+            expect(tagSpy).toHaveBeenCalledWith({
+                id: { operator: Operator.IN, value: [1, 2] },
+                userId: { operator: Operator.EQUAL, value: account.userId },
+                active: { operator: Operator.EQUAL, value: true },
+            });
+            expect(connection.delete).toHaveBeenCalledWith(transactionTags);
+            expect(connection.insert).toHaveBeenCalledWith(transactionTags);
+            const insertCall = connection.insert.mock.results[0]?.value as { values: jest.Mock };
+            expect(insertCall.values).toHaveBeenCalledWith([
+                { transactionId: created.id, tagId: 1 },
+                { transactionId: created.id, tagId: 2 },
+            ]);
             expect(result).toEqual({ success: true, data: created });
         });
 
         it('creates transaction for credit card source when validations succeed', async () => {
             jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: makeCreditCard({ id: 10 }) });
             jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: makeSubcategory({ id: 4, active: true }) });
+            const cardRow = makeCreditCard({ id: 10, balance: '80.00' });
+            jest.spyOn(CreditCardRepository.prototype, 'findById').mockResolvedValue(cardRow);
+            const balanceSpy = jest.spyOn(CreditCardRepository.prototype, 'update').mockResolvedValue(cardRow);
             const created = makeTransaction({ id: 11, creditCardId: 10, transactionSource: TransactionSource.CREDIT_CARD, subcategoryId: 4 });
             const createSpy = jest.spyOn(TransactionRepository.prototype, 'create').mockResolvedValue(created);
 
@@ -270,8 +341,10 @@ describe('TransactionService', () => {
                     transactionSource: TransactionSource.CREDIT_CARD,
                     creditCardId: 10,
                     subcategoryId: 4,
-                })
+                }),
+                expect.anything()
             );
+            expect(balanceSpy).toHaveBeenCalledWith(10, { balance: '280.00' }, expect.anything());
             expect(result).toEqual({ success: true, data: created });
         });
 
@@ -710,7 +783,25 @@ describe('TransactionService', () => {
             const service = new TransactionService();
             const result = await service.updateTransaction(16, { creditCardId: 55, accountId: 2, categoryId: current.categoryId ?? 1 });
 
-            expect(updateSpy).toHaveBeenCalledWith(16, expect.objectContaining({ creditCardId: null, accountId: 2, categoryId: current.categoryId ?? 1 }));
+            expect(updateSpy).toHaveBeenCalledWith(16, expect.objectContaining({ creditCardId: null, accountId: 2, categoryId: current.categoryId ?? 1 }), expect.anything());
+            expect(result).toEqual({ success: true, data: updated });
+        });
+
+        it('updates account balance when transaction value changes', async () => {
+            const current = makeTransaction({ id: 30, transactionSource: TransactionSource.ACCOUNT, accountId: 5, categoryId: 1, value: '100' });
+            const updated = makeTransaction({ id: 30, transactionSource: TransactionSource.ACCOUNT, accountId: 5, categoryId: 1, value: '150' });
+            jest.spyOn(TransactionRepository.prototype, 'findById').mockResolvedValue(current);
+            jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 5 }) });
+            jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: makeCategory({ id: 1, active: true }) });
+            jest.spyOn(TransactionRepository.prototype, 'update').mockResolvedValue(updated);
+            const accountRow = makeAccount({ id: 5, balance: '500.00' });
+            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(accountRow);
+            const balanceSpy = jest.spyOn(AccountRepository.prototype, 'update').mockResolvedValue(accountRow);
+
+            const service = new TransactionService();
+            const result = await service.updateTransaction(30, { value: '150', accountId: 5, categoryId: 1 });
+
+            expect(balanceSpy).toHaveBeenCalledWith(5, { balance: '450.00' }, expect.anything());
             expect(result).toEqual({ success: true, data: updated });
         });
 
@@ -725,7 +816,7 @@ describe('TransactionService', () => {
             const service = new TransactionService();
             const result = await service.updateTransaction(17, { accountId: 3, transactionSource: TransactionSource.CREDIT_CARD, categoryId: current.categoryId ?? 1 });
 
-            expect(updateSpy).toHaveBeenCalledWith(17, expect.objectContaining({ accountId: null, transactionSource: TransactionSource.CREDIT_CARD, categoryId: current.categoryId ?? 1 }));
+            expect(updateSpy).toHaveBeenCalledWith(17, expect.objectContaining({ accountId: null, transactionSource: TransactionSource.CREDIT_CARD, categoryId: current.categoryId ?? 1 }), expect.anything());
             expect(result).toEqual({ success: true, data: updated });
         });
 
@@ -770,11 +861,15 @@ describe('TransactionService', () => {
             const transaction = makeTransaction({ id: 21 });
             jest.spyOn(TransactionRepository.prototype, 'findById').mockResolvedValue(transaction);
             const deleteSpy = jest.spyOn(TransactionRepository.prototype, 'delete').mockResolvedValue();
+            const accountRow = makeAccount({ id: transaction.accountId ?? 1, balance: '300.00' });
+            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(accountRow);
+            const balanceSpy = jest.spyOn(AccountRepository.prototype, 'update').mockResolvedValue(accountRow);
 
             const service = new TransactionService();
             const result = await service.deleteTransaction(21);
 
-            expect(deleteSpy).toHaveBeenCalledWith(21);
+            expect(deleteSpy).toHaveBeenCalledWith(21, expect.anything());
+            expect(balanceSpy).toHaveBeenCalledWith(transaction.accountId ?? 1, { balance: '400.00' }, expect.anything());
             expect(result).toEqual({ success: true, data: { id: 21 } });
         });
 

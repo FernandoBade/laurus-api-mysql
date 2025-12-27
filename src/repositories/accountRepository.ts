@@ -15,8 +15,8 @@ export class AccountRepository {
      * @param accountId - Account ID to search for.
      * @returns Account record if found, null otherwise.
      */
-    async findById(accountId: number): Promise<SelectAccount | null> {
-        const result = await db.select().from(accounts).where(eq(accounts.id, accountId)).limit(1);
+    async findById(accountId: number, connection: typeof db = db): Promise<SelectAccount | null> {
+        const result = await connection.select().from(accounts).where(eq(accounts.id, accountId)).limit(1);
         return result[0] || null;
     }
 
@@ -38,9 +38,10 @@ export class AccountRepository {
             offset?: number;
             sort?: keyof SelectAccount;
             order?: 'asc' | 'desc';
-        }
+        },
+        connection: typeof db = db
     ): Promise<SelectAccount[]> {
-        let query = db.select().from(accounts);
+        let query = connection.select().from(accounts);
 
         const conditions: SQL[] = [];
         if (filters?.userId) {
@@ -83,9 +84,10 @@ export class AccountRepository {
         filters?: {
             userId?: { operator: Operator.EQUAL; value: number };
             active?: { operator: Operator.EQUAL; value: boolean };
-        }
+        },
+        connection: typeof db = db
     ): Promise<number> {
-        let query = db.select({ count: accounts.id }).from(accounts);
+        let query = connection.select({ count: accounts.id }).from(accounts);
 
         const conditions: SQL[] = [];
         if (filters?.userId) {
@@ -110,10 +112,10 @@ export class AccountRepository {
      * @param data - Account data to insert.
      * @returns The created account record with generated ID.
      */
-    async create(data: InsertAccount): Promise<SelectAccount> {
-        const result = await db.insert(accounts).values(data);
+    async create(data: InsertAccount, connection: typeof db = db): Promise<SelectAccount> {
+        const result = await connection.insert(accounts).values(data);
         const insertedId = result[0].insertId;
-        const created = await this.findById(Number(insertedId));
+        const created = await this.findById(Number(insertedId), connection);
         if (!created) {
             throw new Error('RepositoryInvariantViolation: created record not found');
         }
@@ -128,9 +130,9 @@ export class AccountRepository {
      * @param data - Partial account data to update.
      * @returns The updated account record.
      */
-    async update(accountId: number, data: Partial<InsertAccount>): Promise<SelectAccount> {
-        await db.update(accounts).set(data).where(eq(accounts.id, accountId));
-        const updated = await this.findById(accountId);
+    async update(accountId: number, data: Partial<InsertAccount>, connection: typeof db = db): Promise<SelectAccount> {
+        await connection.update(accounts).set(data).where(eq(accounts.id, accountId));
+        const updated = await this.findById(accountId, connection);
         if (!updated) {
             throw new Error('RepositoryInvariantViolation: updated record not found');
         }
@@ -143,8 +145,8 @@ export class AccountRepository {
      * @summary Removes an account record from the database.
      * @param accountId - Account ID to delete.
      */
-    async delete(accountId: number): Promise<void> {
-        await db.delete(accounts).where(eq(accounts.id, accountId));
+    async delete(accountId: number, connection: typeof db = db): Promise<void> {
+        await connection.delete(accounts).where(eq(accounts.id, accountId));
     }
 }
 

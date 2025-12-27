@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean, decimal } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 import { CreditCardFlag } from '../../utils/enum';
 
@@ -11,6 +11,8 @@ export const creditCards = mysqlTable('credit_card', {
     name: varchar('name', { length: 255 }),
     flag: mysqlEnum('flag', Object.values(CreditCardFlag) as [string, ...string[]]).notNull(),
     observation: text('observation'),
+    balance: decimal('balance', { precision: 10, scale: 2 }).default('0.00').notNull(),
+    limit: decimal('limit', { precision: 10, scale: 2 }).default('0.00').notNull(),
     active: boolean('active').default(true).notNull(),
     userId: int('user_id').notNull(),
     accountId: int('account_id'),

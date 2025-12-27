@@ -1,5 +1,5 @@
 import { seedConfig } from './seed.config';
-import { createAccounts, createCategories, createCreditCards, createTransactions, createUser } from './generators';
+import { createAccounts, createCategories, createCreditCards, createTags, createTransactions, createUser } from './generators';
 import { SeedContext, SeedControllerError, SeedLogger, SeedRandom, parseUserCount, suppressNonSeedOutput } from './seed.utils';
 import { db } from '../db';
 
@@ -9,6 +9,7 @@ type SeedTotals = {
     subcategories: number;
     accounts: number;
     creditCards: number;
+    tags: number;
     transactions: number;
 };
 
@@ -20,7 +21,7 @@ type SeedTotals = {
  * Notes:
  * - Seed runs are additive and do not de-duplicate existing records.
  * - Expense values are stored as positive numbers and classified via TransactionType.
- * - Account balances and credit card limits are not persisted in the current schema.
+ * - Account balances are derived from transaction snapshots and updated during seed creation.
  * - createdAt/updatedAt are set by database defaults and are not user-controlled.
  */
 export async function runSeed() {
@@ -44,6 +45,7 @@ export async function runSeed() {
             subcategories: 0,
             accounts: 0,
             creditCards: 0,
+            tags: 0,
             transactions: 0,
         };
 
@@ -80,14 +82,19 @@ export async function runSeed() {
             totals.creditCards += creditCards.length;
             logger.info(`Created ${creditCards.length} credit cards.`);
 
-        const transactionSummary = await createTransactions(context, {
-            userId: user.id,
-            accounts,
-            creditCards,
-            categories,
-            startDate,
-            endDate,
-        });
+            const tags = await createTags(context, user.id);
+            totals.tags += tags.length;
+            logger.info(`Created ${tags.length} tags.`);
+
+            const transactionSummary = await createTransactions(context, {
+                userId: user.id,
+                accounts,
+                creditCards,
+                categories,
+                tags,
+                startDate,
+                endDate,
+            });
             totals.transactions += transactionSummary.total;
             logger.info(`Created ${transactionSummary.total} transactions.`);
         }
@@ -98,6 +105,7 @@ export async function runSeed() {
         logger.info(`Subcategories: ${totals.subcategories}`);
         logger.info(`Accounts: ${totals.accounts}`);
         logger.info(`Credit cards: ${totals.creditCards}`);
+        logger.info(`Tags: ${totals.tags}`);
         logger.info(`Transactions: ${totals.transactions}`);
         logger.info(`Elapsed: ${logger.elapsedSeconds()}s`);
     } finally {

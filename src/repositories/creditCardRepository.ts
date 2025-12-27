@@ -15,8 +15,8 @@ export class CreditCardRepository {
      * @param creditCardId - Credit card ID to search for.
      * @returns Credit card record if found, null otherwise.
      */
-    async findById(creditCardId: number): Promise<SelectCreditCard | null> {
-        const result = await db.select().from(creditCards).where(eq(creditCards.id, creditCardId)).limit(1);
+    async findById(creditCardId: number, connection: typeof db = db): Promise<SelectCreditCard | null> {
+        const result = await connection.select().from(creditCards).where(eq(creditCards.id, creditCardId)).limit(1);
         return result[0] || null;
     }
 
@@ -39,9 +39,10 @@ export class CreditCardRepository {
             offset?: number;
             sort?: keyof SelectCreditCard;
             order?: 'asc' | 'desc';
-        }
+        },
+        connection: typeof db = db
     ): Promise<SelectCreditCard[]> {
-        let query = db.select().from(creditCards);
+        let query = connection.select().from(creditCards);
 
         const conditions: SQL[] = [];
         if (filters?.userId) {
@@ -88,9 +89,10 @@ export class CreditCardRepository {
             userId?: { operator: Operator.EQUAL; value: number };
             accountId?: { operator: Operator.EQUAL; value: number };
             active?: { operator: Operator.EQUAL; value: boolean };
-        }
+        },
+        connection: typeof db = db
     ): Promise<number> {
-        let query = db.select({ count: creditCards.id }).from(creditCards);
+        let query = connection.select({ count: creditCards.id }).from(creditCards);
 
         const conditions: SQL[] = [];
         if (filters?.userId) {
@@ -118,10 +120,10 @@ export class CreditCardRepository {
      * @param data - Credit card data to insert.
      * @returns The created credit card record with generated ID.
      */
-    async create(data: InsertCreditCard): Promise<SelectCreditCard> {
-        const result = await db.insert(creditCards).values(data);
+    async create(data: InsertCreditCard, connection: typeof db = db): Promise<SelectCreditCard> {
+        const result = await connection.insert(creditCards).values(data);
         const insertedId = result[0].insertId;
-        const created = await this.findById(Number(insertedId));
+        const created = await this.findById(Number(insertedId), connection);
         if (!created) {
             throw new Error('RepositoryInvariantViolation: created record not found');
         }
@@ -136,9 +138,9 @@ export class CreditCardRepository {
      * @param data - Partial credit card data to update.
      * @returns The updated credit card record.
      */
-    async update(creditCardId: number, data: Partial<InsertCreditCard>): Promise<SelectCreditCard> {
-        await db.update(creditCards).set(data).where(eq(creditCards.id, creditCardId));
-        const updated = await this.findById(creditCardId);
+    async update(creditCardId: number, data: Partial<InsertCreditCard>, connection: typeof db = db): Promise<SelectCreditCard> {
+        await connection.update(creditCards).set(data).where(eq(creditCards.id, creditCardId));
+        const updated = await this.findById(creditCardId, connection);
         if (!updated) {
             throw new Error('RepositoryInvariantViolation: updated record not found');
         }
@@ -151,8 +153,8 @@ export class CreditCardRepository {
      * @summary Removes a credit card record from the database.
      * @param creditCardId - Credit card ID to delete.
      */
-    async delete(creditCardId: number): Promise<void> {
-        await db.delete(creditCards).where(eq(creditCards.id, creditCardId));
+    async delete(creditCardId: number, connection: typeof db = db): Promise<void> {
+        await connection.delete(creditCards).where(eq(creditCards.id, creditCardId));
     }
 }
 

@@ -1,5 +1,5 @@
 import TransactionController from '../../controller/transactionController';
-import { SelectAccount, SelectCreditCard, SelectTransaction } from '../../db/schema';
+import { SelectAccount, SelectCreditCard, SelectTransaction, SelectTag } from '../../db/schema';
 import { CategoryType, TransactionSource, TransactionType } from '../../utils/enum';
 import { CategorySeed } from './category.generator';
 import {
@@ -27,6 +27,7 @@ type TransactionRequestBody = {
     paymentDay?: number;
     account_id?: number;
     creditCard_id?: number;
+    tags?: number[];
     active?: boolean;
 };
 
@@ -43,6 +44,7 @@ type TransactionSeedInput = {
     accounts: SelectAccount[];
     creditCards: SelectCreditCard[];
     categories: CategorySeed[];
+    tags: SelectTag[];
     startDate: Date;
     endDate: Date;
 };
@@ -127,6 +129,7 @@ async function createAccountTransactions(
             transactionType: type,
             startDate: input.startDate,
             endDate: input.endDate,
+            tags: input.tags,
         });
 
         await executeController<SelectTransaction>(TransactionController.createTransaction, {
@@ -161,6 +164,7 @@ async function createCardTransactions(
             transactionType: TransactionType.EXPENSE,
             startDate: input.startDate,
             endDate: input.endDate,
+            tags: input.tags,
         });
 
         await executeController<SelectTransaction>(TransactionController.createTransaction, {
@@ -179,6 +183,7 @@ type BuildTransactionParams = {
     transactionType: TransactionType;
     startDate: Date;
     endDate: Date;
+    tags: SelectTag[];
 };
 
 /**
@@ -203,6 +208,7 @@ function buildTransactionBody(context: SeedContext, params: BuildTransactionPara
         ? randomDateWithDay(context.random, params.startDate, params.endDate, paymentDay)
         : randomDateBetween(context.random, params.startDate, params.endDate);
     const value = buildAmount(context, transactionType, categorySeed.template.amountRange);
+    const tagIds = pickTransactionTags(context, params.tags);
 
     return {
         value,
@@ -218,6 +224,7 @@ function buildTransactionBody(context: SeedContext, params: BuildTransactionPara
         ...(paymentDay ? { paymentDay } : {}),
         ...(params.accountId ? { account_id: params.accountId } : {}),
         ...(params.creditCardId ? { creditCard_id: params.creditCardId } : {}),
+        ...(tagIds ? { tags: tagIds } : {}),
         active: true,
     };
 }
@@ -298,4 +305,25 @@ function calculateIncomeCount(context: SeedContext, accountTotal: number): numbe
     const min = Math.min(context.config.transactionDistribution.minIncomeTransactions, Math.max(0, accountTotal - 1));
     const max = accountTotal > 1 ? accountTotal - 1 : accountTotal;
     return clamp(desired, min, max);
+}
+
+/**
+ * Picks tag IDs for a transaction based on tag distribution rules.
+ *
+ * @summary Selects tags for transaction seeding.
+ */
+function pickTransactionTags(context: SeedContext, tags: SelectTag[]): number[] | undefined {
+    if (tags.length === 0) {
+        return undefined;
+    }
+
+    if (!context.random.chance(context.config.transactionDistribution.tagChance)) {
+        return undefined;
+    }
+
+    const minTags = context.config.transactionDistribution.minTags;
+    const maxTags = Math.min(context.config.transactionDistribution.maxTags, tags.length);
+    const count = context.random.int(minTags, Math.max(minTags, maxTags));
+    const picked = context.random.pickMany(tags, count).map(tag => tag.id);
+    return picked.length > 0 ? picked : undefined;
 }

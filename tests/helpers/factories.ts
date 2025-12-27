@@ -21,6 +21,7 @@ export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
         dateFormat: overrides.dateFormat ?? DateFormat.DD_MM_YYYY,
         currency: overrides.currency ?? Currency.BRL,
         profile: overrides.profile ?? Profile.STARTER,
+        hideValues: overrides.hideValues ?? false,
         active: overrides.active ?? true,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
@@ -38,12 +39,13 @@ export function makeSanitizedUser(overrides: Partial<SanitizedUser> = {}): Sanit
 /**
  * @summary Provides a valid payload for creating a new user.
  */
-export function makeCreateUserInput(overrides: Partial<{ firstName: string; lastName: string; email: string; password: string }> = {}) {
+export function makeCreateUserInput(overrides: Partial<{ firstName: string; lastName: string; email: string; password: string; hideValues?: boolean }> = {}) {
     return {
         firstName: overrides.firstName ?? 'John',
         lastName: overrides.lastName ?? 'Doe',
         email: overrides.email ?? 'john.doe@example.com',
         password: overrides.password ?? 'password123',
+        hideValues: overrides.hideValues,
     };
 }
 
@@ -59,6 +61,7 @@ export function makeAccount(overrides: Partial<SelectAccount> = {}): SelectAccou
         institution: overrides.institution ?? 'Test Bank',
         type: overrides.type ?? AccountType.CHECKING,
         observation: overrides.observation ?? null,
+        balance: overrides.balance ?? '0.00',
         active: overrides.active ?? true,
         userId: overrides.userId ?? 1,
         createdAt: overrides.createdAt ?? now,
@@ -69,12 +72,13 @@ export function makeAccount(overrides: Partial<SelectAccount> = {}): SelectAccou
 /**
  * @summary Provides a valid payload for creating an account.
  */
-export function makeAccountInput(overrides: Partial<{ name: string; institution: string; type: AccountType; observation?: string; userId: number; active?: boolean }> = {}) {
+export function makeAccountInput(overrides: Partial<{ name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean }> = {}) {
     return {
         name: overrides.name ?? 'Wallet',
         institution: overrides.institution ?? 'Sample Bank',
         type: overrides.type ?? AccountType.CHECKING,
         observation: overrides.observation,
+        balance: overrides.balance,
         userId: overrides.userId ?? 1,
         active: overrides.active ?? true,
     };
@@ -107,6 +111,7 @@ export function makeTransactionInput(
         paymentDay?: number;
         accountId?: number;
         creditCardId?: number;
+        tags?: number[];
         active?: boolean;
     }> = {}
 ) {
@@ -128,6 +133,7 @@ export function makeTransactionInput(
     if (overrides.paymentDay !== undefined) body.paymentDay = overrides.paymentDay;
     if (overrides.accountId !== undefined) body.account_id = overrides.accountId;
     if (overrides.creditCardId !== undefined) body.creditCard_id = overrides.creditCardId;
+    if (overrides.tags !== undefined) body.tags = overrides.tags;
 
     return body;
 }

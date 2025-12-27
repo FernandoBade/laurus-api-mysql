@@ -1,4 +1,4 @@
-import { isString, isNumber, isBoolean, isDate, isEnum, isValidEmail, hasMinLength } from './guards';
+import { isString, isNumber, isNumberArray, isBoolean, isDate, isEnum, isValidEmail, hasMinLength } from './guards';
 import { createValidationError, ValidationError } from './errors';
 import { Theme, Language, Currency, DateFormat, Profile, AccountType, CategoryType, CategoryColor, CreditCardFlag, TransactionType, TransactionSource } from '../enum';
 import { ResourceBase } from '../resources/languages/resourceService';
@@ -16,7 +16,7 @@ import { LanguageCode } from '../resources/resourceTypes';
 export function validateCreateUser(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: { firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean } } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -69,6 +69,14 @@ export function validateCreateUser(
         errors.push(createValidationError('profile', ResourceBase.translate(Resource.INVALID_PROFILE_VALUE, lang)));
     }
 
+    if (body.hideValues !== undefined && !isBoolean(body.hideValues)) {
+        errors.push(createValidationError('hideValues', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'hideValues',
+            expected: 'boolean',
+            received: String(body.hideValues)
+        })));
+    }
+
     if (body.active !== undefined && !isBoolean(body.active)) {
         errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
     }
@@ -91,6 +99,7 @@ export function validateCreateUser(
             currency: body.currency as Currency | undefined,
             dateFormat: body.dateFormat as DateFormat | undefined,
             profile: body.profile as Profile | undefined,
+            hideValues: body.hideValues as boolean | undefined,
             active: body.active as boolean | undefined,
         }
     };
@@ -107,7 +116,7 @@ export function validateCreateUser(
 export function validateUpdateUser(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: Partial<{ firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean }> } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -195,6 +204,18 @@ export function validateUpdateUser(
         result.profile = body.profile;
     }
 
+    if (body.hideValues !== undefined) {
+        if (!isBoolean(body.hideValues)) {
+            errors.push(createValidationError('hideValues', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'hideValues',
+                expected: 'boolean',
+                received: String(body.hideValues)
+            })));
+        } else {
+            result.hideValues = body.hideValues;
+        }
+    }
+
     if (body.active !== undefined && !isBoolean(body.active)) {
         errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
     } else if (body.active !== undefined) {
@@ -219,7 +240,7 @@ export function validateUpdateUser(
 export function validateCreateAccount(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; institution: string; type: AccountType; observation?: string; userId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: { name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -254,6 +275,21 @@ export function validateCreateAccount(
         errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
+    if (body.balance !== undefined) {
+        if (!isNumber(body.balance)) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'balance',
+                expected: 'number',
+                received: String(body.balance)
+            })));
+        } else if (body.balance < 0) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'balance',
+                min: 0
+            })));
+        }
+    }
+
     if (!isNumber(body.user_id) || body.user_id <= 0) {
         errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
     }
@@ -277,6 +313,7 @@ export function validateCreateAccount(
             institution: body.institution as string,
             type: body.type as AccountType,
             observation: body.observation as string | undefined,
+            balance: body.balance as number | undefined,
             userId: body.user_id as number,
             active: body.active as boolean | undefined,
         }
@@ -294,7 +331,7 @@ export function validateCreateAccount(
 export function validateUpdateAccount(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; institution: string; type: AccountType; observation?: string; userId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: Partial<{ name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
@@ -343,6 +380,23 @@ export function validateUpdateAccount(
             errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
+        }
+    }
+
+    if (body.balance !== undefined) {
+        if (!isNumber(body.balance)) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'balance',
+                expected: 'number',
+                received: String(body.balance)
+            })));
+        } else if (body.balance < 0) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'balance',
+                min: 0
+            })));
+        } else {
+            result.balance = body.balance;
         }
     }
 
@@ -640,7 +694,7 @@ export function validateUpdateSubcategory(
 export function validateCreateCreditCard(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; flag: CreditCardFlag; observation?: string; userId: number; accountId?: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: { name: string; flag: CreditCardFlag; observation?: string; balance?: number; limit?: number; userId: number; accountId?: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -668,6 +722,36 @@ export function validateCreateCreditCard(
         errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
+    if (body.balance !== undefined) {
+        if (!isNumber(body.balance)) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'balance',
+                expected: 'number',
+                received: String(body.balance)
+            })));
+        } else if (body.balance < 0) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'balance',
+                min: 0
+            })));
+        }
+    }
+
+    if (body.limit !== undefined) {
+        if (!isNumber(body.limit)) {
+            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'limit',
+                expected: 'number',
+                received: String(body.limit)
+            })));
+        } else if (body.limit < 0) {
+            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'limit',
+                min: 0
+            })));
+        }
+    }
+
     if (!isNumber(body.user_id) || body.user_id <= 0) {
         errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
     }
@@ -690,6 +774,8 @@ export function validateCreateCreditCard(
             name: body.name as string,
             flag: body.flag as CreditCardFlag,
             observation: body.observation as string | undefined,
+            balance: body.balance as number | undefined,
+            limit: body.limit as number | undefined,
             userId: body.user_id as number,
             accountId: body.account_id as number | undefined,
             active: body.active as boolean | undefined,
@@ -708,7 +794,7 @@ export function validateCreateCreditCard(
 export function validateUpdateCreditCard(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; flag: CreditCardFlag; observation?: string; userId: number; accountId?: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: Partial<{ name: string; flag: CreditCardFlag; observation?: string; balance?: number; limit?: number; userId: number; accountId?: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
@@ -749,6 +835,40 @@ export function validateUpdateCreditCard(
         }
     }
 
+    if (body.balance !== undefined) {
+        if (!isNumber(body.balance)) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'balance',
+                expected: 'number',
+                received: String(body.balance)
+            })));
+        } else if (body.balance < 0) {
+            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'balance',
+                min: 0
+            })));
+        } else {
+            result.balance = body.balance;
+        }
+    }
+
+    if (body.limit !== undefined) {
+        if (!isNumber(body.limit)) {
+            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+                path: 'limit',
+                expected: 'number',
+                received: String(body.limit)
+            })));
+        } else if (body.limit < 0) {
+            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'limit',
+                min: 0
+            })));
+        } else {
+            result.limit = body.limit;
+        }
+    }
+
     if (body.user_id !== undefined) {
         if (!isNumber(body.user_id) || body.user_id <= 0) {
             errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
@@ -779,6 +899,116 @@ export function validateUpdateCreditCard(
 }
 
 /**
+ * Validates tag creation data.
+ *
+ * @summary Validates tag creation request data.
+ * @param data - Request body data.
+ * @param lang - Language code for error messages.
+ * @returns Validation result with data or errors.
+ */
+export function validateCreateTag(
+    data: unknown,
+    lang?: LanguageCode
+): { success: true; data: { name: string; userId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+    const errors: ValidationError[] = [];
+
+    if (!data || typeof data !== 'object') {
+        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+    }
+
+    const body = data as Record<string, unknown>;
+
+    if (!isString(body.name) || body.name.length < 1) {
+        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'name',
+            min: 1
+        })));
+    }
+
+    if (!isNumber(body.user_id) || body.user_id <= 0) {
+        errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+    }
+
+    if (body.active !== undefined && !isBoolean(body.active)) {
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
+    }
+
+    if (errors.length > 0) {
+        return { success: false, errors };
+    }
+
+    return {
+        success: true,
+        data: {
+            name: body.name as string,
+            userId: body.user_id as number,
+            active: body.active as boolean | undefined,
+        }
+    };
+}
+
+/**
+ * Validates tag update data.
+ *
+ * @summary Validates tag update request data.
+ * @param data - Request body data.
+ * @param lang - Language code for error messages.
+ * @returns Validation result with data or errors.
+ */
+export function validateUpdateTag(
+    data: unknown,
+    lang?: LanguageCode
+): { success: true; data: Partial<{ name: string; userId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+    const errors: ValidationError[] = [];
+    const result: Record<string, unknown> = {};
+
+    if (!data || typeof data !== 'object') {
+        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+    }
+
+    const body = data as Record<string, unknown>;
+
+    if (body.name !== undefined) {
+        if (!isString(body.name) || body.name.length < 1) {
+            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                path: 'name',
+                min: 1
+            })));
+        } else {
+            result.name = body.name;
+        }
+    }
+
+    if (body.user_id !== undefined) {
+        if (!isNumber(body.user_id) || body.user_id <= 0) {
+            errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        } else {
+            result.userId = body.user_id;
+        }
+    }
+
+    if (body.active !== undefined && !isBoolean(body.active)) {
+        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            path: 'active',
+            expected: 'boolean',
+            received: String(body.active)
+        })));
+    } else if (body.active !== undefined) {
+        result.active = body.active;
+    }
+
+    if (errors.length > 0) {
+        return { success: false, errors };
+    }
+
+    return { success: true, data: result };
+}
+
+/**
  * Validates transaction creation data.
  *
  * @summary Validates transaction creation request data.
@@ -789,7 +1019,7 @@ export function validateUpdateCreditCard(
 export function validateCreateTransaction(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: { value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; tags?: number[]; active?: boolean } } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -882,6 +1112,12 @@ export function validateCreateTransaction(
         errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
+    if (body.tags !== undefined) {
+        if (!isNumberArray(body.tags) || (body.tags as number[]).some(tagId => tagId <= 0)) {
+            errors.push(createValidationError('tags', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        }
+    }
+
     if (body.active !== undefined && !isBoolean(body.active)) {
         errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
     }
@@ -908,6 +1144,7 @@ export function validateCreateTransaction(
             paymentDay: body.paymentDay as number | undefined,
             accountId: body.account_id as number | undefined,
             creditCardId: body.creditCard_id as number | undefined,
+            tags: body.tags as number[] | undefined,
             active: body.active as boolean | undefined,
         }
     };
@@ -924,7 +1161,7 @@ export function validateCreateTransaction(
 export function validateUpdateTransaction(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: Partial<{ value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; tags?: number[]; active?: boolean }> } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
@@ -1054,6 +1291,14 @@ export function validateUpdateTransaction(
             errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
+        }
+    }
+
+    if (body.tags !== undefined) {
+        if (!isNumberArray(body.tags) || (body.tags as number[]).some(tagId => tagId <= 0)) {
+            errors.push(createValidationError('tags', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        } else {
+            result.tags = body.tags;
         }
     }
 

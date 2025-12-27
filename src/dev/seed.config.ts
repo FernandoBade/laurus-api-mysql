@@ -38,9 +38,12 @@ export type SeedConfig = {
         phoneChance: number;
         birthDateChance: number;
         activeChance: number;
+        hideValuesChance: number;
     };
     accountsPerUser: { min: number; max: number };
     creditCardsPerUser: { min: number; max: number };
+    creditCardLimitRange: { min: number; max: number };
+    tagsPerUser: { min: number; max: number };
     transactionsPerUser: { min: number; max: number };
     transactionDistribution: {
         creditCardShare: { min: number; max: number };
@@ -49,6 +52,9 @@ export type SeedConfig = {
         minIncomeTransactions: number;
         observationChance: number;
         subcategoryChance: number;
+        tagChance: number;
+        minTags: number;
+        maxTags: number;
     };
     recurringDefaults: {
         chance: number;
@@ -68,6 +74,7 @@ export type SeedConfig = {
     accountTemplates: AccountTemplate[];
     creditCardProducts: CreditCardProduct[];
     categories: CategoryTemplate[];
+    tagNames: string[];
 };
 
 /**
@@ -88,9 +95,12 @@ export const seedConfig: SeedConfig = {
         phoneChance: 0.75,
         birthDateChance: 0.85,
         activeChance: 0.98,
+        hideValuesChance: 0.3,
     },
     accountsPerUser: { min: 1, max: 3 },
     creditCardsPerUser: { min: 0, max: 2 },
+    creditCardLimitRange: { min: 800, max: 20000 },
+    tagsPerUser: { min: 3, max: 8 },
     transactionsPerUser: { min: 100, max: 1000 },
     transactionDistribution: {
         creditCardShare: { min: 0.2, max: 0.45 },
@@ -99,6 +109,9 @@ export const seedConfig: SeedConfig = {
         minIncomeTransactions: 12,
         observationChance: 0.85,
         subcategoryChance: 0.7,
+        tagChance: 0.6,
+        minTags: 1,
+        maxTags: 3,
     },
     recurringDefaults: {
         chance: 0.2,
@@ -153,6 +166,23 @@ export const seedConfig: SeedConfig = {
         { name: 'Hipercard Standard', flag: CreditCardFlag.HIPERCARD, observation: 'Brazilian network card.' },
         { name: 'Diners Club', flag: CreditCardFlag.DINERS, observation: 'Lounge and travel perks.' },
         { name: 'Discover Cashback', flag: CreditCardFlag.DISCOVER, observation: 'Cashback rewards.' },
+    ],
+    tagNames: [
+        'Essentials',
+        'Family',
+        'Travel',
+        'Subscriptions',
+        'Work',
+        'Health',
+        'Education',
+        'Gifts',
+        'Urgent',
+        'Savings',
+        'Lifestyle',
+        'Home',
+        'Entertainment',
+        'Auto',
+        'Food',
     ],
     categories: [
         {

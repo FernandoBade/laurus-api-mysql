@@ -18,6 +18,8 @@ const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCredit
         name: overrides.name ?? 'Visa Gold',
         flag: overrides.flag ?? CreditCardFlag.VISA,
         observation: overrides.observation ?? 'Primary card',
+        balance: overrides.balance ?? '0.00',
+        limit: overrides.limit ?? '0.00',
         active: overrides.active ?? true,
         userId: overrides.userId ?? 1,
         accountId: overrides.accountId ?? null,
@@ -131,6 +133,7 @@ describe('CreditCardService', () => {
                 flag: CreditCardFlag.VISA,
                 userId: 4,
                 accountId: 20,
+                limit: 5000,
                 active: true,
             });
 
@@ -138,8 +141,9 @@ describe('CreditCardService', () => {
                 expect.objectContaining({
                     name: 'Card',
                     flag: CreditCardFlag.VISA,
-                    user_id: 4,
-                    account_id: 20,
+                    userId: 4,
+                    accountId: 20,
+                    limit: '5000.00',
                     active: true,
                 })
             );
@@ -165,8 +169,8 @@ describe('CreditCardService', () => {
                 expect.objectContaining({
                     name: 'Card',
                     flag: CreditCardFlag.MASTERCARD,
-                    user_id: 5,
-                    account_id: undefined,
+                    userId: 5,
+                    accountId: undefined,
                 })
             );
             expect(result).toEqual({ success: true, data: created });

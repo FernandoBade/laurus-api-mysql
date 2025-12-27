@@ -31,6 +31,7 @@ export class CreditCardService {
         observation?: string;
         userId: number;
         accountId?: number;
+        limit?: number;
         active?: boolean;
     }): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
         const userService = new UserService();
@@ -57,9 +58,13 @@ export class CreditCardService {
 
         try {
             const created = await this.creditCardRepository.create({
-                ...data,
-                user_id: data.userId,
-                account_id: data.accountId,
+                name: data.name,
+                flag: data.flag,
+                observation: data.observation,
+                active: data.active,
+                userId: data.userId,
+                accountId: data.accountId,
+                limit: data.limit !== undefined ? data.limit.toFixed(2) : undefined,
             } as InsertCreditCard);
             return { success: true, data: created };
         } catch (error) {
@@ -167,7 +172,9 @@ export class CreditCardService {
      * @param data - Partial credit card data to update.
      * @returns Updated credit card record.
      */
-    async updateCreditCard(id: number, data: Partial<InsertCreditCard>): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+    async updateCreditCard(id: number, data: Partial<Omit<InsertCreditCard, 'balance' | 'limit'>> & { balance?: number; limit?: number | string }): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+        const { balance: _ignored, ...safeData } = data;
+
         if (data.userId !== undefined) {
             const userService = new UserService();
             const user = await userService.getUserById(data.userId);
@@ -176,18 +183,18 @@ export class CreditCardService {
             }
         }
 
-        if (data.accountId !== undefined) {
-            if (data.accountId === null) {
-                data.accountId = null;
+        if (safeData.accountId !== undefined) {
+            if (safeData.accountId === null) {
+                safeData.accountId = null;
             } else {
                 const accountService = new AccountService();
-                const account = await accountService.getAccountById(data.accountId);
+                const account = await accountService.getAccountById(safeData.accountId);
                 if (!account.success || !account.data) {
                     return { success: false, error: Resource.ACCOUNT_NOT_FOUND };
                 }
 
                 const existing = await this.creditCardRepository.findMany({
-                    accountId: { operator: Operator.EQUAL, value: data.accountId }
+                    accountId: { operator: Operator.EQUAL, value: safeData.accountId }
                 });
                 if (existing.length > 0 && existing[0].id !== id) {
                     return { success: false, error: Resource.DATA_ALREADY_EXISTS };
@@ -196,7 +203,12 @@ export class CreditCardService {
         }
 
         try {
-            const updated = await this.creditCardRepository.update(id, data);
+            const { limit, ...rest } = safeData as any;
+            const dbData: Partial<InsertCreditCard> = { ...rest } as Partial<InsertCreditCard>;
+            if (limit !== undefined && limit !== null) {
+                dbData.limit = typeof limit === 'number' ? limit.toFixed(2) as InsertCreditCard['limit'] : String(limit) as InsertCreditCard['limit'];
+            }
+            const updated = await this.creditCardRepository.update(id, dbData);
             return { success: true, data: updated };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };

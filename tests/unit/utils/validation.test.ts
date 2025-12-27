@@ -9,6 +9,8 @@ import {
     validateUpdateSubcategory,
     validateCreateCreditCard,
     validateUpdateCreditCard,
+    validateCreateTag,
+    validateUpdateTag,
     validateCreateTransaction,
     validateUpdateTransaction,
 } from '../../../src/utils/validation/validateRequest';
@@ -16,6 +18,7 @@ import { createValidationError } from '../../../src/utils/validation/errors';
 import {
     isString,
     isNumber,
+    isNumberArray,
     isBoolean,
     isDate,
     isEnum,
@@ -58,6 +61,13 @@ describe('validation guards', () => {
         expect(isNumber(1)).toBe(true);
         expect(isNumber(NaN)).toBe(false);
         expect(isNumber('1')).toBe(false);
+    });
+
+    it('validates number arrays', () => {
+        expect(isNumberArray([1, 2, 3])).toBe(true);
+        expect(isNumberArray([])).toBe(true);
+        expect(isNumberArray([1, '2'])).toBe(false);
+        expect(isNumberArray('1,2')).toBe(false);
     });
 
     it('validates booleans', () => {
@@ -118,6 +128,7 @@ describe('validateRequest', () => {
                     currency: Currency.BRL,
                     dateFormat: DateFormat.DD_MM_YYYY,
                     profile: Profile.STARTER,
+                    hideValues: true,
                     active: true,
                 },
                 lang
@@ -128,6 +139,7 @@ describe('validateRequest', () => {
             expect(result.data.email).toBe('test@example.com');
             expect(result.data.birthDate).toBeInstanceOf(Date);
             expect(result.data.theme).toBe(Theme.DARK);
+            expect(result.data.hideValues).toBe(true);
             expect(result.data.active).toBe(true);
         });
     });
@@ -142,11 +154,12 @@ describe('validateRequest', () => {
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateUser({ email: 'TEST@EXAMPLE.COM', active: true }, lang);
+            const result = validateUpdateUser({ email: 'TEST@EXAMPLE.COM', hideValues: false, active: true }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.email).toBe('test@example.com');
+            expect(result.data.hideValues).toBe(false);
             expect(result.data.active).toBe(true);
         });
     });
@@ -170,6 +183,7 @@ describe('validateRequest', () => {
                     institution: 'Bank',
                     type: AccountType.CHECKING,
                     observation: 'note',
+                    balance: 250.5,
                     user_id: 2,
                     active: true,
                 },
@@ -180,6 +194,7 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.userId).toBe(2);
             expect(result.data.observation).toBe('note');
+            expect(result.data.balance).toBe(250.5);
             expect(result.data.active).toBe(true);
         });
     });
@@ -194,12 +209,13 @@ describe('validateRequest', () => {
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateAccount({ name: 'New', observation: 'note', active: false }, lang);
+            const result = validateUpdateAccount({ name: 'New', observation: 'note', balance: 0, active: false }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.name).toBe('New');
             expect(result.data.observation).toBe('note');
+            expect(result.data.balance).toBe(0);
             expect(result.data.active).toBe(false);
         });
     });
@@ -320,6 +336,8 @@ describe('validateRequest', () => {
                     name: 'Card',
                     flag: CreditCardFlag.VISA,
                     observation: 'note',
+                    balance: 0,
+                    limit: 5000,
                     user_id: 1,
                     account_id: 5,
                     active: true,
@@ -331,6 +349,8 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.userId).toBe(1);
             expect(result.data.accountId).toBe(5);
+            expect(result.data.balance).toBe(0);
+            expect(result.data.limit).toBe(5000);
             expect(result.data.active).toBe(true);
         });
     });
@@ -345,13 +365,61 @@ describe('validateRequest', () => {
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateCreditCard({ name: 'New', flag: CreditCardFlag.AMEX, account_id: 2 }, lang);
+            const result = validateUpdateCreditCard({ name: 'New', flag: CreditCardFlag.AMEX, limit: 8000, account_id: 2 }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.name).toBe('New');
             expect(result.data.flag).toBe(CreditCardFlag.AMEX);
             expect(result.data.accountId).toBe(2);
+            expect(result.data.limit).toBe(8000);
+        });
+    });
+
+    describe('validateCreateTag', () => {
+        it('returns errors for invalid input', () => {
+            const result = validateCreateTag({ name: '', user_id: 0 }, lang);
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual(
+                expect.arrayContaining([
+                    createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                        path: 'name',
+                        min: 1
+                    })),
+                    createValidationError('user_id', t(Resource.VALIDATION_ERROR)),
+                ])
+            );
+        });
+
+        it('returns normalized data for valid input', () => {
+            const result = validateCreateTag({ name: 'Urgent', user_id: 5, active: true }, lang);
+
+            expect(result.success).toBe(true);
+            if (!result.success) return;
+            expect(result.data.name).toBe('Urgent');
+            expect(result.data.userId).toBe(5);
+            expect(result.data.active).toBe(true);
+        });
+    });
+
+    describe('validateUpdateTag', () => {
+        it('returns errors for invalid input', () => {
+            const result = validateUpdateTag({ user_id: 0 }, lang);
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual([createValidationError('user_id', t(Resource.VALIDATION_ERROR))]);
+        });
+
+        it('returns normalized data for valid input', () => {
+            const result = validateUpdateTag({ name: 'Travel', active: false }, lang);
+
+            expect(result.success).toBe(true);
+            if (!result.success) return;
+            expect(result.data.name).toBe('Travel');
+            expect(result.data.active).toBe(false);
         });
     });
 
@@ -412,6 +480,7 @@ describe('validateRequest', () => {
                     isInstallment: false,
                     isRecurring: false,
                     account_id: 2,
+                    tags: [1, 2],
                     active: true,
                 },
                 lang
@@ -422,6 +491,7 @@ describe('validateRequest', () => {
             expect(result.data.date).toBeInstanceOf(Date);
             expect(result.data.categoryId).toBe(2);
             expect(result.data.accountId).toBe(2);
+            expect(result.data.tags).toEqual([1, 2]);
             expect(result.data.active).toBe(true);
         });
     });
@@ -441,6 +511,7 @@ describe('validateRequest', () => {
                     transactionSource: TransactionSource.CREDIT_CARD,
                     creditCard_id: 5,
                     date: '2024-01-01',
+                    tags: [3],
                     isInstallment: false,
                     isRecurring: false,
                 },
@@ -452,6 +523,7 @@ describe('validateRequest', () => {
             expect(result.data.transactionSource).toBe(TransactionSource.CREDIT_CARD);
             expect(result.data.creditCardId).toBe(5);
             expect(result.data.date).toBeInstanceOf(Date);
+            expect(result.data.tags).toEqual([3]);
             expect(result.data.isInstallment).toBe(false);
             expect(result.data.isRecurring).toBe(false);
         });

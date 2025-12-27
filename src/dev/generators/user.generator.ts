@@ -15,6 +15,7 @@ type UserRequestBody = {
     currency?: Currency;
     dateFormat?: DateFormat;
     profile?: Profile;
+    hideValues?: boolean;
     active?: boolean;
 };
 
@@ -42,6 +43,7 @@ export async function createUser(context: SeedContext, index: number): Promise<S
         currency: context.random.pickOne(context.config.userOptions.currencies),
         dateFormat: context.random.pickOne(context.config.userOptions.dateFormats),
         profile: context.random.pickOne(context.config.userOptions.profiles),
+        hideValues: context.random.chance(context.config.userOptions.hideValuesChance),
         active: context.random.chance(context.config.userOptions.activeChance),
     };
 

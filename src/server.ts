@@ -11,6 +11,7 @@ import transactionRoutes from './routes/transactionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
 import creditCardRoutes from './routes/creditCardRoutes';
+import tagRoutes from './routes/tagRoutes';
 
 import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
 import { LogCategory, LogOperation, LogType } from './utils/enum';
@@ -44,6 +45,7 @@ app.use("/accounts", accountRoutes);
 app.use("/creditCards", creditCardRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/subcategories", subcategoryRoutes);
+app.use("/tags", tagRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/users", userRoutes);
 

@@ -15,8 +15,8 @@ export class TransactionRepository {
      * @param transactionId - Transaction ID to search for.
      * @returns Transaction record if found, null otherwise.
      */
-    async findById(transactionId: number): Promise<SelectTransaction | null> {
-        const result = await db.select().from(transactions).where(eq(transactions.id, transactionId)).limit(1);
+    async findById(transactionId: number, connection: typeof db = db): Promise<SelectTransaction | null> {
+        const result = await connection.select().from(transactions).where(eq(transactions.id, transactionId)).limit(1);
         return result[0] || null;
     }
 
@@ -42,9 +42,10 @@ export class TransactionRepository {
             offset?: number;
             sort?: keyof SelectTransaction;
             order?: 'asc' | 'desc';
-        }
+        },
+        connection: typeof db = db
     ): Promise<SelectTransaction[]> {
-        let query = db.select().from(transactions);
+        let query = connection.select().from(transactions);
 
         const conditions: SQL[] = [];
         if (filters?.accountId) {
@@ -118,9 +119,10 @@ export class TransactionRepository {
             categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             active?: { operator: Operator.EQUAL; value: boolean };
-        }
+        },
+        connection: typeof db = db
     ): Promise<number> {
-        let query = db.select({ count: transactions.id }).from(transactions);
+        let query = connection.select({ count: transactions.id }).from(transactions);
 
         const conditions: SQL[] = [];
         if (filters?.accountId) {
@@ -170,10 +172,10 @@ export class TransactionRepository {
      * @param data - Transaction data to insert.
      * @returns The created transaction record with generated ID.
      */
-    async create(data: InsertTransaction): Promise<SelectTransaction> {
-        const result = await db.insert(transactions).values(data);
+    async create(data: InsertTransaction, connection: typeof db = db): Promise<SelectTransaction> {
+        const result = await connection.insert(transactions).values(data);
         const insertedId = result[0].insertId;
-        const created = await this.findById(Number(insertedId));
+        const created = await this.findById(Number(insertedId), connection);
         if (!created) {
             throw new Error('RepositoryInvariantViolation: created record not found');
         }
@@ -188,9 +190,9 @@ export class TransactionRepository {
      * @param data - Partial transaction data to update.
      * @returns The updated transaction record.
      */
-    async update(transactionId: number, data: Partial<InsertTransaction>): Promise<SelectTransaction> {
-        await db.update(transactions).set(data).where(eq(transactions.id, transactionId));
-        const updated = await this.findById(transactionId);
+    async update(transactionId: number, data: Partial<InsertTransaction>, connection: typeof db = db): Promise<SelectTransaction> {
+        await connection.update(transactions).set(data).where(eq(transactions.id, transactionId));
+        const updated = await this.findById(transactionId, connection);
         if (!updated) {
             throw new Error('RepositoryInvariantViolation: updated record not found');
         }
@@ -203,8 +205,8 @@ export class TransactionRepository {
      * @summary Removes a transaction record from the database.
      * @param transactionId - Transaction ID to delete.
      */
-    async delete(transactionId: number): Promise<void> {
-        await db.delete(transactions).where(eq(transactions.id, transactionId));
+    async delete(transactionId: number, connection: typeof db = db): Promise<void> {
+        await connection.delete(transactions).where(eq(transactions.id, transactionId));
     }
 }
 

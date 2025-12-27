@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Operator } from '../utils/enum';
+import { Operator, Theme, Language, Currency, DateFormat, Profile } from '../utils/enum';
 import { UserRepository } from '../repositories/userRepository';
 import { Resource } from '../utils/resources/resource';
 import { SelectUser } from '../db/schema';
@@ -38,7 +38,7 @@ export class UserService {
      * @param data - User registration data.
      * @returns Created user record or error if email is already in use.
      */
-    async createUser(data: { firstName: string; lastName: string; email: string; password: string }): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
+    async createUser(data: { firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean }): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         data.email = data.email.trim().toLowerCase();
 
         const existingUsers = await this.userRepository.findMany({
@@ -49,8 +49,11 @@ export class UserService {
             return { success: false, error: Resource.EMAIL_IN_USE };
         }
 
-        data.password = await bcrypt.hash(data.password, 10);
-        const created = await this.userRepository.create(data);
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const created = await this.userRepository.create({
+            ...data,
+            password: hashedPassword,
+        });
 
         return {
             success: true,
@@ -166,6 +169,32 @@ export class UserService {
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
+    }
+
+    /**
+     * Retrieves a user by exact email match.
+     *
+     * @summary Gets a single user by exact email.
+     * @param email - Email to match exactly.
+     * @returns User record if found, or error if not.
+     */
+    async findUserByEmailExact(email: string): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
+        const normalized = email.trim().toLowerCase();
+        const result = await this.userRepository.findMany({
+            email: { operator: Operator.EQUAL, value: normalized }
+        }, {
+            limit: 2,
+        });
+
+        if (result.length === 0) {
+            return { success: false, error: Resource.USER_NOT_FOUND };
+        }
+
+        if (result.length > 1) {
+            throw new Error('RepositoryInvariantViolation: multiple users found');
+        }
+
+        return { success: true, data: this.sanitizeUser(result[0]) };
     }
 
     /**

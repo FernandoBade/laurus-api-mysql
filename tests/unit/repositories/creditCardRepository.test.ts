@@ -11,6 +11,8 @@ const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCredit
         name: overrides.name ?? 'Main Card',
         flag: overrides.flag ?? CreditCardFlag.VISA,
         observation: overrides.observation ?? null,
+        balance: overrides.balance ?? '0.00',
+        limit: overrides.limit ?? '0.00',
         active: overrides.active ?? true,
         userId: overrides.userId ?? 1,
         accountId: overrides.accountId ?? 1,
