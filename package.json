@@ -3,7 +3,9 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon --exec \"ts-node --files\" src/server.ts",
+        "dev:api": "nodemon --exec \"ts-node --files\" src/server.ts",
+        "dev": "concurrently \"npm run dev:api\" \"npm --prefix frontend run dev\" -n api,frontend -c green,blue",
+        "dev:full": "npm run dev",
         "build": "npm run test:ci && tsc",
         "start": "node dist/server.js",
         "db:generate": "drizzle-kit generate",
@@ -48,6 +50,7 @@
         "@types/supertest": "^6.0.2",
         "@typescript-eslint/eslint-plugin": "^8.22.0",
         "@typescript-eslint/parser": "^8.22.0",
+        "concurrently": "^8.2.2",
         "drizzle-kit": "^0.30.0",
         "eslint": "^9.19.0",
         "jest": "^29.7.0",
