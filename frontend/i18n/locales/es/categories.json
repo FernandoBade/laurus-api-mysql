@@ -1,0 +1,58 @@
+{
+  "resource": {
+    "categories": {
+      "title": "Categorías",
+      "colors": {
+        "blue": "Azul",
+        "cyan": "Cian",
+        "gray": "Gris",
+        "green": "Verde",
+        "indigo": "Índigo",
+        "orange": "Naranja",
+        "pink": "Rosa",
+        "purple": "Morado",
+        "red": "Rojo",
+        "yellow": "Amarillo"
+      },
+      "confirmDelete": "¿Seguro que deseas eliminar esta categoría?",
+      "create": {
+        "actions": {
+          "submit": "Crear categoría"
+        },
+        "desc": "Añade una categoría nueva para tus transacciones.",
+        "errors": {
+          "notCreated": "No se pudo crear la categoría."
+        },
+        "title": "Crear categoría"
+      },
+      "edit": {
+        "title": "Editar categoría"
+      },
+      "errors": {
+        "nameRequired": "El nombre de la categoría es obligatorio.",
+        "notSelected": "Selecciona una categoría para editar."
+      },
+      "fallbacks": {
+        "categoryWithId": "Categoría {{id}}"
+      },
+      "fields": {
+        "color": "Color"
+      },
+      "list": {
+        "desc": "Gestiona categorías de ingresos y gastos.",
+        "empty": "No se encontraron categorías.",
+        "loading": "Cargando categorías...",
+        "title": "Lista de categorías",
+        "unavailable": "No se pudieron cargar las categorías.",
+        "unnamed": "Categoría sin nombre"
+      },
+      "placeholders": {
+        "name": "Nombre de la categoría"
+      },
+      "types": {
+        "expense": "Gasto",
+        "income": "Ingreso"
+      }
+    }
+  }
+}

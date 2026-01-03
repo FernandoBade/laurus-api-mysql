@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Input from "../input/InputField";
 import Label from "../Label";
+import { useTranslation } from "react-i18next";
 
 export default function InputStates() {
+  const { t } = useTranslation(["resource-forms", "resource-common"]);
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
 
@@ -23,45 +25,47 @@ export default function InputStates() {
   };
   return (
     <ComponentCard
-      title="Input States"
-      desc="Validation styles for error, success and disabled states on form controls."
+      title={t("resource.forms.inputStates.title")}
+      desc={t("resource.forms.inputStates.desc")}
     >
       <div className="space-y-5 sm:space-y-6">
         {/* Error Input */}
         <div>
-          <Label>Email</Label>
+          <Label>{t("resource.common.fields.email")}</Label>
           <Input
             type="email"
             defaultValue={email}
             error={error}
             onChange={handleEmailChange}
-            placeholder="Enter your email"
-            hint={error ? "This is an invalid email address." : ""}
+            placeholder={t("resource.forms.inputStates.placeholders.email")}
+            hint={
+              error ? t("resource.forms.inputStates.hints.invalidEmail") : ""
+            }
           />
         </div>
 
         {/* Success Input */}
         <div>
-          <Label>Email</Label>
+          <Label>{t("resource.common.fields.email")}</Label>
           <Input
             type="email"
             defaultValue={email}
             success={!error}
             onChange={handleEmailChange}
-            placeholder="Enter your email"
-            hint={!error ? "Valid email!" : ""}
+            placeholder={t("resource.forms.inputStates.placeholders.email")}
+            hint={!error ? t("resource.forms.inputStates.hints.validEmail") : ""}
           />
         </div>
 
         {/* Disabled Input */}
         <div>
-          <Label>Email</Label>
+          <Label>{t("resource.common.fields.email")}</Label>
           <Input
             type="text"
-            defaultValue="disabled@example.com"
+            defaultValue={t("resource.forms.inputStates.values.disabledEmail")}
             disabled={true}
-            placeholder="Disabled email"
-            hint="This field is disabled."
+            placeholder={t("resource.forms.inputStates.placeholders.disabledEmail")}
+            hint={t("resource.forms.inputStates.hints.disabledField")}
           />
         </div>
       </div>

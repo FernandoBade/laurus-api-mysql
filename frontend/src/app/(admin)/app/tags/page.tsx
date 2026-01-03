@@ -18,8 +18,10 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useCreateTag, useDeleteTag, useTagsByUser, useUpdateTag } from "@/api/tags.hooks";
 import { getApiErrorMessage } from "@/api/errorHandling";
+import { useTranslation } from "react-i18next";
 
 export default function TagsPage() {
+  const { t } = useTranslation(["resource-tags", "resource-common"]);
   const { userId } = useAuth();
   const tagsQuery = useTagsByUser(userId);
   const createTagMutation = useCreateTag(userId);
@@ -51,12 +53,12 @@ export default function TagsPage() {
     setFormError(null);
 
     if (!userId) {
-      setFormError("Missing user session.");
+      setFormError(t("resource.common.errors.missingSession"));
       return;
     }
 
     if (!name.trim()) {
-      setFormError("Name is required.");
+      setFormError(t("resource.tags.errors.nameRequired"));
       return;
     }
 
@@ -68,7 +70,7 @@ export default function TagsPage() {
       });
       resetForm();
     } catch (error) {
-      setFormError(getApiErrorMessage(error));
+      setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
@@ -86,12 +88,12 @@ export default function TagsPage() {
     setEditError(null);
 
     if (!editId) {
-      setEditError("Tag not selected.");
+      setEditError(t("resource.tags.errors.notSelected"));
       return;
     }
 
     if (!editName.trim()) {
-      setEditError("Name is required.");
+      setEditError(t("resource.tags.errors.nameRequired"));
       return;
     }
 
@@ -105,12 +107,12 @@ export default function TagsPage() {
       });
       setIsEditOpen(false);
     } catch (error) {
-      setEditError(getApiErrorMessage(error));
+      setEditError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
   const handleDelete = async (id: number) => {
-    const confirmed = window.confirm("Are you sure you want to delete this tag?");
+    const confirmed = window.confirm(t("resource.tags.confirmDelete"));
     if (!confirmed) {
       return;
     }
@@ -126,64 +128,83 @@ export default function TagsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          Tags
+          {t("resource.tags.title")}
         </h2>
       </div>
 
-      <ComponentCard title="Create Tag" desc="Label your transactions">
+      <ComponentCard
+        title={t("resource.tags.create.title")}
+        desc={t("resource.tags.create.desc")}
+      >
         <form onSubmit={handleCreate}>
           <div key={formKey} className="grid gap-5 md:grid-cols-2">
             {formError && (
               <div className="md:col-span-2">
                 <Alert
                   variant="error"
-                  title="Tag not created"
+                  title={t("resource.tags.create.errors.notCreated")}
                   message={formError}
                 />
               </div>
             )}
             <div>
               <Label>
-                Name <span className="text-error-500">*</span>
+                {t("resource.common.fields.name")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
-                placeholder="Tag name"
+                placeholder={t("resource.tags.placeholders.name")}
                 name="name"
                 onChange={(event) => setName(event.target.value)}
               />
             </div>
             <div className="flex items-center justify-between md:col-span-2">
-              <Checkbox checked={active} onChange={setActive} label="Active" />
+              <Checkbox
+                checked={active}
+                onChange={setActive}
+                label={t("resource.common.status.active")}
+              />
               <Button
                 className="min-w-[140px]"
                 size="sm"
                 disabled={createTagMutation.isPending}
               >
-                {createTagMutation.isPending ? "Saving..." : "Create Tag"}
+                {createTagMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.tags.create.actions.submit")}
               </Button>
             </div>
           </div>
         </form>
       </ComponentCard>
 
-      <ComponentCard title="Tags List" desc="Manage tags">
+      <ComponentCard
+        title={t("resource.tags.list.title")}
+        desc={t("resource.tags.list.desc")}
+      >
         {tagsQuery.isError && (
           <Alert
             variant="error"
-            title="Tags unavailable"
-            message={getApiErrorMessage(tagsQuery.error)}
+            title={t("resource.tags.list.unavailable")}
+            message={getApiErrorMessage(
+              tagsQuery.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {deleteTagMutation.isError && (
           <Alert
             variant="error"
-            title="Delete failed"
-            message={getApiErrorMessage(deleteTagMutation.error)}
+            title={t("resource.common.errors.deleteFailed")}
+            message={getApiErrorMessage(
+              deleteTagMutation.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {!tagsQuery.isError && tagsQuery.isLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Loading tags...
+            {t("resource.tags.list.loading")}
           </p>
         )}
         {!tagsQuery.isError && !tagsQuery.isLoading && (
@@ -196,19 +217,19 @@ export default function TagsPage() {
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Name
+                      {t("resource.common.fields.name")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Status
+                      {t("resource.common.fields.status")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Actions
+                      {t("resource.common.fields.actions")}
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -216,17 +237,19 @@ export default function TagsPage() {
                   {tags.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        No tags available.
+                        {t("resource.tags.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
                     tags.map((tag) => (
                       <TableRow key={tag.id}>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {tag.name || "Unnamed"}
+                          {tag.name || t("resource.tags.list.unnamed")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {tag.active ? "Active" : "Inactive"}
+                          {tag.active
+                            ? t("resource.common.status.active")
+                            : t("resource.common.status.inactive")}
                         </TableCell>
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-2">
@@ -235,7 +258,7 @@ export default function TagsPage() {
                               variant="outline"
                               onClick={() => openEditModal(tag)}
                             >
-                              Edit
+                              {t("resource.common.actions.edit")}
                             </Button>
                             <Button
                               size="sm"
@@ -243,7 +266,7 @@ export default function TagsPage() {
                               disabled={deleteTagMutation.isPending}
                               onClick={() => handleDelete(tag.id)}
                             >
-                              Delete
+                              {t("resource.common.actions.delete")}
                             </Button>
                           </div>
                         </TableCell>
@@ -260,23 +283,24 @@ export default function TagsPage() {
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Edit Tag
+            {t("resource.tags.edit.title")}
           </h3>
           <form onSubmit={handleEdit} className="mt-5 space-y-5">
             <div key={editKey} className="space-y-5">
               {editError && (
                 <Alert
                   variant="error"
-                  title="Update failed"
+                  title={t("resource.common.errors.updateFailed")}
                   message={editError}
                 />
               )}
               <div>
                 <Label>
-                  Name <span className="text-error-500">*</span>
+                  {t("resource.common.fields.name")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Tag name"
+                  placeholder={t("resource.tags.placeholders.name")}
                   name="edit-name"
                   defaultValue={editName}
                   onChange={(event) => setEditName(event.target.value)}
@@ -285,7 +309,7 @@ export default function TagsPage() {
               <Checkbox
                 checked={editActive}
                 onChange={setEditActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -294,10 +318,12 @@ export default function TagsPage() {
                 size="sm"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t("resource.common.actions.cancel")}
               </Button>
               <Button size="sm" disabled={updateTagMutation.isPending}>
-                {updateTagMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateTagMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

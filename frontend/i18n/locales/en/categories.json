@@ -1,0 +1,58 @@
+{
+  "resource": {
+    "categories": {
+      "title": "Categories",
+      "colors": {
+        "blue": "Blue",
+        "cyan": "Cyan",
+        "gray": "Gray",
+        "green": "Green",
+        "indigo": "Indigo",
+        "orange": "Orange",
+        "pink": "Pink",
+        "purple": "Purple",
+        "red": "Red",
+        "yellow": "Yellow"
+      },
+      "confirmDelete": "Are you sure you want to delete this category?",
+      "create": {
+        "actions": {
+          "submit": "Create category"
+        },
+        "desc": "Add a new category for your transactions.",
+        "errors": {
+          "notCreated": "Category could not be created."
+        },
+        "title": "Create category"
+      },
+      "edit": {
+        "title": "Edit category"
+      },
+      "errors": {
+        "nameRequired": "Category name is required.",
+        "notSelected": "Select a category to edit."
+      },
+      "fallbacks": {
+        "categoryWithId": "Category {{id}}"
+      },
+      "fields": {
+        "color": "Color"
+      },
+      "list": {
+        "desc": "Manage your income and expense categories.",
+        "empty": "No categories found.",
+        "loading": "Loading categories...",
+        "title": "Category list",
+        "unavailable": "Unable to load categories.",
+        "unnamed": "Unnamed category"
+      },
+      "placeholders": {
+        "name": "Category name"
+      },
+      "types": {
+        "expense": "Expense",
+        "income": "Income"
+      }
+    }
+  }
+}

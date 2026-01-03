@@ -4,8 +4,10 @@ import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
 import { useModal } from "@/hooks/useModal";
+import { useTranslation } from "react-i18next";
 
 export default function VerticallyCenteredModal() {
+  const { t } = useTranslation(["resource-ui", "resource-common"]);
   const { isOpen, openModal, closeModal } = useModal();
   const handleSave = () => {
     // Handle save logic here
@@ -13,9 +15,9 @@ export default function VerticallyCenteredModal() {
     closeModal();
   };
   return (
-    <ComponentCard title="Vertically Centered Modal">
+    <ComponentCard title={t("resource.ui.modals.centered.title")}>
       <Button size="sm" onClick={openModal}>
-        Open Modal
+        {t("resource.ui.modals.actions.open")}
       </Button>
       <Modal
         isOpen={isOpen}
@@ -25,19 +27,18 @@ export default function VerticallyCenteredModal() {
       >
         <div className="text-center">
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            All Done! Success Confirmed
+            {t("resource.ui.modals.centered.heading")}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Pellentesque euismod est quis mauris lacinia pharetra.
+            {t("resource.ui.modals.centered.body")}
           </p>
 
           <div className="flex items-center justify-center w-full gap-3 mt-8">
             <Button size="sm" variant="outline" onClick={closeModal}>
-              Close
+              {t("resource.common.actions.close")}
             </Button>
             <Button size="sm" onClick={handleSave}>
-              Save Changes
+              {t("resource.common.actions.saveChanges")}
             </Button>
           </div>
         </div>

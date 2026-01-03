@@ -4,6 +4,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import ptBrLocale from "@fullcalendar/core/locales/pt-br";
+import esLocale from "@fullcalendar/core/locales/es";
 import {
   EventInput,
   DateSelectArg,
@@ -12,56 +14,98 @@ import {
 } from "@fullcalendar/core";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
+import { useTranslation } from "react-i18next";
+
+const calendarLevelOptions = [
+  { value: "danger", labelKey: "resource.calendar.eventLevels.danger" },
+  { value: "success", labelKey: "resource.calendar.eventLevels.success" },
+  { value: "primary", labelKey: "resource.calendar.eventLevels.primary" },
+  { value: "warning", labelKey: "resource.calendar.eventLevels.warning" },
+] as const;
+
+type CalendarLevel = (typeof calendarLevelOptions)[number]["value"];
+
+const defaultEventIds = {
+  conference: "resource-calendar-event-conference",
+  meeting: "resource-calendar-event-meeting",
+  workshop: "resource-calendar-event-workshop",
+} as const;
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
-    calendar: string;
+    calendar: CalendarLevel;
   };
 }
 
 const Calendar: React.FC = () => {
+  const { t, i18n } = useTranslation(["resource-calendar"]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
   const [eventTitle, setEventTitle] = useState("");
   const [eventStartDate, setEventStartDate] = useState("");
   const [eventEndDate, setEventEndDate] = useState("");
-  const [eventLevel, setEventLevel] = useState("");
+  const [eventLevel, setEventLevel] = useState<CalendarLevel | "">("");
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
-
-  const calendarsEvents = {
-    Danger: "danger",
-    Success: "success",
-    Primary: "primary",
-    Warning: "warning",
-  };
+  const calendarLocale =
+    i18n.language === "pt-BR"
+      ? ptBrLocale
+      : i18n.language === "es"
+      ? esLocale
+      : undefined;
 
   useEffect(() => {
     // Initialize with some events
     setEvents([
       {
-        id: "1",
-        title: "Event Conf.",
+        id: defaultEventIds.conference,
+        title: i18n.t("resource.calendar.events.conference"),
         start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "Danger" },
+        extendedProps: { calendar: "danger" },
       },
       {
-        id: "2",
-        title: "Meeting",
+        id: defaultEventIds.meeting,
+        title: i18n.t("resource.calendar.events.meeting"),
         start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
+        extendedProps: { calendar: "success" },
       },
       {
-        id: "3",
-        title: "Workshop",
+        id: defaultEventIds.workshop,
+        title: i18n.t("resource.calendar.events.workshop"),
         start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
         end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
+        extendedProps: { calendar: "primary" },
       },
     ]);
-  }, []);
+  }, [i18n]);
+
+  useEffect(() => {
+    setEvents((prevEvents) =>
+      prevEvents.map((event) => {
+        if (event.id === defaultEventIds.conference) {
+          return {
+            ...event,
+            title: i18n.t("resource.calendar.events.conference"),
+          };
+        }
+        if (event.id === defaultEventIds.meeting) {
+          return {
+            ...event,
+            title: i18n.t("resource.calendar.events.meeting"),
+          };
+        }
+        if (event.id === defaultEventIds.workshop) {
+          return {
+            ...event,
+            title: i18n.t("resource.calendar.events.workshop"),
+          };
+        }
+        return event;
+      })
+    );
+  }, [i18n.language, i18n]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
@@ -81,6 +125,8 @@ const Calendar: React.FC = () => {
   };
 
   const handleAddOrUpdateEvent = () => {
+    const resolvedLevel: CalendarLevel =
+      eventLevel || calendarLevelOptions[0].value;
     if (selectedEvent) {
       // Update existing event
       setEvents((prevEvents) =>
@@ -91,7 +137,7 @@ const Calendar: React.FC = () => {
                 title: eventTitle,
                 start: eventStartDate,
                 end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
+                extendedProps: { calendar: resolvedLevel },
               }
             : event
         )
@@ -104,7 +150,7 @@ const Calendar: React.FC = () => {
         start: eventStartDate,
         end: eventEndDate,
         allDay: true,
-        extendedProps: { calendar: eventLevel },
+        extendedProps: { calendar: resolvedLevel },
       };
       setEvents((prevEvents) => [...prevEvents, newEvent]);
     }
@@ -127,6 +173,7 @@ const Calendar: React.FC = () => {
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
+          locale={calendarLocale}
           headerToolbar={{
             left: "prev,next addEventButton",
             center: "title",
@@ -139,7 +186,7 @@ const Calendar: React.FC = () => {
           eventContent={renderEventContent}
           customButtons={{
             addEventButton: {
-              text: "Add Event +",
+              text: t("resource.calendar.actions.addEvent"),
               click: openModal,
             },
           }}
@@ -153,18 +200,19 @@ const Calendar: React.FC = () => {
         <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
           <div>
             <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-              {selectedEvent ? "Edit Event" : "Add Event"}
+              {selectedEvent
+                ? t("resource.calendar.modal.titles.edit")
+                : t("resource.calendar.modal.titles.add")}
             </h5>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Plan your next big moment: schedule or edit an event to stay on
-              track
+              {t("resource.calendar.modal.description")}
             </p>
           </div>
           <div className="mt-8">
             <div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Title
+                  {t("resource.calendar.fields.title")}
                 </label>
                 <input
                   id="event-title"
@@ -177,37 +225,37 @@ const Calendar: React.FC = () => {
             </div>
             <div className="mt-6">
               <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                Event Color
+                {t("resource.calendar.fields.color")}
               </label>
               <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-                {Object.entries(calendarsEvents).map(([key, value]) => (
-                  <div key={key} className="n-chk">
+                {calendarLevelOptions.map((option) => (
+                  <div key={option.value} className="n-chk">
                     <div
-                      className={`form-check form-check-${value} form-check-inline`}
+                      className={`form-check form-check-${option.value} form-check-inline`}
                     >
                       <label
                         className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                        htmlFor={`modal${key}`}
+                        htmlFor={`modal${option.value}`}
                       >
                         <span className="relative">
                           <input
                             className="sr-only form-check-input"
                             type="radio"
                             name="event-level"
-                            value={key}
-                            id={`modal${key}`}
-                            checked={eventLevel === key}
-                            onChange={() => setEventLevel(key)}
+                            value={option.value}
+                            id={`modal${option.value}`}
+                            checked={eventLevel === option.value}
+                            onChange={() => setEventLevel(option.value)}
                           />
                           <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
                             <span
                               className={`h-2 w-2 rounded-full bg-white ${
-                                eventLevel === key ? "block" : "hidden"
+                                eventLevel === option.value ? "block" : "hidden"
                               }`}  
                             ></span>
                           </span>
                         </span>
-                        {key}
+                        {t(option.labelKey)}
                       </label>
                     </div>
                   </div>
@@ -217,7 +265,7 @@ const Calendar: React.FC = () => {
 
             <div className="mt-6">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Enter Start Date
+                {t("resource.calendar.fields.startDate")}
               </label>
               <div className="relative">
                 <input
@@ -232,7 +280,7 @@ const Calendar: React.FC = () => {
 
             <div className="mt-6">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Enter End Date
+                {t("resource.calendar.fields.endDate")}
               </label>
               <div className="relative">
                 <input
@@ -251,14 +299,16 @@ const Calendar: React.FC = () => {
               type="button"
               className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
             >
-              Close
+              {t("resource.calendar.actions.close")}
             </button>
             <button
               onClick={handleAddOrUpdateEvent}
               type="button"
               className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
             >
-              {selectedEvent ? "Update Changes" : "Add Event"}
+              {selectedEvent
+                ? t("resource.calendar.actions.update")
+                : t("resource.calendar.actions.add")}
             </button>
           </div>
         </div>

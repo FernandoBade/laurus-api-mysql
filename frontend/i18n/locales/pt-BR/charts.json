@@ -1,0 +1,34 @@
+{
+  "resource": {
+    "charts": {
+      "months": {
+        "jan": "Jan",
+        "feb": "Fev",
+        "mar": "Mar",
+        "apr": "Abr",
+        "may": "Mai",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Ago",
+        "sep": "Set",
+        "oct": "Out",
+        "nov": "Nov",
+        "dec": "Dez"
+      },
+      "pages": {
+        "bar": {
+          "cardTitle": "Gráfico de barras 1",
+          "title": "Gráfico de barras"
+        },
+        "line": {
+          "cardTitle": "Gráfico de linha 1",
+          "title": "Gráfico de linha"
+        }
+      },
+      "series": {
+        "sales": "Vendas",
+        "revenue": "Receita"
+      }
+    }
+  }
+}

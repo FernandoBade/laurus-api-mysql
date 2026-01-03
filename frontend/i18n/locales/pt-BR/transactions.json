@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "transactions": {
+      "title": "Transações",
+      "confirmDelete": "Tem certeza que deseja excluir esta transação?",
+      "create": {
+        "actions": {
+          "submit": "Criar transação"
+        },
+        "desc": "Registre uma nova transação.",
+        "errors": {
+          "notCreated": "Não foi possível criar a transação."
+        },
+        "title": "Criar transação"
+      },
+      "edit": {
+        "title": "Editar transação"
+      },
+      "errors": {
+        "notSelected": "Selecione uma transação para editar."
+      },
+      "fields": {
+        "installment": "Parcelado",
+        "paymentDay": "Dia de pagamento",
+        "recurring": "Recorrente",
+        "totalMonths": "Total de meses"
+      },
+      "list": {
+        "desc": "Todas as transações da sua conta.",
+        "empty": "Nenhuma transação encontrada.",
+        "loading": "Carregando transações...",
+        "title": "Lista de transações",
+        "unavailable": "Não foi possível carregar as transações."
+      },
+      "placeholders": {
+        "observation": "Adicionar observação",
+        "paymentDay": "Dia do mês (1-31)",
+        "selectAccount": "Selecione uma conta",
+        "selectCard": "Selecione um cartão",
+        "selectCategory": "Selecione uma categoria",
+        "totalMonths": "Quantidade de meses"
+      },
+      "sources": {
+        "account": "Conta",
+        "creditCard": "Cartão"
+      },
+      "types": {
+        "expense": "Despesa",
+        "income": "Receita"
+      },
+      "validation": {
+        "accountRequired": "Conta é obrigatória.",
+        "amountPositive": "O valor deve ser maior que zero.",
+        "cardRequired": "Cartão é obrigatório.",
+        "categoryRequired": "Categoria é obrigatória.",
+        "dateRequired": "Data é obrigatória.",
+        "installmentMonthsRequired": "Informe o total de meses para parcelamento.",
+        "invalidInstallmentRecurring": "Parcelado e recorrente não podem ser selecionados juntos.",
+        "paymentDayRange": "O dia de pagamento deve estar entre 1 e 31.",
+        "paymentDayRequired": "Dia de pagamento é obrigatório."
+      }
+    }
+  }
+}

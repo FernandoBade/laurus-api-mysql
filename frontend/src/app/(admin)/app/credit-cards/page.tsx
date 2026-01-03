@@ -26,16 +26,7 @@ import {
 import { useAccountsByUser } from "@/api/accounts.hooks";
 import type { CreditCardFlag } from "@/api/shared.types";
 import { getApiErrorMessage } from "@/api/errorHandling";
-
-const flagOptions = [
-  { value: "visa", label: "Visa" },
-  { value: "mastercard", label: "Mastercard" },
-  { value: "amex", label: "Amex" },
-  { value: "elo", label: "Elo" },
-  { value: "hipercard", label: "Hipercard" },
-  { value: "discover", label: "Discover" },
-  { value: "diners", label: "Diners" },
-];
+import { useTranslation } from "react-i18next";
 
 const formatAmount = (value: string | number | null | undefined) => {
   if (value === null || value === undefined) {
@@ -46,6 +37,11 @@ const formatAmount = (value: string | number | null | undefined) => {
 };
 
 export default function CreditCardsPage() {
+  const { t } = useTranslation([
+    "resource-creditCards",
+    "resource-accounts",
+    "resource-common",
+  ]);
   const { userId } = useAuth();
   const cardsQuery = useCreditCardsByUser(userId);
   const accountsQuery = useAccountsByUser(userId);
@@ -75,6 +71,23 @@ export default function CreditCardsPage() {
   const [editAccountId, setEditAccountId] = useState("none");
   const [editActive, setEditActive] = useState(true);
 
+  const flagOptions = useMemo(
+    () => [
+      { value: "visa", label: t("resource.creditCards.flags.visa") },
+      { value: "mastercard", label: t("resource.creditCards.flags.mastercard") },
+      { value: "amex", label: t("resource.creditCards.flags.amex") },
+      { value: "elo", label: t("resource.creditCards.flags.elo") },
+      { value: "hipercard", label: t("resource.creditCards.flags.hipercard") },
+      { value: "discover", label: t("resource.creditCards.flags.discover") },
+      { value: "diners", label: t("resource.creditCards.flags.diners") },
+    ],
+    [t]
+  );
+  const flagLabels = useMemo(
+    () => new Map(flagOptions.map((option) => [option.value, option.label])),
+    [flagOptions]
+  );
+
   const cards = useMemo(() => cardsQuery.data?.data ?? [], [cardsQuery.data]);
   const accounts = useMemo(
     () => accountsQuery.data?.data ?? [],
@@ -82,13 +95,17 @@ export default function CreditCardsPage() {
   );
 
   const accountOptions = useMemo(() => {
-    const base = [{ value: "none", label: "No linked account" }];
+    const base = [
+      { value: "none", label: t("resource.creditCards.account.none") },
+    ];
     const mapped = accounts.map((account) => ({
       value: String(account.id),
-      label: account.name || `Account #${account.id}`,
+      label:
+        account.name ||
+        t("resource.accounts.fallbacks.accountWithId", { id: account.id }),
     }));
     return base.concat(mapped);
-  }, [accounts]);
+  }, [accounts, t]);
 
   const accountNameMap = useMemo(() => {
     return new Map(accounts.map((account) => [account.id, account.name]));
@@ -110,12 +127,12 @@ export default function CreditCardsPage() {
     setFormError(null);
 
     if (!userId) {
-      setFormError("Missing user session.");
+      setFormError(t("resource.common.errors.missingSession"));
       return;
     }
 
     if (!name.trim()) {
-      setFormError("Name is required.");
+      setFormError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
@@ -123,7 +140,7 @@ export default function CreditCardsPage() {
     if (balance.trim()) {
       parsedBalance = Number(balance);
       if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setFormError("Balance must be a positive number.");
+        setFormError(t("resource.creditCards.errors.balancePositive"));
         return;
       }
     }
@@ -132,7 +149,7 @@ export default function CreditCardsPage() {
     if (limit.trim()) {
       parsedLimit = Number(limit);
       if (Number.isNaN(parsedLimit) || parsedLimit < 0) {
-        setFormError("Limit must be a positive number.");
+        setFormError(t("resource.creditCards.errors.limitPositive"));
         return;
       }
     }
@@ -150,7 +167,7 @@ export default function CreditCardsPage() {
       });
       resetForm();
     } catch (error) {
-      setFormError(getApiErrorMessage(error));
+      setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
@@ -173,12 +190,12 @@ export default function CreditCardsPage() {
     setEditError(null);
 
     if (!editId) {
-      setEditError("Card not selected.");
+      setEditError(t("resource.creditCards.errors.notSelected"));
       return;
     }
 
     if (!editName.trim()) {
-      setEditError("Name is required.");
+      setEditError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
@@ -186,7 +203,7 @@ export default function CreditCardsPage() {
     if (editBalance.trim()) {
       parsedBalance = Number(editBalance);
       if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setEditError("Balance must be a positive number.");
+        setEditError(t("resource.creditCards.errors.balancePositive"));
         return;
       }
     }
@@ -195,7 +212,7 @@ export default function CreditCardsPage() {
     if (editLimit.trim()) {
       parsedLimit = Number(editLimit);
       if (Number.isNaN(parsedLimit) || parsedLimit < 0) {
-        setEditError("Limit must be a positive number.");
+        setEditError(t("resource.creditCards.errors.limitPositive"));
         return;
       }
     }
@@ -215,13 +232,13 @@ export default function CreditCardsPage() {
       });
       setIsEditOpen(false);
     } catch (error) {
-      setEditError(getApiErrorMessage(error));
+      setEditError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this credit card?"
+      t("resource.creditCards.confirmDelete")
     );
     if (!confirmed) {
       return;
@@ -238,35 +255,40 @@ export default function CreditCardsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          Credit Cards
+          {t("resource.creditCards.title")}
         </h2>
       </div>
 
-      <ComponentCard title="Add Credit Card" desc="Track your card balances">
+      <ComponentCard
+        title={t("resource.creditCards.create.title")}
+        desc={t("resource.creditCards.create.desc")}
+      >
         <form onSubmit={handleCreate}>
           <div key={formKey} className="grid gap-5 md:grid-cols-2">
             {formError && (
               <div className="md:col-span-2">
                 <Alert
                   variant="error"
-                  title="Card not created"
+                  title={t("resource.creditCards.create.errors.notCreated")}
                   message={formError}
                 />
               </div>
             )}
             <div>
               <Label>
-                Name <span className="text-error-500">*</span>
+                {t("resource.common.fields.name")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
-                placeholder="Card name"
+                placeholder={t("resource.creditCards.placeholders.name")}
                 name="name"
                 onChange={(event) => setName(event.target.value)}
               />
             </div>
             <div>
               <Label>
-                Flag <span className="text-error-500">*</span>
+                {t("resource.creditCards.fields.flag")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-flag-${formKey}`}
@@ -276,25 +298,25 @@ export default function CreditCardsPage() {
               />
             </div>
             <div>
-              <Label>Limit</Label>
+              <Label>{t("resource.common.fields.limit")}</Label>
               <Input
                 type="number"
-                placeholder="0.00"
+                placeholder={t("resource.common.placeholders.amount")}
                 name="limit"
                 onChange={(event) => setLimit(event.target.value)}
               />
             </div>
             <div>
-              <Label>Balance</Label>
+              <Label>{t("resource.common.fields.balance")}</Label>
               <Input
                 type="number"
-                placeholder="0.00"
+                placeholder={t("resource.common.placeholders.amount")}
                 name="balance"
                 onChange={(event) => setBalance(event.target.value)}
               />
             </div>
             <div>
-              <Label>Linked Account</Label>
+              <Label>{t("resource.creditCards.fields.linkedAccount")}</Label>
               <Select
                 key={`create-account-${formKey}`}
                 options={accountOptions}
@@ -303,9 +325,9 @@ export default function CreditCardsPage() {
               />
             </div>
             <div>
-              <Label>Observation</Label>
+              <Label>{t("resource.common.fields.observation")}</Label>
               <Input
-                placeholder="Notes"
+                placeholder={t("resource.creditCards.placeholders.observation")}
                 name="observation"
                 onChange={(event) => setObservation(event.target.value)}
               />
@@ -314,38 +336,49 @@ export default function CreditCardsPage() {
               <Checkbox
                 checked={active}
                 onChange={setActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
               <Button
                 className="min-w-[140px]"
                 size="sm"
                 disabled={createCardMutation.isPending}
               >
-                {createCardMutation.isPending ? "Saving..." : "Create Card"}
+                {createCardMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.creditCards.create.actions.submit")}
               </Button>
             </div>
           </div>
         </form>
       </ComponentCard>
 
-      <ComponentCard title="Cards List" desc="Manage your cards">
+      <ComponentCard
+        title={t("resource.creditCards.list.title")}
+        desc={t("resource.creditCards.list.desc")}
+      >
         {cardsQuery.isError && (
           <Alert
             variant="error"
-            title="Cards unavailable"
-            message={getApiErrorMessage(cardsQuery.error)}
+            title={t("resource.creditCards.list.unavailable")}
+            message={getApiErrorMessage(
+              cardsQuery.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {deleteCardMutation.isError && (
           <Alert
             variant="error"
-            title="Delete failed"
-            message={getApiErrorMessage(deleteCardMutation.error)}
+            title={t("resource.common.errors.deleteFailed")}
+            message={getApiErrorMessage(
+              deleteCardMutation.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {!cardsQuery.isError && cardsQuery.isLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Loading cards...
+            {t("resource.creditCards.list.loading")}
           </p>
         )}
         {!cardsQuery.isError && !cardsQuery.isLoading && (
@@ -358,43 +391,43 @@ export default function CreditCardsPage() {
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Name
+                      {t("resource.common.fields.name")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Flag
+                      {t("resource.creditCards.fields.flag")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Limit
+                      {t("resource.common.fields.limit")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Balance
+                      {t("resource.common.fields.balance")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Linked Account
+                      {t("resource.creditCards.fields.linkedAccount")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Status
+                      {t("resource.common.fields.status")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Actions
+                      {t("resource.common.fields.actions")}
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -402,17 +435,17 @@ export default function CreditCardsPage() {
                   {cards.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        No credit cards available.
+                        {t("resource.creditCards.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
                     cards.map((card) => (
                       <TableRow key={card.id}>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {card.name || "Unnamed"}
+                          {card.name || t("resource.creditCards.list.unnamed")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {card.flag}
+                          {flagLabels.get(card.flag) ?? card.flag}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
                           {formatAmount(card.limit)}
@@ -423,11 +456,15 @@ export default function CreditCardsPage() {
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                           {card.accountId
                             ? accountNameMap.get(card.accountId) ||
-                              `Account #${card.accountId}`
-                            : "-"}
+                              t("resource.accounts.fallbacks.accountWithId", {
+                                id: card.accountId,
+                              })
+                            : t("resource.common.placeholders.emptyValue")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {card.active ? "Active" : "Inactive"}
+                          {card.active
+                            ? t("resource.common.status.active")
+                            : t("resource.common.status.inactive")}
                         </TableCell>
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-2">
@@ -436,7 +473,7 @@ export default function CreditCardsPage() {
                               variant="outline"
                               onClick={() => openEditModal(card)}
                             >
-                              Edit
+                              {t("resource.common.actions.edit")}
                             </Button>
                             <Button
                               size="sm"
@@ -444,7 +481,7 @@ export default function CreditCardsPage() {
                               disabled={deleteCardMutation.isPending}
                               onClick={() => handleDelete(card.id)}
                             >
-                              Delete
+                              {t("resource.common.actions.delete")}
                             </Button>
                           </div>
                         </TableCell>
@@ -461,23 +498,24 @@ export default function CreditCardsPage() {
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Edit Credit Card
+            {t("resource.creditCards.edit.title")}
           </h3>
           <form onSubmit={handleEdit} className="mt-5 space-y-5">
             <div key={editKey} className="space-y-5">
               {editError && (
                 <Alert
                   variant="error"
-                  title="Update failed"
+                  title={t("resource.common.errors.updateFailed")}
                   message={editError}
                 />
               )}
               <div>
                 <Label>
-                  Name <span className="text-error-500">*</span>
+                  {t("resource.common.fields.name")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Card name"
+                  placeholder={t("resource.creditCards.placeholders.name")}
                   name="edit-name"
                   defaultValue={editName}
                   onChange={(event) => setEditName(event.target.value)}
@@ -485,7 +523,8 @@ export default function CreditCardsPage() {
               </div>
               <div>
                 <Label>
-                  Flag <span className="text-error-500">*</span>
+                  {t("resource.creditCards.fields.flag")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Select
                   key={`edit-flag-${editKey}`}
@@ -495,27 +534,27 @@ export default function CreditCardsPage() {
                 />
               </div>
               <div>
-                <Label>Limit</Label>
+                <Label>{t("resource.common.fields.limit")}</Label>
                 <Input
                   type="number"
-                  placeholder="0.00"
+                  placeholder={t("resource.common.placeholders.amount")}
                   name="edit-limit"
                   defaultValue={editLimit}
                   onChange={(event) => setEditLimit(event.target.value)}
                 />
               </div>
               <div>
-                <Label>Balance</Label>
+                <Label>{t("resource.common.fields.balance")}</Label>
                 <Input
                   type="number"
-                  placeholder="0.00"
+                  placeholder={t("resource.common.placeholders.amount")}
                   name="edit-balance"
                   defaultValue={editBalance}
                   onChange={(event) => setEditBalance(event.target.value)}
                 />
               </div>
               <div>
-                <Label>Linked Account</Label>
+                <Label>{t("resource.creditCards.fields.linkedAccount")}</Label>
                 <Select
                   key={`edit-account-${editKey}`}
                   options={accountOptions}
@@ -524,9 +563,9 @@ export default function CreditCardsPage() {
                 />
               </div>
               <div>
-                <Label>Observation</Label>
+                <Label>{t("resource.common.fields.observation")}</Label>
                 <Input
-                  placeholder="Notes"
+                  placeholder={t("resource.creditCards.placeholders.observation")}
                   name="edit-observation"
                   defaultValue={editObservation}
                   onChange={(event) => setEditObservation(event.target.value)}
@@ -535,7 +574,7 @@ export default function CreditCardsPage() {
               <Checkbox
                 checked={editActive}
                 onChange={setEditActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -544,13 +583,15 @@ export default function CreditCardsPage() {
                 size="sm"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t("resource.common.actions.cancel")}
               </Button>
               <Button
                 size="sm"
                 disabled={updateCardMutation.isPending}
               >
-                {updateCardMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateCardMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

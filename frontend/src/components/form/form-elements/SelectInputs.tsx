@@ -1,17 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
 import Select from "../Select";
 import MultiSelect from "../MultiSelect";
 import { ChevronDownIcon } from "@/icons";
+import { useTranslation } from "react-i18next";
 
 export default function SelectInputs() {
-  const options = [
-    { value: "marketing", label: "Marketing" },
-    { value: "template", label: "Template" },
-    { value: "development", label: "Development" },
-  ];
+  const { t } = useTranslation(["resource-forms", "resource-common"]);
+  const options = useMemo(
+    () => [
+      { value: "marketing", label: t("resource.forms.selectInputs.options.marketing") },
+      { value: "template", label: t("resource.forms.selectInputs.options.template") },
+      { value: "development", label: t("resource.forms.selectInputs.options.development") },
+    ],
+    [t]
+  );
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
@@ -19,23 +24,26 @@ export default function SelectInputs() {
     console.log("Selected value:", value);
   };
 
-  const multiOptions = [
-    { value: "1", text: "Option 1", selected: false },
-    { value: "2", text: "Option 2", selected: false },
-    { value: "3", text: "Option 3", selected: false },
-    { value: "4", text: "Option 4", selected: false },
-    { value: "5", text: "Option 5", selected: false },
-  ];
+  const multiOptions = useMemo(
+    () => [
+      { value: "1", text: t("resource.forms.selectInputs.multiOptions.option1"), selected: false },
+      { value: "2", text: t("resource.forms.selectInputs.multiOptions.option2"), selected: false },
+      { value: "3", text: t("resource.forms.selectInputs.multiOptions.option3"), selected: false },
+      { value: "4", text: t("resource.forms.selectInputs.multiOptions.option4"), selected: false },
+      { value: "5", text: t("resource.forms.selectInputs.multiOptions.option5"), selected: false },
+    ],
+    [t]
+  );
 
   return (
-    <ComponentCard title="Select Inputs">
+    <ComponentCard title={t("resource.forms.selectInputs.title")}>
       <div className="space-y-6">
         <div>
-          <Label>Select Input</Label>
+          <Label>{t("resource.forms.selectInputs.fields.selectInput")}</Label>
          <div className="relative">
            <Select
             options={options}
-            placeholder="Select Option"
+            placeholder={t("resource.common.placeholders.selectOption")}
             onChange={handleSelectChange}
             className="dark:bg-dark-900"
           />
@@ -46,13 +54,14 @@ export default function SelectInputs() {
         </div>
         <div className="relative">
           <MultiSelect
-            label="Multiple Select Options"
+            label={t("resource.forms.selectInputs.fields.multiSelect")}
             options={multiOptions}
             defaultSelected={["1", "3"]}
             onChange={(values) => setSelectedValues(values)}
           />
           <p className="sr-only">
-            Selected Values: {selectedValues.join(", ")}
+            {t("resource.forms.selectInputs.selectedValues")}:{" "}
+            {selectedValues.join(", ")}
           </p>
         </div>
       </div>

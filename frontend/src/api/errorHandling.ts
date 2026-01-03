@@ -40,7 +40,7 @@ export const getApiValidationErrors = (
 
 export const getApiErrorMessage = (
   error: unknown,
-  fallbackMessage = "Something went wrong. Please try again."
+  fallbackMessage = ""
 ) => {
   const validationErrors = getApiValidationErrors(error);
   if (validationErrors.length > 0) {

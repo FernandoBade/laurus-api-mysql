@@ -1,0 +1,42 @@
+{
+  "resource": {
+    "profile": {
+      "title": "Perfil",
+      "fields": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn",
+        "x": "X"
+      },
+      "meta": {
+        "avatarAlt": "Avatar del perfil",
+        "location": "San Francisco, CA",
+        "name": "Musharof",
+        "role": "Gerente de equipo"
+      },
+      "modal": {
+        "addressTitle": "Editar dirección",
+        "sections": {
+          "personalInfo": "Información personal",
+          "socialLinks": "Enlaces sociales"
+        },
+        "subtitle": "Actualiza los detalles de tu perfil.",
+        "title": "Editar perfil"
+      },
+      "sections": {
+        "address": "Dirección",
+        "personalInfo": "Información personal"
+      },
+      "values": {
+        "cityState": "San Francisco, CA",
+        "country": "Estados Unidos",
+        "email": "randomuser@pimjo.com",
+        "firstName": "Musharof",
+        "lastName": "Chowdhury",
+        "phone": "+09 363 398 46",
+        "postalCode": "94105",
+        "taxId": "123-45-6789"
+      }
+    }
+  }
+}

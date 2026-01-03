@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Option {
   value: string;
@@ -21,6 +24,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useTranslation(["resource-common"]);
   const [selectedOptions, setSelectedOptions] =
     useState<string[]>(defaultSelected);
   const [isOpen, setIsOpen] = useState(false);
@@ -48,6 +52,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   const selectedValuesText = selectedOptions.map(
     (value) => options.find((option) => option.value === value)?.text || ""
   );
+  const placeholderText = t("resource.common.placeholders.selectOption");
 
   return (
     <div className="w-full">
@@ -94,10 +99,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                   ))
                 ) : (
                   <input
-                    placeholder="Select option"
+                    placeholder={placeholderText}
                     className="w-full h-full p-1 pr-2 text-sm bg-transparent border-0 outline-hidden appearance-none placeholder:text-gray-800 focus:border-0 focus:outline-hidden focus:ring-0 dark:placeholder:text-white/90"
                     readOnly
-                    value="Select option"
+                    value={placeholderText}
                   />
                 )}
               </div>

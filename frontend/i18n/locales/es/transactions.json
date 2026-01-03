@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "transactions": {
+      "title": "Transacciones",
+      "confirmDelete": "¿Seguro que deseas eliminar esta transacción?",
+      "create": {
+        "actions": {
+          "submit": "Crear transacción"
+        },
+        "desc": "Registra una nueva transacción.",
+        "errors": {
+          "notCreated": "No se pudo crear la transacción."
+        },
+        "title": "Crear transacción"
+      },
+      "edit": {
+        "title": "Editar transacción"
+      },
+      "errors": {
+        "notSelected": "Selecciona una transacción para editar."
+      },
+      "fields": {
+        "installment": "A plazos",
+        "paymentDay": "Día de pago",
+        "recurring": "Recurrente",
+        "totalMonths": "Total de meses"
+      },
+      "list": {
+        "desc": "Todas las transacciones de tu cuenta.",
+        "empty": "No se encontraron transacciones.",
+        "loading": "Cargando transacciones...",
+        "title": "Lista de transacciones",
+        "unavailable": "No se pudieron cargar las transacciones."
+      },
+      "placeholders": {
+        "observation": "Agregar observación",
+        "paymentDay": "Día del mes (1-31)",
+        "selectAccount": "Selecciona una cuenta",
+        "selectCard": "Selecciona una tarjeta",
+        "selectCategory": "Selecciona una categoría",
+        "totalMonths": "Cantidad de meses"
+      },
+      "sources": {
+        "account": "Cuenta",
+        "creditCard": "Tarjeta"
+      },
+      "types": {
+        "expense": "Gasto",
+        "income": "Ingreso"
+      },
+      "validation": {
+        "accountRequired": "La cuenta es obligatoria.",
+        "amountPositive": "El importe debe ser mayor que cero.",
+        "cardRequired": "La tarjeta es obligatoria.",
+        "categoryRequired": "La categoría es obligatoria.",
+        "dateRequired": "La fecha es obligatoria.",
+        "installmentMonthsRequired": "Indica el total de meses para el pago a plazos.",
+        "invalidInstallmentRecurring": "No se puede seleccionar a plazos y recurrente al mismo tiempo.",
+        "paymentDayRange": "El día de pago debe estar entre 1 y 31.",
+        "paymentDayRequired": "El día de pago es obligatorio."
+      }
+    }
+  }
+}

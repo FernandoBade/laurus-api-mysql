@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { ApexOptions } from "apexcharts";
 
@@ -10,6 +11,22 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 export default function BarChartOne() {
+  const { t } = useTranslation(["resource-charts"]);
+  const monthLabels = [
+    t("resource.charts.months.jan"),
+    t("resource.charts.months.feb"),
+    t("resource.charts.months.mar"),
+    t("resource.charts.months.apr"),
+    t("resource.charts.months.may"),
+    t("resource.charts.months.jun"),
+    t("resource.charts.months.jul"),
+    t("resource.charts.months.aug"),
+    t("resource.charts.months.sep"),
+    t("resource.charts.months.oct"),
+    t("resource.charts.months.nov"),
+    t("resource.charts.months.dec"),
+  ];
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -37,20 +54,7 @@ export default function BarChartOne() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: monthLabels,
       axisBorder: {
         show: false,
       },
@@ -91,7 +95,7 @@ export default function BarChartOne() {
   };
   const series = [
     {
-      name: "Sales",
+      name: t("resource.charts.series.sales"),
       data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
     },
   ];

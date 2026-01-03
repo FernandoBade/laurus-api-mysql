@@ -2,8 +2,10 @@
 import React from "react";
 import ComponentCard from "../../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 
 const DropzoneComponent: React.FC = () => {
+  const { t } = useTranslation(["resource-forms", "resource-common"]);
   const onDrop = (acceptedFiles: File[]) => {
     console.log("Files dropped:", acceptedFiles);
     // Handle file uploads here
@@ -19,7 +21,7 @@ const DropzoneComponent: React.FC = () => {
     },
   });
   return (
-    <ComponentCard title="Dropzone">
+    <ComponentCard title={t("resource.forms.dropzone.title")}>
       <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
         <form
           {...getRootProps()}
@@ -57,15 +59,17 @@ const DropzoneComponent: React.FC = () => {
 
             {/* Text Content */}
             <h4 className="mb-3 font-semibold text-gray-800 text-theme-xl dark:text-white/90">
-              {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
+              {isDragActive
+                ? t("resource.forms.dropzone.activeTitle")
+                : t("resource.forms.dropzone.idleTitle")}
             </h4>
 
             <span className=" text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
-              Drag and drop your PNG, JPG, WebP, SVG images here or browse
+              {t("resource.forms.dropzone.subtitle")}
             </span>
 
             <span className="font-medium underline text-theme-sm text-brand-500">
-              Browse File
+              {t("resource.forms.dropzone.browse")}
             </span>
           </div>
         </form>

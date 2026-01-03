@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 type AspectRatio = "16:9" | "4:3" | "21:9" | "1:1";
 
@@ -12,9 +15,11 @@ interface YouTubeEmbedProps {
 const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
   videoId,
   aspectRatio = "16:9",
-  title = "YouTube video",
+  title,
   className = "",
 }) => {
+  const { t } = useTranslation(["resource-ui"]);
+  const resolvedTitle = title ?? t("resource.ui.videos.youtubeTitle");
   const aspectRatioClass = {
     "16:9": "aspect-video",
     "4:3": "aspect-4/3",
@@ -28,7 +33,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
     >
       <iframe
         src={`https://www.youtube.com/embed/${videoId}`}
-        title={title}
+        title={resolvedTitle}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen

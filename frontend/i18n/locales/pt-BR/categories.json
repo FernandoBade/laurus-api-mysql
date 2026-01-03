@@ -1,0 +1,58 @@
+{
+  "resource": {
+    "categories": {
+      "title": "Categorias",
+      "colors": {
+        "blue": "Azul",
+        "cyan": "Ciano",
+        "gray": "Cinza",
+        "green": "Verde",
+        "indigo": "Índigo",
+        "orange": "Laranja",
+        "pink": "Rosa",
+        "purple": "Roxo",
+        "red": "Vermelho",
+        "yellow": "Amarelo"
+      },
+      "confirmDelete": "Tem certeza que deseja excluir esta categoria?",
+      "create": {
+        "actions": {
+          "submit": "Criar categoria"
+        },
+        "desc": "Adicione uma nova categoria para suas transações.",
+        "errors": {
+          "notCreated": "Não foi possível criar a categoria."
+        },
+        "title": "Criar categoria"
+      },
+      "edit": {
+        "title": "Editar categoria"
+      },
+      "errors": {
+        "nameRequired": "Nome da categoria é obrigatório.",
+        "notSelected": "Selecione uma categoria para editar."
+      },
+      "fallbacks": {
+        "categoryWithId": "Categoria {{id}}"
+      },
+      "fields": {
+        "color": "Cor"
+      },
+      "list": {
+        "desc": "Gerencie categorias de receita e despesa.",
+        "empty": "Nenhuma categoria encontrada.",
+        "loading": "Carregando categorias...",
+        "title": "Lista de categorias",
+        "unavailable": "Não foi possível carregar as categorias.",
+        "unnamed": "Categoria sem nome"
+      },
+      "placeholders": {
+        "name": "Nome da categoria"
+      },
+      "types": {
+        "expense": "Despesa",
+        "income": "Receita"
+      }
+    }
+  }
+}

@@ -1,7 +1,5 @@
-import Calendar from "@/components/calendar/Calendar";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import CalendarContent from "@/components/pages/CalendarContent";
 import { Metadata } from "next";
-import React from "react";
 
 export const metadata: Metadata = {
   title: "Next.js Calender | TailAdmin - Next.js Dashboard Template",
@@ -10,10 +8,5 @@ export const metadata: Metadata = {
   // other metadata
 };
 export default function page() {
-  return (
-    <div>
-      <PageBreadcrumb pageTitle="Calendar" />
-      <Calendar />
-    </div>
-  );
+  return <CalendarContent />;
 }

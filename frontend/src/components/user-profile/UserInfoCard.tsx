@@ -5,8 +5,10 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useTranslation } from "react-i18next";
 
 export default function UserInfoCard() {
+  const { t } = useTranslation(["resource-profile", "resource-common"]);
   const { isOpen, openModal, closeModal } = useModal();
   const handleSave = () => {
     // Handle save logic here
@@ -18,52 +20,52 @@ export default function UserInfoCard() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            {t("resource.profile.sections.personalInfo")}
           </h4>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                First Name
+                {t("resource.common.fields.firstName")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {t("resource.profile.values.firstName")}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
+                {t("resource.common.fields.lastName")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                {t("resource.profile.values.lastName")}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                {t("resource.common.fields.emailAddress")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {t("resource.profile.values.email")}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                {t("resource.common.fields.phone")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {t("resource.profile.values.phone")}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
+                {t("resource.common.fields.bio")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {t("resource.profile.meta.role")}
               </p>
             </div>
           </div>
@@ -88,7 +90,7 @@ export default function UserInfoCard() {
               fill=""
             />
           </svg>
-          Edit
+          {t("resource.common.actions.edit")}
         </button>
       </div>
 
@@ -96,22 +98,22 @@ export default function UserInfoCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
+              {t("resource.profile.modal.title")}
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
+              {t("resource.profile.modal.subtitle")}
             </p>
           </div>
           <form className="flex flex-col">
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
               <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
+                  {t("resource.profile.modal.sections.socialLinks")}
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Label>Facebook</Label>
+                    <Label>{t("resource.profile.fields.facebook")}</Label>
                     <Input
                       type="text"
                       defaultValue="https://www.facebook.com/PimjoHQ"
@@ -119,12 +121,12 @@ export default function UserInfoCard() {
                   </div>
 
                   <div>
-                    <Label>X.com</Label>
+                    <Label>{t("resource.profile.fields.x")}</Label>
                     <Input type="text" defaultValue="https://x.com/PimjoHQ" />
                   </div>
 
                   <div>
-                    <Label>Linkedin</Label>
+                    <Label>{t("resource.profile.fields.linkedin")}</Label>
                     <Input
                       type="text"
                       defaultValue="https://www.linkedin.com/company/pimjo"
@@ -132,7 +134,7 @@ export default function UserInfoCard() {
                   </div>
 
                   <div>
-                    <Label>Instagram</Label>
+                    <Label>{t("resource.profile.fields.instagram")}</Label>
                     <Input
                       type="text"
                       defaultValue="https://instagram.com/PimjoHQ"
@@ -142,43 +144,43 @@ export default function UserInfoCard() {
               </div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
+                  {t("resource.profile.modal.sections.personalInfo")}
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" defaultValue="Musharof" />
+                    <Label>{t("resource.common.fields.firstName")}</Label>
+                    <Input type="text" defaultValue={t("resource.profile.values.firstName")} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" defaultValue="Chowdhury" />
+                    <Label>{t("resource.common.fields.lastName")}</Label>
+                    <Input type="text" defaultValue={t("resource.profile.values.lastName")} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" defaultValue="randomuser@pimjo.com" />
+                    <Label>{t("resource.common.fields.emailAddress")}</Label>
+                    <Input type="text" defaultValue={t("resource.profile.values.email")} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 363 398 46" />
+                    <Label>{t("resource.common.fields.phone")}</Label>
+                    <Input type="text" defaultValue={t("resource.profile.values.phone")} />
                   </div>
 
                   <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" defaultValue="Team Manager" />
+                    <Label>{t("resource.common.fields.bio")}</Label>
+                    <Input type="text" defaultValue={t("resource.profile.meta.role")} />
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                {t("resource.common.actions.close")}
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                {t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

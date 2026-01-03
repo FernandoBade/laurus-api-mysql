@@ -25,15 +25,7 @@ import {
 } from "@/api/accounts.hooks";
 import type { AccountType } from "@/api/shared.types";
 import { getApiErrorMessage } from "@/api/errorHandling";
-
-const accountTypeOptions = [
-  { value: "checking", label: "Checking" },
-  { value: "payroll", label: "Payroll" },
-  { value: "savings", label: "Savings" },
-  { value: "investment", label: "Investment" },
-  { value: "loan", label: "Loan" },
-  { value: "other", label: "Other" },
-];
+import { useTranslation } from "react-i18next";
 
 const formatAmount = (value: string | number | null | undefined) => {
   if (value === null || value === undefined) {
@@ -44,6 +36,11 @@ const formatAmount = (value: string | number | null | undefined) => {
 };
 
 export default function AccountsPage() {
+  const { t } = useTranslation([
+    "resource-accounts",
+    "resource-common",
+    "resource-transactions",
+  ]);
   const { userId } = useAuth();
   const accountsQuery = useAccountsByUser(userId);
   const createAccountMutation = useCreateAccount(userId);
@@ -70,6 +67,22 @@ export default function AccountsPage() {
   const [editBalance, setEditBalance] = useState("");
   const [editActive, setEditActive] = useState(true);
 
+  const accountTypeOptions = useMemo(
+    () => [
+      { value: "checking", label: t("resource.accounts.types.checking") },
+      { value: "payroll", label: t("resource.accounts.types.payroll") },
+      { value: "savings", label: t("resource.accounts.types.savings") },
+      { value: "investment", label: t("resource.accounts.types.investment") },
+      { value: "loan", label: t("resource.accounts.types.loan") },
+      { value: "other", label: t("resource.accounts.types.other") },
+    ],
+    [t]
+  );
+  const accountTypeLabels = useMemo(
+    () => new Map(accountTypeOptions.map((option) => [option.value, option.label])),
+    [accountTypeOptions]
+  );
+
   const accounts = useMemo(() => accountsQuery.data?.data ?? [], [accountsQuery.data]);
 
   const resetForm = () => {
@@ -87,12 +100,12 @@ export default function AccountsPage() {
     setFormError(null);
 
     if (!userId) {
-      setFormError("Missing user session.");
+      setFormError(t("resource.common.errors.missingSession"));
       return;
     }
 
     if (!name.trim() || !institution.trim()) {
-      setFormError("Name and institution are required.");
+      setFormError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
@@ -100,7 +113,7 @@ export default function AccountsPage() {
     if (balance.trim()) {
       parsedBalance = Number(balance);
       if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setFormError("Balance must be a positive number.");
+        setFormError(t("resource.accounts.errors.balancePositive"));
         return;
       }
     }
@@ -117,7 +130,7 @@ export default function AccountsPage() {
       });
       resetForm();
     } catch (error) {
-      setFormError(getApiErrorMessage(error));
+      setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
@@ -139,12 +152,12 @@ export default function AccountsPage() {
     setEditError(null);
 
     if (!editId) {
-      setEditError("Account not selected.");
+      setEditError(t("resource.accounts.errors.notSelected"));
       return;
     }
 
     if (!editName.trim() || !editInstitution.trim()) {
-      setEditError("Name and institution are required.");
+      setEditError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
@@ -152,7 +165,7 @@ export default function AccountsPage() {
     if (editBalance.trim()) {
       parsedBalance = Number(editBalance);
       if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setEditError("Balance must be a positive number.");
+        setEditError(t("resource.accounts.errors.balancePositive"));
         return;
       }
     }
@@ -171,13 +184,13 @@ export default function AccountsPage() {
       });
       setIsEditOpen(false);
     } catch (error) {
-      setEditError(getApiErrorMessage(error));
+      setEditError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this account?"
+      t("resource.accounts.confirmDelete")
     );
     if (!confirmed) {
       return;
@@ -194,45 +207,51 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          Accounts
+          {t("resource.accounts.title")}
         </h2>
       </div>
 
-      <ComponentCard title="Create Account" desc="Add a new financial account">
+      <ComponentCard
+        title={t("resource.accounts.create.title")}
+        desc={t("resource.accounts.create.desc")}
+      >
         <form onSubmit={handleCreate}>
           <div key={formKey} className="grid gap-5 md:grid-cols-2">
             {formError && (
               <div className="md:col-span-2">
                 <Alert
                   variant="error"
-                  title="Account not created"
+                  title={t("resource.accounts.create.errors.notCreated")}
                   message={formError}
                 />
               </div>
             )}
             <div>
               <Label>
-                Name <span className="text-error-500">*</span>
+                {t("resource.common.fields.name")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
-                placeholder="Account name"
+                placeholder={t("resource.accounts.placeholders.name")}
                 name="name"
                 onChange={(event) => setName(event.target.value)}
               />
             </div>
             <div>
               <Label>
-                Institution <span className="text-error-500">*</span>
+                {t("resource.common.fields.institution")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
-                placeholder="Bank or institution"
+                placeholder={t("resource.accounts.placeholders.institution")}
                 name="institution"
                 onChange={(event) => setInstitution(event.target.value)}
               />
             </div>
             <div>
               <Label>
-                Type <span className="text-error-500">*</span>
+                {t("resource.common.fields.type")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-type-${formKey}`}
@@ -242,18 +261,18 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <Label>Opening Balance</Label>
+              <Label>{t("resource.common.fields.openingBalance")}</Label>
               <Input
                 type="number"
-                placeholder="0.00"
+                placeholder={t("resource.common.placeholders.amount")}
                 name="balance"
                 onChange={(event) => setBalance(event.target.value)}
               />
             </div>
             <div className="md:col-span-2">
-              <Label>Observation</Label>
+              <Label>{t("resource.common.fields.observation")}</Label>
               <Input
-                placeholder="Notes about this account"
+                placeholder={t("resource.accounts.placeholders.observation")}
                 name="observation"
                 onChange={(event) => setObservation(event.target.value)}
               />
@@ -262,38 +281,49 @@ export default function AccountsPage() {
               <Checkbox
                 checked={active}
                 onChange={setActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
               <Button
                 className="min-w-[140px]"
                 size="sm"
                 disabled={createAccountMutation.isPending}
               >
-                {createAccountMutation.isPending ? "Saving..." : "Create Account"}
+                {createAccountMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.accounts.create.actions.submit")}
               </Button>
             </div>
           </div>
         </form>
       </ComponentCard>
 
-      <ComponentCard title="Accounts List" desc="Manage your accounts">
+      <ComponentCard
+        title={t("resource.accounts.list.title")}
+        desc={t("resource.accounts.list.desc")}
+      >
         {accountsQuery.isError && (
           <Alert
             variant="error"
-            title="Accounts unavailable"
-            message={getApiErrorMessage(accountsQuery.error)}
+            title={t("resource.accounts.list.unavailable")}
+            message={getApiErrorMessage(
+              accountsQuery.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {deleteAccountMutation.isError && (
           <Alert
             variant="error"
-            title="Delete failed"
-            message={getApiErrorMessage(deleteAccountMutation.error)}
+            title={t("resource.common.errors.deleteFailed")}
+            message={getApiErrorMessage(
+              deleteAccountMutation.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {!accountsQuery.isError && accountsQuery.isLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Loading accounts...
+            {t("resource.accounts.list.loading")}
           </p>
         )}
         {!accountsQuery.isError && !accountsQuery.isLoading && (
@@ -306,37 +336,37 @@ export default function AccountsPage() {
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Name
+                      {t("resource.common.fields.name")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Institution
+                      {t("resource.common.fields.institution")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Type
+                      {t("resource.common.fields.type")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Balance
+                      {t("resource.common.fields.balance")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Status
+                      {t("resource.common.fields.status")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Actions
+                      {t("resource.common.fields.actions")}
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -344,26 +374,28 @@ export default function AccountsPage() {
                   {accounts.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        No accounts available.
+                        {t("resource.accounts.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
                     accounts.map((account) => (
                       <TableRow key={account.id}>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {account.name || "Unnamed"}
+                          {account.name || t("resource.accounts.list.unnamed")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {account.institution || "-"}
+                          {account.institution || t("resource.common.placeholders.emptyValue")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {account.type}
+                          {accountTypeLabels.get(account.type) ?? account.type}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
                           {formatAmount(account.balance)}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {account.active ? "Active" : "Inactive"}
+                          {account.active
+                            ? t("resource.common.status.active")
+                            : t("resource.common.status.inactive")}
                         </TableCell>
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-2">
@@ -372,7 +404,7 @@ export default function AccountsPage() {
                               variant="outline"
                               onClick={() => openEditModal(account)}
                             >
-                              Edit
+                              {t("resource.common.actions.edit")}
                             </Button>
                             <Button
                               size="sm"
@@ -380,7 +412,7 @@ export default function AccountsPage() {
                               disabled={deleteAccountMutation.isPending}
                               onClick={() => handleDelete(account.id)}
                             >
-                              Delete
+                              {t("resource.common.actions.delete")}
                             </Button>
                           </div>
                         </TableCell>
@@ -397,23 +429,24 @@ export default function AccountsPage() {
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Edit Account
+            {t("resource.accounts.edit.title")}
           </h3>
           <form onSubmit={handleEdit} className="mt-5 space-y-5">
             <div key={editKey} className="space-y-5">
               {editError && (
                 <Alert
                   variant="error"
-                  title="Update failed"
+                  title={t("resource.common.errors.updateFailed")}
                   message={editError}
                 />
               )}
               <div>
                 <Label>
-                  Name <span className="text-error-500">*</span>
+                  {t("resource.common.fields.name")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Account name"
+                  placeholder={t("resource.accounts.placeholders.name")}
                   name="edit-name"
                   defaultValue={editName}
                   onChange={(event) => setEditName(event.target.value)}
@@ -421,10 +454,11 @@ export default function AccountsPage() {
               </div>
               <div>
                 <Label>
-                  Institution <span className="text-error-500">*</span>
+                  {t("resource.common.fields.institution")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Bank or institution"
+                  placeholder={t("resource.accounts.placeholders.institution")}
                   name="edit-institution"
                   defaultValue={editInstitution}
                   onChange={(event) => setEditInstitution(event.target.value)}
@@ -432,7 +466,8 @@ export default function AccountsPage() {
               </div>
               <div>
                 <Label>
-                  Type <span className="text-error-500">*</span>
+                  {t("resource.common.fields.type")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Select
                   key={`edit-type-${editKey}`}
@@ -442,19 +477,19 @@ export default function AccountsPage() {
                 />
               </div>
               <div>
-                <Label>Balance</Label>
+                <Label>{t("resource.common.fields.balance")}</Label>
                 <Input
                   type="number"
-                  placeholder="0.00"
+                  placeholder={t("resource.common.placeholders.amount")}
                   name="edit-balance"
                   defaultValue={editBalance}
                   onChange={(event) => setEditBalance(event.target.value)}
                 />
               </div>
               <div>
-                <Label>Observation</Label>
+                <Label>{t("resource.common.fields.observation")}</Label>
                 <Input
-                  placeholder="Notes"
+                  placeholder={t("resource.accounts.placeholders.notes")}
                   name="edit-observation"
                   defaultValue={editObservation}
                   onChange={(event) => setEditObservation(event.target.value)}
@@ -463,7 +498,7 @@ export default function AccountsPage() {
               <Checkbox
                 checked={editActive}
                 onChange={setEditActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -472,13 +507,15 @@ export default function AccountsPage() {
                 size="sm"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t("resource.common.actions.cancel")}
               </Button>
               <Button
                 size="sm"
                 disabled={updateAccountMutation.isPending}
               >
-                {updateAccountMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateAccountMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

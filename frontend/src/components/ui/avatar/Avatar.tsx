@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface AvatarProps {
   src: string; // URL of the avatar image
@@ -34,10 +37,13 @@ const statusColorClasses = {
 
 const Avatar: React.FC<AvatarProps> = ({
   src,
-  alt = "User Avatar",
+  alt,
   size = "medium",
   status = "none",
 }) => {
+  const { t } = useTranslation(["resource-ui"]);
+  const altText = alt ?? t("resource.ui.avatars.defaultAlt");
+
   return (
     <div className={`relative  rounded-full ${sizeClasses[size]}`}>
       {/* Avatar Image */}
@@ -46,7 +52,7 @@ const Avatar: React.FC<AvatarProps> = ({
         height="0"
         sizes="100vw"
         src={src}
-        alt={alt}
+        alt={altText}
         className="object-cover w-full rounded-full"
       />
 

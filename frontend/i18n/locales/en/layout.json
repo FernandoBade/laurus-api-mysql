@@ -1,0 +1,59 @@
+{
+  "resource": {
+    "layout": {
+      "badges": {
+        "new": "New",
+        "pro": "Pro"
+      },
+      "header": {
+        "searchPlaceholder": "Search or type a command",
+        "searchShortcutPrefix": "Press",
+        "searchShortcutKey": "Ctrl + K",
+        "toggleSidebarAria": "Toggle sidebar"
+      },
+      "logoAlt": "Laurus Dashboard",
+      "nav": {
+        "dashboard": "Dashboard",
+        "transactions": "Transactions",
+        "accounts": "Accounts",
+        "creditCards": "Credit cards",
+        "categories": "Categories",
+        "tags": "Tags"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "requestChange": "requested a change in",
+        "projectName": "{{name}}",
+        "projectCategory": "Project",
+        "timeMinutesAgo": "{{minutes}} minutes ago",
+        "timeHoursAgo": "{{hours}} hours ago",
+        "viewAll": "View all notifications",
+        "toggleAria": "Open notifications",
+        "closeAria": "Close notifications",
+        "userAvatarAlt": "User avatar"
+      },
+      "sidebar": {
+        "menu": "Menu",
+        "others": "Others"
+      },
+      "sidebarWidget": {
+        "title": "Upgrade to Pro",
+        "description": "Get access to all features with our premium plan.",
+        "upgrade": "Upgrade Now"
+      },
+      "userMenu": {
+        "accountMeta": "Account",
+        "accountSettings": "Account settings",
+        "editProfile": "Edit profile",
+        "languageActive": "Active",
+        "languageTitle": "Language",
+        "signOut": "Sign out",
+        "support": "Support",
+        "user": "User",
+        "userAvatarAlt": "User avatar",
+        "userIdMeta": "ID: {{id}}",
+        "userWithId": "User {{id}}"
+      }
+    }
+  }
+}

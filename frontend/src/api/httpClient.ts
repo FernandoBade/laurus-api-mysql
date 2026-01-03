@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { getResourceLanguage } from "../../i18n";
 import { getAccessToken } from "./tokenStore";
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
@@ -51,12 +52,23 @@ const getRefreshPromise = async () => {
   return refreshPromise;
 };
 
+const applyResourceLanguageHeader = (config: InternalAxiosRequestConfig) => {
+  const language = getResourceLanguage();
+  config.headers = config.headers ?? {};
+  config.headers["Accept-Language"] = language;
+  return config;
+};
+
 httpClient.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  return config;
+  return applyResourceLanguageHeader(config);
+});
+
+refreshClient.interceptors.request.use((config) => {
+  return applyResourceLanguageHeader(config);
 });
 
 httpClient.interceptors.response.use(

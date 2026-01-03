@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { ApexOptions } from "apexcharts";
 
@@ -10,6 +11,22 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 export default function LineChartOne() {
+  const { t } = useTranslation(["resource-charts"]);
+  const monthLabels = [
+    t("resource.charts.months.jan"),
+    t("resource.charts.months.feb"),
+    t("resource.charts.months.mar"),
+    t("resource.charts.months.apr"),
+    t("resource.charts.months.may"),
+    t("resource.charts.months.jun"),
+    t("resource.charts.months.jul"),
+    t("resource.charts.months.aug"),
+    t("resource.charts.months.sep"),
+    t("resource.charts.months.oct"),
+    t("resource.charts.months.nov"),
+    t("resource.charts.months.dec"),
+  ];
+
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
@@ -68,20 +85,7 @@ export default function LineChartOne() {
     },
     xaxis: {
       type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: monthLabels,
       axisBorder: {
         show: false, // Hide x-axis border
       },
@@ -110,11 +114,11 @@ export default function LineChartOne() {
 
   const series = [
     {
-      name: "Sales",
+      name: t("resource.charts.series.sales"),
       data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
     },
     {
-      name: "Revenue",
+      name: t("resource.charts.series.revenue"),
       data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];

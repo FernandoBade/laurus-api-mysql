@@ -5,8 +5,10 @@ import Label from "../Label";
 import Input from "../input/InputField";
 import { EnvelopeIcon } from "../../../icons";
 import PhoneInput from "../group-input/PhoneInput";
+import { useTranslation } from "react-i18next";
 
 export default function InputGroup() {
+  const { t } = useTranslation(["resource-forms", "resource-common"]);
   const countries = [
     { code: "US", label: "+1" },
     { code: "GB", label: "+44" },
@@ -17,13 +19,13 @@ export default function InputGroup() {
     console.log("Updated phone number:", phoneNumber);
   };
   return (
-    <ComponentCard title="Input Group">
+    <ComponentCard title={t("resource.forms.inputGroup.title")}>
       <div className="space-y-6">
         <div>
-          <Label>Email</Label>
+          <Label>{t("resource.common.fields.email")}</Label>
           <div className="relative">
             <Input
-              placeholder="info@gmail.com"
+              placeholder={t("resource.forms.inputGroup.placeholders.email")}
               type="text"
               className="pl-[62px]"
             />
@@ -33,20 +35,20 @@ export default function InputGroup() {
           </div>
         </div>
         <div>
-          <Label>Phone</Label>
+          <Label>{t("resource.common.fields.phone")}</Label>
           <PhoneInput
             selectPosition="start"
             countries={countries}
-            placeholder="+1 (555) 000-0000"
+            placeholder={t("resource.forms.inputGroup.placeholders.phone")}
             onChange={handlePhoneNumberChange}
           />
         </div>{" "}
         <div>
-          <Label>Phone</Label>
+          <Label>{t("resource.common.fields.phone")}</Label>
           <PhoneInput
             selectPosition="end"
             countries={countries}
-            placeholder="+1 (555) 000-0000"
+            placeholder={t("resource.forms.inputGroup.placeholders.phone")}
             onChange={handlePhoneNumberChange}
           />
         </div>

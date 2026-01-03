@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "transactions": {
+      "title": "Transactions",
+      "confirmDelete": "Are you sure you want to delete this transaction?",
+      "create": {
+        "actions": {
+          "submit": "Create transaction"
+        },
+        "desc": "Record a new transaction.",
+        "errors": {
+          "notCreated": "Transaction could not be created."
+        },
+        "title": "Create transaction"
+      },
+      "edit": {
+        "title": "Edit transaction"
+      },
+      "errors": {
+        "notSelected": "Select a transaction to edit."
+      },
+      "fields": {
+        "installment": "Installment",
+        "paymentDay": "Payment day",
+        "recurring": "Recurring",
+        "totalMonths": "Total months"
+      },
+      "list": {
+        "desc": "All transactions in your account.",
+        "empty": "No transactions found.",
+        "loading": "Loading transactions...",
+        "title": "Transaction list",
+        "unavailable": "Unable to load transactions."
+      },
+      "placeholders": {
+        "observation": "Add notes",
+        "paymentDay": "Day of month (1-31)",
+        "selectAccount": "Select an account",
+        "selectCard": "Select a card",
+        "selectCategory": "Select a category",
+        "totalMonths": "Number of months"
+      },
+      "sources": {
+        "account": "Account",
+        "creditCard": "Credit card"
+      },
+      "types": {
+        "expense": "Expense",
+        "income": "Income"
+      },
+      "validation": {
+        "accountRequired": "Account is required.",
+        "amountPositive": "Amount must be greater than zero.",
+        "cardRequired": "Credit card is required.",
+        "categoryRequired": "Category is required.",
+        "dateRequired": "Date is required.",
+        "installmentMonthsRequired": "Total months is required for installments.",
+        "invalidInstallmentRecurring": "Installment and recurring cannot both be selected.",
+        "paymentDayRange": "Payment day must be between 1 and 31.",
+        "paymentDayRequired": "Payment day is required."
+      }
+    }
+  }
+}

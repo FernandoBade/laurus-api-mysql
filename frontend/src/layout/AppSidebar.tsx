@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState,useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -15,43 +15,44 @@ import {
   TableIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
+import { useTranslation } from "react-i18next";
 
 type NavItem = {
-  name: string;
+  nameKey: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { nameKey: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
+    nameKey: "resource.layout.nav.dashboard",
     path: "/app/dashboard",
   },
   {
     icon: <TableIcon />,
-    name: "Transactions",
+    nameKey: "resource.layout.nav.transactions",
     path: "/app/transactions",
   },
   {
     icon: <BoxCubeIcon />,
-    name: "Accounts",
+    nameKey: "resource.layout.nav.accounts",
     path: "/app/accounts",
   },
   {
     icon: <PlugInIcon />,
-    name: "Credit Cards",
+    nameKey: "resource.layout.nav.creditCards",
     path: "/app/credit-cards",
   },
   {
     icon: <PieChartIcon />,
-    name: "Categories",
+    nameKey: "resource.layout.nav.categories",
     path: "/app/categories",
   },
   {
     icon: <ListIcon />,
-    name: "Tags",
+    nameKey: "resource.layout.nav.tags",
     path: "/app/tags",
   },
 ];
@@ -61,6 +62,7 @@ const othersItems: NavItem[] = [];
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { t } = useTranslation(["resource-layout", "resource-common"]);
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -68,7 +70,7 @@ const AppSidebar: React.FC = () => {
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
-        <li key={nav.name}>
+        <li key={nav.path ?? nav.nameKey}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
@@ -92,7 +94,7 @@ const AppSidebar: React.FC = () => {
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className={`menu-item-text`}>{nav.name}</span>
+                <span className={`menu-item-text`}>{t(nav.nameKey)}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -123,7 +125,7 @@ const AppSidebar: React.FC = () => {
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{nav.name}</span>
+                  <span className={`menu-item-text`}>{t(nav.nameKey)}</span>
                 )}
               </Link>
             )
@@ -143,7 +145,7 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
+                  <li key={subItem.path}>
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${
@@ -152,7 +154,7 @@ const AppSidebar: React.FC = () => {
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
-                      {subItem.name}
+                      {t(subItem.nameKey)}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
@@ -162,7 +164,7 @@ const AppSidebar: React.FC = () => {
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge `}
                           >
-                            new
+                            {t("resource.layout.badges.new")}
                           </span>
                         )}
                         {subItem.pro && (
@@ -173,7 +175,7 @@ const AppSidebar: React.FC = () => {
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge `}
                           >
-                            pro
+                            {t("resource.layout.badges.pro")}
                           </span>
                         )}
                       </span>
@@ -278,14 +280,14 @@ const AppSidebar: React.FC = () => {
               <Image
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
-                alt="Logo"
+                alt={t("resource.layout.logoAlt")}
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
                 src="/images/logo/logo-dark.svg"
-                alt="Logo"
+                alt={t("resource.layout.logoAlt")}
                 width={150}
                 height={40}
               />
@@ -293,7 +295,7 @@ const AppSidebar: React.FC = () => {
           ) : (
             <Image
               src="/images/logo/logo-icon.svg"
-              alt="Logo"
+              alt={t("resource.layout.logoAlt")}
               width={32}
               height={32}
             />
@@ -312,7 +314,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  t("resource.layout.sidebar.menu")
                 ) : (
                   <HorizontaLDots />
                 )}
@@ -330,7 +332,7 @@ const AppSidebar: React.FC = () => {
                   }`}
                 >
                   {isExpanded || isHovered || isMobileOpen ? (
-                    "Others"
+                    t("resource.layout.sidebar.others")
                   ) : (
                     <HorizontaLDots />
                   )}

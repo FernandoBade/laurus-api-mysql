@@ -1,0 +1,20 @@
+{
+  "resource": {
+    "pages": {
+      "blank": {
+        "title": "Página en blanco",
+        "cardTitle": "Título de la tarjeta",
+        "description": "Empieza a agregar contenido en cuadrículas o paneles. También puedes usar diferentes combinaciones de cuadrículas. Consulta el panel y otras páginas."
+      },
+      "footer": {
+        "brand": "Laurus"
+      },
+      "notFound": {
+        "backHome": "Volver al inicio",
+        "illustrationAlt": "Ilustración 404",
+        "message": "Lo sentimos, la página que buscas no existe.",
+        "title": "404 - Página no encontrada"
+      }
+    }
+  }
+}

@@ -31,16 +31,7 @@ import {
 } from "@/api/transactions.hooks";
 import type { TransactionSource, TransactionType } from "@/api/shared.types";
 import { getApiErrorMessage } from "@/api/errorHandling";
-
-const typeOptions = [
-  { value: "income", label: "Income" },
-  { value: "expense", label: "Expense" },
-];
-
-const sourceOptions = [
-  { value: "account", label: "Account" },
-  { value: "creditCard", label: "Credit Card" },
-];
+import { useTranslation } from "react-i18next";
 
 const formatAmount = (value: string | number | null | undefined) => {
   if (value === null || value === undefined) {
@@ -58,6 +49,14 @@ const toInputDate = (value: string | null | undefined) => {
 };
 
 export default function TransactionsPage() {
+  const { t } = useTranslation([
+    "resource-transactions",
+    "resource-common",
+    "resource-accounts",
+    "resource-creditCards",
+    "resource-categories",
+    "resource-tags",
+  ]);
   const { userId } = useAuth();
   const transactionsQuery = useTransactions({ sort: "date", order: "desc" });
   const accountsQuery = useAccountsByUser(userId);
@@ -108,6 +107,32 @@ export default function TransactionsPage() {
   const [editObservation, setEditObservation] = useState("");
   const [editActive, setEditActive] = useState(true);
 
+  const typeOptions = useMemo(
+    () => [
+      { value: "income", label: t("resource.transactions.types.income") },
+      { value: "expense", label: t("resource.transactions.types.expense") },
+    ],
+    [t]
+  );
+  const sourceOptions = useMemo(
+    () => [
+      { value: "account", label: t("resource.transactions.sources.account") },
+      {
+        value: "creditCard",
+        label: t("resource.transactions.sources.creditCard"),
+      },
+    ],
+    [t]
+  );
+  const typeLabels = useMemo(
+    () => new Map(typeOptions.map((option) => [option.value, option.label])),
+    [typeOptions]
+  );
+  const sourceLabels = useMemo(
+    () => new Map(sourceOptions.map((option) => [option.value, option.label])),
+    [sourceOptions]
+  );
+
   const accounts = useMemo(
     () => accountsQuery.data?.data ?? [],
     [accountsQuery.data]
@@ -123,37 +148,47 @@ export default function TransactionsPage() {
     () =>
       accounts.map((account) => ({
         value: String(account.id),
-        label: account.name || `Account #${account.id}`,
+        label:
+          account.name ||
+          t("resource.accounts.fallbacks.accountWithId", { id: account.id }),
       })),
-    [accounts]
+    [accounts, t]
   );
 
   const cardOptions = useMemo(
     () =>
       cards.map((card) => ({
         value: String(card.id),
-        label: card.name || `Card #${card.id}`,
+        label:
+          card.name ||
+          t("resource.creditCards.fallbacks.cardWithId", { id: card.id }),
       })),
-    [cards]
+    [cards, t]
   );
 
   const categoryOptions = useMemo(
     () =>
       categories.map((category) => ({
         value: String(category.id),
-        label: category.name || `Category #${category.id}`,
+        label:
+          category.name ||
+          t("resource.categories.fallbacks.categoryWithId", {
+            id: category.id,
+          }),
       })),
-    [categories]
+    [categories, t]
   );
 
   const tagOptions = useMemo(
     () =>
       tags.map((tag) => ({
         value: String(tag.id),
-        text: tag.name || `Tag #${tag.id}`,
+        text:
+          tag.name ||
+          t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
         selected: false,
       })),
-    [tags]
+    [tags, t]
   );
 
   const accountMap = useMemo(
@@ -225,33 +260,33 @@ export default function TransactionsPage() {
     paymentValue: string;
   }) => {
     if (!amount.trim() || Number(amount) <= 0) {
-      return "Value must be greater than zero.";
+      return t("resource.transactions.validation.amountPositive");
     }
     if (!dateValue) {
-      return "Date is required.";
+      return t("resource.transactions.validation.dateRequired");
     }
     if (!categoryValue) {
-      return "Category is required.";
+      return t("resource.transactions.validation.categoryRequired");
     }
     if (source === "account" && !accountValue) {
-      return "Account is required for account transactions.";
+      return t("resource.transactions.validation.accountRequired");
     }
     if (source === "creditCard" && !cardValue) {
-      return "Credit card is required for card transactions.";
+      return t("resource.transactions.validation.cardRequired");
     }
     if (installment && !months) {
-      return "Total months is required for installments.";
+      return t("resource.transactions.validation.installmentMonthsRequired");
     }
     if (recurring && !paymentValue) {
-      return "Payment day is required for recurring transactions.";
+      return t("resource.transactions.validation.paymentDayRequired");
     }
     if (installment && recurring) {
-      return "A transaction cannot be both installment and recurring.";
+      return t("resource.transactions.validation.invalidInstallmentRecurring");
     }
     if (paymentValue) {
       const payment = Number(paymentValue);
       if (Number.isNaN(payment) || payment < 1 || payment > 31) {
-        return "Payment day must be between 1 and 31.";
+        return t("resource.transactions.validation.paymentDayRange");
       }
     }
     return null;
@@ -299,7 +334,7 @@ export default function TransactionsPage() {
       });
       resetForm();
     } catch (error) {
-      setFormError(getApiErrorMessage(error));
+      setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
@@ -329,7 +364,7 @@ export default function TransactionsPage() {
     setEditError(null);
 
     if (!editId) {
-      setEditError("Transaction not selected.");
+      setEditError(t("resource.transactions.errors.notSelected"));
       return;
     }
 
@@ -380,13 +415,13 @@ export default function TransactionsPage() {
       });
       setIsEditOpen(false);
     } catch (error) {
-      setEditError(getApiErrorMessage(error));
+      setEditError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this transaction?"
+      t("resource.transactions.confirmDelete")
     );
     if (!confirmed) {
       return;
@@ -403,36 +438,41 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          Transactions
+          {t("resource.transactions.title")}
         </h2>
       </div>
 
-      <ComponentCard title="Create Transaction" desc="Record a new transaction">
+      <ComponentCard
+        title={t("resource.transactions.create.title")}
+        desc={t("resource.transactions.create.desc")}
+      >
         <form onSubmit={handleCreate}>
           <div key={formKey} className="grid gap-5 lg:grid-cols-2">
             {formError && (
               <div className="lg:col-span-2">
                 <Alert
                   variant="error"
-                  title="Transaction not created"
+                  title={t("resource.transactions.create.errors.notCreated")}
                   message={formError}
                 />
               </div>
             )}
             <div>
               <Label>
-                Value <span className="text-error-500">*</span>
+                {t("resource.common.fields.value")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
                 type="number"
-                placeholder="0.00"
+                placeholder={t("resource.common.placeholders.amount")}
                 name="value"
                 onChange={(event) => setValue(event.target.value)}
               />
             </div>
             <div>
               <Label>
-                Date <span className="text-error-500">*</span>
+                {t("resource.common.fields.date")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
                 type="date"
@@ -442,18 +482,20 @@ export default function TransactionsPage() {
             </div>
             <div>
               <Label>
-                Category <span className="text-error-500">*</span>
+                {t("resource.common.fields.category")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-category-${formKey}`}
                 options={categoryOptions}
-                placeholder="Select category"
+                placeholder={t("resource.transactions.placeholders.selectCategory")}
                 onChange={setCategoryId}
               />
             </div>
             <div>
               <Label>
-                Type <span className="text-error-500">*</span>
+                {t("resource.common.fields.type")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-type-${formKey}`}
@@ -464,7 +506,8 @@ export default function TransactionsPage() {
             </div>
             <div>
               <Label>
-                Source <span className="text-error-500">*</span>
+                {t("resource.common.fields.source")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-source-${formKey}`}
@@ -478,24 +521,26 @@ export default function TransactionsPage() {
             {transactionSource === "account" ? (
               <div>
                 <Label>
-                  Account <span className="text-error-500">*</span>
+                  {t("resource.common.fields.account")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Select
                   key={`create-account-${formKey}`}
                   options={accountOptions}
-                  placeholder="Select account"
+                  placeholder={t("resource.transactions.placeholders.selectAccount")}
                   onChange={setAccountId}
                 />
               </div>
             ) : (
               <div>
                 <Label>
-                  Credit Card <span className="text-error-500">*</span>
+                  {t("resource.common.fields.creditCard")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Select
                   key={`create-card-${formKey}`}
                   options={cardOptions}
-                  placeholder="Select card"
+                  placeholder={t("resource.transactions.placeholders.selectCard")}
                   onChange={setCardId}
                 />
               </div>
@@ -504,29 +549,29 @@ export default function TransactionsPage() {
               <Checkbox
                 checked={isInstallment}
                 onChange={setIsInstallment}
-                label="Installment"
+                label={t("resource.transactions.fields.installment")}
               />
               <Checkbox
                 checked={isRecurring}
                 onChange={setIsRecurring}
-                label="Recurring"
+                label={t("resource.transactions.fields.recurring")}
               />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label>Total Months</Label>
+                <Label>{t("resource.transactions.fields.totalMonths")}</Label>
                 <Input
                   type="number"
-                  placeholder="e.g. 12"
+                  placeholder={t("resource.transactions.placeholders.totalMonths")}
                   name="totalMonths"
                   onChange={(event) => setTotalMonths(event.target.value)}
                 />
               </div>
               <div>
-                <Label>Payment Day</Label>
+                <Label>{t("resource.transactions.fields.paymentDay")}</Label>
                 <Input
                   type="number"
-                  placeholder="1-31"
+                  placeholder={t("resource.transactions.placeholders.paymentDay")}
                   name="paymentDay"
                   onChange={(event) => setPaymentDay(event.target.value)}
                 />
@@ -534,54 +579,67 @@ export default function TransactionsPage() {
             </div>
             <div className="lg:col-span-2">
               <MultiSelect
-                label="Tags"
+                label={t("resource.common.fields.tags")}
                 options={tagOptions}
                 defaultSelected={tagIds}
                 onChange={setTagIds}
               />
             </div>
             <div className="lg:col-span-2">
-              <Label>Observation</Label>
+              <Label>{t("resource.common.fields.observation")}</Label>
               <TextArea
-                placeholder="Add notes"
+                placeholder={t("resource.transactions.placeholders.observation")}
                 value={observation}
                 onChange={setObservation}
               />
             </div>
             <div className="lg:col-span-2 flex items-center justify-between">
-              <Checkbox checked={active} onChange={setActive} label="Active" />
+              <Checkbox
+                checked={active}
+                onChange={setActive}
+                label={t("resource.common.status.active")}
+              />
               <Button
                 className="min-w-[160px]"
                 size="sm"
                 disabled={createTransactionMutation.isPending}
               >
                 {createTransactionMutation.isPending
-                  ? "Saving..."
-                  : "Create Transaction"}
+                  ? t("resource.common.actions.saving")
+                  : t("resource.transactions.create.actions.submit")}
               </Button>
             </div>
           </div>
         </form>
       </ComponentCard>
 
-      <ComponentCard title="Transactions List" desc="Manage transactions">
+      <ComponentCard
+        title={t("resource.transactions.list.title")}
+        desc={t("resource.transactions.list.desc")}
+      >
         {transactionsQuery.isError && (
           <Alert
             variant="error"
-            title="Transactions unavailable"
-            message={getApiErrorMessage(transactionsQuery.error)}
+            title={t("resource.transactions.list.unavailable")}
+            message={getApiErrorMessage(
+              transactionsQuery.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {deleteTransactionMutation.isError && (
           <Alert
             variant="error"
-            title="Delete failed"
-            message={getApiErrorMessage(deleteTransactionMutation.error)}
+            title={t("resource.common.errors.deleteFailed")}
+            message={getApiErrorMessage(
+              deleteTransactionMutation.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {!transactionsQuery.isError && transactionsQuery.isLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Loading transactions...
+            {t("resource.transactions.list.loading")}
           </p>
         )}
         {!transactionsQuery.isError && !transactionsQuery.isLoading && (
@@ -594,43 +652,43 @@ export default function TransactionsPage() {
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Date
+                      {t("resource.common.fields.date")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Type
+                      {t("resource.common.fields.type")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Source
+                      {t("resource.common.fields.source")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Category
+                      {t("resource.common.fields.category")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Amount
+                      {t("resource.common.fields.amount")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Status
+                      {t("resource.common.fields.status")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Actions
+                      {t("resource.common.fields.actions")}
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -638,7 +696,7 @@ export default function TransactionsPage() {
                   {filteredTransactions.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        No transactions available.
+                        {t("resource.transactions.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -646,20 +704,27 @@ export default function TransactionsPage() {
                       const sourceLabel =
                         transaction.transactionSource === "account"
                           ? accountMap.get(transaction.accountId ?? -1) ||
-                            `Account #${transaction.accountId ?? "-"}`
+                            t("resource.accounts.fallbacks.accountWithId", {
+                              id: transaction.accountId ?? "-",
+                            })
                           : cardMap.get(transaction.creditCardId ?? -1) ||
-                            `Card #${transaction.creditCardId ?? "-"}`;
+                            t("resource.creditCards.fallbacks.cardWithId", {
+                              id: transaction.creditCardId ?? "-",
+                            });
                       const categoryLabel = transaction.categoryId
                         ? categoryMap.get(transaction.categoryId) ||
-                          `Category #${transaction.categoryId}`
-                        : "-";
+                          t("resource.categories.fallbacks.categoryWithId", {
+                            id: transaction.categoryId,
+                          })
+                        : t("resource.common.placeholders.emptyValue");
                       return (
                         <TableRow key={transaction.id}>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {new Date(transaction.date).toLocaleDateString()}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {transaction.transactionType}
+                            {typeLabels.get(transaction.transactionType) ??
+                              transaction.transactionType}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {sourceLabel}
@@ -671,7 +736,9 @@ export default function TransactionsPage() {
                             {formatAmount(transaction.value)}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {transaction.active ? "Active" : "Inactive"}
+                            {transaction.active
+                              ? t("resource.common.status.active")
+                              : t("resource.common.status.inactive")}
                           </TableCell>
                           <TableCell className="px-5 py-4">
                             <div className="flex items-center gap-2">
@@ -680,7 +747,7 @@ export default function TransactionsPage() {
                                 variant="outline"
                                 onClick={() => openEditModal(transaction)}
                               >
-                                Edit
+                                {t("resource.common.actions.edit")}
                               </Button>
                               <Button
                                 size="sm"
@@ -688,7 +755,7 @@ export default function TransactionsPage() {
                                 disabled={deleteTransactionMutation.isPending}
                                 onClick={() => handleDelete(transaction.id)}
                               >
-                                Delete
+                                {t("resource.common.actions.delete")}
                               </Button>
                             </div>
                           </TableCell>
@@ -706,25 +773,26 @@ export default function TransactionsPage() {
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Edit Transaction
+            {t("resource.transactions.edit.title")}
           </h3>
           <form onSubmit={handleEdit} className="mt-5 space-y-5">
             <div key={editKey} className="space-y-5">
               {editError && (
                 <Alert
                   variant="error"
-                  title="Update failed"
+                  title={t("resource.common.errors.updateFailed")}
                   message={editError}
                 />
               )}
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label>
-                    Value <span className="text-error-500">*</span>
+                    {t("resource.common.fields.value")}{" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="number"
-                    placeholder="0.00"
+                    placeholder={t("resource.common.placeholders.amount")}
                     name="edit-value"
                     defaultValue={editValue}
                     onChange={(event) => setEditValue(event.target.value)}
@@ -732,7 +800,8 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <Label>
-                    Date <span className="text-error-500">*</span>
+                    {t("resource.common.fields.date")}{" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="date"
@@ -743,7 +812,8 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <Label>
-                    Category <span className="text-error-500">*</span>
+                    {t("resource.common.fields.category")}{" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Select
                     key={`edit-category-${editKey}`}
@@ -754,7 +824,8 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <Label>
-                    Type <span className="text-error-500">*</span>
+                    {t("resource.common.fields.type")}{" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Select
                     key={`edit-type-${editKey}`}
@@ -767,7 +838,8 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <Label>
-                    Source <span className="text-error-500">*</span>
+                    {t("resource.common.fields.source")}{" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Select
                     key={`edit-source-${editKey}`}
@@ -781,7 +853,8 @@ export default function TransactionsPage() {
                 {editTransactionSource === "account" ? (
                   <div>
                     <Label>
-                      Account <span className="text-error-500">*</span>
+                      {t("resource.common.fields.account")}{" "}
+                      <span className="text-error-500">*</span>
                     </Label>
                     <Select
                       key={`edit-account-${editKey}`}
@@ -793,7 +866,8 @@ export default function TransactionsPage() {
                 ) : (
                   <div>
                     <Label>
-                      Credit Card <span className="text-error-500">*</span>
+                      {t("resource.common.fields.creditCard")}{" "}
+                      <span className="text-error-500">*</span>
                     </Label>
                     <Select
                       key={`edit-card-${editKey}`}
@@ -807,30 +881,30 @@ export default function TransactionsPage() {
                   <Checkbox
                     checked={editIsInstallment}
                     onChange={setEditIsInstallment}
-                    label="Installment"
+                    label={t("resource.transactions.fields.installment")}
                   />
                   <Checkbox
                     checked={editIsRecurring}
                     onChange={setEditIsRecurring}
-                    label="Recurring"
+                    label={t("resource.transactions.fields.recurring")}
                   />
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <Label>Total Months</Label>
+                    <Label>{t("resource.transactions.fields.totalMonths")}</Label>
                     <Input
                       type="number"
-                      placeholder="e.g. 12"
+                      placeholder={t("resource.transactions.placeholders.totalMonths")}
                       name="edit-totalMonths"
                       defaultValue={editTotalMonths}
                       onChange={(event) => setEditTotalMonths(event.target.value)}
                     />
                   </div>
                   <div>
-                    <Label>Payment Day</Label>
+                    <Label>{t("resource.transactions.fields.paymentDay")}</Label>
                     <Input
                       type="number"
-                      placeholder="1-31"
+                      placeholder={t("resource.transactions.placeholders.paymentDay")}
                       name="edit-paymentDay"
                       defaultValue={editPaymentDay}
                       onChange={(event) => setEditPaymentDay(event.target.value)}
@@ -839,16 +913,16 @@ export default function TransactionsPage() {
                 </div>
                 <div className="md:col-span-2">
                   <MultiSelect
-                    label="Tags"
+                    label={t("resource.common.fields.tags")}
                     options={tagOptions}
                     defaultSelected={editTagIds}
                     onChange={setEditTagIds}
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label>Observation</Label>
+                  <Label>{t("resource.common.fields.observation")}</Label>
                   <TextArea
-                    placeholder="Add notes"
+                    placeholder={t("resource.transactions.placeholders.observation")}
                     value={editObservation}
                     onChange={setEditObservation}
                   />
@@ -856,7 +930,7 @@ export default function TransactionsPage() {
                 <Checkbox
                   checked={editActive}
                   onChange={setEditActive}
-                  label="Active"
+                  label={t("resource.common.status.active")}
                 />
               </div>
             </div>
@@ -866,13 +940,15 @@ export default function TransactionsPage() {
                 size="sm"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t("resource.common.actions.cancel")}
               </Button>
               <Button
                 size="sm"
                 disabled={updateTransactionMutation.isPending}
               >
-                {updateTransactionMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateTransactionMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

@@ -25,26 +25,10 @@ import {
 } from "@/api/categories.hooks";
 import type { CategoryColor, CategoryType } from "@/api/shared.types";
 import { getApiErrorMessage } from "@/api/errorHandling";
-
-const typeOptions = [
-  { value: "income", label: "Income" },
-  { value: "expense", label: "Expense" },
-];
-
-const colorOptions = [
-  { value: "purple", label: "Purple" },
-  { value: "red", label: "Red" },
-  { value: "blue", label: "Blue" },
-  { value: "green", label: "Green" },
-  { value: "yellow", label: "Yellow" },
-  { value: "orange", label: "Orange" },
-  { value: "pink", label: "Pink" },
-  { value: "gray", label: "Gray" },
-  { value: "cyan", label: "Cyan" },
-  { value: "indigo", label: "Indigo" },
-];
+import { useTranslation } from "react-i18next";
 
 export default function CategoriesPage() {
+  const { t } = useTranslation(["resource-categories", "resource-common"]);
   const { userId } = useAuth();
   const categoriesQuery = useCategoriesByUser(userId);
   const createCategoryMutation = useCreateCategory(userId);
@@ -67,6 +51,37 @@ export default function CategoriesPage() {
   const [editColor, setEditColor] = useState<CategoryColor>("purple");
   const [editActive, setEditActive] = useState(true);
 
+  const typeOptions = useMemo(
+    () => [
+      { value: "income", label: t("resource.categories.types.income") },
+      { value: "expense", label: t("resource.categories.types.expense") },
+    ],
+    [t]
+  );
+  const colorOptions = useMemo(
+    () => [
+      { value: "purple", label: t("resource.categories.colors.purple") },
+      { value: "red", label: t("resource.categories.colors.red") },
+      { value: "blue", label: t("resource.categories.colors.blue") },
+      { value: "green", label: t("resource.categories.colors.green") },
+      { value: "yellow", label: t("resource.categories.colors.yellow") },
+      { value: "orange", label: t("resource.categories.colors.orange") },
+      { value: "pink", label: t("resource.categories.colors.pink") },
+      { value: "gray", label: t("resource.categories.colors.gray") },
+      { value: "cyan", label: t("resource.categories.colors.cyan") },
+      { value: "indigo", label: t("resource.categories.colors.indigo") },
+    ],
+    [t]
+  );
+  const typeLabels = useMemo(
+    () => new Map(typeOptions.map((option) => [option.value, option.label])),
+    [typeOptions]
+  );
+  const colorLabels = useMemo(
+    () => new Map(colorOptions.map((option) => [option.value, option.label])),
+    [colorOptions]
+  );
+
   const categories = useMemo(
     () => categoriesQuery.data?.data ?? [],
     [categoriesQuery.data]
@@ -85,12 +100,12 @@ export default function CategoriesPage() {
     setFormError(null);
 
     if (!userId) {
-      setFormError("Missing user session.");
+      setFormError(t("resource.common.errors.missingSession"));
       return;
     }
 
     if (!name.trim()) {
-      setFormError("Name is required.");
+      setFormError(t("resource.categories.errors.nameRequired"));
       return;
     }
 
@@ -104,7 +119,7 @@ export default function CategoriesPage() {
       });
       resetForm();
     } catch (error) {
-      setFormError(getApiErrorMessage(error));
+      setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
@@ -124,12 +139,12 @@ export default function CategoriesPage() {
     setEditError(null);
 
     if (!editId) {
-      setEditError("Category not selected.");
+      setEditError(t("resource.categories.errors.notSelected"));
       return;
     }
 
     if (!editName.trim()) {
-      setEditError("Name is required.");
+      setEditError(t("resource.categories.errors.nameRequired"));
       return;
     }
 
@@ -145,13 +160,13 @@ export default function CategoriesPage() {
       });
       setIsEditOpen(false);
     } catch (error) {
-      setEditError(getApiErrorMessage(error));
+      setEditError(getApiErrorMessage(error, t("resource.common.errors.generic")));
     }
   };
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this category?"
+      t("resource.categories.confirmDelete")
     );
     if (!confirmed) {
       return;
@@ -168,35 +183,40 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          Categories
+          {t("resource.categories.title")}
         </h2>
       </div>
 
-      <ComponentCard title="Create Category" desc="Organize your transactions">
+      <ComponentCard
+        title={t("resource.categories.create.title")}
+        desc={t("resource.categories.create.desc")}
+      >
         <form onSubmit={handleCreate}>
           <div key={formKey} className="grid gap-5 md:grid-cols-2">
             {formError && (
               <div className="md:col-span-2">
                 <Alert
                   variant="error"
-                  title="Category not created"
+                  title={t("resource.categories.create.errors.notCreated")}
                   message={formError}
                 />
               </div>
             )}
             <div>
               <Label>
-                Name <span className="text-error-500">*</span>
+                {t("resource.common.fields.name")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Input
-                placeholder="Category name"
+                placeholder={t("resource.categories.placeholders.name")}
                 name="name"
                 onChange={(event) => setName(event.target.value)}
               />
             </div>
             <div>
               <Label>
-                Type <span className="text-error-500">*</span>
+                {t("resource.common.fields.type")}{" "}
+                <span className="text-error-500">*</span>
               </Label>
               <Select
                 key={`create-type-${formKey}`}
@@ -206,7 +226,7 @@ export default function CategoriesPage() {
               />
             </div>
             <div>
-              <Label>Color</Label>
+              <Label>{t("resource.categories.fields.color")}</Label>
               <Select
                 key={`create-color-${formKey}`}
                 options={colorOptions}
@@ -218,38 +238,49 @@ export default function CategoriesPage() {
               <Checkbox
                 checked={active}
                 onChange={setActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
               <Button
                 className="min-w-[140px]"
                 size="sm"
                 disabled={createCategoryMutation.isPending}
               >
-                {createCategoryMutation.isPending ? "Saving..." : "Create Category"}
+                {createCategoryMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.categories.create.actions.submit")}
               </Button>
             </div>
           </div>
         </form>
       </ComponentCard>
 
-      <ComponentCard title="Categories List" desc="Manage categories">
+      <ComponentCard
+        title={t("resource.categories.list.title")}
+        desc={t("resource.categories.list.desc")}
+      >
         {categoriesQuery.isError && (
           <Alert
             variant="error"
-            title="Categories unavailable"
-            message={getApiErrorMessage(categoriesQuery.error)}
+            title={t("resource.categories.list.unavailable")}
+            message={getApiErrorMessage(
+              categoriesQuery.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {deleteCategoryMutation.isError && (
           <Alert
             variant="error"
-            title="Delete failed"
-            message={getApiErrorMessage(deleteCategoryMutation.error)}
+            title={t("resource.common.errors.deleteFailed")}
+            message={getApiErrorMessage(
+              deleteCategoryMutation.error,
+              t("resource.common.errors.generic")
+            )}
           />
         )}
         {!categoriesQuery.isError && categoriesQuery.isLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Loading categories...
+            {t("resource.categories.list.loading")}
           </p>
         )}
         {!categoriesQuery.isError && !categoriesQuery.isLoading && (
@@ -262,31 +293,31 @@ export default function CategoriesPage() {
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Name
+                      {t("resource.common.fields.name")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Type
+                      {t("resource.common.fields.type")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Color
+                      {t("resource.categories.fields.color")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Status
+                      {t("resource.common.fields.status")}
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
                     >
-                      Actions
+                      {t("resource.common.fields.actions")}
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -294,23 +325,25 @@ export default function CategoriesPage() {
                   {categories.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        No categories available.
+                        {t("resource.categories.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
                     categories.map((category) => (
                       <TableRow key={category.id}>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {category.name || "Unnamed"}
+                          {category.name || t("resource.categories.list.unnamed")}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {category.type}
+                          {typeLabels.get(category.type) ?? category.type}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {category.color}
+                          {colorLabels.get(category.color) ?? category.color}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {category.active ? "Active" : "Inactive"}
+                          {category.active
+                            ? t("resource.common.status.active")
+                            : t("resource.common.status.inactive")}
                         </TableCell>
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-2">
@@ -319,7 +352,7 @@ export default function CategoriesPage() {
                               variant="outline"
                               onClick={() => openEditModal(category)}
                             >
-                              Edit
+                              {t("resource.common.actions.edit")}
                             </Button>
                             <Button
                               size="sm"
@@ -327,7 +360,7 @@ export default function CategoriesPage() {
                               disabled={deleteCategoryMutation.isPending}
                               onClick={() => handleDelete(category.id)}
                             >
-                              Delete
+                              {t("resource.common.actions.delete")}
                             </Button>
                           </div>
                         </TableCell>
@@ -344,23 +377,24 @@ export default function CategoriesPage() {
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Edit Category
+            {t("resource.categories.edit.title")}
           </h3>
           <form onSubmit={handleEdit} className="mt-5 space-y-5">
             <div key={editKey} className="space-y-5">
               {editError && (
                 <Alert
                   variant="error"
-                  title="Update failed"
+                  title={t("resource.common.errors.updateFailed")}
                   message={editError}
                 />
               )}
               <div>
                 <Label>
-                  Name <span className="text-error-500">*</span>
+                  {t("resource.common.fields.name")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Category name"
+                  placeholder={t("resource.categories.placeholders.name")}
                   name="edit-name"
                   defaultValue={editName}
                   onChange={(event) => setEditName(event.target.value)}
@@ -368,7 +402,8 @@ export default function CategoriesPage() {
               </div>
               <div>
                 <Label>
-                  Type <span className="text-error-500">*</span>
+                  {t("resource.common.fields.type")}{" "}
+                  <span className="text-error-500">*</span>
                 </Label>
                 <Select
                   key={`edit-type-${editKey}`}
@@ -378,7 +413,7 @@ export default function CategoriesPage() {
                 />
               </div>
               <div>
-                <Label>Color</Label>
+                <Label>{t("resource.categories.fields.color")}</Label>
                 <Select
                   key={`edit-color-${editKey}`}
                   options={colorOptions}
@@ -389,7 +424,7 @@ export default function CategoriesPage() {
               <Checkbox
                 checked={editActive}
                 onChange={setEditActive}
-                label="Active"
+                label={t("resource.common.status.active")}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -398,13 +433,15 @@ export default function CategoriesPage() {
                 size="sm"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t("resource.common.actions.cancel")}
               </Button>
               <Button
                 size="sm"
                 disabled={updateCategoryMutation.isPending}
               >
-                {updateCategoryMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateCategoryMutation.isPending
+                  ? t("resource.common.actions.saving")
+                  : t("resource.common.actions.saveChanges")}
               </Button>
             </div>
           </form>

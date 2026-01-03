@@ -1,0 +1,59 @@
+{
+  "resource": {
+    "layout": {
+      "badges": {
+        "new": "Novo",
+        "pro": "Pro"
+      },
+      "header": {
+        "searchPlaceholder": "Pesquisar ou digitar um comando",
+        "searchShortcutPrefix": "Pressione",
+        "searchShortcutKey": "Ctrl + K",
+        "toggleSidebarAria": "Alternar barra lateral"
+      },
+      "logoAlt": "Laurus Dashboard",
+      "nav": {
+        "dashboard": "Dashboard",
+        "transactions": "Transações",
+        "accounts": "Contas",
+        "creditCards": "Cartões",
+        "categories": "Categorias",
+        "tags": "Tags"
+      },
+      "notifications": {
+        "title": "Notificações",
+        "requestChange": "solicitou uma alteração em",
+        "projectName": "{{name}}",
+        "projectCategory": "Projeto",
+        "timeMinutesAgo": "{{minutes}} min atrás",
+        "timeHoursAgo": "{{hours}} h atrás",
+        "viewAll": "Ver todas as notificações",
+        "toggleAria": "Abrir notificações",
+        "closeAria": "Fechar notificações",
+        "userAvatarAlt": "Avatar do usuário"
+      },
+      "sidebar": {
+        "menu": "Menu",
+        "others": "Outros"
+      },
+      "sidebarWidget": {
+        "title": "Atualize para Pro",
+        "description": "Tenha acesso a todos os recursos com nosso plano premium.",
+        "upgrade": "Fazer upgrade"
+      },
+      "userMenu": {
+        "accountMeta": "Conta",
+        "accountSettings": "Configurações da conta",
+        "editProfile": "Editar perfil",
+        "languageActive": "Ativo",
+        "languageTitle": "Idioma",
+        "signOut": "Sair",
+        "support": "Suporte",
+        "user": "Usuário",
+        "userAvatarAlt": "Avatar do usuário",
+        "userIdMeta": "ID: {{id}}",
+        "userWithId": "Usuário {{id}}"
+      }
+    }
+  }
+}

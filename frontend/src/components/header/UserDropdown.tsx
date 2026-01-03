@@ -7,24 +7,33 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useAuth } from "@/context/AuthContext";
 import { useLogout } from "@/api/auth.hooks";
+import { useTranslation } from "react-i18next";
+import { getResourceLanguage, setResourceLanguage } from "../../../i18n";
+import { resourceLanguageOptions, type ResourceLanguage } from "../../../i18n/config";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const { userId, clearSession } = useAuth();
   const logoutMutation = useLogout();
+  const { t } = useTranslation(["resource-layout", "resource-common"]);
+  const currentLanguage = getResourceLanguage();
 
-function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-  e.stopPropagation();
-  setIsOpen((prev) => !prev);
-}
+  function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.stopPropagation();
+    setIsOpen((prev) => !prev);
+  }
 
   function closeDropdown() {
     setIsOpen(false);
   }
 
-  const displayName = userId ? `User #${userId}` : "User";
-  const displayMeta = userId ? `ID ${userId}` : "Account";
+  const displayName = userId
+    ? t("resource.layout.userMenu.userWithId", { id: userId })
+    : t("resource.layout.userMenu.user");
+  const displayMeta = userId
+    ? t("resource.layout.userMenu.userIdMeta", { id: userId })
+    : t("resource.layout.userMenu.accountMeta");
 
   const handleSignOut = async () => {
     closeDropdown();
@@ -37,6 +46,19 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
       router.replace("/login");
     }
   };
+
+  const handleLanguageChange = async (language: ResourceLanguage) => {
+    if (language === currentLanguage) {
+      return;
+    }
+    await setResourceLanguage(language);
+    closeDropdown();
+  };
+
+  const languageLabel = (language: ResourceLanguage) => {
+    const option = resourceLanguageOptions.find((item) => item.value === language);
+    return option ? t(option.labelKey) : language;
+  };
   return (
     <div className="relative">
       <button
@@ -48,7 +70,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
             width={44}
             height={44}
             src="/images/user/owner.jpg"
-            alt="User"
+            alt={t("resource.layout.userMenu.userAvatarAlt")}
           />
         </span>
 
@@ -111,7 +133,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Edit profile
+              {t("resource.layout.userMenu.editProfile")}
             </DropdownItem>
           </li>
           <li>
@@ -136,7 +158,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Account settings
+              {t("resource.layout.userMenu.accountSettings")}
             </DropdownItem>
           </li>
           <li>
@@ -161,10 +183,39 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Support
+              {t("resource.layout.userMenu.support")}
             </DropdownItem>
           </li>
         </ul>
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
+          <p className="px-3 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+            {t("resource.layout.userMenu.languageTitle")}
+          </p>
+          <div className="flex flex-col gap-1 pt-2">
+            {resourceLanguageOptions.map((option) => {
+              const isActive = option.value === currentLanguage;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleLanguageChange(option.value)}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-theme-sm font-medium ${
+                    isActive
+                      ? "bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-white/90"
+                      : "text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <span>{languageLabel(option.value)}</span>
+                  {isActive && (
+                    <span className="text-xs font-semibold text-brand-500 dark:text-brand-400">
+                      {t("resource.layout.userMenu.languageActive")}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <button
           type="button"
           onClick={handleSignOut}
@@ -185,7 +236,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
               fill=""
             />
           </svg>
-          Sign out
+          {t("resource.layout.userMenu.signOut")}
         </button>
       </Dropdown>
     </div>

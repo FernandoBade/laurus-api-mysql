@@ -1,3 +1,5 @@
+"use client";
+
 import GridShape from "@/components/common/GridShape";
 import ThemeTogglerTwo from "@/components/common/ThemeTogglerTwo";
 
@@ -5,12 +7,14 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation(["resource-auth", "resource-common", "resource-layout"]);
   return (
     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
       <ThemeProvider>
@@ -26,11 +30,11 @@ export default function AuthLayout({
                     width={231}
                     height={48}
                     src="/images/logo/auth-logo.svg"
-                    alt="Logo"
+                    alt={t("resource.layout.logoAlt")}
                   />
                 </Link>
                 <p className="text-center text-gray-400 dark:text-white/60">
-                  Free and Open-Source Tailwind CSS Admin Dashboard Template
+                  {t("resource.auth.layout.tagline")}
                 </p>
               </div>
             </div>

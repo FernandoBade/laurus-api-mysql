@@ -3,8 +3,10 @@ import React from "react";
 import ComponentCard from "../../common/ComponentCard";
 import FileInput from "../input/FileInput";
 import Label from "../Label";
+import { useTranslation } from "react-i18next";
 
 export default function FileInputExample() {
+  const { t } = useTranslation(["resource-forms", "resource-common"]);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -13,9 +15,9 @@ export default function FileInputExample() {
   };
 
   return (
-    <ComponentCard title="File Input">
+    <ComponentCard title={t("resource.forms.fileInput.title")}>
       <div>
-        <Label>Upload file</Label>
+        <Label>{t("resource.forms.fileInput.label")}</Label>
         <FileInput onChange={handleFileChange} className="custom-class" />
       </div>
     </ComponentCard>

@@ -16,7 +16,7 @@ const Alert: React.FC<AlertProps> = ({
   message,
   showLink = false,
   linkHref = "#",
-  linkText = "Learn more",
+  linkText = "",
 }) => {
   // Tailwind classes for each variant
   const variantClasses = {
