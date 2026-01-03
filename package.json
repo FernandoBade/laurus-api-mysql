@@ -3,9 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "dev:api": "nodemon --exec \"ts-node --files\" src/server.ts",
-        "dev": "concurrently \"npm run dev:api\" \"npm --prefix frontend run dev\" -n api,frontend -c green,blue",
-        "dev:full": "npm run dev",
+        "dev": "nodemon --exec \"ts-node --files\" src/server.ts",
+        "dev:full": "concurrently \"npm run dev\" \"npm --prefix frontend run dev\" -n api,frontend -c green,blue",
         "build": "npm run test:ci && tsc",
         "start": "node dist/server.js",
         "db:generate": "drizzle-kit generate",
