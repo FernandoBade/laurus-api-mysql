@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from 'cookie-parser';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
@@ -19,6 +20,13 @@ import { LanguageCode } from './utils/resources/resourceTypes';
 import { Resource } from './utils/resources/resource';
 
 // #endregion Imports
+
+// Initialize Vercel Speed Insights
+if (typeof window === 'undefined') {
+  // Server-side initialization - Speed Insights data collection is handled by the frontend
+  // This import ensures the package is included in the build
+}
+injectSpeedInsights();
 
 const app = express();
 const port = process.env.PORT || 5050;
