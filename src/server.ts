@@ -23,6 +23,42 @@ import { Resource } from './utils/resources/resource';
 const app = express();
 const port = process.env.PORT || 5050;
 
+const envOrigins = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+const allowedOrigins = envOrigins.length > 0
+    ? envOrigins
+    : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://laurus.bade.digital',
+    ];
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
+    }
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    const requestHeaders = req.headers['access-control-request-headers'];
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        typeof requestHeaders === 'string'
+            ? requestHeaders
+            : 'Content-Type, Authorization, Accept-Language'
+    );
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+
+    return next();
+});
+
 // Middleware to track request time
 app.use(requestTimer());
 
