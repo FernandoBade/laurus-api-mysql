@@ -413,11 +413,11 @@ export default function UserProfile() {
         await updateUserMutation.mutateAsync({
           id: userId,
           payload: {
-            firstName: formState.firstName || null,
-            lastName: formState.lastName || null,
-            email: formState.email || null,
-            phone: formState.phone || null,
-            birthDate: parsedBirthDate || null,
+            firstName: formState.firstName || undefined,
+            lastName: formState.lastName || undefined,
+            email: formState.email || undefined,
+            phone: formState.phone || undefined,
+            birthDate: parsedBirthDate ?? undefined,
           },
         });
       } else {
