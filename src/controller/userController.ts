@@ -3,10 +3,20 @@ import { UserService } from '../service/userService';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
 import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
+import { createValidationError, ValidationError } from '../utils/validation/errors';
 import { Resource } from '../utils/resources/resource';
+import { ResourceBase } from '../utils/resources/languages/resourceService';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+const ALLOWED_AVATAR_MIME_TYPES = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+    'image/pjpeg',
+    'image/x-png',
+]);
 
 class UserController {
     /** @summary Creates a new user using validated input from the request body.
@@ -242,6 +252,69 @@ class UserController {
             return answerAPI(req, res, HTTPStatus.OK, result.data);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.DELETE, LogCategory.USER, formatError(error), req.user?.id, next);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Uploads an avatar image for the authenticated user.
+     * Validates file presence, type, and size before uploading.
+     *
+     * @param req - Express request containing avatar file.
+     * @param res - Express response with uploaded URL.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 with avatar URL or appropriate error.
+     */
+    static async uploadAvatar(req: Request, res: Response, next: NextFunction) {
+        const userId = req.user?.id;
+        if (!userId) {
+            return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
+        }
+
+        const language = req.language as LanguageCode;
+        const errors: ValidationError[] = [];
+        const file = req.file;
+
+        if (!file) {
+            errors.push(createValidationError('avatar', ResourceBase.translate(Resource.FIELD_REQUIRED, language)));
+        } else {
+            if (!ALLOWED_AVATAR_MIME_TYPES.has(file.mimetype)) {
+                errors.push(createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                    path: 'avatar',
+                    expected: 'image/jpeg, image/png',
+                    received: file.mimetype,
+                })));
+            }
+
+            if (file.size > MAX_AVATAR_BYTES) {
+                errors.push(createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                    path: 'avatar',
+                    expected: 'file size <= 2MB',
+                    received: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+                })));
+            }
+        }
+
+        if (errors.length > 0) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, errors, Resource.VALIDATION_ERROR);
+        }
+
+        const userService = new UserService();
+
+        try {
+            const result = await userService.uploadAvatar(userId, file as Express.Multer.File);
+
+            if (!result.success) {
+                const status = result.error === Resource.INTERNAL_SERVER_ERROR
+                    ? HTTPStatus.INTERNAL_SERVER_ERROR
+                    : HTTPStatus.BAD_REQUEST;
+                return answerAPI(req, res, status, undefined, result.error);
+            }
+
+            await createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, { avatarUrl: result.data.url }, userId);
+            return answerAPI(req, res, HTTPStatus.OK, result.data);
+        } catch (error) {
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.USER, formatError(error), userId, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }

@@ -38,6 +38,7 @@ export type User = {
   email: string;
   birthDate: string | null;
   phone: string | null;
+  avatarUrl: string | null;
   theme: Theme;
   language: Language;
   dateFormat: DateFormat;

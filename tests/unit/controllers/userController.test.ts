@@ -468,4 +468,70 @@ describe('UserController', () => {
       );
     });
   });
+
+  describe('uploadAvatar', () => {
+    it('returns 401 when user is missing from request', async () => {
+      const uploadSpy = jest.spyOn(UserService.prototype, 'uploadAvatar');
+      const req = createMockRequest({ user: undefined });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await UserController.uploadAvatar(req, res, next);
+
+      expect(uploadSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+        })
+      );
+    });
+
+    it('returns 400 when file is missing', async () => {
+      const uploadSpy = jest.spyOn(UserService.prototype, 'uploadAvatar');
+      const req = createMockRequest({ user: { id: 1 }, file: undefined });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await UserController.uploadAvatar(req, res, next);
+
+      expect(uploadSpy).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+          error: expect.arrayContaining([
+            expect.objectContaining({ property: 'avatar' }),
+          ]),
+        })
+      );
+    });
+
+    it('returns 200 when upload succeeds', async () => {
+      const payload = { url: 'https://bade.digital/laurus/users/1/avatar/avatar.jpg' };
+      jest.spyOn(UserService.prototype, 'uploadAvatar').mockResolvedValue({ success: true, data: payload });
+
+      const req = createMockRequest({
+        user: { id: 1 },
+        file: { buffer: Buffer.from('avatar'), mimetype: 'image/jpeg', size: 1024 } as Express.Multer.File,
+      });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await UserController.uploadAvatar(req, res, next);
+
+      expect(UserService.prototype.uploadAvatar).toHaveBeenCalledWith(1, expect.any(Object));
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: payload }));
+      expect(logSpy).toHaveBeenCalledWith(
+        LogType.SUCCESS,
+        LogOperation.UPDATE,
+        LogCategory.USER,
+        { avatarUrl: payload.url },
+        1
+      );
+    });
+  });
 });

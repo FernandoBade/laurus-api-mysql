@@ -1,4 +1,7 @@
 import bcrypt from 'bcrypt';
+import path from 'path';
+import { Readable } from 'stream';
+import { Client as FtpClient } from 'basic-ftp';
 import { Operator, Theme, Language, Currency, DateFormat, Profile } from '../utils/enum';
 import { UserRepository } from '../repositories/userRepository';
 import { Resource } from '../utils/resources/resource';
@@ -6,6 +9,17 @@ import { SelectUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 
 export type SanitizedUser = Omit<SelectUser, 'password'>;
+
+const AVATAR_PUBLIC_BASE_URL = 'https://bade.digital/laurus/users';
+const AVATAR_FILE_BASE = 'avatar';
+const AVATAR_BACKUP_BASE = 'avatar_old';
+
+const resolveAvatarExtension = (mimeType: string) => {
+    if (mimeType === 'image/png' || mimeType === 'image/x-png') {
+        return 'png';
+    }
+    return 'jpg';
+};
 
 /**
  * Service for user business logic.
@@ -275,5 +289,78 @@ export class UserService {
             return { success: false, error: Resource.USER_NOT_FOUND };
         }
         return { success: true, data: user };
+    }
+
+    /**
+     * Uploads an avatar image to FTP storage and updates the user's avatar URL.
+     *
+     * @summary Uploads user avatar and persists the public URL.
+     * @param userId - ID of the user uploading an avatar.
+     * @param file - Multer file buffer for the avatar.
+     * @returns Public URL of the uploaded avatar or an error.
+     */
+    async uploadAvatar(userId: number, file: Express.Multer.File): Promise<{ success: true; data: { url: string } } | { success: false; error: Resource }> {
+        const existingUser = await this.userRepository.findById(userId);
+        if (!existingUser) {
+            return { success: false, error: Resource.USER_NOT_FOUND };
+        }
+
+        const host = process.env.FTP_HOST;
+        const user = process.env.FTP_USER;
+        const password = process.env.FTP_PASSWORD;
+        const uploadPath = process.env.FTP_UPLOAD_PATH;
+        const portValue = Number(process.env.FTP_PORT ?? 21);
+        const port = Number.isFinite(portValue) ? portValue : 21;
+
+        if (!host || !user || !password || !uploadPath) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+
+        const extension = resolveAvatarExtension(file.mimetype);
+        const fileName = `${AVATAR_FILE_BASE}.${extension}`;
+        const normalizedPath = uploadPath.replace(/\/$/, '');
+        const userAvatarPath = `${normalizedPath}/${userId}/avatar`;
+        const publicUrl = `${AVATAR_PUBLIC_BASE_URL}/${userId}/avatar/${fileName}`;
+        const ftpClient = new FtpClient();
+
+        try {
+            await ftpClient.access({
+                host,
+                port,
+                user,
+                password,
+            });
+            await ftpClient.ensureDir(userAvatarPath);
+            const files = await ftpClient.list();
+            const existingBackups = files.filter((entry) =>
+                entry.name.startsWith(`${AVATAR_BACKUP_BASE}.`)
+            );
+            for (const backup of existingBackups) {
+                try {
+                    await ftpClient.remove(backup.name);
+                } catch {
+                    // Ignore cleanup failures to avoid blocking upload.
+                }
+            }
+            const existingAvatar = files.find((entry) =>
+                entry.name.startsWith(`${AVATAR_FILE_BASE}.`)
+            );
+            if (existingAvatar) {
+                const currentExtension = path.extname(existingAvatar.name) || `.${extension}`;
+                const backupName = `${AVATAR_BACKUP_BASE}${currentExtension}`;
+                try {
+                    await ftpClient.rename(existingAvatar.name, backupName);
+                } catch {
+                    // Ignore rename failures and attempt upload anyway.
+                }
+            }
+            await ftpClient.uploadFrom(Readable.from(file.buffer), fileName);
+            await this.userRepository.update(userId, { avatarUrl: publicUrl });
+            return { success: true, data: { url: publicUrl } };
+        } catch (error) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        } finally {
+            ftpClient.close();
+        }
     }
 }

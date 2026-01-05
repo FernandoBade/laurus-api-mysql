@@ -14,6 +14,7 @@ jest.mock('../../../src/controller/userController', () => ({
     getUserById: jest.fn(),
     getUsersByEmail: jest.fn(),
     createUser: jest.fn(),
+    uploadAvatar: jest.fn(),
     updateUser: jest.fn(),
     deleteUser: jest.fn(),
   },
@@ -93,6 +94,18 @@ describe('userRoutes', () => {
       expect(handlers).not.toContain(verifyToken);
       expect(handlers[0]).toEqual(expect.any(Function));
       expect(handlers[0].toString()).toContain('createUser');
+    });
+
+    it('registers /upload/avatar with verifyToken and uploadAvatar', () => {
+      const route = getRoute('/upload/avatar', 'post');
+      const handlers = getHandlers('/upload/avatar', 'post');
+
+      expect(route.path).toBe('/upload/avatar');
+      expect(route.methods.post).toBe(true);
+      expect(handlers).toHaveLength(3);
+      expect(handlers[0]).toBe(verifyToken);
+      expect(handlers[2]).toEqual(expect.any(Function));
+      expect(handlers[2].toString()).toContain('uploadAvatar');
     });
   });
 

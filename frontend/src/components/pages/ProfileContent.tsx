@@ -1,8 +1,6 @@
 "use client";
 
-import UserAddressCard from "@/components/user-profile/UserAddressCard";
-import UserInfoCard from "@/components/user-profile/UserInfoCard";
-import UserMetaCard from "@/components/user-profile/UserMetaCard";
+import UserProfile from "@/components/user-profile";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -15,11 +13,7 @@ export default function ProfileContent() {
         <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
           {t("resource.profile.title")}
         </h3>
-        <div className="space-y-6">
-          <UserMetaCard />
-          <UserInfoCard />
-          <UserAddressCard />
-        </div>
+        <UserProfile />
       </div>
     </div>
   );

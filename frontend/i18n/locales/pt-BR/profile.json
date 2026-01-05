@@ -14,6 +14,19 @@
         "name": "Musharof",
         "role": "Gerente de equipe"
       },
+      "labels": {
+        "avatarHint": "JPG ou PNG. Tamanho maximo 2MB",
+        "birthDate": "Data de nascimento",
+        "currency": "Moeda",
+        "dateFormat": "Formato de data",
+        "hideValues": "Ocultar valores",
+        "language": "Idioma",
+        "theme": "Tema"
+      },
+      "actions": {
+        "uploadAvatar": "Enviar nova foto",
+        "resetAvatar": "Redefinir"
+      },
       "modal": {
         "addressTitle": "Editar endereço",
         "sections": {
@@ -25,7 +38,8 @@
       },
       "sections": {
         "address": "Endereço",
-        "personalInfo": "Informações pessoais"
+        "personalInfo": "Informações pessoais",
+        "preferences": "Preferências"
       },
       "values": {
         "cityState": "San Francisco, CA",

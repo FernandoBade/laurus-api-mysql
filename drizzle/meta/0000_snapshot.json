@@ -56,6 +56,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "avatarUrl": {
+          "name": "avatarUrl",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "theme": {
           "name": "theme",
           "type": "enum('dark','light')",

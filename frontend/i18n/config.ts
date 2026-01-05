@@ -1,4 +1,4 @@
-export const resourceSupportedLanguages = ["pt-BR", "en", "es"] as const;
+export const resourceSupportedLanguages = ["pt-BR", "en-US", "es-ES"] as const;
 
 export type ResourceLanguage = (typeof resourceSupportedLanguages)[number];
 
@@ -29,8 +29,8 @@ export type ResourceNamespace = (typeof resourceNamespaces)[number];
 
 export const resourceLanguageOptions = [
   { value: "pt-BR", labelKey: "resource.common.language.ptBr" },
-  { value: "en", labelKey: "resource.common.language.en" },
-  { value: "es", labelKey: "resource.common.language.es" },
+  { value: "en-US", labelKey: "resource.common.language.en" },
+  { value: "es-ES", labelKey: "resource.common.language.es" },
 ] as const;
 
 const normalizeLanguageKey = (value: string) => value.trim().toLowerCase();
@@ -49,10 +49,10 @@ export const normalizeResourceLanguage = (
     return "pt-BR";
   }
   if (normalized === "en" || normalized.startsWith("en-")) {
-    return "en";
+    return "en-US";
   }
   if (normalized === "es" || normalized.startsWith("es-")) {
-    return "es";
+    return "es-ES";
   }
   const exactMatch = resourceSupportedLanguages.find(
     (language) => normalizeLanguageKey(language) === normalized
@@ -89,11 +89,7 @@ export const resolveBrowserResourceLanguage = (): ResourceLanguage | null => {
 };
 
 export const resolveResourceLanguage = (): ResourceLanguage => {
-  return (
-    resolveStoredResourceLanguage() ||
-    resolveBrowserResourceLanguage() ||
-    resourceFallbackLanguage
-  );
+  return resolveStoredResourceLanguage() || resourceFallbackLanguage;
 };
 
 export const persistResourceLanguage = (language: string) => {

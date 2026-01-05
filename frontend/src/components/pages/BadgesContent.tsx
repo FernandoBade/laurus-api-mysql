@@ -2,9 +2,9 @@
 
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Badge from "@/components/ui/badge/Badge";
-import { PlusIcon } from "@/icons";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Plus } from "@phosphor-icons/react";
 
 const badgeColors = [
   "primary",
@@ -34,8 +34,8 @@ export default function BadgesContent() {
         key={`${variant}-${iconPosition}-${color}`}
         variant={variant}
         color={color}
-        startIcon={iconPosition === "left" ? <PlusIcon /> : undefined}
-        endIcon={iconPosition === "right" ? <PlusIcon /> : undefined}
+        startIcon={iconPosition === "left" ? <Plus size={14} /> : undefined}
+        endIcon={iconPosition === "right" ? <Plus size={14} /> : undefined}
       >
         {badgeLabel(color)}
       </Badge>

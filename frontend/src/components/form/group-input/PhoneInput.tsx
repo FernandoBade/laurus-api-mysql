@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { CaretDown } from "@phosphor-icons/react";
 
 interface CountryCode {
   code: string;
@@ -65,22 +66,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
             ))}
           </select>
           <div className="absolute inset-y-0 flex items-center text-gray-700 pointer-events-none bg-none right-3 dark:text-gray-400">
-            <svg
-              className="stroke-current"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <CaretDown size={20} />
           </div>
         </div>
       )}
@@ -115,22 +101,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
             ))}
           </select>
           <div className="absolute inset-y-0 flex items-center text-gray-700 pointer-events-none right-3 dark:text-gray-400">
-            <svg
-              className="stroke-current"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <CaretDown size={20} />
           </div>
         </div>
       )}

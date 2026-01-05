@@ -4,8 +4,8 @@ import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
 import Select from "../Select";
 import MultiSelect from "../MultiSelect";
-import { ChevronDownIcon } from "@/icons";
 import { useTranslation } from "react-i18next";
+import { CaretDown } from "@phosphor-icons/react";
 
 export default function SelectInputs() {
   const { t } = useTranslation(["resource-forms", "resource-common"]);
@@ -48,7 +48,7 @@ export default function SelectInputs() {
             className="dark:bg-dark-900"
           />
           <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-              <ChevronDownIcon/>
+              <CaretDown size={20} />
             </span>
          </div>
         </div>

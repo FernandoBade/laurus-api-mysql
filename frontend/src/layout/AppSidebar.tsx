@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -5,15 +6,15 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
-  BoxCubeIcon,
-  ChevronDownIcon,
-  GridIcon,
-  HorizontaLDots,
-  ListIcon,
-  PieChartIcon,
-  PlugInIcon,
-  TableIcon,
-} from "../icons/index";
+  CaretDown,
+  ChartPie,
+  CreditCard,
+  DotsThreeOutline,
+  Receipt,
+  SquaresFour,
+  Tag,
+  Wallet,
+} from "@phosphor-icons/react";
 import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 
@@ -26,32 +27,32 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
+    icon: <SquaresFour size={20} />,
     nameKey: "resource.layout.nav.dashboard",
     path: "/app/dashboard",
   },
   {
-    icon: <TableIcon />,
+    icon: <Receipt size={20} />,
     nameKey: "resource.layout.nav.transactions",
     path: "/app/transactions",
   },
   {
-    icon: <BoxCubeIcon />,
+    icon: <Wallet size={20} />,
     nameKey: "resource.layout.nav.accounts",
     path: "/app/accounts",
   },
   {
-    icon: <PlugInIcon />,
+    icon: <CreditCard size={20} />,
     nameKey: "resource.layout.nav.creditCards",
     path: "/app/credit-cards",
   },
   {
-    icon: <PieChartIcon />,
+    icon: <ChartPie size={20} />,
     nameKey: "resource.layout.nav.categories",
     path: "/app/categories",
   },
   {
-    icon: <ListIcon />,
+    icon: <Tag size={20} />,
     nameKey: "resource.layout.nav.tags",
     path: "/app/tags",
   },
@@ -97,7 +98,8 @@ const AppSidebar: React.FC = () => {
                 <span className={`menu-item-text`}>{t(nav.nameKey)}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
-                <ChevronDownIcon
+                <CaretDown
+                  size={20}
                   className={`ml-auto w-5 h-5 transition-transform duration-200  ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
@@ -256,7 +258,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -316,7 +318,7 @@ const AppSidebar: React.FC = () => {
                 {isExpanded || isHovered || isMobileOpen ? (
                   t("resource.layout.sidebar.menu")
                 ) : (
-                  <HorizontaLDots />
+                  <DotsThreeOutline size={16} />
                 )}
               </h2>
               {renderMenuItems(navItems, "main")}
@@ -334,7 +336,7 @@ const AppSidebar: React.FC = () => {
                   {isExpanded || isHovered || isMobileOpen ? (
                     t("resource.layout.sidebar.others")
                   ) : (
-                    <HorizontaLDots />
+                    <DotsThreeOutline size={16} />
                   )}
                 </h2>
                 {renderMenuItems(othersItems, "others")}

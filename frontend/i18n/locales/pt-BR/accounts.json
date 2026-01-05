@@ -7,9 +7,9 @@
         "actions": {
           "submit": "Criar conta"
         },
-        "desc": "Adicione uma nova conta para acompanhar saldos.",
+        "desc": "Adicione uma nova conta para acompanhar saldos",
         "errors": {
-          "notCreated": "Não foi possível criar a conta."
+          "notCreated": "Não foi possível criar a conta"
         },
         "title": "Criar conta"
       },
@@ -17,19 +17,19 @@
         "title": "Editar conta"
       },
       "errors": {
-        "balancePositive": "O saldo inicial deve ser maior que zero.",
-        "nameInstitutionRequired": "Nome e instituição são obrigatórios.",
-        "notSelected": "Selecione uma conta para editar."
+        "balancePositive": "O saldo inicial deve ser maior que zero",
+        "nameInstitutionRequired": "Nome e instituição são obrigatórios",
+        "notSelected": "Selecione uma conta para editar"
       },
       "fallbacks": {
         "accountWithId": "Conta {{id}}"
       },
       "list": {
-        "desc": "Todas as suas contas em um só lugar.",
-        "empty": "Nenhuma conta encontrada.",
+        "desc": "Todas as suas contas em um só lugar",
+        "empty": "Nenhuma conta encontrada",
         "loading": "Carregando contas...",
         "title": "Lista de contas",
-        "unavailable": "Não foi possível carregar as contas.",
+        "unavailable": "Não foi possível carregar as contas",
         "unnamed": "Conta sem nome"
       },
       "placeholders": {

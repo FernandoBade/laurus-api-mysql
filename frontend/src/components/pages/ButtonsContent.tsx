@@ -3,9 +3,9 @@
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Button from "@/components/ui/button/Button";
-import { BoxIcon } from "@/icons";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Cube } from "@phosphor-icons/react";
 
 export default function ButtonsContent() {
   const { t } = useTranslation(["resource-ui", "resource-common"]);
@@ -25,20 +25,20 @@ export default function ButtonsContent() {
         </ComponentCard>
         <ComponentCard title={t("resource.ui.buttons.primaryLeftIcon.title")}> 
           <div className="flex items-center gap-5">
-            <Button size="sm" variant="primary" startIcon={<BoxIcon />}>
+            <Button size="sm" variant="primary" startIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
-            <Button size="md" variant="primary" startIcon={<BoxIcon />}>
+            <Button size="md" variant="primary" startIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
           </div>
         </ComponentCard>
         <ComponentCard title={t("resource.ui.buttons.primaryRightIcon.title")}> 
           <div className="flex items-center gap-5">
-            <Button size="sm" variant="primary" endIcon={<BoxIcon />}>
+            <Button size="sm" variant="primary" endIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
-            <Button size="md" variant="primary" endIcon={<BoxIcon />}>
+            <Button size="md" variant="primary" endIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
           </div>
@@ -55,20 +55,20 @@ export default function ButtonsContent() {
         </ComponentCard>
         <ComponentCard title={t("resource.ui.buttons.outlineLeftIcon.title")}> 
           <div className="flex items-center gap-5">
-            <Button size="sm" variant="outline" startIcon={<BoxIcon />}>
+            <Button size="sm" variant="outline" startIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
-            <Button size="md" variant="outline" startIcon={<BoxIcon />}>
+            <Button size="md" variant="outline" startIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
           </div>
         </ComponentCard>
         <ComponentCard title={t("resource.ui.buttons.outlineRightIcon.title")}> 
           <div className="flex items-center gap-5">
-            <Button size="sm" variant="outline" endIcon={<BoxIcon />}>
+            <Button size="sm" variant="outline" endIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
-            <Button size="md" variant="outline" endIcon={<BoxIcon />}>
+            <Button size="md" variant="outline" endIcon={<Cube size={16} />}>
               {t("resource.ui.buttons.label")}
             </Button>
           </div>

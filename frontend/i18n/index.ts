@@ -76,7 +76,7 @@ const resources = {
     "resource-charts": chartsPt,
     "resource-calendar": calendarPt,
   },
-  en: {
+  "en-US": {
     "resource-common": commonEn,
     "resource-layout": layoutEn,
     "resource-auth": authEn,
@@ -94,7 +94,7 @@ const resources = {
     "resource-charts": chartsEn,
     "resource-calendar": calendarEn,
   },
-  es: {
+  "es-ES": {
     "resource-common": commonEs,
     "resource-layout": layoutEs,
     "resource-auth": authEs,
@@ -136,6 +136,7 @@ export const initializeResourceI18n = () => {
     keySeparator: ".",
     react: {
       useSuspense: false,
+      nsMode: "fallback",
     },
   });
 

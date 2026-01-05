@@ -6,12 +6,14 @@ interface InputProps {
   name?: string;
   placeholder?: string;
   defaultValue?: string | number;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   min?: string;
   max?: string;
   step?: number;
   disabled?: boolean;
+  readOnly?: boolean;
   success?: boolean;
   error?: boolean;
   hint?: string; // Optional hint text
@@ -23,12 +25,14 @@ const Input: FC<InputProps> = ({
   name,
   placeholder,
   defaultValue,
+  value,
   onChange,
   className = "",
   min,
   max,
   step,
   disabled = false,
+  readOnly = false,
   success = false,
   error = false,
   hint,
@@ -47,6 +51,10 @@ const Input: FC<InputProps> = ({
     inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
   }
 
+  if (readOnly && !disabled) {
+    inputClasses += ` bg-gray-50 dark:bg-gray-900/40 cursor-default`;
+  }
+
   return (
     <div className="relative">
       <input
@@ -55,11 +63,13 @@ const Input: FC<InputProps> = ({
         name={name}
         placeholder={placeholder}
         defaultValue={defaultValue}
+        value={value}
         onChange={onChange}
         min={min}
         max={max}
         step={step}
         disabled={disabled}
+        readOnly={readOnly}
         className={inputClasses}
       />
 

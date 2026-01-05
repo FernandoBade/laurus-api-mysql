@@ -14,6 +14,19 @@
         "name": "Musharof",
         "role": "Team Manager"
       },
+      "labels": {
+        "avatarHint": "JPG or PNG. Max size 2MB",
+        "birthDate": "Birth date",
+        "currency": "Currency",
+        "dateFormat": "Date format",
+        "hideValues": "Hide values",
+        "language": "Language",
+        "theme": "Theme"
+      },
+      "actions": {
+        "uploadAvatar": "Upload new photo",
+        "resetAvatar": "Reset"
+      },
       "modal": {
         "addressTitle": "Edit address",
         "sections": {
@@ -25,7 +38,8 @@
       },
       "sections": {
         "address": "Address",
-        "personalInfo": "Personal information"
+        "personalInfo": "Personal information",
+        "preferences": "Preferences"
       },
       "values": {
         "cityState": "San Francisco, CA",

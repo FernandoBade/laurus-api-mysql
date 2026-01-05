@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CaretDown, X } from "@phosphor-icons/react";
 
 interface Option {
   value: string;
@@ -79,20 +80,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                           }
                           className="pl-2 text-gray-500 cursor-pointer group-hover:text-gray-400 dark:text-gray-400"
                         >
-                          <svg
-                            className="fill-current"
-                            role="button"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M3.40717 4.46881C3.11428 4.17591 3.11428 3.70104 3.40717 3.40815C3.70006 3.11525 4.17494 3.11525 4.46783 3.40815L6.99943 5.93975L9.53095 3.40822C9.82385 3.11533 10.2987 3.11533 10.5916 3.40822C10.8845 3.70112 10.8845 4.17599 10.5916 4.46888L8.06009 7.00041L10.5916 9.53193C10.8845 9.82482 10.8845 10.2997 10.5916 10.5926C10.2987 10.8855 9.82385 10.8855 9.53095 10.5926L6.99943 8.06107L4.46783 10.5927C4.17494 10.8856 3.70006 10.8856 3.40717 10.5927C3.11428 10.2998 3.11428 9.8249 3.40717 9.53201L5.93877 7.00041L3.40717 4.46881Z"
-                            />
-                          </svg>
+                          <X size={14} />
                         </div>
                       </div>
                     </div>
@@ -112,22 +100,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                   onClick={toggleDropdown} 
                   className="w-5 h-5 text-gray-700 outline-hidden cursor-pointer focus:outline-hidden dark:text-gray-400"
                 >
-                  <svg
-                    className={`stroke-current ${isOpen ? "rotate-180" : ""}`}
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M4.79175 7.39551L10.0001 12.6038L15.2084 7.39551"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <CaretDown
+                    size={20}
+                    className={isOpen ? "rotate-180" : ""}
+                  />
                 </button>
               </div>
             </div>

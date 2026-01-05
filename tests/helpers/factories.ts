@@ -16,6 +16,7 @@ export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
         password: overrides.password ?? 'hashed-password',
         birthDate: overrides.birthDate ?? now,
         phone: overrides.phone ?? '555-0100',
+        avatarUrl: overrides.avatarUrl ?? null,
         theme: overrides.theme ?? Theme.DARK,
         language: overrides.language ?? Language.EN_US,
         dateFormat: overrides.dateFormat ?? DateFormat.DD_MM_YYYY,

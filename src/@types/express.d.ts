@@ -7,6 +7,8 @@ declare module 'express-serve-static-core' {
     user?: {
       id: number;
     };
+    file?: Express.Multer.File;
+    files?: Express.Multer.File[];
   }
 }
 

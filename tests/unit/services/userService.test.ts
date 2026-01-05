@@ -6,9 +6,23 @@ import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
 import { makeCreateUserInput, makeUser } from '../../helpers/factories';
 
+const ftpClientMock = {
+    access: jest.fn(),
+    ensureDir: jest.fn(),
+    list: jest.fn(),
+    remove: jest.fn(),
+    rename: jest.fn(),
+    uploadFrom: jest.fn(),
+    close: jest.fn(),
+};
+
 jest.mock('bcrypt', () => ({
     hash: jest.fn(),
     compare: jest.fn(),
+}));
+
+jest.mock('basic-ftp', () => ({
+    Client: jest.fn(() => ftpClientMock),
 }));
 
 type HashFn = (data: string | Buffer, saltOrRounds: string | number) => Promise<string>;
@@ -609,6 +623,101 @@ describe('UserService', () => {
                     expect(translate(caught.message)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
                 }
             }
+        });
+    });
+
+    describe('uploadAvatar', () => {
+        const originalEnv = process.env;
+
+        beforeEach(() => {
+            process.env = { ...originalEnv };
+            process.env.FTP_HOST = 'ftp.example.com';
+            process.env.FTP_PORT = '21';
+            process.env.FTP_USER = 'ftp-user';
+            process.env.FTP_PASSWORD = 'ftp-pass';
+            process.env.FTP_UPLOAD_PATH = '/public_html/laurus/users';
+
+            ftpClientMock.access.mockResolvedValue(undefined);
+            ftpClientMock.ensureDir.mockResolvedValue(undefined);
+            ftpClientMock.list.mockResolvedValue([]);
+            ftpClientMock.remove.mockResolvedValue(undefined);
+            ftpClientMock.rename.mockResolvedValue(undefined);
+            ftpClientMock.uploadFrom.mockResolvedValue(undefined);
+            ftpClientMock.close.mockReturnValue(undefined);
+        });
+
+        afterEach(() => {
+            process.env = originalEnv;
+        });
+
+        it('returns user not found when user does not exist', async () => {
+            const findSpy = jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(null);
+            const updateSpy = jest.spyOn(UserRepository.prototype, 'update');
+
+            const service = new UserService();
+            const file = {
+                buffer: Buffer.from('avatar'),
+                mimetype: 'image/png',
+                originalname: 'avatar.png',
+            } as Express.Multer.File;
+            const result = await service.uploadAvatar(99, file);
+
+            expect(findSpy).toHaveBeenCalledWith(99);
+            expect(updateSpy).not.toHaveBeenCalled();
+            expect(ftpClientMock.access).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
+        });
+
+        it('uploads avatar and updates url when upload succeeds', async () => {
+            const user = makeUser({ id: 7 });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+            const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue({
+                ...user,
+                avatarUrl: 'https://bade.digital/laurus/users/7/avatar/avatar.png',
+            });
+
+            const service = new UserService();
+            const file = {
+                buffer: Buffer.from('avatar-bytes'),
+                mimetype: 'image/png',
+                originalname: 'photo.png',
+            } as Express.Multer.File;
+            const result = await service.uploadAvatar(7, file);
+
+            expect(ftpClientMock.access).toHaveBeenCalledWith({
+                host: 'ftp.example.com',
+                port: 21,
+                user: 'ftp-user',
+                password: 'ftp-pass',
+            });
+            expect(ftpClientMock.ensureDir).toHaveBeenCalledWith('/public_html/laurus/users/7/avatar');
+            expect(ftpClientMock.uploadFrom).toHaveBeenCalledWith(expect.any(Object), 'avatar.png');
+            expect(updateSpy).toHaveBeenCalledWith(7, {
+                avatarUrl: 'https://bade.digital/laurus/users/7/avatar/avatar.png',
+            });
+            expect(result).toEqual({
+                success: true,
+                data: { url: 'https://bade.digital/laurus/users/7/avatar/avatar.png' },
+            });
+        });
+
+        it('returns internal server error when ftp upload fails', async () => {
+            const user = makeUser({ id: 8 });
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
+            jest.spyOn(UserRepository.prototype, 'update');
+            ftpClientMock.uploadFrom.mockRejectedValue(new Error('ftp error'));
+
+            const service = new UserService();
+            const file = {
+                buffer: Buffer.from('avatar-bytes'),
+                mimetype: 'image/jpeg',
+                originalname: 'avatar.jpg',
+            } as Express.Multer.File;
+            const result = await service.uploadAvatar(8, file);
+
+            expect(ftpClientMock.access).toHaveBeenCalledTimes(1);
+            expect(ftpClientMock.close).toHaveBeenCalledTimes(1);
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
         });
     });
 });
