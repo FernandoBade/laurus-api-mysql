@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@/shared/context/ThemeContext";
 import { Moon, Sun } from "@phosphor-icons/react";
 
 export const ThemeToggleButton: React.FC = () => {

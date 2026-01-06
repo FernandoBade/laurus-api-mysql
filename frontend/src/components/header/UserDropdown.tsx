@@ -3,9 +3,9 @@ import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useAuth } from "@/context/AuthContext";
-import { useLogout } from "@/api/auth.hooks";
-import { useUser } from "@/api/users.hooks";
+import { useAuth } from "@/features/auth/context";
+import { useLogout } from "@/features/auth/hooks";
+import { useUser } from "@/features/users/hooks";
 import { useTranslation } from "react-i18next";
 import { CaretDown, Lifebuoy, SignOut, UserCircle } from "@phosphor-icons/react";
 
@@ -167,3 +167,5 @@ export default function UserDropdown() {
     </div>
   );
 }
+
+

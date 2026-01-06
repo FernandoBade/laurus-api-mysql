@@ -18,35 +18,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/context/AuthContext";
-import { useAccountsByUser } from "@/api/accounts.hooks";
-import { useCreditCardsByUser } from "@/api/creditCards.hooks";
-import { useCategoriesByUser } from "@/api/categories.hooks";
-import { useTagsByUser } from "@/api/tags.hooks";
+import { useAuth } from "@/features/auth/context";
+import { useAccountsByUser } from "@/features/accounts/hooks";
+import { useCreditCardsByUser } from "@/features/credit-cards/hooks";
+import { useCategoriesByUser } from "@/features/categories/hooks";
+import { useTagsByUser } from "@/features/tags/hooks";
 import {
   useCreateTransaction,
   useDeleteTransaction,
   useTransactions,
   useUpdateTransaction,
-} from "@/api/transactions.hooks";
-import type { TransactionSource, TransactionType } from "@/api/shared.types";
-import { getApiErrorMessage } from "@/api/errorHandling";
+} from "@/features/transactions/hooks";
+import type { TransactionSource, TransactionType } from "@/shared/types/domain";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import {
+  formatDate,
+  formatMoney,
+  toDateInputValue,
+} from "@/shared/lib/formatters";
+import { isPositiveNumber, parseNumberInput } from "@/shared/lib/validation";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
 
-const formatAmount = (value: string | number | null | undefined) => {
-  if (value === null || value === undefined) {
-    return "0.00";
-  }
-  const numeric = typeof value === "number" ? value : Number(value);
-  return Number.isNaN(numeric) ? String(value) : numeric.toFixed(2);
-};
-
-const toInputDate = (value: string | null | undefined) => {
-  if (!value) return "";
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toISOString().split("T")[0];
-};
 
 export default function TransactionsPage() {
   const { t } = useTranslation([
@@ -259,7 +252,12 @@ export default function TransactionsPage() {
     recurring: boolean;
     paymentValue: string;
   }) => {
-    if (!amount.trim() || Number(amount) <= 0) {
+    const amountResult = parseNumberInput(amount);
+    if (
+      amountResult.error ||
+      amountResult.value === undefined ||
+      !isPositiveNumber(amountResult.value)
+    ) {
       return t("resource.transactions.validation.amountPositive");
     }
     if (!dateValue) {
@@ -314,8 +312,13 @@ export default function TransactionsPage() {
     }
 
     try {
+      const parsedAmount = parseNumberInput(value).value;
+      if (parsedAmount === undefined) {
+        setFormError(t("resource.transactions.validation.amountPositive"));
+        return;
+      }
       await createTransactionMutation.mutateAsync({
-        value: Number(value),
+        value: parsedAmount,
         date,
         category_id: Number(categoryId),
         transactionType,
@@ -341,7 +344,7 @@ export default function TransactionsPage() {
   const openEditModal = (transaction: (typeof filteredTransactions)[number]) => {
     setEditId(transaction.id);
     setEditValue(transaction.value ? String(transaction.value) : "");
-    setEditDate(toInputDate(transaction.date));
+    setEditDate(toDateInputValue(transaction.date));
     setEditCategoryId(transaction.categoryId ? String(transaction.categoryId) : "");
     setEditTransactionType(transaction.transactionType);
     setEditTransactionSource(transaction.transactionSource);
@@ -386,10 +389,15 @@ export default function TransactionsPage() {
     }
 
     try {
+      const parsedAmount = parseNumberInput(editValue).value;
+      if (parsedAmount === undefined) {
+        setEditError(t("resource.transactions.validation.amountPositive"));
+        return;
+      }
       await updateTransactionMutation.mutateAsync({
         id: editId,
         payload: {
-          value: Number(editValue),
+          value: parsedAmount,
           date: editDate,
           category_id: Number(editCategoryId),
           transactionType: editTransactionType,
@@ -618,8 +626,7 @@ export default function TransactionsPage() {
         desc={t("resource.transactions.list.desc")}
       >
         {transactionsQuery.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.transactions.list.unavailable")}
             message={getApiErrorMessage(
               transactionsQuery.error,
@@ -628,8 +635,7 @@ export default function TransactionsPage() {
           />
         )}
         {deleteTransactionMutation.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.common.errors.deleteFailed")}
             message={getApiErrorMessage(
               deleteTransactionMutation.error,
@@ -638,9 +644,7 @@ export default function TransactionsPage() {
           />
         )}
         {!transactionsQuery.isError && transactionsQuery.isLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("resource.transactions.list.loading")}
-          </p>
+          <LoadingState message={t("resource.transactions.list.loading")} />
         )}
         {!transactionsQuery.isError && !transactionsQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -696,7 +700,7 @@ export default function TransactionsPage() {
                   {filteredTransactions.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {t("resource.transactions.list.empty")}
+                        <EmptyState message={t("resource.transactions.list.empty")} />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -720,7 +724,7 @@ export default function TransactionsPage() {
                       return (
                         <TableRow key={transaction.id}>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(transaction.date).toLocaleDateString()}
+                            {formatDate(transaction.date)}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {typeLabels.get(transaction.transactionType) ??
@@ -733,7 +737,7 @@ export default function TransactionsPage() {
                             {categoryLabel}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                            {formatAmount(transaction.value)}
+                            {formatMoney(transaction.value)}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {transaction.active
@@ -957,3 +961,5 @@ export default function TransactionsPage() {
     </div>
   );
 }
+
+

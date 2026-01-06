@@ -3,7 +3,7 @@ import React from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import { useTranslation } from "react-i18next";
 
 export default function VerticallyCenteredModal() {
@@ -46,3 +46,4 @@ export default function VerticallyCenteredModal() {
     </ComponentCard>
   );
 }
+

@@ -5,7 +5,7 @@ import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
 import Label from "../../form/Label";
 import Input from "../../form/input/InputField";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import { useTranslation } from "react-i18next";
 
 export default function FormInModal() {
@@ -86,3 +86,4 @@ export default function FormInModal() {
     </ComponentCard>
   );
 }
+

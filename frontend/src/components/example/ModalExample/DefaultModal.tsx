@@ -4,7 +4,7 @@ import ComponentCard from "../../common/ComponentCard";
 
 import { Modal } from "../../ui/modal";
 import Button from "../../ui/button/Button";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import { useTranslation } from "react-i18next";
 
 export default function DefaultModal() {
@@ -48,3 +48,4 @@ export default function DefaultModal() {
     </div>
   );
 }
+

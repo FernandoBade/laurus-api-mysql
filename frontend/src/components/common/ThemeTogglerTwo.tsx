@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/shared/context/ThemeContext";
 import React from "react";
 import { Moon, Sun } from "@phosphor-icons/react";
 
@@ -15,3 +15,4 @@ export default function ThemeTogglerTwo() {
     </button>
   );
 }
+

@@ -3,7 +3,7 @@ import React from "react";
 import ComponentCard from "../../common/ComponentCard";
 
 import { Modal } from "../../ui/modal";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import { useTranslation } from "react-i18next";
 import { Check, Circle, Info, Warning, X } from "@phosphor-icons/react";
 
@@ -203,3 +203,4 @@ export default function ModalBasedAlerts() {
     </ComponentCard>
   );
 }
+

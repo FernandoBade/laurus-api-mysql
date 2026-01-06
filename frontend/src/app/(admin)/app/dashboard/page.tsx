@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import ComponentCard from "@/components/common/ComponentCard";
-import Alert from "@/components/ui/alert/Alert";
 import {
   Table,
   TableBody,
@@ -10,20 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/context/AuthContext";
-import { useAccountsByUser } from "@/api/accounts.hooks";
-import { useCreditCardsByUser } from "@/api/creditCards.hooks";
-import { useTransactionsByUser } from "@/api/transactions.hooks";
-import { getApiErrorMessage } from "@/api/errorHandling";
+import { useAuth } from "@/features/auth/context";
+import { useAccountsByUser } from "@/features/accounts/hooks";
+import { useCreditCardsByUser } from "@/features/credit-cards/hooks";
+import { useTransactionsByUser } from "@/features/transactions/hooks";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import { formatDate, formatMoney } from "@/shared/lib/formatters";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
-
-const formatAmount = (value: string | number | null | undefined) => {
-  if (value === null || value === undefined) {
-    return "0.00";
-  }
-  const numeric = typeof value === "number" ? value : Number(value);
-  return Number.isNaN(numeric) ? String(value) : numeric.toFixed(2);
-};
 
 export default function DashboardPage() {
   const { t } = useTranslation([
@@ -79,8 +72,7 @@ export default function DashboardPage() {
           desc={t("resource.dashboard.accounts.desc")}
         >
           {accountsQuery.isError && (
-            <Alert
-              variant="error"
+            <ErrorState
               title={t("resource.dashboard.accounts.unavailable")}
               message={getApiErrorMessage(
                 accountsQuery.error,
@@ -89,16 +81,12 @@ export default function DashboardPage() {
             />
           )}
           {!accountsQuery.isError && accountsQuery.isLoading && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t("resource.dashboard.accounts.loading")}
-            </p>
+            <LoadingState message={t("resource.dashboard.accounts.loading")} />
           )}
           {!accountsQuery.isError && !accountsQuery.isLoading && (
             <div className="space-y-3">
               {accounts.length === 0 ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t("resource.dashboard.accounts.empty")}
-                </p>
+                <EmptyState message={t("resource.dashboard.accounts.empty")} />
               ) : (
                 accounts.map((account) => (
                   <div
@@ -115,7 +103,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <span className="font-semibold text-gray-800 dark:text-white/90">
-                      {formatAmount(account.balance)}
+                      {formatMoney(account.balance)}
                     </span>
                   </div>
                 ))
@@ -129,8 +117,7 @@ export default function DashboardPage() {
           desc={t("resource.dashboard.creditCards.desc")}
         >
           {creditCardsQuery.isError && (
-            <Alert
-              variant="error"
+            <ErrorState
               title={t("resource.dashboard.creditCards.unavailable")}
               message={getApiErrorMessage(
                 creditCardsQuery.error,
@@ -139,16 +126,12 @@ export default function DashboardPage() {
             />
           )}
           {!creditCardsQuery.isError && creditCardsQuery.isLoading && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t("resource.dashboard.creditCards.loading")}
-            </p>
+            <LoadingState message={t("resource.dashboard.creditCards.loading")} />
           )}
           {!creditCardsQuery.isError && !creditCardsQuery.isLoading && (
             <div className="space-y-3">
               {creditCards.length === 0 ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t("resource.dashboard.creditCards.empty")}
-                </p>
+                <EmptyState message={t("resource.dashboard.creditCards.empty")} />
               ) : (
                 creditCards.map((card) => (
                   <div
@@ -164,7 +147,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <span className="font-semibold text-gray-800 dark:text-white/90">
-                      {formatAmount(card.balance)}
+                      {formatMoney(card.balance)}
                     </span>
                   </div>
                 ))
@@ -179,8 +162,7 @@ export default function DashboardPage() {
         desc={t("resource.dashboard.recentTransactions.desc")}
       >
         {transactionsQuery.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.dashboard.recentTransactions.unavailable")}
             message={getApiErrorMessage(
               transactionsQuery.error,
@@ -189,9 +171,9 @@ export default function DashboardPage() {
           />
         )}
         {!transactionsQuery.isError && transactionsQuery.isLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("resource.dashboard.recentTransactions.loading")}
-          </p>
+          <LoadingState
+            message={t("resource.dashboard.recentTransactions.loading")}
+          />
         )}
         {!transactionsQuery.isError && !transactionsQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -231,7 +213,9 @@ export default function DashboardPage() {
                   {recentTransactions.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {t("resource.dashboard.recentTransactions.empty")}
+                        <EmptyState
+                          message={t("resource.dashboard.recentTransactions.empty")}
+                        />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -245,7 +229,7 @@ export default function DashboardPage() {
                       return (
                         <TableRow key={transaction.id}>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(transaction.date).toLocaleDateString()}
+                            {formatDate(transaction.date)}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
                             {transaction.observation ||
@@ -257,7 +241,7 @@ export default function DashboardPage() {
                             {sourceLabel}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">
-                            {formatAmount(transaction.value)}
+                            {formatMoney(transaction.value)}
                           </TableCell>
                         </TableRow>
                       );
@@ -272,3 +256,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+

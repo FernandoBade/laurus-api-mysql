@@ -12,7 +12,7 @@ import {
   EventClickArg,
   EventContentArg,
 } from "@fullcalendar/core";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 import { useTranslation } from "react-i18next";
 
@@ -331,3 +331,4 @@ const renderEventContent = (eventInfo: EventContentArg) => {
 };
 
 export default Calendar;
+

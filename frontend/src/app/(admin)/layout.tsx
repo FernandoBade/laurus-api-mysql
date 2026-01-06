@@ -1,11 +1,11 @@
 "use client";
 
-import { useSidebar } from "@/context/SidebarContext";
-import AppHeader from "@/layout/AppHeader";
-import AppSidebar from "@/layout/AppSidebar";
-import Backdrop from "@/layout/Backdrop";
-import AuthGuard from "@/components/auth/AuthGuard";
 import React from "react";
+import { useSidebar } from "@/shared/context/SidebarContext";
+import AppHeader from "@/shared/layout/AppHeader";
+import AppSidebar from "@/shared/layout/AppSidebar";
+import Backdrop from "@/shared/layout/Backdrop";
+import AuthGuard from "@/features/auth/components/AuthGuard";
 
 export default function AdminLayout({
   children,

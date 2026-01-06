@@ -16,24 +16,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/features/auth/context";
 import {
   useAccountsByUser,
   useCreateAccount,
   useDeleteAccount,
   useUpdateAccount,
-} from "@/api/accounts.hooks";
-import type { AccountType } from "@/api/shared.types";
-import { getApiErrorMessage } from "@/api/errorHandling";
+} from "@/features/accounts/hooks";
+import type { AccountType } from "@/shared/types/domain";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import { formatMoney } from "@/shared/lib/formatters";
+import {
+  isBlank,
+  isNonNegativeNumber,
+  parseNumberInput,
+} from "@/shared/lib/validation";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
 
-const formatAmount = (value: string | number | null | undefined) => {
-  if (value === null || value === undefined) {
-    return "0.00";
-  }
-  const numeric = typeof value === "number" ? value : Number(value);
-  return Number.isNaN(numeric) ? String(value) : numeric.toFixed(2);
-};
+
 
 export default function AccountsPage() {
   const { t } = useTranslation([
@@ -104,19 +105,21 @@ export default function AccountsPage() {
       return;
     }
 
-    if (!name.trim() || !institution.trim()) {
+    if (isBlank(name) || isBlank(institution)) {
       setFormError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
-    let parsedBalance: number | undefined;
-    if (balance.trim()) {
-      parsedBalance = Number(balance);
-      if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setFormError(t("resource.accounts.errors.balancePositive"));
-        return;
-      }
+    const balanceResult = parseNumberInput(balance);
+    if (
+      balanceResult.error ||
+      (balanceResult.value !== undefined &&
+        !isNonNegativeNumber(balanceResult.value))
+    ) {
+      setFormError(t("resource.accounts.errors.balancePositive"));
+      return;
     }
+    const parsedBalance = balanceResult.value;
 
     try {
       await createAccountMutation.mutateAsync({
@@ -156,19 +159,21 @@ export default function AccountsPage() {
       return;
     }
 
-    if (!editName.trim() || !editInstitution.trim()) {
+    if (isBlank(editName) || isBlank(editInstitution)) {
       setEditError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
-    let parsedBalance: number | undefined;
-    if (editBalance.trim()) {
-      parsedBalance = Number(editBalance);
-      if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setEditError(t("resource.accounts.errors.balancePositive"));
-        return;
-      }
+    const editBalanceResult = parseNumberInput(editBalance);
+    if (
+      editBalanceResult.error ||
+      (editBalanceResult.value !== undefined &&
+        !isNonNegativeNumber(editBalanceResult.value))
+    ) {
+      setEditError(t("resource.accounts.errors.balancePositive"));
+      return;
     }
+    const parsedBalance = editBalanceResult.value;
 
     try {
       await updateAccountMutation.mutateAsync({
@@ -302,8 +307,7 @@ export default function AccountsPage() {
         desc={t("resource.accounts.list.desc")}
       >
         {accountsQuery.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.accounts.list.unavailable")}
             message={getApiErrorMessage(
               accountsQuery.error,
@@ -312,8 +316,7 @@ export default function AccountsPage() {
           />
         )}
         {deleteAccountMutation.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.common.errors.deleteFailed")}
             message={getApiErrorMessage(
               deleteAccountMutation.error,
@@ -322,9 +325,7 @@ export default function AccountsPage() {
           />
         )}
         {!accountsQuery.isError && accountsQuery.isLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("resource.accounts.list.loading")}
-          </p>
+          <LoadingState message={t("resource.accounts.list.loading")} />
         )}
         {!accountsQuery.isError && !accountsQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -374,7 +375,7 @@ export default function AccountsPage() {
                   {accounts.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {t("resource.accounts.list.empty")}
+                        <EmptyState message={t("resource.accounts.list.empty")} />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -390,7 +391,7 @@ export default function AccountsPage() {
                           {accountTypeLabels.get(account.type) ?? account.type}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {formatAmount(account.balance)}
+                          {formatMoney(account.balance)}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                           {account.active
@@ -524,3 +525,5 @@ export default function AccountsPage() {
     </div>
   );
 }
+
+

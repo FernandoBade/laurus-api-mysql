@@ -16,25 +16,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/features/auth/context";
 import {
   useCreditCardsByUser,
   useCreateCreditCard,
   useDeleteCreditCard,
   useUpdateCreditCard,
-} from "@/api/creditCards.hooks";
-import { useAccountsByUser } from "@/api/accounts.hooks";
-import type { CreditCardFlag } from "@/api/shared.types";
-import { getApiErrorMessage } from "@/api/errorHandling";
+} from "@/features/credit-cards/hooks";
+import { useAccountsByUser } from "@/features/accounts/hooks";
+import type { CreditCardFlag } from "@/shared/types/domain";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import { formatMoney } from "@/shared/lib/formatters";
+import {
+  isBlank,
+  isNonNegativeNumber,
+  parseNumberInput,
+} from "@/shared/lib/validation";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
 
-const formatAmount = (value: string | number | null | undefined) => {
-  if (value === null || value === undefined) {
-    return "0.00";
-  }
-  const numeric = typeof value === "number" ? value : Number(value);
-  return Number.isNaN(numeric) ? String(value) : numeric.toFixed(2);
-};
 
 export default function CreditCardsPage() {
   const { t } = useTranslation([
@@ -131,28 +131,33 @@ export default function CreditCardsPage() {
       return;
     }
 
-    if (!name.trim()) {
+    if (isBlank(name)) {
       setFormError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
-    let parsedBalance: number | undefined;
-    if (balance.trim()) {
-      parsedBalance = Number(balance);
-      if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setFormError(t("resource.creditCards.errors.balancePositive"));
-        return;
-      }
+    const balanceResult = parseNumberInput(balance);
+    if (
+      balanceResult.error ||
+      (balanceResult.value !== undefined &&
+        !isNonNegativeNumber(balanceResult.value))
+    ) {
+      setFormError(t("resource.creditCards.errors.balancePositive"));
+      return;
     }
 
-    let parsedLimit: number | undefined;
-    if (limit.trim()) {
-      parsedLimit = Number(limit);
-      if (Number.isNaN(parsedLimit) || parsedLimit < 0) {
-        setFormError(t("resource.creditCards.errors.limitPositive"));
-        return;
-      }
+    const limitResult = parseNumberInput(limit);
+    if (
+      limitResult.error ||
+      (limitResult.value !== undefined &&
+        !isNonNegativeNumber(limitResult.value))
+    ) {
+      setFormError(t("resource.creditCards.errors.limitPositive"));
+      return;
     }
+
+    const parsedBalance = balanceResult.value;
+    const parsedLimit = limitResult.value;
 
     try {
       await createCardMutation.mutateAsync({
@@ -194,28 +199,33 @@ export default function CreditCardsPage() {
       return;
     }
 
-    if (!editName.trim()) {
+    if (isBlank(editName)) {
       setEditError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
-    let parsedBalance: number | undefined;
-    if (editBalance.trim()) {
-      parsedBalance = Number(editBalance);
-      if (Number.isNaN(parsedBalance) || parsedBalance < 0) {
-        setEditError(t("resource.creditCards.errors.balancePositive"));
-        return;
-      }
+    const editBalanceResult = parseNumberInput(editBalance);
+    if (
+      editBalanceResult.error ||
+      (editBalanceResult.value !== undefined &&
+        !isNonNegativeNumber(editBalanceResult.value))
+    ) {
+      setEditError(t("resource.creditCards.errors.balancePositive"));
+      return;
     }
 
-    let parsedLimit: number | undefined;
-    if (editLimit.trim()) {
-      parsedLimit = Number(editLimit);
-      if (Number.isNaN(parsedLimit) || parsedLimit < 0) {
-        setEditError(t("resource.creditCards.errors.limitPositive"));
-        return;
-      }
+    const editLimitResult = parseNumberInput(editLimit);
+    if (
+      editLimitResult.error ||
+      (editLimitResult.value !== undefined &&
+        !isNonNegativeNumber(editLimitResult.value))
+    ) {
+      setEditError(t("resource.creditCards.errors.limitPositive"));
+      return;
     }
+
+    const parsedBalance = editBalanceResult.value;
+    const parsedLimit = editLimitResult.value;
 
     try {
       await updateCardMutation.mutateAsync({
@@ -357,8 +367,7 @@ export default function CreditCardsPage() {
         desc={t("resource.creditCards.list.desc")}
       >
         {cardsQuery.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.creditCards.list.unavailable")}
             message={getApiErrorMessage(
               cardsQuery.error,
@@ -367,8 +376,7 @@ export default function CreditCardsPage() {
           />
         )}
         {deleteCardMutation.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.common.errors.deleteFailed")}
             message={getApiErrorMessage(
               deleteCardMutation.error,
@@ -377,9 +385,7 @@ export default function CreditCardsPage() {
           />
         )}
         {!cardsQuery.isError && cardsQuery.isLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("resource.creditCards.list.loading")}
-          </p>
+          <LoadingState message={t("resource.creditCards.list.loading")} />
         )}
         {!cardsQuery.isError && !cardsQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -435,7 +441,7 @@ export default function CreditCardsPage() {
                   {cards.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {t("resource.creditCards.list.empty")}
+                        <EmptyState message={t("resource.creditCards.list.empty")} />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -448,10 +454,10 @@ export default function CreditCardsPage() {
                           {flagLabels.get(card.flag) ?? card.flag}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {formatAmount(card.limit)}
+                          {formatMoney(card.limit)}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                          {formatAmount(card.balance)}
+                          {formatMoney(card.balance)}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                           {card.accountId
@@ -600,3 +606,5 @@ export default function CreditCardsPage() {
     </div>
   );
 }
+
+

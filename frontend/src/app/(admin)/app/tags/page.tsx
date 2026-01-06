@@ -15,9 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/context/AuthContext";
-import { useCreateTag, useDeleteTag, useTagsByUser, useUpdateTag } from "@/api/tags.hooks";
-import { getApiErrorMessage } from "@/api/errorHandling";
+import { useAuth } from "@/features/auth/context";
+import {
+  useCreateTag,
+  useDeleteTag,
+  useTagsByUser,
+  useUpdateTag,
+} from "@/features/tags/hooks";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import { isBlank } from "@/shared/lib/validation";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
 
 export default function TagsPage() {
@@ -57,7 +64,7 @@ export default function TagsPage() {
       return;
     }
 
-    if (!name.trim()) {
+    if (isBlank(name)) {
       setFormError(t("resource.tags.errors.nameRequired"));
       return;
     }
@@ -92,7 +99,7 @@ export default function TagsPage() {
       return;
     }
 
-    if (!editName.trim()) {
+    if (isBlank(editName)) {
       setEditError(t("resource.tags.errors.nameRequired"));
       return;
     }
@@ -183,8 +190,7 @@ export default function TagsPage() {
         desc={t("resource.tags.list.desc")}
       >
         {tagsQuery.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.tags.list.unavailable")}
             message={getApiErrorMessage(
               tagsQuery.error,
@@ -193,8 +199,7 @@ export default function TagsPage() {
           />
         )}
         {deleteTagMutation.isError && (
-          <Alert
-            variant="error"
+          <ErrorState
             title={t("resource.common.errors.deleteFailed")}
             message={getApiErrorMessage(
               deleteTagMutation.error,
@@ -203,9 +208,7 @@ export default function TagsPage() {
           />
         )}
         {!tagsQuery.isError && tagsQuery.isLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("resource.tags.list.loading")}
-          </p>
+          <LoadingState message={t("resource.tags.list.loading")} />
         )}
         {!tagsQuery.isError && !tagsQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -237,7 +240,7 @@ export default function TagsPage() {
                   {tags.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {t("resource.tags.list.empty")}
+                        <EmptyState message={t("resource.tags.list.empty")} />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -332,3 +335,5 @@ export default function TagsPage() {
     </div>
   );
 }
+
+

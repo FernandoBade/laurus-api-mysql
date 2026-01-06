@@ -1,15 +1,17 @@
 "use client";
 
-import type { AxiosError } from "axios";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
-import { useUpdateUser, useUploadAvatar, useUser } from "@/api/users.hooks";
-import type { ResourceLanguage } from "../../../i18n/config";
-import { resourceLanguageOptions } from "../../../i18n/config";
-import { getResourceLanguage, setResourceLanguage } from "../../../i18n";
-import { useModal } from "@/hooks/useModal";
+import { useAuth } from "@/features/auth/context";
+import { useTheme } from "@/shared/context/ThemeContext";
+import { useUpdateUser, useUploadAvatar, useUser } from "@/features/users/hooks";
+import {
+  getResourceLanguage,
+  resourceLanguageOptions,
+  setResourceLanguage,
+  type ResourceLanguage,
+} from "@/shared/i18n";
+import { useModal } from "@/shared/hooks/useModal";
 import { Modal } from "../ui/modal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
@@ -17,6 +19,7 @@ import Select from "../form/Select";
 import Switch from "../form/switch/Switch";
 import Button from "../ui/button/Button";
 import Badge from "../ui/badge/Badge";
+import { getApiErrorMessage } from "@/shared/lib/api/errors";
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = new Set([
@@ -184,16 +187,6 @@ const DetailItem = ({
     </p>
   </div>
 );
-
-const getUploadErrorMessage = (error: unknown) => {
-  const axiosError = error as AxiosError<{
-    message?: string;
-    error?: Array<{ message?: string }>;
-  }>;
-  const apiMessage = axiosError?.response?.data?.message;
-  const fieldMessage = axiosError?.response?.data?.error?.[0]?.message;
-  return fieldMessage || apiMessage || null;
-};
 
 export default function UserProfile() {
   const { t } = useTranslation([
@@ -367,8 +360,7 @@ export default function UserProfile() {
       },
       onError: (error) => {
         setAvatarError(
-          getUploadErrorMessage(error) ??
-            t("resource.common.errors.updateFailed")
+          getApiErrorMessage(error, t("resource.common.errors.updateFailed"))
         );
       },
     });
@@ -865,3 +857,6 @@ export default function UserProfile() {
     </>
   );
 }
+
+
+
