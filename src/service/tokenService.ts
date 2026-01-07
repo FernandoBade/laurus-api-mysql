@@ -107,7 +107,7 @@ export class TokenService {
      * @param rawToken - Raw token value.
      * @returns User ID or error if invalid or expired.
      */
-    async verifyEmailVerificationToken(rawToken: string): Promise<{ success: true; data: { userId: number } } | { success: false; error: Resource }> {
+    async verifyEmailVerificationToken(rawToken: string): Promise<{ success: true; data: { userId: number; alreadyVerified?: boolean } } | { success: false; error: Resource }> {
         const tokenHash = hashOneTimeToken(rawToken);
         const tokenRecord = await this.tokenRepository.findByTokenHashAndType(tokenHash, TokenType.EMAIL_VERIFICATION);
 
@@ -117,7 +117,7 @@ export class TokenService {
 
         const now = new Date();
         if (tokenRecord.revokedAt) {
-            return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
+            return { success: true, data: { userId: tokenRecord.userId, alreadyVerified: true } };
         }
 
         if (new Date(tokenRecord.expiresAt) < now) {
@@ -130,7 +130,7 @@ export class TokenService {
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
         }
 
-        return { success: true, data: { userId: tokenRecord.userId } };
+        return { success: true, data: { userId: tokenRecord.userId, alreadyVerified: false } };
     }
 
     /**

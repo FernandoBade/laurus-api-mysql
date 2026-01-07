@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import { LogCategory, LogType, LogOperation, TokenType } from '../utils/enum';
 import { TokenUtils } from '../utils/auth/tokenUtils';
 import { Resource } from '../utils/resources/resource';
-import { LanguageCode } from '../utils/resources/resourceTypes';
 import { TokenService } from './tokenService';
 import { UserService } from './userService';
 import { SelectUser } from '../db/schema';
@@ -249,7 +248,7 @@ export class AuthService {
      * @param token - Verification token.
      * @returns Success status or error.
      */
-    async verifyEmail(token: string): Promise<{ success: true; data: { verified: true } } | { success: false; error: Resource }> {
+    async verifyEmail(token: string): Promise<{ success: true; data: { verified: true; alreadyVerified?: boolean } } | { success: false; error: Resource }> {
         const tokenResult = await this.tokenService.verifyEmailVerificationToken(token);
         if (!tokenResult.success || !tokenResult.data) {
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
@@ -260,7 +259,8 @@ export class AuthService {
             return { success: false, error: userResult.error };
         }
 
-        return { success: true, data: { verified: true } };
+        const alreadyVerified = Boolean(tokenResult.data.alreadyVerified);
+        return { success: true, data: { verified: true, alreadyVerified } };
     }
 
     /**
@@ -285,8 +285,7 @@ export class AuthService {
             await sendPasswordResetEmail(
                 userResult.data.email,
                 tokenResult.data.token,
-                userResult.data.id,
-                userResult.data.language as LanguageCode
+                userResult.data.id
             );
         } catch {
             // Ignore email failures to keep the response generic.

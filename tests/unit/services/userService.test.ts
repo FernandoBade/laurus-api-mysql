@@ -101,7 +101,7 @@ describe('UserService', () => {
                 })
             );
             expect(createTokenSpy).toHaveBeenCalledWith(created.id);
-            expect(sendEmailVerificationMock).toHaveBeenCalledWith(created.email, 'verify-token', created.id, created.language);
+            expect(sendEmailVerificationMock).toHaveBeenCalledWith(created.email, 'verify-token', created.id);
             expect(result).toEqual(
                 expect.objectContaining({
                     success: true,

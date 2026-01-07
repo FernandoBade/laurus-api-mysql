@@ -41,6 +41,7 @@ describe('UserController', () => {
         expect.objectContaining({
           success: true,
           data: sanitized,
+          message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_REQUIRED, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(

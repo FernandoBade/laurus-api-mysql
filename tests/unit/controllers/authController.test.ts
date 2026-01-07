@@ -328,7 +328,7 @@ describe('AuthController', () => {
         });
 
         it('returns 200 when verification succeeds', async () => {
-            const verifySpy = jest.spyOn(AuthService.prototype, 'verifyEmail').mockResolvedValue({ success: true, data: { verified: true } });
+            const verifySpy = jest.spyOn(AuthService.prototype, 'verifyEmail').mockResolvedValue({ success: true, data: { verified: true, alreadyVerified: false } });
             const req = createMockRequest({ body: { token: 'token' } });
             const res = createMockResponse();
             const next = createNext();
@@ -337,7 +337,35 @@ describe('AuthController', () => {
 
             expect(verifySpy).toHaveBeenCalledWith('token');
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { verified: true } }));
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { verified: true, alreadyVerified: false },
+                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUCCESS, 'en-US'),
+                })
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('returns 200 with already verified message when token was consumed', async () => {
+            jest.spyOn(AuthService.prototype, 'verifyEmail').mockResolvedValue({
+                success: true,
+                data: { verified: true, alreadyVerified: true },
+            });
+            const req = createMockRequest({ body: { token: 'token' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.verifyEmail(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { verified: true, alreadyVerified: true },
+                    message: ResourceBase.translate(Resource.EMAIL_ALREADY_VERIFIED, 'en-US'),
+                })
+            );
             expect(next).not.toHaveBeenCalled();
         });
     });
@@ -371,7 +399,13 @@ describe('AuthController', () => {
 
             expect(resetSpy).toHaveBeenCalledWith('user@example.com');
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { sent: true } }));
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { sent: true },
+                    message: ResourceBase.translate(Resource.PASSWORD_RESET_REQUESTED, 'en-US'),
+                })
+            );
         });
 
         it('returns 500 when service throws', async () => {
@@ -448,7 +482,13 @@ describe('AuthController', () => {
 
             expect(resetSpy).toHaveBeenCalledWith('token', 'password123');
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { reset: true } }));
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { reset: true },
+                    message: ResourceBase.translate(Resource.PASSWORD_RESET_SUCCESS, 'en-US'),
+                })
+            );
         });
     });
 });

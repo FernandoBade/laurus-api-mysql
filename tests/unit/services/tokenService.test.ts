@@ -200,7 +200,25 @@ describe('TokenService', () => {
 
             expect(findSpy).toHaveBeenCalledWith(expect.any(String), TokenType.EMAIL_VERIFICATION);
             expect(revokeSpy).toHaveBeenCalledWith(tokenRecord.id, expect.any(Date));
-            expect(result).toEqual({ success: true, data: { userId: tokenRecord.userId } });
+            expect(result).toEqual({ success: true, data: { userId: tokenRecord.userId, alreadyVerified: false } });
+        });
+
+        it('returns success when token is already revoked', async () => {
+            const tokenRecord = makeToken({
+                id: 6,
+                type: TokenType.EMAIL_VERIFICATION,
+                revokedAt: new Date('2024-01-01T00:00:00Z'),
+                expiresAt: new Date('2099-01-01T00:00:00Z'),
+            });
+            const findSpy = jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(tokenRecord);
+            const revokeSpy = jest.spyOn(TokenRepository.prototype, 'markTokenRevoked');
+
+            const service = new TokenService();
+            const result = await service.verifyEmailVerificationToken('raw-token');
+
+            expect(findSpy).toHaveBeenCalledWith(expect.any(String), TokenType.EMAIL_VERIFICATION);
+            expect(revokeSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: true, data: { userId: tokenRecord.userId, alreadyVerified: true } });
         });
 
         it('returns invalid token when token is expired', async () => {

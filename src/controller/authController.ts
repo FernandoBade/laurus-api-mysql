@@ -175,7 +175,10 @@ export class AuthController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
             }
 
-            return answerAPI(req, res, HTTPStatus.OK, result.data);
+            const message = result.data?.alreadyVerified
+                ? Resource.EMAIL_ALREADY_VERIFIED
+                : Resource.EMAIL_VERIFICATION_SUCCESS;
+            return answerAPI(req, res, HTTPStatus.OK, result.data, message);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -206,7 +209,7 @@ export class AuthController {
                 return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, result.error);
             }
 
-            return answerAPI(req, res, HTTPStatus.OK, result.data);
+            return answerAPI(req, res, HTTPStatus.OK, result.data, Resource.PASSWORD_RESET_REQUESTED);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
@@ -243,7 +246,7 @@ export class AuthController {
                 return answerAPI(req, res, status, undefined, result.error);
             }
 
-            return answerAPI(req, res, HTTPStatus.OK, result.data);
+            return answerAPI(req, res, HTTPStatus.OK, result.data, Resource.PASSWORD_RESET_SUCCESS);
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);

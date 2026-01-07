@@ -662,7 +662,7 @@ describe('AuthService', () => {
         it('returns success when token is valid', async () => {
             jest.spyOn(TokenService.prototype, 'verifyEmailVerificationToken').mockResolvedValue({
                 success: true,
-                data: { userId: 12 },
+                data: { userId: 12, alreadyVerified: false },
             });
             const markSpy = jest.spyOn(UserService.prototype, 'markEmailVerified').mockResolvedValue({
                 success: true,
@@ -673,7 +673,23 @@ describe('AuthService', () => {
             const result = await service.verifyEmail('token');
 
             expect(markSpy).toHaveBeenCalledWith(12);
-            expect(result).toEqual({ success: true, data: { verified: true } });
+            expect(result).toEqual({ success: true, data: { verified: true, alreadyVerified: false } });
+        });
+
+        it('returns already verified when token was previously used', async () => {
+            jest.spyOn(TokenService.prototype, 'verifyEmailVerificationToken').mockResolvedValue({
+                success: true,
+                data: { userId: 12, alreadyVerified: true },
+            });
+            jest.spyOn(UserService.prototype, 'markEmailVerified').mockResolvedValue({
+                success: true,
+                data: makeSanitizedUser({ id: 12 }),
+            });
+
+            const service = new AuthService();
+            const result = await service.verifyEmail('token');
+
+            expect(result).toEqual({ success: true, data: { verified: true, alreadyVerified: true } });
         });
 
         it('returns invalid token when token verification fails', async () => {
@@ -719,7 +735,7 @@ describe('AuthService', () => {
             const service = new AuthService();
             const result = await service.requestPasswordReset(user.email);
 
-            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id, user.language);
+            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id);
             expect(result).toEqual({ success: true, data: { sent: true } });
         });
 
@@ -733,12 +749,12 @@ describe('AuthService', () => {
                 success: true,
                 data: { token: 'reset-token', expiresAt: new Date('2099-01-01T00:00:00Z') },
             });
-            sendPasswordResetMock.mockRejectedValueOnce(new Error('resend failed'));
+            sendPasswordResetMock.mockRejectedValueOnce(new Error('email failed'));
 
             const service = new AuthService();
             const result = await service.requestPasswordReset(user.email);
 
-            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id, user.language);
+            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id);
             expect(result).toEqual({ success: true, data: { sent: true } });
         });
     });

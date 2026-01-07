@@ -5,7 +5,6 @@ import { Client as FtpClient } from 'basic-ftp';
 import { Operator, Theme, Language, Currency, DateFormat, Profile } from '../utils/enum';
 import { UserRepository } from '../repositories/userRepository';
 import { Resource } from '../utils/resources/resource';
-import { LanguageCode } from '../utils/resources/resourceTypes';
 import { SelectUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 import { TokenService } from './tokenService';
@@ -89,7 +88,7 @@ export class UserService {
                 return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
             }
 
-            await sendEmailVerificationEmail(created.email, tokenResult.data.token, created.id, created.language as LanguageCode);
+            await sendEmailVerificationEmail(created.email, tokenResult.data.token, created.id);
         } catch {
             await rollbackUser();
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };

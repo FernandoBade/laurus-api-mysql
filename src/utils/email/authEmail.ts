@@ -3,7 +3,6 @@ import { createLog } from '../commons';
 import { LogCategory, LogOperation, LogType } from '../enum';
 import { ResourceBase } from '../resources/languages/resourceService';
 import { Resource } from '../resources/resource';
-import { LanguageCode } from '../resources/resourceTypes';
 
 type AuthEmailType = 'email_verification' | 'password_reset';
 
@@ -12,15 +11,13 @@ type AuthEmailPayload = {
     to: string;
     link: string;
     userId?: number;
-    language?: LanguageCode;
 };
 
 export type AuthEmailSender = (payload: AuthEmailPayload) => Promise<void>;
 
 type AuthEmailContent = {
     subject: string;
-    intro: string;
-    action: string;
+    body: string;
     warning?: string;
     linkLabel: string;
 };
@@ -37,28 +34,26 @@ const buildAuthLink = (path: string, token: string): string => {
     return BASE_URL ? `${BASE_URL}${link}` : link;
 };
 
-const buildAuthEmailContent = (type: AuthEmailType, language?: LanguageCode): AuthEmailContent => {
+const buildAuthEmailContent = (type: AuthEmailType): AuthEmailContent => {
     if (type === 'email_verification') {
         return {
-            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT, language),
-            intro: ResourceBase.translate(Resource.EMAIL_VERIFICATION_INTRO, language),
-            action: ResourceBase.translate(Resource.EMAIL_VERIFICATION_BUTTON, language),
-            linkLabel: ResourceBase.translate(Resource.EMAIL_FALLBACK_LINK_LABEL, language),
+            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT),
+            body: ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY),
+            linkLabel: ResourceBase.translate(Resource.EMAIL_LINK_LABEL),
         };
     }
 
     return {
-        subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT, language),
-        intro: ResourceBase.translate(Resource.PASSWORD_RESET_INTRO, language),
-        action: ResourceBase.translate(Resource.PASSWORD_RESET_BUTTON, language),
-        warning: ResourceBase.translate(Resource.PASSWORD_RESET_WARNING, language),
-        linkLabel: ResourceBase.translate(Resource.EMAIL_FALLBACK_LINK_LABEL, language),
+        subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT),
+        body: ResourceBase.translate(Resource.PASSWORD_RESET_BODY),
+        warning: ResourceBase.translate(Resource.PASSWORD_RESET_WARNING),
+        linkLabel: ResourceBase.translate(Resource.EMAIL_LINK_LABEL),
     };
 };
 
 const buildAuthEmailHtml = (content: AuthEmailContent, link: string): string => {
     const warningBlock = content.warning
-        ? `<p style="margin:0 0 16px;line-height:1.5;color:#555;">${content.warning}</p>`
+        ? `<p style="margin:0 0 12px;line-height:1.5;color:#555;">${content.warning}</p>`
         : '';
 
     return `
@@ -67,16 +62,13 @@ const buildAuthEmailHtml = (content: AuthEmailContent, link: string): string => 
   <body style="margin:0;padding:0;background-color:#f5f5f5;">
     <div style="max-width:600px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;color:#111;">
       <div style="background:#ffffff;border-radius:8px;padding:24px;">
-        <h1 style="font-size:20px;margin:0 0 16px;">${content.subject}</h1>
-        <p style="margin:0 0 16px;line-height:1.5;">${content.intro}</p>
-        <p style="margin:0 0 24px;">
-          <a href="${link}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;font-weight:600;">${content.action}</a>
-        </p>
-        ${warningBlock}
+        <h1 style="font-size:20px;margin:0 0 12px;">${content.subject}</h1>
+        <p style="margin:0 0 16px;line-height:1.5;">${content.body}</p>
         <p style="margin:0 0 8px;line-height:1.5;color:#555;">${content.linkLabel}</p>
-        <p style="margin:0;word-break:break-word;">
+        <p style="margin:0 0 16px;word-break:break-word;">
           <a href="${link}" style="color:#111;">${link}</a>
         </p>
+        ${warningBlock}
       </div>
     </div>
   </body>
@@ -87,13 +79,9 @@ const buildAuthEmailText = (content: AuthEmailContent, link: string): string => 
     const lines = [
         content.subject,
         '',
-        content.intro,
+        content.body,
         '',
-        content.action,
-        link,
-        '',
-        content.linkLabel,
-        link,
+        `${content.linkLabel} ${link}`,
     ];
 
     if (content.warning) {
@@ -103,36 +91,26 @@ const buildAuthEmailText = (content: AuthEmailContent, link: string): string => 
     return lines.join('\n');
 };
 
-const FALLBACK_EMAIL_ERROR = 'Email provider error';
-
 const redactTokens = (value: string): string => value.replace(/token=([^&\s]+)/gi, 'token=[REDACTED]');
-
-const sanitizeEmailErrorMessage = (message: string): string => {
-    if (message.includes('<') || message.includes('>')) {
-        return FALLBACK_EMAIL_ERROR;
-    }
-
-    return redactTokens(message);
-};
 
 const formatEmailError = (error: unknown): Record<string, unknown> => {
     if (error instanceof Error) {
-        return { name: error.name, message: sanitizeEmailErrorMessage(error.message) };
+        return { name: error.name, message: redactTokens(error.message) };
     }
 
     if (error && typeof error === 'object') {
         const payload = error as Record<string, unknown>;
-        const rawMessage = typeof payload.message === 'string' ? payload.message : FALLBACK_EMAIL_ERROR;
+        const message = typeof payload.message === 'string' ? payload.message : 'Email provider error';
         return {
-            message: sanitizeEmailErrorMessage(rawMessage),
+            message: redactTokens(message),
             code: payload.code ?? payload.statusCode ?? payload.status,
         };
     }
 
-    return { message: String(error) };
+    return { message: redactTokens(String(error)) };
 };
 
-const logEmailError = async (type: AuthEmailType, to: string, error: unknown, userId?: number): Promise<void> => {
+const logEmailError = async (type: AuthEmailType, error: unknown, userId?: number): Promise<void> => {
     try {
         await createLog(
             LogType.ERROR,
@@ -142,22 +120,26 @@ const logEmailError = async (type: AuthEmailType, to: string, error: unknown, us
                 event: 'AUTH_EMAIL_SEND_FAILED',
                 provider: 'resend',
                 type,
-                to,
                 error: formatEmailError(error),
             },
             userId
         );
     } catch {
-        // Ignore logging failures to avoid surfacing email errors to callers.
+        // Ignore logging errors to avoid surfacing email issues.
     }
 };
 
-const defaultSender: AuthEmailSender = async ({ type, to, link, userId, language }) => {
+const logConfigError = async (type: AuthEmailType, userId?: number): Promise<void> => {
+    await logEmailError(type, new Error('Resend configuration missing'), userId);
+};
+
+const defaultSender: AuthEmailSender = async ({ type, to, link, userId }) => {
     if (!resend || !RESEND_FROM_EMAIL) {
+        await logConfigError(type, userId);
         return;
     }
 
-    const content = buildAuthEmailContent(type, language);
+    const content = buildAuthEmailContent(type);
     const html = buildAuthEmailHtml(content, link);
     const text = buildAuthEmailText(content, link);
 
@@ -171,65 +153,23 @@ const defaultSender: AuthEmailSender = async ({ type, to, link, userId, language
         });
 
         if (result?.error) {
-            await logEmailError(type, to, result.error, userId);
+            await logEmailError(type, result.error, userId);
         }
     } catch (error) {
-        await logEmailError(type, to, error, userId);
+        await logEmailError(type, error, userId);
     }
-};
-
-const resolveSendOptions = (senderOrLanguage?: AuthEmailSender | LanguageCode, language?: LanguageCode) => {
-    if (typeof senderOrLanguage === 'function') {
-        return { sender: senderOrLanguage, language };
-    }
-
-    if (senderOrLanguage) {
-        return { sender: defaultSender, language: senderOrLanguage };
-    }
-
-    return { sender: defaultSender, language };
 };
 
 export const buildEmailVerificationLink = (token: string): string => buildAuthLink('/verify-email', token);
 
 export const buildPasswordResetLink = (token: string): string => buildAuthLink('/reset-password', token);
 
-export async function sendEmailVerificationEmail(
-    to: string,
-    token: string,
-    userId?: number,
-    senderOrLanguage?: AuthEmailSender | LanguageCode,
-    language?: LanguageCode
-): Promise<void> {
+export async function sendEmailVerificationEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildEmailVerificationLink(token);
-    const resolved = resolveSendOptions(senderOrLanguage, language);
-    const payload: AuthEmailPayload = {
-        type: 'email_verification',
-        to,
-        link,
-        userId,
-        ...(resolved.language ? { language: resolved.language } : {}),
-    };
-
-    await resolved.sender(payload);
+    await sender({ type: 'email_verification', to, link, userId });
 }
 
-export async function sendPasswordResetEmail(
-    to: string,
-    token: string,
-    userId?: number,
-    senderOrLanguage?: AuthEmailSender | LanguageCode,
-    language?: LanguageCode
-): Promise<void> {
+export async function sendPasswordResetEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildPasswordResetLink(token);
-    const resolved = resolveSendOptions(senderOrLanguage, language);
-    const payload: AuthEmailPayload = {
-        type: 'password_reset',
-        to,
-        link,
-        userId,
-        ...(resolved.language ? { language: resolved.language } : {}),
-    };
-
-    await resolved.sender(payload);
+    await sender({ type: 'password_reset', to, link, userId });
 }

@@ -63,7 +63,6 @@ describe('authEmail utils', () => {
     it('builds verification link with base url and encodes token', async () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com/',
-            NODE_ENV: 'test',
         });
 
         const link = module.buildEmailVerificationLink('token value?');
@@ -75,7 +74,6 @@ describe('authEmail utils', () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: undefined,
             APP_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
         });
 
         const link = module.buildPasswordResetLink('reset-token');
@@ -87,7 +85,6 @@ describe('authEmail utils', () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: undefined,
             APP_URL: undefined,
-            NODE_ENV: 'test',
         });
 
         const link = module.buildEmailVerificationLink('abc');
@@ -98,102 +95,95 @@ describe('authEmail utils', () => {
     it('sends verification email payload through custom sender', async () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
         });
         const sender = jest.fn().mockResolvedValue(undefined);
 
-        await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12, sender, 'pt-BR');
+        await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12, sender);
 
         expect(sender).toHaveBeenCalledWith({
             type: 'email_verification',
             to: 'user@example.com',
             link: 'https://app.example.com/verify-email?token=verify-token',
             userId: 12,
-            language: 'pt-BR',
         });
     });
 
     it('sends reset email payload through custom sender', async () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
         });
         const sender = jest.fn().mockResolvedValue(undefined);
 
-        await module.sendPasswordResetEmail('user@example.com', 'reset-token', 7, sender, 'en-US');
+        await module.sendPasswordResetEmail('user@example.com', 'reset-token', 7, sender);
 
         expect(sender).toHaveBeenCalledWith({
             type: 'password_reset',
             to: 'user@example.com',
             link: 'https://app.example.com/reset-password?token=reset-token',
             userId: 7,
-            language: 'en-US',
         });
     });
 
-    it('sends verification email via resend with localized content', async () => {
+    it('sends verification email via resend', async () => {
         const { module, resendSend } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
             RESEND_API_KEY: 'test-key',
-            RESEND_FROM_EMAIL: 'Laurus <no-reply@example.com>',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
         });
 
-        await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12, 'en-US');
+        await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12);
 
         expect(resendSend).toHaveBeenCalledTimes(1);
         const payload = resendSend.mock.calls[0][0] as Record<string, unknown>;
         expect(payload).toEqual(expect.objectContaining({
-            from: 'Laurus <no-reply@example.com>',
+            from: 'no-reply@example.com',
             to: 'user@example.com',
-            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT, 'en-US'),
+            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT),
         }));
 
         const html = payload.html as string;
-        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_INTRO, 'en-US'));
-        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_BUTTON, 'en-US'));
-        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_FALLBACK_LINK_LABEL, 'en-US'));
+        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY));
+        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_LINK_LABEL));
         expect(html).toContain('https://app.example.com/verify-email?token=verify-token');
 
         const text = payload.text as string;
-        expect(text).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_INTRO, 'en-US'));
+        expect(text).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY));
+        expect(text).toContain(ResourceBase.translate(Resource.EMAIL_LINK_LABEL));
         expect(text).toContain('https://app.example.com/verify-email?token=verify-token');
     });
 
-    it('sends password reset email with warning via resend', async () => {
+    it('sends password reset email via resend', async () => {
         const { module, resendSend } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
             RESEND_API_KEY: 'test-key',
-            RESEND_FROM_EMAIL: 'Laurus <no-reply@example.com>',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
         });
 
-        await module.sendPasswordResetEmail('user@example.com', 'reset-token', 7, 'en-US');
+        await module.sendPasswordResetEmail('user@example.com', 'reset-token', 7);
 
         expect(resendSend).toHaveBeenCalledTimes(1);
         const payload = resendSend.mock.calls[0][0] as Record<string, unknown>;
         expect(payload).toEqual(expect.objectContaining({
-            from: 'Laurus <no-reply@example.com>',
+            from: 'no-reply@example.com',
             to: 'user@example.com',
-            subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT, 'en-US'),
+            subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT),
         }));
 
         const html = payload.html as string;
-        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_INTRO, 'en-US'));
-        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_WARNING, 'en-US'));
+        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_BODY));
+        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_WARNING));
         expect(html).toContain('https://app.example.com/reset-password?token=reset-token');
     });
 
-    it('logs resend failures without throwing', async () => {
+    it('logs resend errors without throwing', async () => {
         const { module, resendSend, createLog } = await loadAuthEmail({
             FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
             RESEND_API_KEY: 'test-key',
-            RESEND_FROM_EMAIL: 'Laurus <no-reply@example.com>',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
         }, true);
-        resendSend.mockRejectedValue(new Error('resend failed'));
+        resendSend.mockRejectedValue(new Error('resend failed token=secret'));
 
-        await expect(module.sendPasswordResetEmail('user@example.com', 'sensitive-token', 5, 'en-US')).resolves.toBeUndefined();
+        await expect(module.sendPasswordResetEmail('user@example.com', 'reset-token', 7)).resolves.toBeUndefined();
 
         expect(createLog).toHaveBeenCalledWith(
             LogType.ERROR,
@@ -203,26 +193,13 @@ describe('authEmail utils', () => {
                 event: 'AUTH_EMAIL_SEND_FAILED',
                 provider: 'resend',
                 type: 'password_reset',
-                to: 'user@example.com',
-                error: expect.objectContaining({ message: 'resend failed' }),
+                error: expect.objectContaining({ message: expect.stringContaining('token=[REDACTED]') }),
             }),
-            5
+            7
         );
 
         const detail = (createLog as jest.Mock).mock.calls[0][3] as Record<string, unknown>;
-        expect(JSON.stringify(detail)).not.toContain('sensitive-token');
-    });
-
-    it('skips sending when resend api key is missing', async () => {
-        const { module, resendSend } = await loadAuthEmail({
-            FRONTEND_BASE_URL: 'https://app.example.com',
-            NODE_ENV: 'test',
-            RESEND_API_KEY: undefined,
-            RESEND_FROM_EMAIL: 'Laurus <no-reply@example.com>',
-        });
-
-        await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12, 'en-US');
-
-        expect(resendSend).not.toHaveBeenCalled();
+        expect(JSON.stringify(detail)).not.toContain('reset-token');
+        expect(JSON.stringify(detail)).not.toContain('user@example.com');
     });
 });

@@ -50,7 +50,7 @@ class UserController {
             }
 
             await createLog(LogType.SUCCESS, LogOperation.CREATE, LogCategory.USER, newUser.data, newUser.data!.id);
-            return answerAPI(req, res, HTTPStatus.CREATED, newUser.data!);
+            return answerAPI(req, res, HTTPStatus.CREATED, newUser.data!, Resource.EMAIL_VERIFICATION_REQUIRED);
         } catch (error) {
             await createLog(
                 LogType.ERROR,
