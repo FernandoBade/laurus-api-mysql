@@ -1,19 +1,25 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { AuthService } from '../../../src/service/authService';
 import { TokenService } from '../../../src/service/tokenService';
 import { UserService } from '../../../src/service/userService';
 import { LogCategory, LogOperation, LogType, TokenType } from '../../../src/utils/enum';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
-import { PERSISTED_TOKEN_TTL_DAYS } from '../../../src/utils/auth/tokenConfig';
+import { PERSISTED_TOKEN_TTL_DAYS, SESSION_TTL_DAYS } from '../../../src/utils/auth/tokenConfig';
 import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
 import { SelectToken } from '../../../src/db/schema';
 import * as commons from '../../../src/utils/commons';
 import { makeSanitizedUser, makeUser } from '../../helpers/factories';
+import { sendPasswordResetEmail } from '../../../src/utils/email/authEmail';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn(),
     compare: jest.fn(),
+}));
+
+jest.mock('../../../src/utils/email/authEmail', () => ({
+    sendPasswordResetEmail: jest.fn(),
 }));
 
 type HashFn = (data: string | Buffer, saltOrRounds: string | number) => Promise<string>;
@@ -24,6 +30,8 @@ const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 
 const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
+const SESSION_ID = '00000000-0000-4000-8000-000000000000';
+const sendPasswordResetMock = sendPasswordResetEmail as jest.MockedFunction<typeof sendPasswordResetEmail>;
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -33,6 +41,9 @@ const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
         type: overrides.type ?? TokenType.REFRESH,
         expiresAt: overrides.expiresAt ?? new Date('2099-01-01T00:00:00Z'),
         userId: overrides.userId ?? 1,
+        sessionId: overrides.sessionId ?? SESSION_ID,
+        sessionExpiresAt: overrides.sessionExpiresAt ?? new Date('2099-01-01T00:00:00Z'),
+        revokedAt: overrides.revokedAt ?? null,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
     };
@@ -130,6 +141,25 @@ describe('AuthService', () => {
             expect(logSpy).not.toHaveBeenCalled();
         });
 
+        it('returns invalid credentials when email is not verified', async () => {
+            const user = makeUser({ id: 4, email: 'user@example.com', emailVerifiedAt: null });
+            const sanitized = makeSanitizedUser({ id: user.id, email: user.email, emailVerifiedAt: null });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
+            jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
+
+            const service = new AuthService();
+            const result = await service.login('user@example.com', 'secret');
+
+            expect(compareMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.INVALID_CREDENTIALS });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INVALID_CREDENTIALS);
+                expect(translate(result.error)).toBe(translate(Resource.INVALID_CREDENTIALS));
+            }
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
         it('returns invalid credentials when password does not match', async () => {
             const user = makeUser({ id: 4, email: 'user@example.com' });
             const sanitized = makeSanitizedUser({ id: user.id, email: user.email });
@@ -156,6 +186,7 @@ describe('AuthService', () => {
             jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
             compareMock.mockResolvedValue(true);
+            jest.spyOn(crypto, 'randomUUID').mockReturnValue(SESSION_ID);
             jest.spyOn(TokenUtils, 'generateAccessToken').mockReturnValue('access-token');
             jest.spyOn(TokenUtils, 'generateRefreshToken').mockReturnValue('refresh-token');
             const hashSpy = jest.spyOn(TokenUtils, 'hashRefreshToken').mockReturnValue('refresh-token-hash');
@@ -173,6 +204,8 @@ describe('AuthService', () => {
                     tokenHash: 'refresh-token-hash',
                     userId: user.id,
                     type: TokenType.REFRESH,
+                    sessionId: SESSION_ID,
+                    sessionExpiresAt: expect.any(Date),
                 })
             );
             expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
@@ -196,6 +229,7 @@ describe('AuthService', () => {
                 });
                 const findOneSpy = jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
                 compareMock.mockResolvedValue(true);
+                jest.spyOn(crypto, 'randomUUID').mockReturnValue(SESSION_ID);
                 jest.spyOn(TokenUtils, 'generateAccessToken').mockReturnValue('access-token');
                 jest.spyOn(TokenUtils, 'generateRefreshToken').mockReturnValue('refresh-token');
                 const hashSpy = jest.spyOn(TokenUtils, 'hashRefreshToken').mockReturnValue('refresh-token-hash');
@@ -210,6 +244,8 @@ describe('AuthService', () => {
                 const createPayload = createTokenSpy.mock.calls[0][0];
                 const expectedExpiresAt = new Date(now);
                 expectedExpiresAt.setDate(expectedExpiresAt.getDate() + PERSISTED_TOKEN_TTL_DAYS);
+                const expectedSessionExpiresAt = new Date(now);
+                expectedSessionExpiresAt.setDate(expectedSessionExpiresAt.getDate() + SESSION_TTL_DAYS);
 
                 expect(getUsersSpy).toHaveBeenCalledWith('user@example.com');
                 expect(findOneSpy).toHaveBeenCalledWith(user.id);
@@ -219,8 +255,10 @@ describe('AuthService', () => {
                     tokenHash: 'refresh-token-hash',
                     userId: user.id,
                     type: TokenType.REFRESH,
+                    sessionId: SESSION_ID,
                 }));
                 expect(createPayload.expiresAt.getTime()).toBe(expectedExpiresAt.getTime());
+                expect(createPayload.sessionExpiresAt).toEqual(expectedSessionExpiresAt);
                 expect(result).toEqual({
                     success: true,
                     data: {
@@ -307,6 +345,33 @@ describe('AuthService', () => {
             expect(logSpy).not.toHaveBeenCalled();
         });
 
+        it('returns expired token error when session has expired', async () => {
+            const now = new Date('2024-02-01T00:00:00Z');
+            jest.useFakeTimers().setSystemTime(now);
+
+            try {
+                const sessionExpiresAt = new Date('2024-01-01T00:00:00Z');
+                jest.spyOn(TokenService.prototype, 'findByTokenHash').mockResolvedValue({
+                    success: true,
+                    data: makeToken({ id: 10, tokenHash: 'session-hash', sessionExpiresAt, userId: 42 }),
+                });
+                const hashSpy = jest.spyOn(TokenUtils, 'hashRefreshToken').mockReturnValue('session-hash');
+                const verifySpy = jest.spyOn(TokenUtils, 'verifyRefreshToken');
+                const deleteBySessionSpy = jest.spyOn(TokenService.prototype, 'deleteBySessionId').mockResolvedValue(1);
+
+                const service = new AuthService();
+                const result = await service.refresh('expired-session');
+
+                expect(hashSpy).toHaveBeenCalledWith('expired-session');
+                expect(verifySpy).not.toHaveBeenCalled();
+                expect(deleteBySessionSpy).toHaveBeenCalledWith(SESSION_ID);
+                expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+                expect(logSpy).not.toHaveBeenCalled();
+            } finally {
+                jest.useRealTimers();
+            }
+        });
+
         it('returns expired token error when token verification throws', async () => {
             jest.spyOn(TokenService.prototype, 'findByTokenHash').mockResolvedValue({
                 success: true,
@@ -350,7 +415,7 @@ describe('AuthService', () => {
                     success: true,
                     data: makeToken({ id: 3, tokenHash: 'new-hash', userId: 42 }),
                 });
-                const deleteSpy = jest.spyOn(TokenService.prototype, 'deleteToken').mockResolvedValue(1);
+                const revokeSpy = jest.spyOn(TokenService.prototype, 'markTokenRevoked').mockResolvedValue(1);
 
                 const service = new AuthService();
                 const result = await service.refresh('valid');
@@ -367,9 +432,11 @@ describe('AuthService', () => {
                     tokenHash: 'new-hash',
                     userId: 42,
                     type: TokenType.REFRESH,
+                    sessionId: SESSION_ID,
                 }));
                 expect(createPayload.expiresAt.getTime()).toBe(expectedExpiresAt.getTime());
-                expect(deleteSpy).toHaveBeenCalledWith(2);
+                expect(createPayload.sessionExpiresAt).toEqual(expect.any(Date));
+                expect(revokeSpy).toHaveBeenCalledWith(2, expect.any(Date));
                 expect(result).toEqual({ success: true, data: { token: 'new-access-token', refreshToken: 'new-refresh-token' } });
                 expect(result.success).toBe(true);
                 if (result.success) {
@@ -396,14 +463,23 @@ describe('AuthService', () => {
                 success: true,
                 data: makeToken({ id: 5, tokenHash: 'new-hash', userId: 42 }),
             });
-            const deleteSpy = jest.spyOn(TokenService.prototype, 'deleteToken').mockResolvedValue(0);
+            const revokeSpy = jest.spyOn(TokenService.prototype, 'markTokenRevoked').mockResolvedValue(0);
             const deleteByHashSpy = jest.spyOn(TokenService.prototype, 'deleteByTokenHash').mockResolvedValue();
+            const deleteBySessionSpy = jest.spyOn(TokenService.prototype, 'deleteBySessionId').mockResolvedValue(1);
 
             const service = new AuthService();
             const result = await service.refresh('valid');
 
-            expect(deleteSpy).toHaveBeenCalledWith(4);
+            expect(revokeSpy).toHaveBeenCalledWith(4, expect.any(Date));
             expect(deleteByHashSpy).toHaveBeenCalledWith('new-hash');
+            expect(deleteBySessionSpy).toHaveBeenCalledWith(SESSION_ID);
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.ALERT,
+                LogOperation.UPDATE,
+                LogCategory.AUTH,
+                'REFRESH_REUSE_DETECTED',
+                42
+            );
             expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
             expect(cleanupSpy).not.toHaveBeenCalled();
         });
@@ -428,37 +504,55 @@ describe('AuthService', () => {
             expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
         });
 
-        it('rejects reuse of a rotated refresh token', async () => {
-            const findTokenSpy = jest.spyOn(TokenService.prototype, 'findByTokenHash')
-                .mockResolvedValueOnce({
-                    success: true,
-                    data: makeToken({ id: 4, tokenHash: 'old-hash', expiresAt: new Date('2099-01-01T00:00:00Z'), userId: 42 }),
-                })
-                .mockResolvedValueOnce({
-                    success: false,
-                    error: Resource.TOKEN_NOT_FOUND,
-                });
-            jest.spyOn(TokenUtils, 'hashRefreshToken')
-                .mockReturnValueOnce('old-hash')
-                .mockReturnValueOnce('new-hash')
-                .mockReturnValueOnce('old-hash');
-            jest.spyOn(TokenUtils, 'verifyRefreshToken').mockReturnValue({ id: 42 });
-            jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: makeUser({ id: 42, active: true }) });
-            jest.spyOn(TokenUtils, 'generateAccessToken').mockReturnValue('new-access-token');
-            jest.spyOn(TokenUtils, 'generateRefreshToken').mockReturnValue('new-refresh-token');
-            jest.spyOn(TokenService.prototype, 'createToken').mockResolvedValue({
+        it('returns expired token error when email is not verified', async () => {
+            jest.spyOn(TokenService.prototype, 'findByTokenHash').mockResolvedValue({
                 success: true,
-                data: makeToken({ id: 5, tokenHash: 'new-hash', userId: 42 }),
+                data: makeToken({ id: 4, tokenHash: 'old-hash', expiresAt: new Date('2099-01-01T00:00:00Z'), userId: 42 }),
             });
-            jest.spyOn(TokenService.prototype, 'deleteToken').mockResolvedValue(1);
+            const hashSpy = jest.spyOn(TokenUtils, 'hashRefreshToken').mockReturnValue('old-hash');
+            jest.spyOn(TokenUtils, 'verifyRefreshToken').mockReturnValue({ id: 42 });
+            jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({
+                success: true,
+                data: makeUser({ id: 42, active: true, emailVerifiedAt: null }),
+            });
+            const createTokenSpy = jest.spyOn(TokenService.prototype, 'createToken');
+            const deleteSpy = jest.spyOn(TokenService.prototype, 'deleteToken').mockResolvedValue(1);
 
             const service = new AuthService();
-            const first = await service.refresh('valid');
-            const second = await service.refresh('valid');
+            const result = await service.refresh('valid');
 
-            expect(findTokenSpy).toHaveBeenCalledTimes(2);
-            expect(first.success).toBe(true);
-            expect(second).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+            expect(hashSpy).toHaveBeenCalledWith('valid');
+            expect(createTokenSpy).not.toHaveBeenCalled();
+            expect(deleteSpy).toHaveBeenCalledWith(4);
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+
+        it('revokes the session when a refresh token is reused', async () => {
+            const revokedAt = new Date('2024-01-02T00:00:00Z');
+            const findTokenSpy = jest.spyOn(TokenService.prototype, 'findByTokenHash')
+                .mockResolvedValue({
+                    success: true,
+                    data: makeToken({ id: 4, tokenHash: 'old-hash', expiresAt: new Date('2099-01-01T00:00:00Z'), userId: 42, revokedAt }),
+                });
+            const hashSpy = jest.spyOn(TokenUtils, 'hashRefreshToken').mockReturnValue('old-hash');
+            const verifySpy = jest.spyOn(TokenUtils, 'verifyRefreshToken');
+            const deleteBySessionSpy = jest.spyOn(TokenService.prototype, 'deleteBySessionId').mockResolvedValue(2);
+
+            const service = new AuthService();
+            const result = await service.refresh('valid');
+
+            expect(hashSpy).toHaveBeenCalledWith('valid');
+            expect(findTokenSpy).toHaveBeenCalledTimes(1);
+            expect(verifySpy).not.toHaveBeenCalled();
+            expect(deleteBySessionSpy).toHaveBeenCalledWith(SESSION_ID);
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.ALERT,
+                LogOperation.UPDATE,
+                LogCategory.AUTH,
+                'REFRESH_REUSE_DETECTED',
+                42
+            );
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
         });
 
         it('throws when refresh token lookup rejects', async () => {
@@ -510,7 +604,8 @@ describe('AuthService', () => {
                 LogType.ALERT,
                 LogOperation.LOGOUT,
                 LogCategory.AUTH,
-                expect.stringContaining('missing-hash')
+                'LOGOUT_TOKEN_NOT_FOUND',
+                undefined
             );
         });
 
@@ -529,7 +624,7 @@ describe('AuthService', () => {
                 LogType.SUCCESS,
                 LogOperation.LOGOUT,
                 LogCategory.AUTH,
-                expect.stringContaining('77'),
+                'LOGOUT_SUCCESS',
                 stored.userId
             );
             expect(result).toEqual({ success: true, data: { userId: stored.userId } });
@@ -560,6 +655,124 @@ describe('AuthService', () => {
                 }
             }
             expect(logSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('verifyEmail', () => {
+        it('returns success when token is valid', async () => {
+            jest.spyOn(TokenService.prototype, 'verifyEmailVerificationToken').mockResolvedValue({
+                success: true,
+                data: { userId: 12 },
+            });
+            const markSpy = jest.spyOn(UserService.prototype, 'markEmailVerified').mockResolvedValue({
+                success: true,
+                data: makeSanitizedUser({ id: 12 }),
+            });
+
+            const service = new AuthService();
+            const result = await service.verifyEmail('token');
+
+            expect(markSpy).toHaveBeenCalledWith(12);
+            expect(result).toEqual({ success: true, data: { verified: true } });
+        });
+
+        it('returns invalid token when token verification fails', async () => {
+            jest.spyOn(TokenService.prototype, 'verifyEmailVerificationToken').mockResolvedValue({
+                success: false,
+                error: Resource.EXPIRED_OR_INVALID_TOKEN,
+            });
+
+            const service = new AuthService();
+            const result = await service.verifyEmail('token');
+
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+    });
+
+    describe('requestPasswordReset', () => {
+        it('returns success even when user is not found', async () => {
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({
+                success: false,
+                error: Resource.USER_NOT_FOUND,
+            });
+            const createTokenSpy = jest.spyOn(TokenService.prototype, 'createPasswordResetToken');
+
+            const service = new AuthService();
+            const result = await service.requestPasswordReset('missing@example.com');
+
+            expect(createTokenSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: true, data: { sent: true } });
+        });
+
+        it('creates reset token and sends email when user exists', async () => {
+            const user = makeSanitizedUser({ id: 15, email: 'user@example.com' });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({
+                success: true,
+                data: user,
+            });
+            jest.spyOn(TokenService.prototype, 'createPasswordResetToken').mockResolvedValue({
+                success: true,
+                data: { token: 'reset-token', expiresAt: new Date('2099-01-01T00:00:00Z') },
+            });
+            sendPasswordResetMock.mockResolvedValue();
+
+            const service = new AuthService();
+            const result = await service.requestPasswordReset(user.email);
+
+            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id, user.language);
+            expect(result).toEqual({ success: true, data: { sent: true } });
+        });
+
+        it('returns success when email sending fails', async () => {
+            const user = makeSanitizedUser({ id: 16, email: 'user@example.com' });
+            jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({
+                success: true,
+                data: user,
+            });
+            jest.spyOn(TokenService.prototype, 'createPasswordResetToken').mockResolvedValue({
+                success: true,
+                data: { token: 'reset-token', expiresAt: new Date('2099-01-01T00:00:00Z') },
+            });
+            sendPasswordResetMock.mockRejectedValueOnce(new Error('resend failed'));
+
+            const service = new AuthService();
+            const result = await service.requestPasswordReset(user.email);
+
+            expect(sendPasswordResetMock).toHaveBeenCalledWith(user.email, 'reset-token', user.id, user.language);
+            expect(result).toEqual({ success: true, data: { sent: true } });
+        });
+    });
+
+    describe('resetPassword', () => {
+        it('updates password and revokes refresh tokens on success', async () => {
+            jest.spyOn(TokenService.prototype, 'verifyPasswordResetToken').mockResolvedValue({
+                success: true,
+                data: { userId: 44 },
+            });
+            const updateSpy = jest.spyOn(UserService.prototype, 'updateUser').mockResolvedValue({
+                success: true,
+                data: makeSanitizedUser({ id: 44 }),
+            });
+            const revokeSpy = jest.spyOn(TokenService.prototype, 'deleteByUserIdAndType').mockResolvedValue(2);
+
+            const service = new AuthService();
+            const result = await service.resetPassword('reset-token', 'new-password');
+
+            expect(updateSpy).toHaveBeenCalledWith(44, { password: 'new-password' });
+            expect(revokeSpy).toHaveBeenCalledWith(44, TokenType.REFRESH);
+            expect(result).toEqual({ success: true, data: { reset: true } });
+        });
+
+        it('returns invalid token when verification fails', async () => {
+            jest.spyOn(TokenService.prototype, 'verifyPasswordResetToken').mockResolvedValue({
+                success: false,
+                error: Resource.EXPIRED_OR_INVALID_TOKEN,
+            });
+
+            const service = new AuthService();
+            const result = await service.resetPassword('reset-token', 'new-password');
+
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
         });
     });
 });

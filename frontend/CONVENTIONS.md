@@ -2,10 +2,10 @@
 
 ## Directory Layout
 - `src/app/`: Next.js App Router routes and layouts only.
-- `src/features/<feature>/`: domain modules with `api.ts`, `hooks.ts`, `types.ts`, and `components/`.
+- `src/features/<feature>/`: domain modules with `api.ts`, `hooks.ts`, `types.ts`, and optional `components/`.
 - `src/shared/`:
   - `shared/ui/`: shared UI primitives and state components.
-  - `shared/lib/`: shared logic (API client, formatters, validation helpers).
+  - `shared/lib/`: shared logic (API client, error normalization, formatters).
   - `shared/types/`: shared contracts (API envelopes, enums).
   - `shared/context/`: global providers (theme, sidebar).
 
@@ -16,7 +16,7 @@
 - Types: `types.ts` inside a feature or `shared/types/*`.
 
 ## Imports
-- Order: external deps → shared → features → local.
+- Order: external deps -> shared -> features -> local.
 - `app` can import from `features` and `shared`.
 - `features` can import from `shared`.
 - `shared` must not import from `features` or `app`.
@@ -32,7 +32,7 @@
 - For tables: show empty state inside a `<TableCell>` and keep headers stable.
 
 ## Forms + Validation
-- Use shared helpers (`shared/lib/validation`) to avoid duplicated parsing logic.
+- Keep field validation inline unless a shared pattern is required.
 - Validate required fields before calling mutations.
 - Use `Alert` for form submission errors (not general data-fetch errors).
 

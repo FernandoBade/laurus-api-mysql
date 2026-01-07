@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const configDir = path.dirname(fileURLToPath(import.meta.url));
 
 const apiProxyTarget = process.env.NEXT_PUBLIC_API_PROXY_TARGET;
 
@@ -23,14 +27,15 @@ const nextConfig: NextConfig = {
     return config;
   },
     
-    turbopack: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  turbopack: {
+    root: configDir,
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
+  },
   
 };
 

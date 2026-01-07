@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import {
   useAccountsByUser,
   useCreateAccount,
@@ -26,12 +26,7 @@ import {
 import type { AccountType } from "@/shared/types/domain";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
 import { formatMoney } from "@/shared/lib/formatters";
-import {
-  isBlank,
-  isNonNegativeNumber,
-  parseNumberInput,
-} from "@/shared/lib/validation";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui";
 import { useTranslation } from "react-i18next";
 
 
@@ -42,7 +37,7 @@ export default function AccountsPage() {
     "resource-common",
     "resource-transactions",
   ]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const accountsQuery = useAccountsByUser(userId);
   const createAccountMutation = useCreateAccount(userId);
   const updateAccountMutation = useUpdateAccount(userId);
@@ -105,21 +100,21 @@ export default function AccountsPage() {
       return;
     }
 
-    if (isBlank(name) || isBlank(institution)) {
+    if (!name.trim() || !institution.trim()) {
       setFormError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
-    const balanceResult = parseNumberInput(balance);
-    if (
-      balanceResult.error ||
-      (balanceResult.value !== undefined &&
-        !isNonNegativeNumber(balanceResult.value))
-    ) {
-      setFormError(t("resource.accounts.errors.balancePositive"));
-      return;
+    const trimmedBalance = balance.trim();
+    let parsedBalance: number | undefined;
+    if (trimmedBalance) {
+      const numericBalance = Number(trimmedBalance);
+      if (Number.isNaN(numericBalance) || numericBalance < 0) {
+        setFormError(t("resource.accounts.errors.balancePositive"));
+        return;
+      }
+      parsedBalance = numericBalance;
     }
-    const parsedBalance = balanceResult.value;
 
     try {
       await createAccountMutation.mutateAsync({
@@ -159,21 +154,21 @@ export default function AccountsPage() {
       return;
     }
 
-    if (isBlank(editName) || isBlank(editInstitution)) {
+    if (!editName.trim() || !editInstitution.trim()) {
       setEditError(t("resource.accounts.errors.nameInstitutionRequired"));
       return;
     }
 
-    const editBalanceResult = parseNumberInput(editBalance);
-    if (
-      editBalanceResult.error ||
-      (editBalanceResult.value !== undefined &&
-        !isNonNegativeNumber(editBalanceResult.value))
-    ) {
-      setEditError(t("resource.accounts.errors.balancePositive"));
-      return;
+    const trimmedBalance = editBalance.trim();
+    let parsedBalance: number | undefined;
+    if (trimmedBalance) {
+      const numericBalance = Number(trimmedBalance);
+      if (Number.isNaN(numericBalance) || numericBalance < 0) {
+        setEditError(t("resource.accounts.errors.balancePositive"));
+        return;
+      }
+      parsedBalance = numericBalance;
     }
-    const parsedBalance = editBalanceResult.value;
 
     try {
       await updateAccountMutation.mutateAsync({
@@ -525,5 +520,7 @@ export default function AccountsPage() {
     </div>
   );
 }
+
+
 
 

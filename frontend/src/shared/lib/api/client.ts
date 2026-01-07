@@ -4,7 +4,6 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { getResourceLanguage } from "@/shared/i18n";
-import { getAccessToken } from "@/shared/lib/auth/session";
 import type { ApiResponse, QueryParams } from "@/shared/types/api";
 import { getApiErrorFromPayload, normalizeApiError } from "./errors";
 
@@ -22,9 +21,11 @@ export const refreshClient = axios.create({
 
 type RefreshHandler = () => Promise<string | null>;
 type UnauthorizedHandler = () => void;
+type AccessTokenProvider = () => string | null;
 
 let refreshHandler: RefreshHandler | null = null;
 let unauthorizedHandler: UnauthorizedHandler | null = null;
+let accessTokenProvider: AccessTokenProvider | null = null;
 let refreshPromise: Promise<string | null> | null = null;
 
 export const setRefreshHandler = (handler: RefreshHandler) => {
@@ -33,6 +34,10 @@ export const setRefreshHandler = (handler: RefreshHandler) => {
 
 export const setUnauthorizedHandler = (handler: UnauthorizedHandler) => {
   unauthorizedHandler = handler;
+};
+
+export const setAccessTokenProvider = (provider: AccessTokenProvider) => {
+  accessTokenProvider = provider;
 };
 
 const isAuthEndpoint = (url?: string) => {
@@ -66,7 +71,7 @@ const applyResourceLanguageHeader = (config: InternalAxiosRequestConfig) => {
 };
 
 apiClient.interceptors.request.use((config) => {
-  const token = getAccessToken();
+  const token = accessTokenProvider ? accessTokenProvider() : null;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

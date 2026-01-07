@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import {
   useCreditCardsByUser,
   useCreateCreditCard,
@@ -27,12 +27,7 @@ import { useAccountsByUser } from "@/features/accounts/hooks";
 import type { CreditCardFlag } from "@/shared/types/domain";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
 import { formatMoney } from "@/shared/lib/formatters";
-import {
-  isBlank,
-  isNonNegativeNumber,
-  parseNumberInput,
-} from "@/shared/lib/validation";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui";
 import { useTranslation } from "react-i18next";
 
 
@@ -42,7 +37,7 @@ export default function CreditCardsPage() {
     "resource-accounts",
     "resource-common",
   ]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const cardsQuery = useCreditCardsByUser(userId);
   const accountsQuery = useAccountsByUser(userId);
   const createCardMutation = useCreateCreditCard(userId);
@@ -131,33 +126,32 @@ export default function CreditCardsPage() {
       return;
     }
 
-    if (isBlank(name)) {
+    if (!name.trim()) {
       setFormError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
-    const balanceResult = parseNumberInput(balance);
-    if (
-      balanceResult.error ||
-      (balanceResult.value !== undefined &&
-        !isNonNegativeNumber(balanceResult.value))
-    ) {
-      setFormError(t("resource.creditCards.errors.balancePositive"));
-      return;
+    const trimmedBalance = balance.trim();
+    let parsedBalance: number | undefined;
+    if (trimmedBalance) {
+      const numericBalance = Number(trimmedBalance);
+      if (Number.isNaN(numericBalance) || numericBalance < 0) {
+        setFormError(t("resource.creditCards.errors.balancePositive"));
+        return;
+      }
+      parsedBalance = numericBalance;
     }
 
-    const limitResult = parseNumberInput(limit);
-    if (
-      limitResult.error ||
-      (limitResult.value !== undefined &&
-        !isNonNegativeNumber(limitResult.value))
-    ) {
-      setFormError(t("resource.creditCards.errors.limitPositive"));
-      return;
+    const trimmedLimit = limit.trim();
+    let parsedLimit: number | undefined;
+    if (trimmedLimit) {
+      const numericLimit = Number(trimmedLimit);
+      if (Number.isNaN(numericLimit) || numericLimit < 0) {
+        setFormError(t("resource.creditCards.errors.limitPositive"));
+        return;
+      }
+      parsedLimit = numericLimit;
     }
-
-    const parsedBalance = balanceResult.value;
-    const parsedLimit = limitResult.value;
 
     try {
       await createCardMutation.mutateAsync({
@@ -199,33 +193,32 @@ export default function CreditCardsPage() {
       return;
     }
 
-    if (isBlank(editName)) {
+    if (!editName.trim()) {
       setEditError(t("resource.creditCards.errors.nameRequired"));
       return;
     }
 
-    const editBalanceResult = parseNumberInput(editBalance);
-    if (
-      editBalanceResult.error ||
-      (editBalanceResult.value !== undefined &&
-        !isNonNegativeNumber(editBalanceResult.value))
-    ) {
-      setEditError(t("resource.creditCards.errors.balancePositive"));
-      return;
+    const trimmedBalance = editBalance.trim();
+    let parsedBalance: number | undefined;
+    if (trimmedBalance) {
+      const numericBalance = Number(trimmedBalance);
+      if (Number.isNaN(numericBalance) || numericBalance < 0) {
+        setEditError(t("resource.creditCards.errors.balancePositive"));
+        return;
+      }
+      parsedBalance = numericBalance;
     }
 
-    const editLimitResult = parseNumberInput(editLimit);
-    if (
-      editLimitResult.error ||
-      (editLimitResult.value !== undefined &&
-        !isNonNegativeNumber(editLimitResult.value))
-    ) {
-      setEditError(t("resource.creditCards.errors.limitPositive"));
-      return;
+    const trimmedLimit = editLimit.trim();
+    let parsedLimit: number | undefined;
+    if (trimmedLimit) {
+      const numericLimit = Number(trimmedLimit);
+      if (Number.isNaN(numericLimit) || numericLimit < 0) {
+        setEditError(t("resource.creditCards.errors.limitPositive"));
+        return;
+      }
+      parsedLimit = numericLimit;
     }
-
-    const parsedBalance = editBalanceResult.value;
-    const parsedLimit = editLimitResult.value;
 
     try {
       await updateCardMutation.mutateAsync({
@@ -606,5 +599,7 @@ export default function CreditCardsPage() {
     </div>
   );
 }
+
+
 
 

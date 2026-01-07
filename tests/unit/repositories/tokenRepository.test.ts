@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { TokenRepository } from '../../../src/repositories/tokenRepository';
 import { db } from '../../../src/db';
 import { tokens, SelectToken } from '../../../src/db/schema';
@@ -12,6 +12,9 @@ const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
         type: overrides.type ?? TokenType.REFRESH,
         expiresAt: overrides.expiresAt ?? now,
         userId: overrides.userId ?? 1,
+        sessionId: overrides.sessionId ?? 'session-id',
+        sessionExpiresAt: overrides.sessionExpiresAt ?? now,
+        revokedAt: overrides.revokedAt ?? null,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
     };
@@ -46,6 +49,13 @@ const makeDeleteChain = (affectedRows = 1) => {
     const where = jest.fn().mockResolvedValue([{ affectedRows }]);
     const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as any);
     return { deleteSpy, where };
+};
+
+const makeUpdateChain = (affectedRows = 1) => {
+    const where = jest.fn().mockResolvedValue([{ affectedRows }]);
+    const set = jest.fn().mockReturnValue({ where });
+    const updateSpy = jest.spyOn(db, 'update').mockReturnValue({ set } as any);
+    return { updateSpy, set, where };
 };
 
 const expectSelectChain = (select: jest.SpyInstance, from: jest.Mock, table: unknown) => {
@@ -110,6 +120,31 @@ describe('TokenRepository', () => {
 
             expectSelectChain(select, from, tokens);
             expect(query.where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'missing'), eq(tokens.type, TokenType.REFRESH)));
+            expect(query.limit).toHaveBeenCalledWith(1);
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('findByTokenHashAndType', () => {
+        it('returns token when found', async () => {
+            const token = makeToken({ tokenHash: 'token-456', type: TokenType.EMAIL_VERIFICATION });
+            const { select, from, query } = makeSelectChain([token]);
+
+            const result = await repo.findByTokenHashAndType('token-456', TokenType.EMAIL_VERIFICATION);
+
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'token-456'), eq(tokens.type, TokenType.EMAIL_VERIFICATION)));
+            expect(query.limit).toHaveBeenCalledWith(1);
+            expect(result).toEqual(token);
+        });
+
+        it('returns null when not found', async () => {
+            const { select, from, query } = makeSelectChain([]);
+
+            const result = await repo.findByTokenHashAndType('missing', TokenType.PASSWORD_RESET);
+
+            expectSelectChain(select, from, tokens);
+            expect(query.where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'missing'), eq(tokens.type, TokenType.PASSWORD_RESET)));
             expect(query.limit).toHaveBeenCalledWith(1);
             expect(result).toBeNull();
         });
@@ -267,6 +302,20 @@ describe('TokenRepository', () => {
         });
     });
 
+    describe('markTokenRevoked', () => {
+        it('updates revokedAt when token is not yet revoked', async () => {
+            const revokedAt = new Date('2024-01-01T00:00:00Z');
+            const { updateSpy, set, where } = makeUpdateChain(1);
+
+            const result = await repo.markTokenRevoked(6, revokedAt);
+
+            expect(updateSpy).toHaveBeenCalledWith(tokens);
+            expect(set).toHaveBeenCalledWith({ revokedAt });
+            expect(where).toHaveBeenCalledWith(and(eq(tokens.id, 6), isNull(tokens.revokedAt)));
+            expect(result).toBe(1);
+        });
+    });
+
     describe('deleteByTokenHash', () => {
         it('executes delete by token query', async () => {
             const { deleteSpy, where } = makeDeleteChain();
@@ -276,6 +325,42 @@ describe('TokenRepository', () => {
             expect(deleteSpy).toHaveBeenCalledWith(tokens);
             expect(where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'token-hash-9'), eq(tokens.type, TokenType.REFRESH)));
             expect(result).toBeUndefined();
+        });
+    });
+
+    describe('deleteByTokenHashAndType', () => {
+        it('executes delete by token hash and type query', async () => {
+            const { deleteSpy, where } = makeDeleteChain();
+
+            const result = await repo.deleteByTokenHashAndType('token-hash-10', TokenType.PASSWORD_RESET);
+
+            expect(deleteSpy).toHaveBeenCalledWith(tokens);
+            expect(where).toHaveBeenCalledWith(and(eq(tokens.tokenHash, 'token-hash-10'), eq(tokens.type, TokenType.PASSWORD_RESET)));
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe('deleteBySessionId', () => {
+        it('executes delete by session id query', async () => {
+            const { deleteSpy, where } = makeDeleteChain(2);
+
+            const result = await repo.deleteBySessionId('session-id');
+
+            expect(deleteSpy).toHaveBeenCalledWith(tokens);
+            expect(where).toHaveBeenCalledWith(and(eq(tokens.sessionId, 'session-id'), eq(tokens.type, TokenType.REFRESH)));
+            expect(result).toBe(2);
+        });
+    });
+
+    describe('deleteByUserIdAndType', () => {
+        it('executes delete by user id and type query', async () => {
+            const { deleteSpy, where } = makeDeleteChain(3);
+
+            const result = await repo.deleteByUserIdAndType(7, TokenType.REFRESH);
+
+            expect(deleteSpy).toHaveBeenCalledWith(tokens);
+            expect(where).toHaveBeenCalledWith(and(eq(tokens.userId, 7), eq(tokens.type, TokenType.REFRESH)));
+            expect(result).toBe(3);
         });
     });
 });

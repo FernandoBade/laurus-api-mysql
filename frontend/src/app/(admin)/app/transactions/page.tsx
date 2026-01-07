@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import { useAccountsByUser } from "@/features/accounts/hooks";
 import { useCreditCardsByUser } from "@/features/credit-cards/hooks";
 import { useCategoriesByUser } from "@/features/categories/hooks";
@@ -36,8 +36,7 @@ import {
   formatMoney,
   toDateInputValue,
 } from "@/shared/lib/formatters";
-import { isPositiveNumber, parseNumberInput } from "@/shared/lib/validation";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui";
 import { useTranslation } from "react-i18next";
 
 
@@ -50,7 +49,7 @@ export default function TransactionsPage() {
     "resource-categories",
     "resource-tags",
   ]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const transactionsQuery = useTransactions({ sort: "date", order: "desc" });
   const accountsQuery = useAccountsByUser(userId);
   const cardsQuery = useCreditCardsByUser(userId);
@@ -252,12 +251,9 @@ export default function TransactionsPage() {
     recurring: boolean;
     paymentValue: string;
   }) => {
-    const amountResult = parseNumberInput(amount);
-    if (
-      amountResult.error ||
-      amountResult.value === undefined ||
-      !isPositiveNumber(amountResult.value)
-    ) {
+    const trimmedAmount = amount.trim();
+    const numericAmount = Number(trimmedAmount);
+    if (!trimmedAmount || Number.isNaN(numericAmount) || numericAmount <= 0) {
       return t("resource.transactions.validation.amountPositive");
     }
     if (!dateValue) {
@@ -312,11 +308,7 @@ export default function TransactionsPage() {
     }
 
     try {
-      const parsedAmount = parseNumberInput(value).value;
-      if (parsedAmount === undefined) {
-        setFormError(t("resource.transactions.validation.amountPositive"));
-        return;
-      }
+      const parsedAmount = Number(value.trim());
       await createTransactionMutation.mutateAsync({
         value: parsedAmount,
         date,
@@ -389,11 +381,7 @@ export default function TransactionsPage() {
     }
 
     try {
-      const parsedAmount = parseNumberInput(editValue).value;
-      if (parsedAmount === undefined) {
-        setEditError(t("resource.transactions.validation.amountPositive"));
-        return;
-      }
+      const parsedAmount = Number(editValue.trim());
       await updateTransactionMutation.mutateAsync({
         id: editId,
         payload: {
@@ -961,5 +949,7 @@ export default function TransactionsPage() {
     </div>
   );
 }
+
+
 
 

@@ -5,7 +5,7 @@ import {
   refreshRequest,
   setRefreshHandler,
 } from "@/shared/lib/api/client";
-import { getUserId, setAccessToken } from "@/shared/lib/auth/session";
+import { getUserId, setAccessToken } from "./session";
 import type { User } from "@/features/users/types";
 import type {
   AuthTokenResponse,

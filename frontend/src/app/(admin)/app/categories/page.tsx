@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import {
   useCategoriesByUser,
   useCreateCategory,
@@ -25,13 +25,11 @@ import {
 } from "@/features/categories/hooks";
 import type { CategoryColor, CategoryType } from "@/shared/types/domain";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
-import { isBlank } from "@/shared/lib/validation";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
 import { useTranslation } from "react-i18next";
 
 export default function CategoriesPage() {
   const { t } = useTranslation(["resource-categories", "resource-common"]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const categoriesQuery = useCategoriesByUser(userId);
   const createCategoryMutation = useCreateCategory(userId);
   const updateCategoryMutation = useUpdateCategory(userId);
@@ -106,7 +104,7 @@ export default function CategoriesPage() {
       return;
     }
 
-    if (isBlank(name)) {
+    if (!name.trim()) {
       setFormError(t("resource.categories.errors.nameRequired"));
       return;
     }
@@ -145,7 +143,7 @@ export default function CategoriesPage() {
       return;
     }
 
-    if (isBlank(editName)) {
+    if (!editName.trim()) {
       setEditError(t("resource.categories.errors.nameRequired"));
       return;
     }
@@ -261,7 +259,8 @@ export default function CategoriesPage() {
         desc={t("resource.categories.list.desc")}
       >
         {categoriesQuery.isError && (
-          <ErrorState
+          <Alert
+            variant="error"
             title={t("resource.categories.list.unavailable")}
             message={getApiErrorMessage(
               categoriesQuery.error,
@@ -270,7 +269,8 @@ export default function CategoriesPage() {
           />
         )}
         {deleteCategoryMutation.isError && (
-          <ErrorState
+          <Alert
+            variant="error"
             title={t("resource.common.errors.deleteFailed")}
             message={getApiErrorMessage(
               deleteCategoryMutation.error,
@@ -279,7 +279,9 @@ export default function CategoriesPage() {
           />
         )}
         {!categoriesQuery.isError && categoriesQuery.isLoading && (
-          <LoadingState message={t("resource.categories.list.loading")} />
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t("resource.categories.list.loading")}
+          </p>
         )}
         {!categoriesQuery.isError && !categoriesQuery.isLoading && (
           <div className="overflow-x-auto">
@@ -323,7 +325,7 @@ export default function CategoriesPage() {
                   {categories.length === 0 ? (
                     <TableRow>
                       <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        <EmptyState message={t("resource.categories.list.empty")} />
+                        {t("resource.categories.list.empty")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -448,5 +450,7 @@ export default function CategoriesPage() {
     </div>
   );
 }
+
+
 
 

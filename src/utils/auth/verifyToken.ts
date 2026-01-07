@@ -3,6 +3,7 @@ import { TokenUtils } from './tokenUtils';
 import { answerAPI } from '../commons';
 import { HTTPStatus } from '../enum';
 import { Resource } from '../resources/resource';
+import { UserService } from '../../service/userService';
 
 /**
  * Middleware to validate the access token from the Authorization header.
@@ -13,7 +14,7 @@ import { Resource } from '../resources/resource';
  * @param res - HTTP response used for error response.
  * @param next - Calls the next middleware if the token is valid.
  */
-export function verifyToken(req: Request, res: Response, next: NextFunction) {
+export async function verifyToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -25,6 +26,14 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 
     try {
         const tokenData = TokenUtils.verifyAccessToken(token) as { id: number };
+        const userService = new UserService();
+        const userResult = await userService.findOne(tokenData.id);
+
+        if (!userResult.success || !userResult.data || !userResult.data.active || !userResult.data.emailVerifiedAt) {
+            answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
+            return;
+        }
+
         req.user = { id: tokenData.id };
         next();
     } catch {

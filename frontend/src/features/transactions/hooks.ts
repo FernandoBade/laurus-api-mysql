@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createTransaction,
@@ -53,6 +54,26 @@ export const useTransactionsByUser = (
     queryFn: () => getTransactionsByUser(userId as number, params),
     enabled: Boolean(userId),
   });
+
+export const useRecentTransactions = (
+  userId: number | null,
+  params?: QueryParams
+) => {
+  const query = useTransactionsByUser(userId, params);
+  const recentTransactions = useMemo(() => {
+    const grouped = query.data?.data ?? [];
+    const flattened = grouped.flatMap((group) => group.transactions ?? []);
+    return flattened
+      .slice()
+      .sort(
+        (left, right) =>
+          new Date(right.date).getTime() - new Date(left.date).getTime()
+      )
+      .slice(0, 5);
+  }, [query.data]);
+
+  return { query, recentTransactions };
+};
 
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();

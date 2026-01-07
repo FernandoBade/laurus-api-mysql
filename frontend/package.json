@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "test": "vitest run"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.19",
@@ -49,8 +48,7 @@
     "eslint-config-next": "16.0.7",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3",
-    "vitest": "^2.1.8"
+    "typescript": "^5.9.3"
   },
   "overrides": {
     "@react-jvectormap/core": {

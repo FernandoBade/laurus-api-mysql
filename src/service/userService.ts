@@ -5,12 +5,15 @@ import { Client as FtpClient } from 'basic-ftp';
 import { Operator, Theme, Language, Currency, DateFormat, Profile } from '../utils/enum';
 import { UserRepository } from '../repositories/userRepository';
 import { Resource } from '../utils/resources/resource';
+import { LanguageCode } from '../utils/resources/resourceTypes';
 import { SelectUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import { TokenService } from './tokenService';
+import { sendEmailVerificationEmail } from '../utils/email/authEmail';
 
 export type SanitizedUser = Omit<SelectUser, 'password'>;
 
-const AVATAR_PUBLIC_BASE_URL = 'https://bade.digital/laurus/users';
+const AVATAR_PUBLIC_BASE_URL = 'https://laurus.bade.digital/laurus/users';
 const AVATAR_FILE_BASE = 'avatar';
 const AVATAR_BACKUP_BASE = 'avatar_old';
 
@@ -27,9 +30,11 @@ const resolveAvatarExtension = (mimeType: string) => {
  */
 export class UserService {
     private userRepository: UserRepository;
+    private tokenService: TokenService;
 
     constructor() {
         this.userRepository = new UserRepository();
+        this.tokenService = new TokenService();
     }
 
     /**
@@ -68,6 +73,27 @@ export class UserService {
             ...data,
             password: hashedPassword,
         });
+
+        const rollbackUser = async () => {
+            try {
+                await this.userRepository.delete(created.id);
+            } catch {
+                // Ignore rollback failures to avoid masking the root error.
+            }
+        };
+
+        try {
+            const tokenResult = await this.tokenService.createEmailVerificationToken(created.id);
+            if (!tokenResult.success || !tokenResult.data) {
+                await rollbackUser();
+                return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+            }
+
+            await sendEmailVerificationEmail(created.email, tokenResult.data.token, created.id, created.language as LanguageCode);
+        } catch {
+            await rollbackUser();
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
 
         return {
             success: true,
@@ -257,6 +283,27 @@ export class UserService {
             success: true,
             data: this.sanitizeUser(updated)
         };
+    }
+
+    /**
+     * Marks a user's email as verified.
+     *
+     * @summary Sets emailVerifiedAt timestamp for the user.
+     * @param userId - User ID.
+     * @returns Updated user or error.
+     */
+    async markEmailVerified(userId: number): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
+        const existing = await this.userRepository.findById(userId);
+        if (!existing) {
+            return { success: false, error: Resource.USER_NOT_FOUND };
+        }
+
+        if (existing.emailVerifiedAt) {
+            return { success: true, data: this.sanitizeUser(existing) };
+        }
+
+        const updated = await this.userRepository.update(userId, { emailVerifiedAt: new Date() });
+        return { success: true, data: this.sanitizeUser(updated) };
     }
 
     /**

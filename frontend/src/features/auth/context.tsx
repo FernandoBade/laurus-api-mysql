@@ -10,13 +10,13 @@ import React, {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { refreshAccessToken } from "./api";
-import { setUnauthorizedHandler } from "@/shared/lib/api/client";
+import { setAccessTokenProvider, setUnauthorizedHandler } from "@/shared/lib/api/client";
 import {
   clearAccessToken,
   getAccessToken,
   getUserId,
   setAccessToken,
-} from "@/shared/lib/auth/session";
+} from "./session";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -51,6 +51,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUserIdState(null);
     queryClient.clear();
   }, [queryClient]);
+
+  useEffect(() => {
+    setAccessTokenProvider(() => getAccessToken());
+  }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -93,10 +97,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuthSession = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuthSession must be used within an AuthProvider");
   }
   return context;
 };
+
+

@@ -4,6 +4,8 @@ import { answerAPI, formatError, createLog } from '../utils/commons';
 import { LogType, LogCategory, LogOperation, HTTPStatus } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { TokenCookie, ClearCookieOptions } from '../utils/auth/cookieConfig';
+import { recordLoginFailure, recordRefreshFailure, resetLoginRateLimit, resetRefreshRateLimit } from '../utils/auth/rateLimiter';
+import { isString, isValidEmail, hasMinLength } from '../utils/validation/guards';
 
 export class AuthController {
     /**
@@ -29,10 +31,13 @@ export class AuthController {
             const result = await authService.login(email, password);
 
             if (!result.success || !result.data) {
+                if (!result.success && result.error === Resource.INVALID_CREDENTIALS) {
+                    recordLoginFailure(req);
+                }
                 return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.INVALID_CREDENTIALS);
             }
 
-
+            resetLoginRateLimit(req);
             res.cookie(TokenCookie.name, result.data.refreshToken, TokenCookie.options);
 
             await createLog(
@@ -87,9 +92,13 @@ export class AuthController {
             const result = await authService.refresh(token);
 
             if (!result.success || !result.data) {
+                if (!result.success && result.error === Resource.EXPIRED_OR_INVALID_TOKEN) {
+                    recordRefreshFailure(req);
+                }
                 return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
             }
 
+            resetRefreshRateLimit(req);
             res.cookie(TokenCookie.name, result.data.refreshToken, TokenCookie.options);
 
             return answerAPI(req, res, HTTPStatus.OK, { token: result.data.token });
@@ -138,6 +147,105 @@ export class AuthController {
 
         } catch (error) {
             await createLog(LogType.ERROR, LogOperation.LOGOUT, LogCategory.AUTH, formatError(error), undefined, next);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Verifies an email using a verification token.
+     *
+     * @param req - Express request containing the verification token.
+     * @param res - Express response indicating verification result.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 on success or appropriate error.
+     */
+    static async verifyEmail(req: Request, res: Response, next: NextFunction) {
+        const token = req.body?.token;
+
+        if (!isString(token)) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
+        }
+
+        const authService = new AuthService();
+
+        try {
+            const result = await authService.verifyEmail(token);
+
+            if (!result.success) {
+                return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, result.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, result.data);
+        } catch (error) {
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Requests a password reset token.
+     *
+     * @param req - Express request containing the email address.
+     * @param res - Express response confirming request.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 on success or appropriate error.
+     */
+    static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+        const email = req.body?.email;
+
+        if (!isString(email) || !isValidEmail(email)) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.EMAIL_INVALID);
+        }
+
+        const authService = new AuthService();
+
+        try {
+            const result = await authService.requestPasswordReset(email);
+
+            if (!result.success) {
+                return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, result.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, result.data);
+        } catch (error) {
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Resets a password using a valid reset token.
+     *
+     * @param req - Express request containing token and new password.
+     * @param res - Express response indicating reset status.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 on success or appropriate error.
+     */
+    static async resetPassword(req: Request, res: Response, next: NextFunction) {
+        const token = req.body?.token;
+        const password = req.body?.password;
+
+        if (!isString(token)) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
+        }
+
+        if (!isString(password) || !hasMinLength(password, 6)) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.PASSWORD_TOO_SHORT);
+        }
+
+        const authService = new AuthService();
+
+        try {
+            const result = await authService.resetPassword(token, password);
+
+            if (!result.success) {
+                const status = result.error === Resource.INTERNAL_SERVER_ERROR ? HTTPStatus.INTERNAL_SERVER_ERROR : HTTPStatus.BAD_REQUEST;
+                return answerAPI(req, res, status, undefined, result.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, result.data);
+        } catch (error) {
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
             return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
         }
     }

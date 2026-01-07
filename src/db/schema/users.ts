@@ -22,6 +22,7 @@ export const users = mysqlTable('user', {
     profile: mysqlEnum('profile', Object.values(Profile) as [string, ...string[]]).default(Profile.STARTER).notNull(),
     hideValues: boolean('hideValues').default(false).notNull(),
     active: boolean('active').default(true).notNull(),
+    emailVerifiedAt: timestamp('emailVerifiedAt'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 });

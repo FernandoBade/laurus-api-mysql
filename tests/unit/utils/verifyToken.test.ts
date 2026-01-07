@@ -3,6 +3,8 @@ import { HTTPStatus } from '../../../src/utils/enum';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { Request } from 'express';
+import { UserService } from '../../../src/service/userService';
+import { makeUser } from '../../helpers/factories';
 
 declare global {
     namespace Express {
@@ -25,12 +27,16 @@ describe('verifyToken middleware', () => {
         jest.clearAllMocks();
     });
 
-    it('responds with 401 when Authorization header is missing', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it('responds with 401 when Authorization header is missing', async () => {
         const req = createMockRequest({ headers: {} });
         const res = createMockResponse();
         const next = createNext();
 
-        verifyToken(req, res, next);
+        await verifyToken(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
         expect(res.json).toHaveBeenCalledWith(
@@ -42,13 +48,14 @@ describe('verifyToken middleware', () => {
         expect(next).not.toHaveBeenCalled();
     });
 
-    it('attaches user to request and calls next when token is valid', () => {
+    it('attaches user to request and calls next when token is valid', async () => {
         verifyAccessTokenMock.mockReturnValue({ id: 42 });
+        jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: makeUser({ id: 42, active: true }) });
         const req = createMockRequest({ headers: { authorization: 'Bearer validtoken' } });
         const res = createMockResponse();
         const next = createNext();
 
-        verifyToken(req, res, next);
+        await verifyToken(req, res, next);
 
         expect(verifyAccessTokenMock).toHaveBeenCalledWith('validtoken');
         expect(req.user).toEqual({ id: 42 });
@@ -57,7 +64,7 @@ describe('verifyToken middleware', () => {
         expect(next).toHaveBeenCalledTimes(1);
     });
 
-    it('returns 401 when token verification throws', () => {
+    it('returns 401 when token verification throws', async () => {
         verifyAccessTokenMock.mockImplementation(() => {
             throw new Error('invalid');
         });
@@ -65,7 +72,48 @@ describe('verifyToken middleware', () => {
         const res = createMockResponse();
         const next = createNext();
 
-        verifyToken(req, res, next);
+        await verifyToken(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                success: false,
+                message: expect.any(String),
+            })
+        );
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns 401 when user is inactive', async () => {
+        verifyAccessTokenMock.mockReturnValue({ id: 99 });
+        jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: makeUser({ id: 99, active: false }) });
+        const req = createMockRequest({ headers: { authorization: 'Bearer validtoken' } });
+        const res = createMockResponse();
+        const next = createNext();
+
+        await verifyToken(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                success: false,
+                message: expect.any(String),
+            })
+        );
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns 401 when email is not verified', async () => {
+        verifyAccessTokenMock.mockReturnValue({ id: 100 });
+        jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({
+            success: true,
+            data: makeUser({ id: 100, active: true, emailVerifiedAt: null }),
+        });
+        const req = createMockRequest({ headers: { authorization: 'Bearer validtoken' } });
+        const res = createMockResponse();
+        const next = createNext();
+
+        await verifyToken(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
         expect(res.json).toHaveBeenCalledWith(

@@ -2,13 +2,13 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import { useTranslation } from "react-i18next";
-import { LoadingState } from "@/shared/ui/states";
+import { LoadingState } from "@/shared/ui";
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
-  const { isAuthenticated, isInitializing } = useAuth();
+  const { isAuthenticated, isInitializing } = useAuthSession();
   const { t } = useTranslation(["resource-auth", "resource-common"]);
 
   useEffect(() => {
@@ -33,3 +33,5 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 export default AuthGuard;
+
+

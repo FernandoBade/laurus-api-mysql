@@ -7,6 +7,7 @@ import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
+import * as rateLimiter from '../../../src/utils/auth/rateLimiter';
 
 describe('AuthController', () => {
     let logSpy: jest.SpyInstance;
@@ -23,6 +24,7 @@ describe('AuthController', () => {
     describe('login', () => {
         it('returns 400 when credentials are missing', async () => {
             const loginSpy = jest.spyOn(AuthService.prototype, 'login');
+            const rateSpy = jest.spyOn(rateLimiter, 'recordLoginFailure');
             const req = createMockRequest({ body: { email: '', password: '' } });
             const res = createMockResponse();
             const next = createNext();
@@ -30,6 +32,7 @@ describe('AuthController', () => {
             await AuthController.login(req, res, next);
 
             expect(loginSpy).not.toHaveBeenCalled();
+            expect(rateSpy).not.toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -43,6 +46,7 @@ describe('AuthController', () => {
 
         it('returns 401 when service rejects credentials', async () => {
             const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: false, error: Resource.INVALID_CREDENTIALS });
+            const rateSpy = jest.spyOn(rateLimiter, 'recordLoginFailure');
             const req = createMockRequest({ body: { email: 'a@b.com', password: 'wrong' } });
             const res = createMockResponse();
             const next = createNext();
@@ -51,6 +55,7 @@ describe('AuthController', () => {
 
             expect(loginSpy).toHaveBeenCalledTimes(1);
             expect(loginSpy).toHaveBeenCalledWith('a@b.com', 'wrong');
+            expect(rateSpy).toHaveBeenCalledWith(req);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -65,6 +70,7 @@ describe('AuthController', () => {
         it('returns 200 and logs on successful login', async () => {
             const data = { token: 'token123', refreshToken: 'refresh', user: makeUser({ id: 7 }) };
             const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: true, data } as any);
+            const resetSpy = jest.spyOn(rateLimiter, 'resetLoginRateLimit');
             const req = createMockRequest({
                 body: { email: 'a@b.com', password: 'secret' },
                 cookies: {},
@@ -77,6 +83,7 @@ describe('AuthController', () => {
             await AuthController.login(req, res, next);
 
             expect(loginSpy).toHaveBeenCalledWith('a@b.com', 'secret');
+            expect(resetSpy).toHaveBeenCalledWith(req);
             expect(res.cookie).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { token: data.token } }));
@@ -124,6 +131,7 @@ describe('AuthController', () => {
     describe('refresh', () => {
         it('returns 401 when refresh token missing', async () => {
             const refreshSpy = jest.spyOn(AuthService.prototype, 'refresh');
+            const rateSpy = jest.spyOn(rateLimiter, 'recordRefreshFailure');
             const req = createMockRequest({ cookies: {} });
             const res = createMockResponse();
             const next = createNext();
@@ -131,6 +139,7 @@ describe('AuthController', () => {
             await AuthController.refresh(req, res, next);
 
             expect(refreshSpy).not.toHaveBeenCalled();
+            expect(rateSpy).not.toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -144,6 +153,7 @@ describe('AuthController', () => {
 
         it('returns 401 when service rejects token', async () => {
             const refreshSpy = jest.spyOn(AuthService.prototype, 'refresh').mockResolvedValue({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+            const rateSpy = jest.spyOn(rateLimiter, 'recordRefreshFailure');
             const req = createMockRequest({ cookies: { refreshToken: 'bad' } });
             const res = createMockResponse();
             const next = createNext();
@@ -151,6 +161,7 @@ describe('AuthController', () => {
             await AuthController.refresh(req, res, next);
 
             expect(refreshSpy).toHaveBeenCalledWith('bad');
+            expect(rateSpy).toHaveBeenCalledWith(req);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -165,6 +176,7 @@ describe('AuthController', () => {
         it('returns 200 on success', async () => {
             const payload = { token: 'new-token', refreshToken: 'new-refresh' };
             const refreshSpy = jest.spyOn(AuthService.prototype, 'refresh').mockResolvedValue({ success: true, data: payload });
+            const resetSpy = jest.spyOn(rateLimiter, 'resetRefreshRateLimit');
             const req = createMockRequest({ cookies: { refreshToken: 'good' } });
             const res = createMockResponse();
             const next = createNext();
@@ -172,6 +184,7 @@ describe('AuthController', () => {
             await AuthController.refresh(req, res, next);
 
             expect(refreshSpy).toHaveBeenCalledWith('good');
+            expect(resetSpy).toHaveBeenCalledWith(req);
             expect(res.cookie).toHaveBeenCalledWith(TokenCookie.name, 'new-refresh', TokenCookie.options);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { token: 'new-token' } }));
@@ -292,6 +305,150 @@ describe('AuthController', () => {
                 next
             );
             expect(next).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('verifyEmail', () => {
+        it('returns 400 when token is missing', async () => {
+            const verifySpy = jest.spyOn(AuthService.prototype, 'verifyEmail');
+            const req = createMockRequest({ body: {} });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.verifyEmail(req, res, next);
+
+            expect(verifySpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                })
+            );
+        });
+
+        it('returns 200 when verification succeeds', async () => {
+            const verifySpy = jest.spyOn(AuthService.prototype, 'verifyEmail').mockResolvedValue({ success: true, data: { verified: true } });
+            const req = createMockRequest({ body: { token: 'token' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.verifyEmail(req, res, next);
+
+            expect(verifySpy).toHaveBeenCalledWith('token');
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { verified: true } }));
+            expect(next).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('forgotPassword', () => {
+        it('returns 400 when email is invalid', async () => {
+            const resetSpy = jest.spyOn(AuthService.prototype, 'requestPasswordReset');
+            const req = createMockRequest({ body: { email: 'bad-email' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.forgotPassword(req, res, next);
+
+            expect(resetSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EMAIL_INVALID, 'en-US'),
+                })
+            );
+        });
+
+        it('returns 200 when request succeeds', async () => {
+            const resetSpy = jest.spyOn(AuthService.prototype, 'requestPasswordReset').mockResolvedValue({ success: true, data: { sent: true } });
+            const req = createMockRequest({ body: { email: 'user@example.com' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.forgotPassword(req, res, next);
+
+            expect(resetSpy).toHaveBeenCalledWith('user@example.com');
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { sent: true } }));
+        });
+
+        it('returns 500 when service throws', async () => {
+            jest.spyOn(AuthService.prototype, 'requestPasswordReset').mockRejectedValue(new Error('boom'));
+            const req = createMockRequest({ body: { email: 'user@example.com' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.forgotPassword(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                })
+            );
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.ERROR,
+                LogOperation.UPDATE,
+                LogCategory.AUTH,
+                expect.any(Object),
+                undefined,
+                next
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('resetPassword', () => {
+        it('returns 400 when token is missing', async () => {
+            const resetSpy = jest.spyOn(AuthService.prototype, 'resetPassword');
+            const req = createMockRequest({ body: { password: 'password123' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resetPassword(req, res, next);
+
+            expect(resetSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                })
+            );
+        });
+
+        it('returns 400 when password is too short', async () => {
+            const resetSpy = jest.spyOn(AuthService.prototype, 'resetPassword');
+            const req = createMockRequest({ body: { token: 'token', password: '123' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resetPassword(req, res, next);
+
+            expect(resetSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.PASSWORD_TOO_SHORT, 'en-US'),
+                })
+            );
+        });
+
+        it('returns 200 when reset succeeds', async () => {
+            const resetSpy = jest.spyOn(AuthService.prototype, 'resetPassword').mockResolvedValue({ success: true, data: { reset: true } });
+            const req = createMockRequest({ body: { token: 'token', password: 'password123' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resetPassword(req, res, next);
+
+            expect(resetSpy).toHaveBeenCalledWith('token', 'password123');
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: { reset: true } }));
         });
     });
 });

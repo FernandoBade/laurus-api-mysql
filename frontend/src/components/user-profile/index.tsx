@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import { useTheme } from "@/shared/context/ThemeContext";
 import { useUpdateUser, useUploadAvatar, useUser } from "@/features/users/hooks";
 import {
@@ -195,7 +195,7 @@ export default function UserProfile() {
     "resource-layout",
     "resource-forms",
   ]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const { theme, setTheme } = useTheme();
   const { data: userResponse } = useUser(userId);
   const updateUserMutation = useUpdateUser(userId);
@@ -857,6 +857,7 @@ export default function UserProfile() {
     </>
   );
 }
+
 
 
 

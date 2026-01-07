@@ -103,6 +103,8 @@ export enum LogOperation {
 
 export enum TokenType {
     REFRESH = 'refresh',
+    EMAIL_VERIFICATION = 'email_verification',
+    PASSWORD_RESET = 'password_reset',
 }
 
 export enum Operator {

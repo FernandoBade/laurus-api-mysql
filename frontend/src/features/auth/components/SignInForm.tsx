@@ -8,7 +8,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/features/auth/hooks";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeClosed, GoogleLogo, XLogo } from "@phosphor-icons/react";
@@ -21,7 +21,7 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const loginMutation = useLogin();
-  const { setSession } = useAuth();
+  const { setSession } = useAuthSession();
   const { t } = useTranslation(["resource-auth", "resource-common"]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -190,3 +190,4 @@ export default function SignInForm() {
     </div>
   );
 }
+

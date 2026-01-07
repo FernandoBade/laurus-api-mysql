@@ -1,10 +1,12 @@
 import bcrypt from 'bcrypt';
 import { UserService } from '../../../src/service/userService';
 import { UserRepository } from '../../../src/repositories/userRepository';
+import { TokenService } from '../../../src/service/tokenService';
 import { Operator } from '../../../src/utils/enum';
 import { Resource } from '../../../src/utils/resources/resource';
 import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
 import { makeCreateUserInput, makeUser } from '../../helpers/factories';
+import { sendEmailVerificationEmail } from '../../../src/utils/email/authEmail';
 
 const ftpClientMock = {
     access: jest.fn(),
@@ -25,11 +27,16 @@ jest.mock('basic-ftp', () => ({
     Client: jest.fn(() => ftpClientMock),
 }));
 
+jest.mock('../../../src/utils/email/authEmail', () => ({
+    sendEmailVerificationEmail: jest.fn(),
+}));
+
 type HashFn = (data: string | Buffer, saltOrRounds: string | number) => Promise<string>;
 type CompareFn = (data: string | Buffer, encrypted: string) => Promise<boolean>;
 
 const hashMock = bcrypt.hash as jest.MockedFunction<HashFn>;
 const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
+const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;
 
 const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
@@ -73,6 +80,11 @@ describe('UserService', () => {
             hashMock.mockResolvedValue('hashed-password');
             const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password', hideValues: true });
             const createSpy = jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
+            const createTokenSpy = jest.spyOn(TokenService.prototype, 'createEmailVerificationToken').mockResolvedValue({
+                success: true,
+                data: { token: 'verify-token', expiresAt: new Date('2099-01-01T00:00:00Z') },
+            });
+            sendEmailVerificationMock.mockResolvedValue();
 
             const service = new UserService();
             const result = await service.createUser(payload);
@@ -88,6 +100,8 @@ describe('UserService', () => {
                     hideValues: true,
                 })
             );
+            expect(createTokenSpy).toHaveBeenCalledWith(created.id);
+            expect(sendEmailVerificationMock).toHaveBeenCalledWith(created.email, 'verify-token', created.id, created.language);
             expect(result).toEqual(
                 expect.objectContaining({
                     success: true,
@@ -101,6 +115,27 @@ describe('UserService', () => {
             if (result.success) {
                 expect(result.data).not.toHaveProperty('password');
             }
+        });
+
+        it('returns internal server error when verification token creation fails', async () => {
+            const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ' });
+            jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
+            hashMock.mockResolvedValue('hashed-password');
+            const created = makeUser({ id: 3, email: 'jane.doe@example.com', password: 'hashed-password' });
+            jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
+            const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete').mockResolvedValue();
+            const createTokenSpy = jest.spyOn(TokenService.prototype, 'createEmailVerificationToken').mockResolvedValue({
+                success: false,
+                error: Resource.INTERNAL_SERVER_ERROR,
+            });
+
+            const service = new UserService();
+            const result = await service.createUser(payload);
+
+            expect(createTokenSpy).toHaveBeenCalledWith(created.id);
+            expect(deleteSpy).toHaveBeenCalledWith(created.id);
+            expect(sendEmailVerificationMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
         });
 
         it('throws when repository create rejects', async () => {
@@ -673,7 +708,7 @@ describe('UserService', () => {
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue({
                 ...user,
-                avatarUrl: 'https://bade.digital/laurus/users/7/avatar/avatar.png',
+                avatarUrl: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png',
             });
 
             const service = new UserService();
@@ -693,11 +728,11 @@ describe('UserService', () => {
             expect(ftpClientMock.ensureDir).toHaveBeenCalledWith('/public_html/laurus/users/7/avatar');
             expect(ftpClientMock.uploadFrom).toHaveBeenCalledWith(expect.any(Object), 'avatar.png');
             expect(updateSpy).toHaveBeenCalledWith(7, {
-                avatarUrl: 'https://bade.digital/laurus/users/7/avatar/avatar.png',
+                avatarUrl: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png',
             });
             expect(result).toEqual({
                 success: true,
-                data: { url: 'https://bade.digital/laurus/users/7/avatar/avatar.png' },
+                data: { url: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png' },
             });
         });
 

@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/features/auth/context";
+import { useAuthSession } from "@/features/auth/context";
 import { useAccountsByUser } from "@/features/accounts/hooks";
 import { useCreditCardsByUser } from "@/features/credit-cards/hooks";
-import { useTransactionsByUser } from "@/features/transactions/hooks";
+import { useRecentTransactions } from "@/features/transactions/hooks";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
 import { formatDate, formatMoney } from "@/shared/lib/formatters";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui/states";
+import { EmptyState, ErrorState, LoadingState } from "@/shared/ui";
 import { useTranslation } from "react-i18next";
 
 export default function DashboardPage() {
@@ -26,14 +26,15 @@ export default function DashboardPage() {
     "resource-creditCards",
     "resource-transactions",
   ]);
-  const { userId } = useAuth();
+  const { userId } = useAuthSession();
   const accountsQuery = useAccountsByUser(userId);
   const creditCardsQuery = useCreditCardsByUser(userId);
-  const transactionsQuery = useTransactionsByUser(userId, {
-    limit: 5,
-    sort: "date",
-    order: "desc",
-  });
+  const { query: transactionsQuery, recentTransactions } =
+    useRecentTransactions(userId, {
+      limit: 5,
+      sort: "date",
+      order: "desc",
+    });
 
   const accounts = accountsQuery.data?.data ?? [];
   const creditCards = creditCardsQuery.data?.data ?? [];
@@ -45,18 +46,6 @@ export default function DashboardPage() {
     () => new Map(creditCards.map((card) => [card.id, card.name])),
     [creditCards]
   );
-
-  const recentTransactions = useMemo(() => {
-    const grouped = transactionsQuery.data?.data ?? [];
-    const flattened = grouped.flatMap((group) => group.transactions ?? []);
-    return flattened
-      .slice()
-      .sort(
-        (left, right) =>
-          new Date(right.date).getTime() - new Date(left.date).getTime()
-      )
-      .slice(0, 5);
-  }, [transactionsQuery.data]);
 
   return (
     <div className="space-y-6">
@@ -256,5 +245,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
 
 

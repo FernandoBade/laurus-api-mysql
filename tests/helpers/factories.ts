@@ -24,6 +24,7 @@ export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
         profile: overrides.profile ?? Profile.STARTER,
         hideValues: overrides.hideValues ?? false,
         active: overrides.active ?? true,
+        emailVerifiedAt: overrides.emailVerifiedAt !== undefined ? overrides.emailVerifiedAt : now,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
     };
