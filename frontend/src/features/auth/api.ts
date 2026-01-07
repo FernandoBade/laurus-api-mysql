@@ -11,6 +11,10 @@ import type {
   AuthTokenResponse,
   LoginRequest,
   RegisterRequest,
+  ResendVerificationRequest,
+  ResendVerificationResponse,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
 } from "./types";
 
 export const login = (payload: LoginRequest): Promise<ApiResponse<AuthTokenResponse>> =>
@@ -19,6 +23,16 @@ export const login = (payload: LoginRequest): Promise<ApiResponse<AuthTokenRespo
 export const register = (
   payload: RegisterRequest
 ): Promise<ApiResponse<User>> => apiPost<User>("/users", payload);
+
+export const verifyEmail = (
+  payload: VerifyEmailRequest
+): Promise<ApiResponse<VerifyEmailResponse>> =>
+  apiPost<VerifyEmailResponse>("/auth/verify-email", payload);
+
+export const resendVerificationEmail = (
+  payload: ResendVerificationRequest
+): Promise<ApiResponse<ResendVerificationResponse>> =>
+  apiPost<ResendVerificationResponse>("/auth/resend-verification", payload);
 
 export const refreshAccessToken = async () => {
   try {

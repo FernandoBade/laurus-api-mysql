@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
@@ -5,8 +6,8 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import Alert from "@/components/ui/alert/Alert";
 import Link from "next/link";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLogin } from "@/features/auth/hooks";
 import { useAuthSession } from "@/features/auth/context";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
@@ -20,9 +21,23 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const loginMutation = useLogin();
   const { setSession } = useAuthSession();
   const { t } = useTranslation(["resource-auth", "resource-common"]);
+  const verified = ["1", "true"].includes(
+    (searchParams.get("verified") ?? "").toLowerCase()
+  );
+  const queryEmail = useMemo(
+    () => (searchParams.get("email") ?? "").trim(),
+    [searchParams]
+  );
+
+  useEffect(() => {
+    if (queryEmail) {
+      setEmail((current) => current || queryEmail);
+    }
+  }, [queryEmail]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -104,6 +119,13 @@ export default function SignInForm() {
                     message={formError}
                   />
                 )}
+                {verified && !formError && (
+                  <Alert
+                    variant="success"
+                    title={t("resource.auth.login.success.verifiedTitle")}
+                    message={t("resource.auth.login.success.verifiedMessage")}
+                  />
+                )}
                 <div>
                   <Label>
                     {t("resource.common.fields.email")} <span className="text-error-500">*</span>{" "}
@@ -112,6 +134,7 @@ export default function SignInForm() {
                     placeholder={t("resource.auth.login.placeholders.email")}
                     type="email"
                     name="email"
+                    value={email}
                     onChange={(event) => setEmail(event.target.value)}
                   />
                 </div>

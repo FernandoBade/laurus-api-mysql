@@ -14,6 +14,7 @@ const esES: LanguageResource = {
     EMAIL_LINK_LABEL: "Enlace:",
     EMAIL_VERIFICATION_BODY: "Usa el enlace de abajo para verificar tu correo electrónico.",
     EMAIL_VERIFICATION_REQUIRED: "Cuenta creada. Revisa tu correo para verificar tu cuenta.",
+    EMAIL_VERIFICATION_REQUESTED: "Si este correo existe, recibirás instrucciones de verificación pronto.",
     EMAIL_VERIFICATION_SUCCESS: "Correo electrónico verificado correctamente.",
     EMAIL_VERIFICATION_SUBJECT: "Verifica tu correo electrónico",
     EXPIRED_OR_INVALID_TOKEN: "Token expirado o inválido",

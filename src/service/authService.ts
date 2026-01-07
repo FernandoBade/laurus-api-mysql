@@ -8,7 +8,7 @@ import { UserService } from './userService';
 import { SelectUser } from '../db/schema';
 import { createLog } from '../utils/commons';
 import { buildPersistedTokenExpiresAt, buildSessionExpiresAt } from '../utils/auth/tokenConfig';
-import { sendPasswordResetEmail } from '../utils/email/authEmail';
+import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../utils/email/authEmail';
 
 /**
  * Service for authentication operations.
@@ -261,6 +261,43 @@ export class AuthService {
 
         const alreadyVerified = Boolean(tokenResult.data.alreadyVerified);
         return { success: true, data: { verified: true, alreadyVerified } };
+    }
+
+    /**
+     * Resends an email verification token.
+     *
+     * @summary Issues a new email verification token and sends it.
+     * @param email - User email.
+     * @returns Success status.
+     */
+    async resendEmailVerification(email: string): Promise<{ success: true; data: { sent: true } } | { success: false; error: Resource }> {
+        const userResult = await this.userService.findUserByEmailExact(email.trim().toLowerCase());
+        if (!userResult.success || !userResult.data || !userResult.data.active) {
+            return { success: true, data: { sent: true } };
+        }
+
+        if (userResult.data.emailVerifiedAt) {
+            return { success: true, data: { sent: true } };
+        }
+
+        await this.tokenService.deleteByUserIdAndType(userResult.data.id, TokenType.EMAIL_VERIFICATION);
+
+        const tokenResult = await this.tokenService.createEmailVerificationToken(userResult.data.id);
+        if (!tokenResult.success || !tokenResult.data) {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+        }
+
+        try {
+            await sendEmailVerificationEmail(
+                userResult.data.email,
+                tokenResult.data.token,
+                userResult.data.id
+            );
+        } catch {
+            // Ignore email failures to keep the response generic.
+        }
+
+        return { success: true, data: { sent: true } };
     }
 
     /**

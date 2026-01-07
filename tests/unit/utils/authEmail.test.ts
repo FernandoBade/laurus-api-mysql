@@ -70,21 +70,9 @@ describe('authEmail utils', () => {
         expect(link).toBe('https://app.example.com/verify-email?token=token%20value%3F');
     });
 
-    it('builds reset link with app url when frontend base url is missing', async () => {
-        const { module } = await loadAuthEmail({
-            FRONTEND_BASE_URL: undefined,
-            APP_URL: 'https://app.example.com',
-        });
-
-        const link = module.buildPasswordResetLink('reset-token');
-
-        expect(link).toBe('https://app.example.com/reset-password?token=reset-token');
-    });
-
     it('builds relative link when no base url is defined', async () => {
         const { module } = await loadAuthEmail({
             FRONTEND_BASE_URL: undefined,
-            APP_URL: undefined,
         });
 
         const link = module.buildEmailVerificationLink('abc');

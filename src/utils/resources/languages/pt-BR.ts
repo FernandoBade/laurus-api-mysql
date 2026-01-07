@@ -14,6 +14,7 @@ const ptBR: LanguageResource = {
     EMAIL_LINK_LABEL: "Link:",
     EMAIL_VERIFICATION_BODY: "Use o link abaixo para verificar seu email.",
     EMAIL_VERIFICATION_REQUIRED: "Conta criada. Verifique seu email para ativar a conta.",
+    EMAIL_VERIFICATION_REQUESTED: "Se este email existir, você receberá instruções de verificação em breve.",
     EMAIL_VERIFICATION_SUCCESS: "Email verificado com sucesso.",
     EMAIL_VERIFICATION_SUBJECT: "Verifique seu email",
     EXPIRED_OR_INVALID_TOKEN: "Token expirado ou inválido",

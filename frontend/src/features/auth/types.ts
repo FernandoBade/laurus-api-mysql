@@ -30,3 +30,21 @@ export type RegisterRequest = {
   hideValues?: boolean;
   active?: boolean;
 };
+
+export type VerifyEmailRequest = {
+  token: string;
+};
+
+export type VerifyEmailResponse = {
+  verified: true;
+  alreadyVerified?: boolean;
+  email?: string;
+};
+
+export type ResendVerificationRequest = {
+  email: string;
+};
+
+export type ResendVerificationResponse = {
+  sent: true;
+};

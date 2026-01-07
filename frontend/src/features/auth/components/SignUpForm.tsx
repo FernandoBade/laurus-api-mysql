@@ -15,7 +15,6 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +26,6 @@ export default function SignUpForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
-    setFormSuccess(null);
 
     if (!firstName || !lastName || !email || !password) {
       setFormError(t("resource.auth.register.errors.missingFields"));
@@ -48,8 +46,8 @@ export default function SignUpForm() {
       });
 
       if (result.success) {
-        setFormSuccess(t("resource.auth.register.success.created"));
-        router.replace("/app/login");
+        const encodedEmail = encodeURIComponent(email.trim());
+        router.replace(`/verify-email?email=${encodedEmail}&sent=1`);
         return;
       }
       setFormError(
@@ -110,13 +108,6 @@ export default function SignUpForm() {
                     variant="error"
                     title={t("resource.auth.register.errors.title")}
                     message={formError}
-                  />
-                )}
-                {formSuccess && (
-                  <Alert
-                    variant="success"
-                    title={t("resource.auth.register.success.title")}
-                    message={formSuccess}
                   />
                 )}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

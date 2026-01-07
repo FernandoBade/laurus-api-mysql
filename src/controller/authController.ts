@@ -186,6 +186,37 @@ export class AuthController {
     }
 
     /**
+     * Resends an email verification token.
+     *
+     * @param req - Express request containing the email address.
+     * @param res - Express response confirming request.
+     * @param next - Express next function for error handling.
+     * @returns HTTP 200 on success or appropriate error.
+     */
+    static async resendVerificationEmail(req: Request, res: Response, next: NextFunction) {
+        const email = req.body?.email;
+
+        if (!isString(email) || !isValidEmail(email)) {
+            return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.EMAIL_INVALID);
+        }
+
+        const authService = new AuthService();
+
+        try {
+            const result = await authService.resendEmailVerification(email);
+
+            if (!result.success) {
+                return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, result.error);
+            }
+
+            return answerAPI(req, res, HTTPStatus.OK, result.data, Resource.EMAIL_VERIFICATION_REQUESTED);
+        } catch (error) {
+            await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
+            return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, Resource.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Requests a password reset token.
      *
      * @param req - Express request containing the email address.

@@ -22,7 +22,7 @@ type AuthEmailContent = {
     linkLabel: string;
 };
 
-const BASE_URL = (process.env.FRONTEND_BASE_URL ?? process.env.APP_URL ?? '').replace(/\/$/, '');
+const BASE_URL = (process.env.FRONTEND_BASE_URL ?? '').replace(/\/$/, '');
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;

@@ -14,6 +14,7 @@ const enUS: LanguageResource = {
     EMAIL_LINK_LABEL: "Link:",
     EMAIL_VERIFICATION_BODY: "Use the link below to verify your email address.",
     EMAIL_VERIFICATION_REQUIRED: "Account created. Please check your email to verify your account.",
+    EMAIL_VERIFICATION_REQUESTED: "If this email exists, you will receive verification instructions shortly.",
     EMAIL_VERIFICATION_SUCCESS: "Email verified successfully.",
     EMAIL_VERIFICATION_SUBJECT: "Verify your email",
     EXPIRED_OR_INVALID_TOKEN: "Expired or invalid token",

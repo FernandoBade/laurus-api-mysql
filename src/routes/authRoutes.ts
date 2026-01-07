@@ -66,6 +66,18 @@ router.post('/verify-email', async (req: Request, res: Response, next: NextFunct
 });
 
 /**
+ * @route POST /resend-verification
+ * @description Resends email verification token.
+ */
+router.post('/resend-verification', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await AuthController.resendVerificationEmail(req, res, next);
+    } catch (error) {
+        await createLog(LogType.ERROR, LogOperation.UPDATE, LogCategory.AUTH, formatError(error), undefined, next);
+    }
+});
+
+/**
  * @route POST /forgot-password
  * @description Sends a password reset token to the user email.
  */
