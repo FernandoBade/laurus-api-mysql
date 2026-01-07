@@ -7,7 +7,7 @@ import { TokenService } from './tokenService';
 import { UserService } from './userService';
 import { SelectUser } from '../db/schema';
 import { createLog } from '../utils/commons';
-import { buildPersistedTokenExpiresAt, buildSessionExpiresAt } from '../utils/auth/tokenConfig';
+import { buildPersistedTokenExpiresAt, buildSessionExpiresAt, EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS } from '../utils/auth/tokenConfig';
 import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../utils/email/authEmail';
 
 /**
@@ -54,11 +54,11 @@ export class AuthService {
         if (!user.active) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }
-        if (!user.emailVerifiedAt) {
-            return { success: false, error: Resource.INVALID_CREDENTIALS };
-        }
         if (!user.password || !(await bcrypt.compare(password, user.password))) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
+        }
+        if (!user.emailVerifiedAt) {
+            return { success: false, error: Resource.EMAIL_NOT_VERIFIED };
         }
 
         const token = TokenUtils.generateAccessToken({ id: user.id });
@@ -270,7 +270,12 @@ export class AuthService {
      * @param email - User email.
      * @returns Success status.
      */
-    async resendEmailVerification(email: string): Promise<{ success: true; data: { sent: true } } | { success: false; error: Resource }> {
+    async resendEmailVerification(
+        email: string
+    ): Promise<
+        | { success: true; data: { sent: true } }
+        | { success: false; error: Resource; data?: { cooldownSeconds: number } }
+    > {
         const userResult = await this.userService.findUserByEmailExact(email.trim().toLowerCase());
         if (!userResult.success || !userResult.data || !userResult.data.active) {
             return { success: true, data: { sent: true } };
@@ -278,6 +283,24 @@ export class AuthService {
 
         if (userResult.data.emailVerifiedAt) {
             return { success: true, data: { sent: true } };
+        }
+
+        const latestToken = await this.tokenService.findLatestByUserIdAndType(
+            userResult.data.id,
+            TokenType.EMAIL_VERIFICATION
+        );
+        if (latestToken?.createdAt) {
+            const now = new Date();
+            const elapsedMs = now.getTime() - new Date(latestToken.createdAt).getTime();
+            const cooldownMs = EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS * 1000;
+            if (elapsedMs < cooldownMs) {
+                const remainingSeconds = Math.ceil((cooldownMs - elapsedMs) / 1000);
+                return {
+                    success: false,
+                    error: Resource.EMAIL_VERIFICATION_COOLDOWN,
+                    data: { cooldownSeconds: remainingSeconds }
+                };
+            }
         }
 
         await this.tokenService.deleteByUserIdAndType(userResult.data.id, TokenType.EMAIL_VERIFICATION);

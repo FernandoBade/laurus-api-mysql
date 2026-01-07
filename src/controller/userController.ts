@@ -46,6 +46,14 @@ class UserController {
             const newUser = await userService.createUser(parseResult.data);
 
             if (!newUser.success) {
+                if (newUser.error === Resource.EMAIL_NOT_VERIFIED) {
+                    return answerAPI(req, res, HTTPStatus.BAD_REQUEST, {
+                        code: Resource.EMAIL_NOT_VERIFIED,
+                        email: parseResult.data.email,
+                        canResend: true,
+                        verificationSent: true
+                    }, Resource.EMAIL_NOT_VERIFIED);
+                }
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, newUser.error);
             }
 

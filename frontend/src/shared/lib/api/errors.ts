@@ -18,19 +18,25 @@ type ApiErrorInit = {
   kind: ApiErrorKind;
   status?: number;
   details?: ApiValidationError[];
+  code?: string;
+  data?: Record<string, unknown>;
 };
 
 export class ApiClientError extends Error {
   readonly kind: ApiErrorKind;
   readonly status?: number;
   readonly details?: ApiValidationError[];
+  readonly code?: string;
+  readonly data?: Record<string, unknown>;
 
-  constructor({ message, kind, status, details }: ApiErrorInit) {
+  constructor({ message, kind, status, details, code, data }: ApiErrorInit) {
     super(message);
     this.name = "ApiClientError";
     this.kind = kind;
     this.status = status;
     this.details = details;
+    this.code = code;
+    this.data = data;
   }
 }
 
@@ -59,6 +65,23 @@ const extractMessage = (payload?: ApiErrorPayload) => {
     if (message) {
       return message;
     }
+  }
+  return undefined;
+};
+
+const extractErrorData = (
+  payload?: ApiErrorPayload
+): Record<string, unknown> | undefined => {
+  if (!payload || !payload.error || typeof payload.error !== "object") {
+    return undefined;
+  }
+  return payload.error as Record<string, unknown>;
+};
+
+const extractErrorCode = (payload?: ApiErrorPayload) => {
+  const data = extractErrorData(payload);
+  if (data && typeof data.code === "string") {
+    return data.code;
   }
   return undefined;
 };
@@ -95,6 +118,8 @@ export const getApiErrorFromPayload = (
   const normalized = coercePayload(payload);
   const details = extractValidationErrors(normalized);
   const message = extractMessage(normalized) ?? fallbackMessage;
+  const data = extractErrorData(normalized);
+  const code = extractErrorCode(normalized);
   const kind =
     details.length > 0
       ? "validation"
@@ -106,6 +131,8 @@ export const getApiErrorFromPayload = (
     kind,
     status,
     details: details.length > 0 ? details : undefined,
+    data,
+    code,
   });
 };
 
@@ -124,6 +151,8 @@ export const normalizeApiError = (
       extractMessage(payload) ??
       error.message ??
       fallbackMessage;
+    const data = extractErrorData(payload);
+    const code = extractErrorCode(payload);
     const kind =
       details.length > 0
         ? "validation"
@@ -137,6 +166,8 @@ export const normalizeApiError = (
       kind,
       status,
       details: details.length > 0 ? details : undefined,
+      data,
+      code,
     });
   }
   if (error instanceof Error) {

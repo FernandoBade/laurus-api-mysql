@@ -6,26 +6,95 @@ import Alert from "@/components/ui/alert/Alert";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRegister } from "@/features/auth/hooks";
-import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import { useRegister, useResendVerificationEmail } from "@/features/auth/hooks";
+import { normalizeApiError } from "@/shared/lib/api/errors";
 import { useTranslation } from "react-i18next";
 import { CaretLeft, Eye, EyeClosed, GoogleLogo, XLogo } from "@phosphor-icons/react";
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [notVerifiedEmail, setNotVerifiedEmail] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const registerMutation = useRegister();
+  const resendMutation = useResendVerificationEmail();
   const router = useRouter();
   const { t } = useTranslation(["resource-auth", "resource-common"]);
+
+  React.useEffect(() => {
+    if (cooldown <= 0) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCooldown((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const resendDisabled = resendMutation.isPending || cooldown > 0;
+  const resendLabel = React.useMemo(() => {
+    if (resendMutation.isPending) {
+      return t("resource.auth.verifyEmail.resend.actions.sending");
+    }
+    if (cooldown > 0) {
+      return t("resource.auth.verifyEmail.resend.actions.cooldown", {
+        seconds: cooldown,
+      });
+    }
+    return t("resource.auth.verifyEmail.resend.actions.send");
+  }, [cooldown, resendMutation.isPending, t]);
+
+  const handleResend = async () => {
+    setResendSuccess(null);
+    setResendError(null);
+
+    const targetEmail = (notVerifiedEmail || email).trim();
+    if (!targetEmail) {
+      setResendError(t("resource.auth.verifyEmail.resend.errors.missingEmail"));
+      return;
+    }
+
+    try {
+      await resendMutation.mutateAsync({ email: targetEmail });
+      setResendSuccess(t("resource.auth.verifyEmail.resend.success"));
+      setCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (error) {
+      const normalized = normalizeApiError(
+        error,
+        t("resource.auth.verifyEmail.resend.errors.failed")
+      );
+      if (normalized.code === "EMAIL_VERIFICATION_COOLDOWN") {
+        const cooldownSeconds = Number(
+          (normalized.data as { cooldownSeconds?: number } | undefined)
+            ?.cooldownSeconds ?? RESEND_COOLDOWN_SECONDS
+        );
+        setCooldown(cooldownSeconds);
+        setResendError(
+          t("resource.auth.verifyEmail.resend.errors.cooldown", {
+            seconds: cooldownSeconds,
+          })
+        );
+        return;
+      }
+      setResendError(t("resource.auth.verifyEmail.resend.errors.failed"));
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
+    setNotVerifiedEmail(null);
+    setResendError(null);
+    setResendSuccess(null);
 
     if (!firstName || !lastName || !email || !password) {
       setFormError(t("resource.auth.register.errors.missingFields"));
@@ -54,9 +123,21 @@ export default function SignUpForm() {
         result.message || t("resource.auth.register.errors.unableToCreate")
       );
     } catch (error) {
-      setFormError(
-        getApiErrorMessage(error, t("resource.common.errors.generic"))
+      const normalized = normalizeApiError(
+        error,
+        t("resource.common.errors.generic")
       );
+      if (normalized.code === "EMAIL_NOT_VERIFIED") {
+        const errorEmail =
+          typeof (normalized.data as { email?: string } | undefined)?.email ===
+          "string"
+            ? (normalized.data as { email?: string }).email
+            : email;
+        setNotVerifiedEmail(errorEmail?.trim() || null);
+        setFormError(null);
+        return;
+      }
+      setFormError(normalized.message);
     }
   };
   return (
@@ -109,6 +190,45 @@ export default function SignUpForm() {
                     title={t("resource.auth.register.errors.title")}
                     message={formError}
                   />
+                )}
+                {notVerifiedEmail && (
+                  <Alert
+                    variant="warning"
+                    title={t("resource.auth.register.notVerified.title")}
+                    message={
+                      notVerifiedEmail
+                        ? t("resource.auth.register.notVerified.messageWithEmail", {
+                            email: notVerifiedEmail,
+                          })
+                        : t("resource.auth.register.notVerified.message")
+                    }
+                  />
+                )}
+                {notVerifiedEmail && (
+                  <div className="space-y-3">
+                    {resendError && (
+                      <Alert
+                        variant="error"
+                        title={t("resource.auth.verifyEmail.resend.errors.title")}
+                        message={resendError}
+                      />
+                    )}
+                    {resendSuccess && (
+                      <Alert
+                        variant="success"
+                        title={t("resource.auth.verifyEmail.resend.successTitle")}
+                        message={resendSuccess}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
+                      onClick={handleResend}
+                      disabled={resendDisabled}
+                    >
+                      {resendLabel}
+                    </button>
+                  </div>
                 )}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div className="sm:col-span-1">

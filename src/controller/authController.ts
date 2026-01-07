@@ -33,6 +33,15 @@ export class AuthController {
             if (!result.success || !result.data) {
                 if (!result.success && result.error === Resource.INVALID_CREDENTIALS) {
                     recordLoginFailure(req);
+                    return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.INVALID_CREDENTIALS);
+                }
+                if (!result.success && result.error === Resource.EMAIL_NOT_VERIFIED) {
+                    return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, {
+                        code: Resource.EMAIL_NOT_VERIFIED,
+                        email,
+                        canResend: true,
+                        verificationSent: true
+                    }, Resource.EMAIL_NOT_VERIFIED);
                 }
                 return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.INVALID_CREDENTIALS);
             }
@@ -206,6 +215,12 @@ export class AuthController {
             const result = await authService.resendEmailVerification(email);
 
             if (!result.success) {
+                if (result.error === Resource.EMAIL_VERIFICATION_COOLDOWN) {
+                    return answerAPI(req, res, HTTPStatus.TOO_MANY_REQUESTS, {
+                        code: Resource.EMAIL_VERIFICATION_COOLDOWN,
+                        cooldownSeconds: result.data?.cooldownSeconds ?? 0
+                    }, Resource.EMAIL_VERIFICATION_COOLDOWN);
+                }
                 return answerAPI(req, res, HTTPStatus.INTERNAL_SERVER_ERROR, undefined, result.error);
             }
 

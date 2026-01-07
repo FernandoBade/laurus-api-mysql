@@ -11,7 +11,7 @@ import { ResourceBase } from '../../../src/utils/resources/languages/resourceSer
 import { SelectToken } from '../../../src/db/schema';
 import * as commons from '../../../src/utils/commons';
 import { makeSanitizedUser, makeUser } from '../../helpers/factories';
-import { sendPasswordResetEmail } from '../../../src/utils/email/authEmail';
+import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../../../src/utils/email/authEmail';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn(),
@@ -19,6 +19,7 @@ jest.mock('bcrypt', () => ({
 }));
 
 jest.mock('../../../src/utils/email/authEmail', () => ({
+    sendEmailVerificationEmail: jest.fn(),
     sendPasswordResetEmail: jest.fn(),
 }));
 
@@ -31,6 +32,7 @@ const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 const SESSION_ID = '00000000-0000-4000-8000-000000000000';
+const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;
 const sendPasswordResetMock = sendPasswordResetEmail as jest.MockedFunction<typeof sendPasswordResetEmail>;
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
@@ -141,21 +143,22 @@ describe('AuthService', () => {
             expect(logSpy).not.toHaveBeenCalled();
         });
 
-        it('returns invalid credentials when email is not verified', async () => {
+        it('returns email not verified when credentials are valid', async () => {
             const user = makeUser({ id: 4, email: 'user@example.com', emailVerifiedAt: null });
             const sanitized = makeSanitizedUser({ id: user.id, email: user.email, emailVerifiedAt: null });
             jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(UserService.prototype, 'findOne').mockResolvedValue({ success: true, data: user });
+            compareMock.mockResolvedValue(true);
 
             const service = new AuthService();
             const result = await service.login('user@example.com', 'secret');
 
-            expect(compareMock).not.toHaveBeenCalled();
-            expect(result).toEqual({ success: false, error: Resource.INVALID_CREDENTIALS });
+            expect(compareMock).toHaveBeenCalledWith('secret', user.password);
+            expect(result).toEqual({ success: false, error: Resource.EMAIL_NOT_VERIFIED });
             expect(result.success).toBe(false);
             if (!result.success) {
-                expect(result.error).toBe(Resource.INVALID_CREDENTIALS);
-                expect(translate(result.error)).toBe(translate(Resource.INVALID_CREDENTIALS));
+                expect(result.error).toBe(Resource.EMAIL_NOT_VERIFIED);
+                expect(translate(result.error)).toBe(translate(Resource.EMAIL_NOT_VERIFIED));
             }
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -702,6 +705,75 @@ describe('AuthService', () => {
             const result = await service.verifyEmail('token');
 
             expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+    });
+
+    describe('resendEmailVerification', () => {
+        it('returns cooldown when a recent token exists', async () => {
+            const now = new Date('2024-01-01T00:00:00Z');
+            jest.useFakeTimers().setSystemTime(now);
+
+            try {
+                const user = makeSanitizedUser({ id: 20, email: 'user@example.com', emailVerifiedAt: null });
+                jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: user });
+                const latestToken = makeToken({
+                    id: 101,
+                    userId: user.id,
+                    type: TokenType.EMAIL_VERIFICATION,
+                    createdAt: new Date(now.getTime() - 30 * 1000),
+                });
+                const latestSpy = jest.spyOn(TokenService.prototype, 'findLatestByUserIdAndType').mockResolvedValue(latestToken);
+                const createSpy = jest.spyOn(TokenService.prototype, 'createEmailVerificationToken');
+                const deleteSpy = jest.spyOn(TokenService.prototype, 'deleteByUserIdAndType');
+
+                const service = new AuthService();
+                const result = await service.resendEmailVerification(user.email);
+
+                expect(latestSpy).toHaveBeenCalledWith(user.id, TokenType.EMAIL_VERIFICATION);
+                expect(deleteSpy).not.toHaveBeenCalled();
+                expect(createSpy).not.toHaveBeenCalled();
+                expect(sendEmailVerificationMock).not.toHaveBeenCalled();
+                expect(result).toEqual({
+                    success: false,
+                    error: Resource.EMAIL_VERIFICATION_COOLDOWN,
+                    data: { cooldownSeconds: 30 },
+                });
+            } finally {
+                jest.useRealTimers();
+            }
+        });
+
+        it('creates token and sends email when cooldown passes', async () => {
+            const now = new Date('2024-01-01T00:00:00Z');
+            jest.useFakeTimers().setSystemTime(now);
+
+            try {
+                const user = makeSanitizedUser({ id: 21, email: 'user@example.com', emailVerifiedAt: null });
+                jest.spyOn(UserService.prototype, 'findUserByEmailExact').mockResolvedValue({ success: true, data: user });
+                jest.spyOn(TokenService.prototype, 'findLatestByUserIdAndType').mockResolvedValue(
+                    makeToken({
+                        id: 102,
+                        userId: user.id,
+                        type: TokenType.EMAIL_VERIFICATION,
+                        createdAt: new Date(now.getTime() - 120 * 1000),
+                    })
+                );
+                const deleteSpy = jest.spyOn(TokenService.prototype, 'deleteByUserIdAndType').mockResolvedValue(1);
+                jest.spyOn(TokenService.prototype, 'createEmailVerificationToken').mockResolvedValue({
+                    success: true,
+                    data: { token: 'verify-token', expiresAt: new Date('2099-01-01T00:00:00Z') },
+                });
+                sendEmailVerificationMock.mockResolvedValue();
+
+                const service = new AuthService();
+                const result = await service.resendEmailVerification(user.email);
+
+                expect(deleteSpy).toHaveBeenCalledWith(user.id, TokenType.EMAIL_VERIFICATION);
+                expect(sendEmailVerificationMock).toHaveBeenCalledWith(user.email, 'verify-token', user.id);
+                expect(result).toEqual({ success: true, data: { sent: true } });
+            } finally {
+                jest.useRealTimers();
+            }
         });
     });
 

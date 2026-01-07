@@ -5,6 +5,7 @@ export const SESSION_TTL_DAYS = 60; // Hard cap on session lifetime regardless o
 export const SESSION_MAX_AGE_MS = SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
 export const EMAIL_VERIFICATION_TTL_MINUTES = 15;
 export const PASSWORD_RESET_TTL_MINUTES = 15;
+export const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
 
 export const buildPersistedTokenExpiresAt = (from: Date = new Date()): Date => {
     const expiresAt = new Date(from);

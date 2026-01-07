@@ -64,6 +64,10 @@ export class UserService {
         });
 
         if (existingUsers.length > 0) {
+            const existing = existingUsers[0];
+            if (existing && !existing.emailVerifiedAt) {
+                return { success: false, error: Resource.EMAIL_NOT_VERIFIED };
+            }
             return { success: false, error: Resource.EMAIL_IN_USE };
         }
 

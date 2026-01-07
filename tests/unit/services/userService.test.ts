@@ -51,9 +51,35 @@ describe('UserService', () => {
     });
 
     describe('createUser', () => {
-        it('returns email in use when existing user is found', async () => {
+        it('returns email not verified when existing user is unverified', async () => {
             const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
-            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([makeUser()]);
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([
+                makeUser({ emailVerifiedAt: null }),
+            ]);
+            const createSpy = jest.spyOn(UserRepository.prototype, 'create');
+
+            const service = new UserService();
+            const result = await service.createUser(payload);
+
+            expect(findManySpy).toHaveBeenCalledTimes(1);
+            expect(findManySpy).toHaveBeenCalledWith({
+                email: { operator: Operator.EQUAL, value: 'test@example.com' },
+            });
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(hashMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.EMAIL_NOT_VERIFIED });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.EMAIL_NOT_VERIFIED);
+                expect(translate(result.error)).toBe(translate(Resource.EMAIL_NOT_VERIFIED));
+            }
+        });
+
+        it('returns email in use when existing user is verified', async () => {
+            const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
+            const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([
+                makeUser({ emailVerifiedAt: new Date('2024-01-01T00:00:00Z') }),
+            ]);
             const createSpy = jest.spyOn(UserRepository.prototype, 'create');
 
             const service = new UserService();

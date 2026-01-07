@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 
 type VerifyStatus = "idle" | "loading" | "success" | "alreadyVerified" | "invalid" | "error";
 
-const RESEND_COOLDOWN_SECONDS = 30;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailForm() {
   const router = useRouter();
@@ -137,7 +137,24 @@ export default function VerifyEmailForm() {
       await resendMutation.mutateAsync({ email: resendEmail });
       setResendSuccess(t("resource.auth.verifyEmail.resend.success"));
       setCooldown(RESEND_COOLDOWN_SECONDS);
-    } catch {
+    } catch (error) {
+      const normalized = normalizeApiError(
+        error,
+        t("resource.auth.verifyEmail.resend.errors.failed")
+      );
+      if (normalized.code === "EMAIL_VERIFICATION_COOLDOWN") {
+        const cooldownSeconds = Number(
+          (normalized.data as { cooldownSeconds?: number } | undefined)
+            ?.cooldownSeconds ?? RESEND_COOLDOWN_SECONDS
+        );
+        setCooldown(cooldownSeconds);
+        setResendError(
+          t("resource.auth.verifyEmail.resend.errors.cooldown", {
+            seconds: cooldownSeconds,
+          })
+        );
+        return;
+      }
       setResendError(t("resource.auth.verifyEmail.resend.errors.failed"));
     }
   };

@@ -52,6 +52,23 @@ export class TokenRepository {
     }
 
     /**
+     * Finds the most recent token for a user and type.
+     *
+     * @summary Retrieves latest token by user and type.
+     * @param userId - User ID to search for.
+     * @param type - Token type to match.
+     * @returns Latest token record if found, null otherwise.
+     */
+    async findLatestByUserIdAndType(userId: number, type: TokenType): Promise<SelectToken | null> {
+        const result = await db.select()
+            .from(tokens)
+            .where(and(eq(tokens.userId, userId), eq(tokens.type, type)))
+            .orderBy(desc(tokens.createdAt))
+            .limit(1);
+        return result[0] || null;
+    }
+
+    /**
      * Finds multiple tokens with optional filters and pagination.
      *
      * @summary Retrieves a list of tokens with filtering and sorting.

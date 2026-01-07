@@ -103,6 +103,34 @@ describe('UserController', () => {
       expect(logSpy).not.toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();
     });
+
+    it('returns email not verified payload when service reports unverified user', async () => {
+      const payload = makeCreateUserInput({ email: 'user@example.com' });
+      const createUserSpy = jest.spyOn(UserService.prototype, 'createUser').mockResolvedValue({ success: false, error: Resource.EMAIL_NOT_VERIFIED });
+
+      const req = createMockRequest({ body: payload });
+      const res = createMockResponse();
+      const next = createNext();
+
+      await UserController.createUser(req, res, next);
+
+      expect(createUserSpy).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: ResourceBase.translate(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
+          error: expect.objectContaining({
+            code: Resource.EMAIL_NOT_VERIFIED,
+            email: 'user@example.com',
+            canResend: true,
+            verificationSent: true,
+          }),
+        })
+      );
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 
   describe('getUsers', () => {

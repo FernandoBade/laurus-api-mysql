@@ -262,6 +262,18 @@ export class TokenService {
     }
 
     /**
+     * Finds the most recent token for a user and type.
+     *
+     * @summary Gets latest token by user and type.
+     * @param userId - User ID.
+     * @param type - Token type.
+     * @returns Latest token record or null.
+     */
+    async findLatestByUserIdAndType(userId: number, type: TokenType): Promise<SelectToken | null> {
+        return await this.tokenRepository.findLatestByUserIdAndType(userId, type);
+    }
+
+    /**
      * Deletes tokens by session ID.
      *
      * @summary Removes refresh tokens by session ID.

@@ -67,6 +67,34 @@ describe('AuthController', () => {
             expect(next).not.toHaveBeenCalled();
         });
 
+        it('returns 401 with not verified error payload', async () => {
+            const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: false, error: Resource.EMAIL_NOT_VERIFIED });
+            const rateSpy = jest.spyOn(rateLimiter, 'recordLoginFailure');
+            const req = createMockRequest({ body: { email: 'user@example.com', password: 'secret' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.login(req, res, next);
+
+            expect(loginSpy).toHaveBeenCalledWith('user@example.com', 'secret');
+            expect(rateSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.UNAUTHORIZED);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
+                    error: expect.objectContaining({
+                        code: Resource.EMAIL_NOT_VERIFIED,
+                        email: 'user@example.com',
+                        canResend: true,
+                        verificationSent: true,
+                    }),
+                })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+            expect(next).not.toHaveBeenCalled();
+        });
+
         it('returns 200 and logs on successful login', async () => {
             const data = { token: 'token123', refreshToken: 'refresh', user: makeUser({ id: 7 }) };
             const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: true, data } as any);
@@ -364,6 +392,77 @@ describe('AuthController', () => {
                     success: true,
                     data: { verified: true, alreadyVerified: true },
                     message: ResourceBase.translate(Resource.EMAIL_ALREADY_VERIFIED, 'en-US'),
+                })
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('resendVerificationEmail', () => {
+        it('returns 400 when email is invalid', async () => {
+            const resendSpy = jest.spyOn(AuthService.prototype, 'resendEmailVerification');
+            const req = createMockRequest({ body: { email: 'bad-email' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resendVerificationEmail(req, res, next);
+
+            expect(resendSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EMAIL_INVALID, 'en-US'),
+                })
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('returns 429 with cooldown payload when throttled', async () => {
+            const resendSpy = jest.spyOn(AuthService.prototype, 'resendEmailVerification').mockResolvedValue({
+                success: false,
+                error: Resource.EMAIL_VERIFICATION_COOLDOWN,
+                data: { cooldownSeconds: 30 },
+            });
+            const req = createMockRequest({ body: { email: 'user@example.com' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resendVerificationEmail(req, res, next);
+
+            expect(resendSpy).toHaveBeenCalledWith('user@example.com');
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.TOO_MANY_REQUESTS);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_COOLDOWN, 'en-US'),
+                    error: expect.objectContaining({
+                        code: Resource.EMAIL_VERIFICATION_COOLDOWN,
+                        cooldownSeconds: 30,
+                    }),
+                })
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('returns 200 when resend succeeds', async () => {
+            const resendSpy = jest.spyOn(AuthService.prototype, 'resendEmailVerification').mockResolvedValue({
+                success: true,
+                data: { sent: true },
+            });
+            const req = createMockRequest({ body: { email: 'user@example.com' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await AuthController.resendVerificationEmail(req, res, next);
+
+            expect(resendSpy).toHaveBeenCalledWith('user@example.com');
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { sent: true },
+                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_REQUESTED, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
