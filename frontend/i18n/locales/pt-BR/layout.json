@@ -37,9 +37,60 @@
         "others": "Outros"
       },
       "sidebarWidget": {
-        "title": "Atualize para Pro",
-        "description": "Tenha acesso a todos os recursos com nosso plano premium.",
-        "upgrade": "Fazer upgrade"
+        "title": "Esta é uma versão beta",
+        "description": "Se você tiver sugestões, problemas ou feedback, clique abaixo para nos enviar uma mensagem.",
+        "upgrade": "Enviar feedback"
+      },
+      "betaFeedback": {
+        "modal": {
+          "title": "Enviar feedback",
+          "subtitle": "Ajude-nos a melhorar com uma mensagem rápida."
+        },
+        "fields": {
+          "title": "Título",
+          "message": "Mensagem",
+          "image": "Anexo de imagem (opcional)",
+          "audio": "Gravação de áudio (opcional)"
+        },
+        "placeholders": {
+          "title": "Resuma seu feedback",
+          "message": "Descreva sua sugestão ou problema"
+        },
+        "actions": {
+          "submit": "Enviar feedback",
+          "sending": "Enviando...",
+          "recordStart": "Iniciar gravação",
+          "recordStop": "Parar gravação",
+          "recordRemove": "Remover gravação",
+          "imageRemove": "Remover imagem"
+        },
+        "status": {
+          "recording": "Gravando..."
+        },
+        "hints": {
+          "image": "PNG ou JPG até 2 MB.",
+          "audio": "Grave uma mensagem curta (opcional).",
+          "audioUnsupported": "A gravação de áudio não é compatível neste navegador."
+        },
+        "errors": {
+          "title": "Revise seu feedback",
+          "titleRequired": "Informe um título.",
+          "messageRequired": "Informe uma mensagem.",
+          "imageTooLarge": "A imagem excede o limite de 2 MB.",
+          "imageInvalid": "Formato de imagem não suportado. Use PNG ou JPG.",
+          "audioTooLarge": "O áudio excede o limite de 2 MB.",
+          "audioPermission": "Não foi possível acessar seu microfone.",
+          "audioFailed": "Não foi possível gravar o áudio. Tente novamente.",
+          "missingUser": "Não foi possível carregar seu perfil. Tente novamente.",
+          "sendFailed": "Não foi possível enviar seu feedback. Tente novamente."
+        },
+        "success": {
+          "title": "Obrigado pelo feedback!",
+          "message": "Recebemos sua mensagem e vamos analisar em breve."
+        },
+        "email": {
+          "subject": "Feedback da versão beta"
+        }
       },
       "userMenu": {
         "accountMeta": "Conta",

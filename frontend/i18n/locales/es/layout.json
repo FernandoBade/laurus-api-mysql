@@ -37,9 +37,60 @@
         "others": "Otros"
       },
       "sidebarWidget": {
-        "title": "Actualiza a Pro",
-        "description": "Accede a todas las funciones con nuestro plan premium.",
-        "upgrade": "Actualizar"
+        "title": "Esta es una versión beta",
+        "description": "Si tienes sugerencias, problemas o comentarios, haz clic abajo para enviarnos un mensaje.",
+        "upgrade": "Enviar comentarios"
+      },
+      "betaFeedback": {
+        "modal": {
+          "title": "Enviar comentarios",
+          "subtitle": "Ayúdanos a mejorar con un mensaje breve."
+        },
+        "fields": {
+          "title": "Título",
+          "message": "Mensaje",
+          "image": "Adjunto de imagen (opcional)",
+          "audio": "Grabación de audio (opcional)"
+        },
+        "placeholders": {
+          "title": "Resume tus comentarios",
+          "message": "Describe tu sugerencia o problema"
+        },
+        "actions": {
+          "submit": "Enviar comentarios",
+          "sending": "Enviando...",
+          "recordStart": "Iniciar grabación",
+          "recordStop": "Detener grabación",
+          "recordRemove": "Eliminar grabación",
+          "imageRemove": "Eliminar imagen"
+        },
+        "status": {
+          "recording": "Grabando..."
+        },
+        "hints": {
+          "image": "PNG o JPG hasta 2 MB.",
+          "audio": "Graba una nota de voz corta (opcional).",
+          "audioUnsupported": "La grabación de audio no es compatible en este navegador."
+        },
+        "errors": {
+          "title": "Revisa tus comentarios",
+          "titleRequired": "Ingresa un título.",
+          "messageRequired": "Ingresa un mensaje.",
+          "imageTooLarge": "La imagen supera el límite de 2 MB.",
+          "imageInvalid": "Formato de imagen no compatible. Usa PNG o JPG.",
+          "audioTooLarge": "El audio supera el límite de 2 MB.",
+          "audioPermission": "No pudimos acceder a tu micrófono.",
+          "audioFailed": "No pudimos grabar el audio. Inténtalo de nuevo.",
+          "missingUser": "No pudimos cargar tu perfil. Inténtalo de nuevo.",
+          "sendFailed": "No pudimos enviar tus comentarios. Inténtalo de nuevo."
+        },
+        "success": {
+          "title": "¡Gracias por tus comentarios!",
+          "message": "Recibimos tu mensaje y lo revisaremos pronto."
+        },
+        "email": {
+          "subject": "Comentarios de la versión beta"
+        }
       },
       "userMenu": {
         "accountMeta": "Cuenta",

@@ -1314,3 +1314,46 @@ export function validateUpdateTransaction(
 
     return { success: true, data: result };
 }
+
+/**
+ * Validates feedback submission data.
+ *
+ * @summary Validates feedback request payload.
+ * @param data - Request body data.
+ * @param lang - Language code for error messages.
+ * @returns Validation result with data or errors.
+ */
+export function validateFeedbackRequest(
+    data: unknown,
+    lang?: LanguageCode
+): { success: true; data: { title: string; message: string } } | { success: false; errors: ValidationError[] } {
+    const errors: ValidationError[] = [];
+
+    if (!data || typeof data !== 'object') {
+        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+    }
+
+    const body = data as Record<string, unknown>;
+    const title = typeof body.title === 'string' ? body.title.trim() : '';
+    const message = typeof body.message === 'string' ? body.message.trim() : '';
+
+    if (!title) {
+        errors.push(createValidationError('title', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'title',
+            min: 1
+        })));
+    }
+
+    if (!message) {
+        errors.push(createValidationError('message', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            path: 'message',
+            min: 1
+        })));
+    }
+
+    if (errors.length > 0) {
+        return { success: false, errors };
+    }
+
+    return { success: true, data: { title, message } };
+}

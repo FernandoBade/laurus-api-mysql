@@ -7,6 +7,7 @@ interface ButtonProps {
   startIcon?: ReactNode; // Icon before the text
   endIcon?: ReactNode; // Icon after the text
   onClick?: () => void; // Click handler
+  type?: "button" | "submit" | "reset"; // Button type
   disabled?: boolean; // Disabled state
   className?: string; // Disabled state
 }
@@ -18,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   startIcon,
   endIcon,
   onClick,
+  type,
   className = "",
   disabled = false,
 }) => {
@@ -43,6 +45,7 @@ const Button: React.FC<ButtonProps> = ({
         disabled ? "cursor-not-allowed opacity-50" : ""
       }`}
       onClick={onClick}
+      type={type}
       disabled={disabled}
     >
       {startIcon && <span className="flex items-center">{startIcon}</span>}

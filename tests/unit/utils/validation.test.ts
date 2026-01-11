@@ -13,6 +13,7 @@ import {
     validateUpdateTag,
     validateCreateTransaction,
     validateUpdateTransaction,
+    validateFeedbackRequest,
 } from '../../../src/utils/validation/validateRequest';
 import { createValidationError } from '../../../src/utils/validation/errors';
 import {
@@ -526,6 +527,34 @@ describe('validateRequest', () => {
             expect(result.data.tags).toEqual([3]);
             expect(result.data.isInstallment).toBe(false);
             expect(result.data.isRecurring).toBe(false);
+        });
+    });
+
+    describe('validateFeedbackRequest', () => {
+        it('returns errors for missing fields', () => {
+            const result = validateFeedbackRequest({ title: '', message: '' }, lang);
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual([
+                createValidationError('title', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                    path: 'title',
+                    min: 1
+                })),
+                createValidationError('message', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                    path: 'message',
+                    min: 1
+                })),
+            ]);
+        });
+
+        it('returns normalized data for valid input', () => {
+            const result = validateFeedbackRequest({ title: '  Feedback ', message: '  Hello  ' }, lang);
+
+            expect(result.success).toBe(true);
+            if (!result.success) return;
+            expect(result.data.title).toBe('Feedback');
+            expect(result.data.message).toBe('Hello');
         });
     });
 });
