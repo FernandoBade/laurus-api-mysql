@@ -19,7 +19,7 @@
         "test:coverage": "jest --coverage",
         "test:ci": "jest --runInBand --coverage"
     },
-    "keywords": [],
+    "keywords": [ ],
     "author": "",
     "license": "ISC",
     "description": "",

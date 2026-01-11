@@ -9,409 +9,409 @@ import { SelectTag } from '../../../src/db/schema';
 
 const authUser = { id: 999 };
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
-  createMockRequest({ user: authUser, ...overrides });
+    createMockRequest({ user: authUser, ...overrides });
 
 const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
-  const now = new Date('2024-01-01T00:00:00Z');
-  return {
-    id: overrides.id ?? 1,
-    userId: overrides.userId ?? 1,
-    name: overrides.name ?? 'Urgent',
-    active: overrides.active ?? true,
-    createdAt: overrides.createdAt ?? now,
-    updatedAt: overrides.updatedAt ?? now,
-  };
+    const now = new Date('2024-01-01T00:00:00Z');
+    return {
+        id: overrides.id ?? 1,
+        userId: overrides.userId ?? 1,
+        name: overrides.name ?? 'Urgent',
+        active: overrides.active ?? true,
+        createdAt: overrides.createdAt ?? now,
+        updatedAt: overrides.updatedAt ?? now,
+    };
 };
 
 describe('TagController', () => {
-  let logSpy: jest.SpyInstance;
+    let logSpy: jest.SpyInstance;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    logSpy = jest.spyOn(commons, 'createLog').mockResolvedValue();
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  describe('createTag', () => {
-    it('returns 400 without calling service when validation fails', async () => {
-      const createSpy = jest.spyOn(TagService.prototype, 'createTag');
-      const req = createMockRequest({ body: { name: '', user_id: 0 } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.createTag(req, res, next);
-
-      expect(createSpy).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: false,
-          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
-        })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-      expect(next).not.toHaveBeenCalled();
+    beforeEach(() => {
+        jest.clearAllMocks();
+        logSpy = jest.spyOn(commons, 'createLog').mockResolvedValue();
     });
 
-    it('maps service error to HTTP 400', async () => {
-      const createSpy = jest
-        .spyOn(TagService.prototype, 'createTag')
-        .mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-      const req = createMockRequest({ body: { name: 'Urgent', user_id: 5 } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.createTag(req, res, next);
-
-      expect(createSpy).toHaveBeenCalledWith({ name: 'Urgent', userId: 5, active: undefined });
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: false,
-          message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US'),
-        })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-      expect(next).not.toHaveBeenCalled();
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
-    it('returns 201 and logs when tag is created', async () => {
-      const created = makeTag({ id: 10, userId: 2 });
-      const createSpy = jest.spyOn(TagService.prototype, 'createTag').mockResolvedValue({ success: true, data: created });
-      const req = createAuthRequest({ body: { name: 'Urgent', user_id: 2, active: true } });
-      const res = createMockResponse();
-      const next = createNext();
+    describe('createTag', () => {
+        it('returns 400 without calling service when validation fails', async () => {
+            const createSpy = jest.spyOn(TagService.prototype, 'createTag');
+            const req = createMockRequest({ body: { name: '', user_id: 0 } });
+            const res = createMockResponse();
+            const next = createNext();
 
-      await TagController.createTag(req, res, next);
+            await TagController.createTag(req, res, next);
 
-      expect(createSpy).toHaveBeenCalledWith({ name: 'Urgent', userId: 2, active: true });
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.CREATED);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          data: created,
-        })
-      );
-      expect(logSpy).toHaveBeenCalledWith(
-        LogType.SUCCESS,
-        LogOperation.CREATE,
-        LogCategory.TAG,
-        created,
-        created.userId
-      );
-      expect(next).not.toHaveBeenCalled();
+            expect(createSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+                })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('maps service error to HTTP 400', async () => {
+            const createSpy = jest
+                .spyOn(TagService.prototype, 'createTag')
+                .mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
+            const req = createMockRequest({ body: { name: 'Urgent', user_id: 5 } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.createTag(req, res, next);
+
+            expect(createSpy).toHaveBeenCalledWith({ name: 'Urgent', userId: 5, active: undefined });
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US'),
+                })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('returns 201 and logs when tag is created', async () => {
+            const created = makeTag({ id: 10, userId: 2 });
+            const createSpy = jest.spyOn(TagService.prototype, 'createTag').mockResolvedValue({ success: true, data: created });
+            const req = createAuthRequest({ body: { name: 'Urgent', user_id: 2, active: true } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.createTag(req, res, next);
+
+            expect(createSpy).toHaveBeenCalledWith({ name: 'Urgent', userId: 2, active: true });
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.CREATED);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: created,
+                })
+            );
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.SUCCESS,
+                LogOperation.CREATE,
+                LogCategory.TAG,
+                created,
+                created.userId
+            );
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        it('returns 500 and logs when service throws an exception', async () => {
+            jest.spyOn(TagService.prototype, 'createTag').mockImplementation(() => {
+                throw new Error('boom');
+            });
+
+            const req = createMockRequest({ body: { name: 'Urgent', user_id: 2 } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.createTag(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+            expect(logSpy).toHaveBeenCalled();
+        });
     });
 
-    it('returns 500 and logs when service throws an exception', async () => {
-      jest.spyOn(TagService.prototype, 'createTag').mockImplementation(() => {
-        throw new Error('boom');
-      });
+    describe('getTags', () => {
+        it('returns 200 with data and pagination when service succeeds', async () => {
+            const tags = [makeTag({ id: 1 }), makeTag({ id: 2 })];
+            jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: true, data: tags });
+            jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: true, data: tags.length });
 
-      const req = createMockRequest({ body: { name: 'Urgent', user_id: 2 } });
-      const res = createMockResponse();
-      const next = createNext();
+            const req = createMockRequest({ query: { page: '1', pageSize: '1', sort: 'name', order: 'desc' } });
+            const res = createMockResponse();
+            const next = createNext();
 
-      await TagController.createTag(req, res, next);
+            await TagController.getTags(req, res, next);
 
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
-      expect(logSpy).toHaveBeenCalled();
-    });
-  });
+            expect(TagService.prototype.getTags).toHaveBeenCalledWith({
+                limit: 1,
+                offset: 0,
+                sort: 'name',
+                order: Operator.DESC,
+            });
+            expect(TagService.prototype.countTags).toHaveBeenCalledTimes(1);
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: tags,
+                    page: 1,
+                    pageSize: 1,
+                    totalItems: tags.length,
+                })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+            expect(next).not.toHaveBeenCalled();
+        });
 
-  describe('getTags', () => {
-    it('returns 200 with data and pagination when service succeeds', async () => {
-      const tags = [makeTag({ id: 1 }), makeTag({ id: 2 })];
-      jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: true, data: tags });
-      jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: true, data: tags.length });
+        it('returns 400 when getTags returns an error', async () => {
+            jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: true, data: 0 });
 
-      const req = createMockRequest({ query: { page: '1', pageSize: '1', sort: 'name', order: 'desc' } });
-      const res = createMockResponse();
-      const next = createNext();
+            const req = createMockRequest({ query: {} });
+            const res = createMockResponse();
+            const next = createNext();
 
-      await TagController.getTags(req, res, next);
+            await TagController.getTags(req, res, next);
 
-      expect(TagService.prototype.getTags).toHaveBeenCalledWith({
-        limit: 1,
-        offset: 0,
-        sort: 'name',
-        order: Operator.DESC,
-      });
-      expect(TagService.prototype.countTags).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          data: tags,
-          page: 1,
-          pageSize: 1,
-          totalItems: tags.length,
-        })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-      expect(next).not.toHaveBeenCalled();
-    });
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
+            );
+        });
 
-    it('returns 400 when getTags returns an error', async () => {
-      jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-      jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: true, data: 0 });
+        it('returns 400 when countTags returns an error', async () => {
+            jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: true, data: [] });
+            jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
 
-      const req = createMockRequest({ query: {} });
-      const res = createMockResponse();
-      const next = createNext();
+            const req = createMockRequest({ query: {} });
+            const res = createMockResponse();
+            const next = createNext();
 
-      await TagController.getTags(req, res, next);
+            await TagController.getTags(req, res, next);
 
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
-      );
-    });
-
-    it('returns 400 when countTags returns an error', async () => {
-      jest.spyOn(TagService.prototype, 'getTags').mockResolvedValue({ success: true, data: [] });
-      jest.spyOn(TagService.prototype, 'countTags').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-
-      const req = createMockRequest({ query: {} });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.getTags(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
-      );
-    });
-  });
-
-  describe('getTagById', () => {
-    describe('getTagsByUser', () => {
-      it('returns 400 when userId is invalid', async () => {
-        const req = createMockRequest({ params: { userId: 'abc' } });
-        const res = createMockResponse();
-        const next = createNext();
-
-        await TagController.getTagsByUser(req, res, next);
-
-        expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-        expect(res.json).toHaveBeenCalledWith(
-          expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US') })
-        );
-      });
-
-      it('returns 400 when service getTagsByUser fails', async () => {
-        jest.spyOn(TagService.prototype, 'getTagsByUser').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-        jest.spyOn(TagService.prototype, 'countTagsByUser').mockResolvedValue({ success: true, data: 0 });
-
-        const req = createMockRequest({ params: { userId: '5' } });
-        const res = createMockResponse();
-        const next = createNext();
-
-        await TagController.getTagsByUser(req, res, next);
-
-        expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-        expect(res.json).toHaveBeenCalledWith(
-          expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
-        );
-      });
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
+            );
+        });
     });
 
-    it('returns 400 when id is invalid', async () => {
-      const getSpy = jest.spyOn(TagService.prototype, 'getTagById');
-      const req = createMockRequest({ params: { id: 'abc' } });
-      const res = createMockResponse();
-      const next = createNext();
+    describe('getTagById', () => {
+        describe('getTagsByUser', () => {
+            it('returns 400 when userId is invalid', async () => {
+                const req = createMockRequest({ params: { userId: 'abc' } });
+                const res = createMockResponse();
+                const next = createNext();
 
-      await TagController.getTagById(req, res, next);
+                await TagController.getTagsByUser(req, res, next);
 
-      expect(getSpy).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TAG_ID, 'en-US') })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
+                expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US') })
+                );
+            });
+
+            it('returns 400 when service getTagsByUser fails', async () => {
+                jest.spyOn(TagService.prototype, 'getTagsByUser').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+                jest.spyOn(TagService.prototype, 'countTagsByUser').mockResolvedValue({ success: true, data: 0 });
+
+                const req = createMockRequest({ params: { userId: '5' } });
+                const res = createMockResponse();
+                const next = createNext();
+
+                await TagController.getTagsByUser(req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
+                );
+            });
+        });
+
+        it('returns 400 when id is invalid', async () => {
+            const getSpy = jest.spyOn(TagService.prototype, 'getTagById');
+            const req = createMockRequest({ params: { id: 'abc' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.getTagById(req, res, next);
+
+            expect(getSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TAG_ID, 'en-US') })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
+        it('returns 500 when service throws', async () => {
+            jest.spyOn(TagService.prototype, 'getTagById').mockImplementation(() => {
+                throw new Error('unexpected');
+            });
+
+            const req = createMockRequest({ params: { id: '3' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.getTagById(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+            expect(logSpy).toHaveBeenCalled();
+        });
+
+        it('returns 400 when service reports not found', async () => {
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
+            const req = createMockRequest({ params: { id: '5' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.getTagById(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.TAG_NOT_FOUND, 'en-US') })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
+        it('returns 200 when tag is found', async () => {
+            const tag = makeTag({ id: 4 });
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: tag });
+            const req = createMockRequest({ params: { id: '4' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.getTagById(req, res, next);
+
+            expect(TagService.prototype.getTagById).toHaveBeenCalledWith(4);
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: tag }));
+            expect(logSpy).not.toHaveBeenCalled();
+        });
     });
 
-    it('returns 500 when service throws', async () => {
-      jest.spyOn(TagService.prototype, 'getTagById').mockImplementation(() => {
-        throw new Error('unexpected');
-      });
 
-      const req = createMockRequest({ params: { id: '3' } });
-      const res = createMockResponse();
-      const next = createNext();
+    describe('updateTag', () => {
+        it('returns 400 when existing tag is not found', async () => {
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
+            const req = createMockRequest({ params: { id: '9' }, body: { name: 'DoesNotMatter', user_id: 1 } });
+            const res = createMockResponse();
+            const next = createNext();
 
-      await TagController.getTagById(req, res, next);
+            await TagController.updateTag(req, res, next);
 
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
-      expect(logSpy).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.TAG_NOT_FOUND, 'en-US') })
+            );
+        });
+
+        it('returns 500 when service throws an exception during update', async () => {
+            const existing = makeTag({ id: 12 });
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
+            jest.spyOn(TagService.prototype, 'updateTag').mockImplementation(() => {
+                throw new Error('boom');
+            });
+
+            const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Whatever', user_id: existing.userId } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.updateTag(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
+            expect(logSpy).toHaveBeenCalled();
+        });
+
+        it('returns 400 for invalid id', async () => {
+            const req = createMockRequest({ params: { id: '0' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.updateTag(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TAG_ID, 'en-US') })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
+        it('returns 400 when validation fails', async () => {
+            const existing = makeTag({ id: 8 });
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
+            const updateSpy = jest.spyOn(TagService.prototype, 'updateTag');
+            const req = createMockRequest({ params: { id: '8' }, body: { user_id: -1 } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.updateTag(req, res, next);
+
+            expect(updateSpy).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US') })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
+        it('returns 200 and logs when update succeeds', async () => {
+            const existing = makeTag({ id: 11, userId: 3, name: 'Old' });
+            const updated = makeTag({ id: 11, userId: 3, name: 'Updated' });
+            const expectedDelta = { name: { from: existing.name, to: updated.name } };
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
+            jest.spyOn(TagService.prototype, 'updateTag').mockResolvedValue({ success: true, data: updated });
+            const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.updateTag(req, res, next);
+
+            expect(TagService.prototype.updateTag).toHaveBeenCalledWith(11, {
+                name: 'Updated',
+                userId: existing.userId,
+            });
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: updated }));
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.SUCCESS,
+                LogOperation.UPDATE,
+                LogCategory.TAG,
+                expectedDelta,
+                updated.userId
+            );
+        });
     });
 
-    it('returns 400 when service reports not found', async () => {
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '5' } });
-      const res = createMockResponse();
-      const next = createNext();
+    describe('deleteTag', () => {
+        it('returns 400 when deleteTag reports failure', async () => {
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: makeTag({ id: 40 }) });
+            jest.spyOn(TagService.prototype, 'deleteTag').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
 
-      await TagController.getTagById(req, res, next);
+            const req = createAuthRequest({ params: { id: '40' } });
+            const res = createMockResponse();
+            const next = createNext();
 
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.TAG_NOT_FOUND, 'en-US') })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
+            await TagController.deleteTag(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
+            );
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+
+        it('logs deletion using result data when snapshot is undefined', async () => {
+            // snapshot undefined when getTagById fails but deleteTag succeeds
+            jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
+            jest.spyOn(TagService.prototype, 'deleteTag').mockResolvedValue({ success: true, data: { id: 41 } });
+
+            const req = createAuthRequest({ params: { id: '41' } });
+            const res = createMockResponse();
+            const next = createNext();
+
+            await TagController.deleteTag(req, res, next);
+
+            expect(TagService.prototype.deleteTag).toHaveBeenCalledWith(41);
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
+            expect(logSpy).toHaveBeenCalledWith(
+                LogType.SUCCESS,
+                LogOperation.DELETE,
+                LogCategory.TAG,
+                expect.objectContaining({ id: 41 }),
+                req.user?.id
+            );
+        });
     });
-
-    it('returns 200 when tag is found', async () => {
-      const tag = makeTag({ id: 4 });
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: tag });
-      const req = createMockRequest({ params: { id: '4' } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.getTagById(req, res, next);
-
-      expect(TagService.prototype.getTagById).toHaveBeenCalledWith(4);
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: tag }));
-      expect(logSpy).not.toHaveBeenCalled();
-    });
-  });
-
-
-  describe('updateTag', () => {
-    it('returns 400 when existing tag is not found', async () => {
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '9' }, body: { name: 'DoesNotMatter', user_id: 1 } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.updateTag(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.TAG_NOT_FOUND, 'en-US') })
-      );
-    });
-
-    it('returns 500 when service throws an exception during update', async () => {
-      const existing = makeTag({ id: 12 });
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
-      jest.spyOn(TagService.prototype, 'updateTag').mockImplementation(() => {
-        throw new Error('boom');
-      });
-
-      const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Whatever', user_id: existing.userId } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.updateTag(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.INTERNAL_SERVER_ERROR);
-      expect(logSpy).toHaveBeenCalled();
-    });
-
-    it('returns 400 for invalid id', async () => {
-      const req = createMockRequest({ params: { id: '0' } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.updateTag(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TAG_ID, 'en-US') })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-    });
-
-    it('returns 400 when validation fails', async () => {
-      const existing = makeTag({ id: 8 });
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
-      const updateSpy = jest.spyOn(TagService.prototype, 'updateTag');
-      const req = createMockRequest({ params: { id: '8' }, body: { user_id: -1 } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.updateTag(req, res, next);
-
-      expect(updateSpy).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US') })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-    });
-
-    it('returns 200 and logs when update succeeds', async () => {
-      const existing = makeTag({ id: 11, userId: 3, name: 'Old' });
-      const updated = makeTag({ id: 11, userId: 3, name: 'Updated' });
-      const expectedDelta = { name: { from: existing.name, to: updated.name } };
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
-      jest.spyOn(TagService.prototype, 'updateTag').mockResolvedValue({ success: true, data: updated });
-      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.updateTag(req, res, next);
-
-      expect(TagService.prototype.updateTag).toHaveBeenCalledWith(11, {
-        name: 'Updated',
-        userId: existing.userId,
-      });
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: updated }));
-      expect(logSpy).toHaveBeenCalledWith(
-        LogType.SUCCESS,
-        LogOperation.UPDATE,
-        LogCategory.TAG,
-        expectedDelta,
-        updated.userId
-      );
-    });
-  });
-
-  describe('deleteTag', () => {
-    it('returns 400 when deleteTag reports failure', async () => {
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: makeTag({ id: 40 }) });
-      jest.spyOn(TagService.prototype, 'deleteTag').mockResolvedValue({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
-
-      const req = createAuthRequest({ params: { id: '40' } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.deleteTag(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US') })
-      );
-      expect(logSpy).not.toHaveBeenCalled();
-    });
-
-    it('logs deletion using result data when snapshot is undefined', async () => {
-      // snapshot undefined when getTagById fails but deleteTag succeeds
-      jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
-      jest.spyOn(TagService.prototype, 'deleteTag').mockResolvedValue({ success: true, data: { id: 41 } });
-
-      const req = createAuthRequest({ params: { id: '41' } });
-      const res = createMockResponse();
-      const next = createNext();
-
-      await TagController.deleteTag(req, res, next);
-
-      expect(TagService.prototype.deleteTag).toHaveBeenCalledWith(41);
-      expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
-      expect(logSpy).toHaveBeenCalledWith(
-        LogType.SUCCESS,
-        LogOperation.DELETE,
-        LogCategory.TAG,
-        expect.objectContaining({ id: 41 }),
-        req.user?.id
-      );
-    });
-  });
 });
