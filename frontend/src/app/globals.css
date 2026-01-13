@@ -279,6 +279,10 @@
   background-color: #344054;
 }
 
+.flatpickr-calendar {
+  z-index: 100000;
+}
+
 
 
 @layer utilities {

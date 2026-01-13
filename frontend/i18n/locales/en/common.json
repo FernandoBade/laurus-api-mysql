@@ -59,7 +59,9 @@
         "gridAlt": "Decorative grid"
       },
       "labels": {
-        "or": "or"
+        "or": "or",
+        "yes": "Yes",
+        "no": "No"
       },
       "language": {
         "ptBr": "Portuguese (Brazil)",

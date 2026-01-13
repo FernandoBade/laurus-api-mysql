@@ -59,7 +59,9 @@
         "gridAlt": "Cuadrícula decorativa"
       },
       "labels": {
-        "or": "o"
+        "or": "o",
+        "yes": "Sí",
+        "no": "No"
       },
       "language": {
         "ptBr": "Portugués (Brasil)",

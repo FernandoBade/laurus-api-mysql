@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { TransactionSource, Operator, TransactionType } from '../utils/enum';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { AccountRepository } from '../repositories/accountRepository';
@@ -13,7 +13,8 @@ import { SelectTransaction, InsertTransaction, InsertAccount, InsertCreditCard, 
 import { QueryOptions } from '../utils/pagination';
 import { withTransaction, db } from '../db';
 
-export type TransactionRow = SelectTransaction;
+export type TransactionWithTags = SelectTransaction & { tags: number[] };
+export type TransactionRow = TransactionWithTags;
 type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
 
 /**
@@ -150,6 +151,33 @@ export class TransactionService {
         );
     }
 
+    private async attachTags(
+        transactions: SelectTransaction[],
+        connection: typeof db = db
+    ): Promise<TransactionWithTags[]> {
+        if (!transactions.length) {
+            return [];
+        }
+
+        const transactionIds = transactions.map(transaction => transaction.id);
+        const tagRows = await connection
+            .select()
+            .from(transactionTags)
+            .where(inArray(transactionTags.transactionId, transactionIds));
+
+        const tagMap = new Map<number, number[]>();
+        for (const row of tagRows) {
+            const existing = tagMap.get(row.transactionId) ?? [];
+            existing.push(row.tagId);
+            tagMap.set(row.transactionId, existing);
+        }
+
+        return transactions.map(transaction => ({
+            ...transaction,
+            tags: tagMap.get(transaction.id) ?? [],
+        }));
+    }
+
     /**
      * Creates a new transaction linked to a valid account.
      * Validates required fields and the existence of the target account.
@@ -174,7 +202,7 @@ export class TransactionService {
         creditCardId?: number;
         tags?: number[];
         active?: boolean;
-    }): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+    }): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         let ownerUserId: number | undefined;
 
         if (data.transactionSource === TransactionSource.ACCOUNT) {
@@ -245,7 +273,7 @@ export class TransactionService {
                     await this.replaceTransactionTags(connection, created.id, tagIds);
                 }
 
-                return created;
+                return { ...created, tags: tagIds ?? [] };
             });
             return { success: true, data: created };
         } catch (error) {
@@ -260,7 +288,7 @@ export class TransactionService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all transaction records.
      */
-    async getTransactions(options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: SelectTransaction[] } | { success: false; error: Resource }> {
+    async getTransactions(options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
             const transactions = await this.transactionRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -268,7 +296,8 @@ export class TransactionService {
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: transactions };
+            const withTags = await this.attachTags(transactions);
+            return { success: true, data: withTags };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -296,12 +325,13 @@ export class TransactionService {
      * @param id - ID of the transaction.
      * @returns Transaction record if found.
      */
-    async getTransactionById(id: number): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+    async getTransactionById(id: number): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         const transaction = await this.transactionRepository.findById(id);
         if (!transaction) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
         }
-        return { success: true, data: transaction };
+        const [withTags] = await this.attachTags([transaction]);
+        return { success: true, data: withTags };
     }
 
     /**
@@ -311,7 +341,7 @@ export class TransactionService {
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
-    async getTransactionsByAccount(accountId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: SelectTransaction[] } | { success: false; error: Resource }> {
+    async getTransactionsByAccount(accountId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
             const transactions = await this.transactionRepository.findMany({
                 accountId: { operator: Operator.EQUAL, value: accountId }
@@ -321,7 +351,8 @@ export class TransactionService {
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: transactions };
+            const withTags = await this.attachTags(transactions);
+            return { success: true, data: withTags };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -372,9 +403,10 @@ export class TransactionService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
 
+            const transactionsWithTags = await this.attachTags(allTransactions);
             const grouped: AccountTransactions[] = accountIds.map(accountId => ({
                 accountId,
-                transactions: allTransactions.filter(t => t.accountId === accountId)
+                transactions: transactionsWithTags.filter(t => t.accountId === accountId)
             }));
 
             return { success: true, data: grouped };
@@ -418,7 +450,7 @@ export class TransactionService {
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: Partial<InsertTransaction> & { tags?: number[] }): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
+    async updateTransaction(id: number, data: Partial<InsertTransaction> & { tags?: number[] }): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         const current = await this.transactionRepository.findById(id);
         if (!current) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
@@ -492,7 +524,8 @@ export class TransactionService {
                 }
                 return updated;
             });
-            return { success: true, data: updated };
+            const [withTags] = await this.attachTags([updated]);
+            return { success: true, data: withTags };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }

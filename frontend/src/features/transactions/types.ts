@@ -16,6 +16,7 @@ export type Transaction = {
   creditCardId: number | null;
   categoryId: number | null;
   subcategoryId: number | null;
+  tags?: number[];
   createdAt: string;
   updatedAt: string;
 };

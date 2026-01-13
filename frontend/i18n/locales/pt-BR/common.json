@@ -59,7 +59,9 @@
         "gridAlt": "Grade decorativa"
       },
       "labels": {
-        "or": "ou"
+        "or": "ou",
+        "yes": "Sim",
+        "no": "Não"
       },
       "language": {
         "ptBr": "Português (Brasil)",

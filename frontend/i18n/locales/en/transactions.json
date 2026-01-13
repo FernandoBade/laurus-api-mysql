@@ -3,6 +3,13 @@
     "transactions": {
       "title": "Transactions",
       "confirmDelete": "Are you sure you want to delete this transaction?",
+      "actions": {
+        "addExpense": "Add expense",
+        "addIncome": "Add income",
+        "archive": "Archive",
+        "moreOptions": "More options",
+        "lessOptions": "Fewer options"
+      },
       "create": {
         "actions": {
           "submit": "Create transaction"
@@ -13,6 +20,11 @@
         },
         "title": "Create transaction"
       },
+      "delete": {
+        "title": "Delete transaction",
+        "warningTitle": "This action cannot be undone",
+        "warningMessage": "The transaction will be permanently removed."
+      },
       "edit": {
         "title": "Edit transaction"
       },
@@ -21,32 +33,74 @@
       },
       "fields": {
         "installment": "Installment",
-        "paymentDay": "Payment day",
+        "paymentDay": "Payment day / start date",
         "recurring": "Recurring",
+        "subcategory": "Subcategory",
         "totalMonths": "Total months"
+      },
+      "fallbacks": {
+        "subcategoryWithId": "Subcategory #{{id}}"
+      },
+      "helpers": {
+        "currency": "Currency: {{currency}}",
+        "installment": "Split this transaction into equal monthly installments.",
+        "recurring": "Repeat this transaction monthly until you archive it.",
+        "totalMonths": "Minimum 2, maximum 999 months.",
+        "paymentDay": "Choose the day of month for recurring payments."
+      },
+      "filters": {
+        "type": "Type",
+        "source": "Origin",
+        "category": "Category",
+        "tag": "Tag",
+        "dateRange": "Date range",
+        "placeholders": {
+          "type": "Filter by type",
+          "source": "Filter by origin",
+          "category": "Filter by category",
+          "tag": "Filter by tag"
+        },
+        "options": {
+          "allTypes": "All types",
+          "allSources": "All origins",
+          "allCategories": "All categories",
+          "allTags": "All tags"
+        }
       },
       "list": {
         "desc": "All transactions in your account.",
         "empty": "No transactions found.",
+        "emptyHelper": "Use the buttons below to add your first transaction.",
         "loading": "Loading transactions...",
         "title": "Transaction list",
         "unavailable": "Unable to load transactions."
       },
       "placeholders": {
+        "date": "Select a date",
+        "dateRange": "Select a date range",
         "observation": "Add notes",
         "paymentDay": "Day of month (1-31)",
         "selectAccount": "Select an account",
         "selectCard": "Select a card",
         "selectCategory": "Select a category",
+        "selectSubcategory": "Select a subcategory",
         "totalMonths": "Number of months"
       },
       "sources": {
         "account": "Account",
         "creditCard": "Credit card"
       },
+      "tabs": {
+        "basic": "Basic",
+        "advanced": "Advanced"
+      },
       "types": {
         "expense": "Expense",
         "income": "Income"
+      },
+      "view": {
+        "title": "Transaction details",
+        "subtitle": "View-only summary of the transaction."
       },
       "validation": {
         "accountRequired": "Account is required.",
@@ -55,6 +109,7 @@
         "categoryRequired": "Category is required.",
         "dateRequired": "Date is required.",
         "installmentMonthsRequired": "Total months is required for installments.",
+        "installmentMonthsRange": "Total months must be between 2 and 999.",
         "invalidInstallmentRecurring": "Installment and recurring cannot both be selected.",
         "paymentDayRange": "Payment day must be between 1 and 31.",
         "paymentDayRequired": "Payment day is required."

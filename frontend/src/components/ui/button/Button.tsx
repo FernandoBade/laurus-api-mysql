@@ -6,10 +6,12 @@ interface ButtonProps {
   variant?: "primary" | "outline"; // Button variant
   startIcon?: ReactNode; // Icon before the text
   endIcon?: ReactNode; // Icon after the text
-  onClick?: () => void; // Click handler
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; // Click handler
   type?: "button" | "submit" | "reset"; // Button type
   disabled?: boolean; // Disabled state
   className?: string; // Disabled state
+  title?: string; // Tooltip text
+  ariaLabel?: string; // Accessible label
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -22,6 +24,8 @@ const Button: React.FC<ButtonProps> = ({
   type,
   className = "",
   disabled = false,
+  title,
+  ariaLabel,
 }) => {
   // Size Classes
   const sizeClasses = {
@@ -47,6 +51,8 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       type={type}
       disabled={disabled}
+      title={title}
+      aria-label={ariaLabel}
     >
       {startIcon && <span className="flex items-center">{startIcon}</span>}
       {children}

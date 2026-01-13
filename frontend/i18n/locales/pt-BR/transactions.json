@@ -3,6 +3,13 @@
     "transactions": {
       "title": "Transações",
       "confirmDelete": "Tem certeza que deseja excluir esta transação?",
+      "actions": {
+        "addExpense": "Adicionar despesa",
+        "addIncome": "Adicionar receita",
+        "archive": "Arquivar",
+        "moreOptions": "Mais opções",
+        "lessOptions": "Menos opções"
+      },
       "create": {
         "actions": {
           "submit": "Criar transação"
@@ -13,6 +20,11 @@
         },
         "title": "Criar transação"
       },
+      "delete": {
+        "title": "Excluir transação",
+        "warningTitle": "Esta ação não pode ser desfeita",
+        "warningMessage": "A transação será removida permanentemente."
+      },
       "edit": {
         "title": "Editar transação"
       },
@@ -21,32 +33,74 @@
       },
       "fields": {
         "installment": "Parcelado",
-        "paymentDay": "Dia de pagamento",
+        "paymentDay": "Dia de pagamento / data inicial",
         "recurring": "Recorrente",
+        "subcategory": "Subcategoria",
         "totalMonths": "Total de meses"
+      },
+      "fallbacks": {
+        "subcategoryWithId": "Subcategoria #{{id}}"
+      },
+      "helpers": {
+        "currency": "Moeda: {{currency}}",
+        "installment": "Divida esta transação em parcelas mensais iguais.",
+        "recurring": "Repita esta transação mensalmente até arquivar.",
+        "totalMonths": "Mínimo de 2 e máximo de 999 meses.",
+        "paymentDay": "Escolha o dia do mês para cobranças recorrentes."
+      },
+      "filters": {
+        "type": "Tipo",
+        "source": "Origem",
+        "category": "Categoria",
+        "tag": "Tag",
+        "dateRange": "Período",
+        "placeholders": {
+          "type": "Filtrar por tipo",
+          "source": "Filtrar por origem",
+          "category": "Filtrar por categoria",
+          "tag": "Filtrar por tag"
+        },
+        "options": {
+          "allTypes": "Todos os tipos",
+          "allSources": "Todas as origens",
+          "allCategories": "Todas as categorias",
+          "allTags": "Todas as tags"
+        }
       },
       "list": {
         "desc": "Todas as transações da sua conta.",
         "empty": "Nenhuma transação encontrada.",
+        "emptyHelper": "Use os botões abaixo para adicionar sua primeira transação.",
         "loading": "Carregando transações...",
         "title": "Lista de transações",
         "unavailable": "Não foi possível carregar as transações."
       },
       "placeholders": {
+        "date": "Selecione a data",
+        "dateRange": "Selecione um período",
         "observation": "Adicionar observação",
         "paymentDay": "Dia do mês (1-31)",
         "selectAccount": "Selecione uma conta",
         "selectCard": "Selecione um cartão",
         "selectCategory": "Selecione uma categoria",
+        "selectSubcategory": "Selecione uma subcategoria",
         "totalMonths": "Quantidade de meses"
       },
       "sources": {
         "account": "Conta",
         "creditCard": "Cartão"
       },
+      "tabs": {
+        "basic": "Básico",
+        "advanced": "Avançado"
+      },
       "types": {
         "expense": "Despesa",
         "income": "Receita"
+      },
+      "view": {
+        "title": "Detalhes da transação",
+        "subtitle": "Resumo da transação em modo de visualização."
       },
       "validation": {
         "accountRequired": "Conta é obrigatória.",
@@ -55,6 +109,7 @@
         "categoryRequired": "Categoria é obrigatória.",
         "dateRequired": "Data é obrigatória.",
         "installmentMonthsRequired": "Informe o total de meses para parcelamento.",
+        "installmentMonthsRange": "O total de meses deve estar entre 2 e 999.",
         "invalidInstallmentRecurring": "Parcelado e recorrente não podem ser selecionados juntos.",
         "paymentDayRange": "O dia de pagamento deve estar entre 1 e 31.",
         "paymentDayRequired": "Dia de pagamento é obrigatório."
