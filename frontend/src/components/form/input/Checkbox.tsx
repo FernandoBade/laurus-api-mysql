@@ -8,6 +8,7 @@ interface CheckboxProps {
   id?: string;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -17,6 +18,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   className = "",
   disabled = false,
+  ariaLabel,
 }) => {
   return (
     <label
@@ -33,6 +35,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
           disabled={disabled}
+          aria-label={ariaLabel}
         />
         {checked && (
           <Check

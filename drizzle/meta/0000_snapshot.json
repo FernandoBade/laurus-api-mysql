@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "e3c0f72e-e7ff-41e2-ac60-32dfa37673a9",
+  "id": "9bae4497-71e3-47bc-ad5e-d3765c97447b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user": {
@@ -118,6 +118,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": true
+        },
+        "emailVerifiedAt": {
+          "name": "emailVerifiedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -852,7 +859,7 @@
         },
         "type": {
           "name": "type",
-          "type": "enum('refresh')",
+          "type": "enum('refresh','email_verification','password_reset')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -862,6 +869,27 @@
           "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "session_expires_at": {
+          "name": "session_expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "expires_at": {
@@ -894,6 +922,13 @@
           "name": "token_user_id_idx",
           "columns": [
             "user_id"
+          ],
+          "isUnique": false
+        },
+        "token_session_id_idx": {
+          "name": "token_session_id_idx",
+          "columns": [
+            "session_id"
           ],
           "isUnique": false
         },

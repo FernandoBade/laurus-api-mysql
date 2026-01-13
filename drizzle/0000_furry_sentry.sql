@@ -6,6 +6,7 @@ CREATE TABLE `user` (
 	`password` varchar(255),
 	`birthDate` date,
 	`phone` varchar(255),
+	`avatarUrl` varchar(512),
 	`theme` enum('dark','light') NOT NULL DEFAULT 'dark',
 	`language` enum('en-US','es-ES','pt-BR') NOT NULL DEFAULT 'en-US',
 	`dateFormat` enum('DD/MM/YYYY','MM/DD/YYYY') NOT NULL DEFAULT 'DD/MM/YYYY',
@@ -13,6 +14,7 @@ CREATE TABLE `user` (
 	`profile` enum('starter','pro','master') NOT NULL DEFAULT 'starter',
 	`hideValues` boolean NOT NULL DEFAULT false,
 	`active` boolean NOT NULL DEFAULT true,
+	`emailVerifiedAt` timestamp,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `user_id` PRIMARY KEY(`id`),
@@ -125,8 +127,11 @@ CREATE TABLE `log` (
 CREATE TABLE `token` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`user_id` int NOT NULL,
-	`type` enum('refresh') NOT NULL,
+	`type` enum('refresh','email_verification','password_reset') NOT NULL,
 	`token_hash` varchar(64) NOT NULL,
+	`session_id` varchar(64),
+	`session_expires_at` timestamp,
+	`revoked_at` timestamp,
 	`expires_at` timestamp NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -135,4 +140,5 @@ CREATE TABLE `token` (
 );
 --> statement-breakpoint
 CREATE INDEX `token_user_id_idx` ON `token` (`user_id`);--> statement-breakpoint
+CREATE INDEX `token_session_id_idx` ON `token` (`session_id`);--> statement-breakpoint
 CREATE INDEX `token_expires_at_idx` ON `token` (`expires_at`);

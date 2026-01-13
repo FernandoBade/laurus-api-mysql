@@ -7,6 +7,9 @@
         "addExpense": "Agregar gasto",
         "addIncome": "Agregar ingreso",
         "archive": "Archivar",
+        "duplicate": "Duplicar",
+        "duplicateExpense": "Duplicar gasto",
+        "duplicateIncome": "Duplicar ingreso",
         "moreOptions": "Más opciones",
         "lessOptions": "Menos opciones"
       },
@@ -14,15 +17,27 @@
         "actions": {
           "submit": "Crear transacción"
         },
+        "successTitle": "Transacción creada",
+        "successMessage": "La transacción se creó correctamente.",
         "desc": "Registra una nueva transacción.",
         "errors": {
           "notCreated": "No se pudo crear la transacción."
         },
         "title": "Crear transacción"
       },
+      "duplicate": {
+        "actions": {
+          "submit": "Duplicar transacción"
+        },
+        "successTitle": "Transacción duplicada",
+        "successMessage": "La transacción se duplicó correctamente."
+      },
       "delete": {
         "title": "Eliminar transacción",
+        "bulkTitle": "Eliminar transacciones",
         "warningTitle": "Esta acción no se puede deshacer",
+        "bulkWarningTitle": "Esta acción no se puede deshacer",
+        "bulkWarningMessage": "Se eliminarán permanentemente {{count}} transacciones.",
         "warningMessage": "La transacción se eliminará permanentemente."
       },
       "edit": {
@@ -49,12 +64,18 @@
         "paymentDay": "Elige el día del mes para pagos recurrentes."
       },
       "filters": {
+        "search": "Buscar",
         "type": "Tipo",
         "source": "Origen",
         "category": "Categoría",
         "tag": "Etiqueta",
         "dateRange": "Rango de fechas",
+        "actions": {
+          "apply": "Aplicar filtros",
+          "clear": "Limpiar filtros"
+        },
         "placeholders": {
+          "search": "Buscar por texto",
           "type": "Filtrar por tipo",
           "source": "Filtrar por origen",
           "category": "Filtrar por categoría",
@@ -75,9 +96,19 @@
         "title": "Lista de transacciones",
         "unavailable": "No se pudieron cargar las transacciones."
       },
+      "pagination": {
+        "itemsPerPage": "Elementos por página"
+      },
+      "bulk": {
+        "archive": "Archivar seleccionadas",
+        "delete": "Eliminar seleccionadas",
+        "selectedCount": "{{count}} seleccionadas",
+        "selectAll": "Seleccionar todas las transacciones",
+        "selectRow": "Seleccionar transacción {{id}}"
+      },
       "placeholders": {
         "date": "Selecciona la fecha",
-        "dateRange": "Selecciona un rango de fechas",
+        "dateRange": "Selecciona inicio y fin",
         "observation": "Agregar observación",
         "paymentDay": "Día del mes (1-31)",
         "selectAccount": "Selecciona una cuenta",

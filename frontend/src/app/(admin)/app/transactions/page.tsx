@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ComponentCard from "@/components/common/ComponentCard";
 import Alert from "@/components/ui/alert/Alert";
+import Badge from "@/components/ui/badge/Badge";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "@/components/form/date-picker";
 import Input from "@/components/form/input/InputField";
@@ -13,6 +14,7 @@ import Checkbox from "@/components/form/input/Checkbox";
 import MultiSelect from "@/components/form/MultiSelect";
 import TextArea from "@/components/form/input/TextArea";
 import { Modal } from "@/components/ui/modal";
+import Pagination from "@/components/tables/Pagination";
 import {
   Table,
   TableBody,
@@ -35,6 +37,7 @@ import {
 } from "@/features/transactions/hooks";
 import type { Transaction } from "@/features/transactions/types";
 import type {
+  CategoryColor,
   Currency,
   DateFormat,
   TransactionSource,
@@ -53,9 +56,13 @@ import {
   CaretDown,
   CaretUp,
   CaretUpDown,
+  CheckCircle,
+  Copy,
+  MagnifyingGlass,
   PencilSimple,
   Plus,
   Trash,
+  WarningCircle,
 } from "@phosphor-icons/react";
 
 type TransactionFormState = {
@@ -188,6 +195,16 @@ const formatDateForPreference = (
 const resolveFlatpickrFormat = (format: DateFormat) =>
   format === "MM/DD/YYYY" ? "m/d/Y" : "d/m/Y";
 
+const normalizeSearchText = (value: string) => value.trim().toLowerCase();
+
+const normalizeId = (value: number | string | null | undefined) => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 type TransactionModalProps = {
   isOpen: boolean;
   title: string;
@@ -315,6 +332,7 @@ const TransactionModal = ({
                   id={datePickerId}
                   placeholder={t("resource.transactions.placeholders.date")}
                   dateFormat={dateFormat}
+                  iconPosition="left"
                   staticPosition={false}
                   appendTo={datePickerPortal}
                   defaultDate={state.date ? new Date(state.date) : undefined}
@@ -557,12 +575,29 @@ export default function TransactionsPage() {
     () => resolveCurrencySymbol(currency, locale),
     [currency, locale]
   );
-  const transactionsQuery = useTransactions({ sort: "date", order: "desc" });
+  const [sortKey, setSortKey] = useState<SortKey>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const isServerSortable = [
+    "date",
+    "transactionType",
+    "transactionSource",
+    "value",
+  ].includes(sortKey);
+  const serverSortKey = isServerSortable ? sortKey : "date";
+  const serverSortDirection = isServerSortable ? sortDirection : "desc";
+  const transactionsQuery = useTransactions({
+    sort: serverSortKey,
+    order: serverSortDirection,
+    page: currentPage,
+    pageSize,
+  });
   const accountsQuery = useAccountsByUser(userId);
   const cardsQuery = useCreditCardsByUser(userId);
-  const categoriesQuery = useCategoriesByUser(userId);
-  const subcategoriesQuery = useSubcategoriesByUser(userId);
-  const tagsQuery = useTagsByUser(userId);
+  const categoriesQuery = useCategoriesByUser(userId, { pageSize: 500 });
+  const subcategoriesQuery = useSubcategoriesByUser(userId, { pageSize: 500 });
+  const tagsQuery = useTagsByUser(userId, { pageSize: 500 });
   const createTransactionMutation = useCreateTransaction();
   const updateTransactionMutation = useUpdateTransaction();
   const deleteTransactionMutation = useDeleteTransaction();
@@ -571,6 +606,11 @@ export default function TransactionsPage() {
   const [isCreateAdvancedOpen, setIsCreateAdvancedOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
+  const [successVariant, setSuccessVariant] = useState<
+    "create" | "duplicate" | null
+  >(null);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isDuplicateMode, setIsDuplicateMode] = useState(false);
   const [value, setValue] = useState("");
   const [date, setDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -611,24 +651,53 @@ export default function TransactionsPage() {
   const [editObservation, setEditObservation] = useState("");
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [deleteTargetIds, setDeleteTargetIds] = useState<number[]>([]);
 
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewTransaction, setViewTransaction] = useState<Transaction | null>(
     null
   );
 
+  const [filterTypeDraft, setFilterTypeDraft] = useState<string>("all");
+  const [filterSourceDraft, setFilterSourceDraft] = useState<string>("all");
+  const [filterCategoryIdsDraft, setFilterCategoryIdsDraft] = useState<
+    string[]
+  >([]);
+  const [filterTagIdsDraft, setFilterTagIdsDraft] = useState<string[]>([]);
+  const [filterDateRangeDraft, setFilterDateRangeDraft] =
+    useState<DateRangeFilter>({
+      start: "",
+      end: "",
+    });
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSource, setFilterSource] = useState<string>("all");
-  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
-  const [filterTagId, setFilterTagId] = useState<string>("all");
+  const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>([]);
+  const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<DateRangeFilter>({
     start: "",
     end: "",
   });
-
-  const [sortKey, setSortKey] = useState<SortKey>("date");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterFormKey, setFilterFormKey] = useState(0);
+  const [filterCategoryKey, setFilterCategoryKey] = useState(0);
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState<
+    number[]
+  >([]);
+  const filterDateRangeDefault = useMemo(() => {
+    if (filterDateRangeDraft.start && filterDateRangeDraft.end) {
+      return [
+        new Date(filterDateRangeDraft.start),
+        new Date(filterDateRangeDraft.end),
+      ];
+    }
+    if (filterDateRangeDraft.start) {
+      return [new Date(filterDateRangeDraft.start)];
+    }
+    if (filterDateRangeDraft.end) {
+      return [new Date(filterDateRangeDraft.end)];
+    }
+    return undefined;
+  }, [filterDateRangeDraft]);
 
   const typeOptions = useMemo(
     () => [
@@ -675,6 +744,14 @@ export default function TransactionsPage() {
     ],
     [sourceOptions, t]
   );
+  const pageSizeOptions = useMemo(
+    () =>
+      [10, 25, 50, 100].map((size) => ({
+        value: String(size),
+        label: String(size),
+      })),
+    []
+  );
 
   const accounts = useMemo(
     () => accountsQuery.data?.data ?? [],
@@ -692,20 +769,22 @@ export default function TransactionsPage() {
   const tags = useMemo(() => tagsQuery.data?.data ?? [], [tagsQuery.data]);
 
   useEffect(() => {
-    if (filterCategoryId === "all") {
+    if (filterTypeDraft === "all") {
       return;
     }
-    const selected = categories.find(
-      (category) => String(category.id) === filterCategoryId
+    const allowed = new Set(
+      categories
+        .filter((category) => category.type === filterTypeDraft)
+        .map((category) => String(category.id))
     );
-    if (!selected) {
-      setFilterCategoryId("all");
-      return;
+    const nextSelected = filterCategoryIdsDraft.filter((id) =>
+      allowed.has(id)
+    );
+    if (nextSelected.length !== filterCategoryIdsDraft.length) {
+      setFilterCategoryIdsDraft(nextSelected);
+      setFilterCategoryKey((prev) => prev + 1);
     }
-    if (filterType !== "all" && selected.type !== filterType) {
-      setFilterCategoryId("all");
-    }
-  }, [categories, filterCategoryId, filterType]);
+  }, [categories, filterCategoryIdsDraft, filterTypeDraft]);
 
   const accountOptions = useMemo(
     () =>
@@ -761,24 +840,19 @@ export default function TransactionsPage() {
 
   const filterCategoryOptions = useMemo(() => {
     const filtered =
-      filterType === "all"
+      filterTypeDraft === "all"
         ? categories
-        : categories.filter((category) => category.type === filterType);
-    return [
-      {
-        value: "all",
-        label: t("resource.transactions.filters.options.allCategories"),
-      },
-      ...filtered.map((category) => ({
-        value: String(category.id),
-        label:
-          category.name ||
-          t("resource.categories.fallbacks.categoryWithId", {
-            id: category.id,
-          }),
-      })),
-    ];
-  }, [categories, filterType, t]);
+        : categories.filter((category) => category.type === filterTypeDraft);
+    return filtered.map((category) => ({
+      value: String(category.id),
+      text:
+        category.name ||
+        t("resource.categories.fallbacks.categoryWithId", {
+          id: category.id,
+        }),
+      selected: false,
+    }));
+  }, [categories, filterTypeDraft, t]);
 
   const subcategoryOptions = useMemo(() => {
     if (!categoryId) {
@@ -825,17 +899,12 @@ export default function TransactionsPage() {
   );
 
   const tagFilterOptions = useMemo(
-    () => [
-      {
-        value: "all",
-        label: t("resource.transactions.filters.options.allTags"),
-      },
-      ...tags.map((tag) => ({
+    () =>
+      tags.map((tag) => ({
         value: String(tag.id),
-        label:
-          tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
+        text: tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
+        selected: false,
       })),
-    ],
     [tags, t]
   );
 
@@ -846,6 +915,10 @@ export default function TransactionsPage() {
   const cardMap = useMemo(
     () => new Map(cards.map((card) => [card.id, card.name])),
     [cards]
+  );
+  const categoryById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories]
   );
   const categoryMap = useMemo(
     () => new Map(categories.map((category) => [category.id, category.name])),
@@ -869,10 +942,17 @@ export default function TransactionsPage() {
     [tags, t]
   );
 
-  const resolveCategoryId = (transaction: Transaction) =>
-    transaction.categoryId ??
-    subcategoryById.get(transaction.subcategoryId ?? -1)?.categoryId ??
-    null;
+  const resolveCategoryId = (transaction: Transaction) => {
+    const directId = normalizeId(transaction.categoryId);
+    if (directId !== null) {
+      return directId;
+    }
+    const subcategoryId = normalizeId(transaction.subcategoryId);
+    if (subcategoryId === null) {
+      return null;
+    }
+    return subcategoryById.get(subcategoryId)?.categoryId ?? null;
+  };
 
   const resolveCategoryLabel = (transaction: Transaction) => {
     const categoryId = resolveCategoryId(transaction);
@@ -885,19 +965,45 @@ export default function TransactionsPage() {
     );
   };
 
+  const resolveCategoryColor = (
+    transaction: Transaction
+  ): CategoryColor | "light" => {
+    const categoryId = resolveCategoryId(transaction);
+    if (!categoryId) {
+      return "light";
+    }
+    return categoryById.get(categoryId)?.color ?? "light";
+  };
+
+  const resolveSubcategoryLabel = (transaction: Transaction) => {
+    const subcategoryId = normalizeId(transaction.subcategoryId);
+    if (subcategoryId === null) {
+      return null;
+    }
+    const subcategory = subcategoryById.get(subcategoryId);
+    return (
+      subcategory?.name ||
+      t("resource.transactions.fallbacks.subcategoryWithId", {
+        id: subcategoryId,
+      })
+    );
+  };
+
   const resolveSourceLabel = (transaction: Transaction) => {
     if (transaction.transactionSource === "account") {
+      const accountId = normalizeId(transaction.accountId);
       return (
-        accountMap.get(transaction.accountId ?? -1) ||
+        accountMap.get(accountId ?? -1) ||
         t("resource.accounts.fallbacks.accountWithId", {
-          id: transaction.accountId ?? "-",
+          id: accountId ?? "-",
         })
       );
     }
+    const cardId = normalizeId(transaction.creditCardId);
     return (
-      cardMap.get(transaction.creditCardId ?? -1) ||
+      cardMap.get(cardId ?? -1) ||
       t("resource.creditCards.fallbacks.cardWithId", {
-        id: transaction.creditCardId ?? "-",
+        id: cardId ?? "-",
       })
     );
   };
@@ -909,10 +1015,58 @@ export default function TransactionsPage() {
     }
     return tagIds
       .map((tagId) =>
-        tagMap.get(tagId) ||
+        tagMap.get(normalizeId(tagId) ?? -1) ||
         t("resource.tags.fallbacks.tagWithId", { id: tagId })
       )
       .join(", ");
+  };
+
+  const renderCategoryBadges = (transaction: Transaction) => {
+    const categoryId = resolveCategoryId(transaction);
+    if (!categoryId) {
+      return (
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {t("resource.common.placeholders.emptyValue")}
+        </span>
+      );
+    }
+    const subcategoryLabel = resolveSubcategoryLabel(transaction);
+    const categoryColor = resolveCategoryColor(transaction);
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {subcategoryLabel ? (
+          <Badge variant="light" color={categoryColor} size="sm">
+            {subcategoryLabel}
+          </Badge>
+        ) : (
+          <Badge variant="solid" color={categoryColor} size="sm">
+            {resolveCategoryLabel(transaction)}
+          </Badge>
+        )}
+      </div>
+    );
+  };
+
+  const renderTagBadges = (transaction: Transaction) => {
+    const tagIds = transaction.tags ?? [];
+    if (!tagIds.length) {
+      return (
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {t("resource.common.placeholders.emptyValue")}
+        </span>
+      );
+    }
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {tagIds.map((tagId) => (
+          <Badge key={tagId} variant="light" color="light" size="sm">
+            {tagMap.get(normalizeId(tagId) ?? -1) ??
+              t("resource.tags.fallbacks.tagWithId", { id: tagId })}
+          </Badge>
+        ))}
+      </div>
+    );
   };
 
   const filteredTransactions = useMemo(() => {
@@ -939,20 +1093,28 @@ export default function TransactionsPage() {
         (transaction) => transaction.transactionSource === filterSource
       );
     }
-    if (filterCategoryId !== "all") {
-      const selectedCategoryId = Number(filterCategoryId);
+    if (filterCategoryIds.length) {
+      const selectedCategories = new Set(
+        filterCategoryIds.map((id) => Number(id))
+      );
       filtered = filtered.filter((transaction) => {
+        const directCategoryId = normalizeId(transaction.categoryId);
+        const subcategoryId = normalizeId(transaction.subcategoryId);
         const effectiveCategoryId =
-          transaction.categoryId ??
-          subcategoryById.get(transaction.subcategoryId ?? -1)?.categoryId ??
-          null;
-        return effectiveCategoryId === selectedCategoryId;
+          directCategoryId ??
+          (subcategoryId !== null
+            ? subcategoryById.get(subcategoryId)?.categoryId ?? null
+            : null);
+        return (
+          effectiveCategoryId !== null &&
+          selectedCategories.has(effectiveCategoryId)
+        );
       });
     }
-    if (filterTagId !== "all") {
-      const selectedTagId = Number(filterTagId);
+    if (filterTagIds.length) {
+      const selectedTags = new Set(filterTagIds.map((id) => Number(id)));
       filtered = filtered.filter((transaction) =>
-        (transaction.tags ?? []).includes(selectedTagId)
+        (transaction.tags ?? []).some((tagId) => selectedTags.has(tagId))
       );
     }
     if (filterDateRange.start || filterDateRange.end) {
@@ -962,6 +1124,9 @@ export default function TransactionsPage() {
       const end = filterDateRange.end
         ? new Date(filterDateRange.end)
         : null;
+      if (end) {
+        end.setHours(23, 59, 59, 999);
+      }
       filtered = filtered.filter((transaction) => {
         const date = new Date(transaction.date);
         if (Number.isNaN(date.getTime())) {
@@ -976,6 +1141,25 @@ export default function TransactionsPage() {
         return true;
       });
     }
+    const searchTerm = normalizeSearchText(searchQuery);
+    if (searchTerm) {
+      filtered = filtered.filter((transaction) => {
+        const searchable = [
+          typeLabels.get(transaction.transactionType) ??
+            transaction.transactionType,
+          sourceLabels.get(transaction.transactionSource) ??
+            transaction.transactionSource,
+          resolveCategoryLabel(transaction),
+          resolveSubcategoryLabel(transaction) ?? "",
+          resolveTagLabels(transaction),
+          transaction.observation ?? "",
+          String(transaction.value ?? ""),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return searchable.includes(searchTerm);
+      });
+    }
 
     return filtered;
   }, [
@@ -984,10 +1168,16 @@ export default function TransactionsPage() {
     cards,
     filterType,
     filterSource,
-    filterCategoryId,
-    filterTagId,
+    filterCategoryIds,
+    filterTagIds,
     filterDateRange,
+    searchQuery,
     subcategoryById,
+    resolveCategoryLabel,
+    resolveSubcategoryLabel,
+    resolveTagLabels,
+    sourceLabels,
+    typeLabels,
   ]);
 
   const sortedTransactions = useMemo(() => {
@@ -1032,6 +1222,47 @@ export default function TransactionsPage() {
     typeLabels,
   ]);
 
+  const transactionById = useMemo(
+    () => new Map(sortedTransactions.map((transaction) => [transaction.id, transaction])),
+    [sortedTransactions]
+  );
+  const selectedIdSet = useMemo(
+    () => new Set(selectedTransactionIds),
+    [selectedTransactionIds]
+  );
+  const isBulkMode = selectedTransactionIds.length > 0;
+  const allVisibleSelected =
+    sortedTransactions.length > 0 &&
+    sortedTransactions.every((transaction) =>
+      selectedIdSet.has(transaction.id)
+    );
+
+  const totalPages = useMemo(() => {
+    const pageCount = transactionsQuery.data?.pageCount;
+    if (pageCount) {
+      return Math.max(pageCount, 1);
+    }
+    const totalItems = transactionsQuery.data?.totalItems;
+    if (totalItems) {
+      return Math.max(Math.ceil(totalItems / pageSize), 1);
+    }
+    return 1;
+  }, [transactionsQuery.data?.pageCount, transactionsQuery.data?.totalItems, pageSize]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setSelectedTransactionIds((prev) =>
+      prev.filter((id) =>
+        sortedTransactions.some((transaction) => transaction.id === id)
+      )
+    );
+  }, [sortedTransactions]);
+
   const resetForm = (nextType: TransactionType = "expense") => {
     setValue("");
     setDate("");
@@ -1048,6 +1279,34 @@ export default function TransactionsPage() {
     setTagIds([]);
     setObservation("");
     setFormKey((prev) => prev + 1);
+  };
+
+  const handleApplyFilters = () => {
+    setFilterType(filterTypeDraft);
+    setFilterSource(filterSourceDraft);
+    setFilterCategoryIds(filterCategoryIdsDraft);
+    setFilterTagIds(filterTagIdsDraft);
+    setFilterDateRange(filterDateRangeDraft);
+    setCurrentPage(1);
+    setSelectedTransactionIds([]);
+  };
+
+  const handleClearFilters = () => {
+    setFilterTypeDraft("all");
+    setFilterSourceDraft("all");
+    setFilterCategoryIdsDraft([]);
+    setFilterTagIdsDraft([]);
+    setFilterDateRangeDraft({ start: "", end: "" });
+    setFilterType("all");
+    setFilterSource("all");
+    setFilterCategoryIds([]);
+    setFilterTagIds([]);
+    setFilterDateRange({ start: "", end: "" });
+    setSearchQuery("");
+    setCurrentPage(1);
+    setFilterFormKey((prev) => prev + 1);
+    setFilterCategoryKey((prev) => prev + 1);
+    setSelectedTransactionIds([]);
   };
 
   const validateTransaction = ({
@@ -1118,15 +1377,63 @@ export default function TransactionsPage() {
     return null;
   };
 
+  const closeSuccessModal = () => {
+    setIsSuccessOpen(false);
+    setSuccessVariant(null);
+  };
+
   const openCreateModal = (type: TransactionType) => {
     resetForm(type);
     setFormError(null);
+    setSuccessVariant(null);
+    setIsSuccessOpen(false);
+    setIsDuplicateMode(false);
     setIsCreateAdvancedOpen(false);
     setIsCreateOpen(true);
   };
 
   const closeCreateModal = () => {
     setIsCreateOpen(false);
+    setIsDuplicateMode(false);
+  };
+
+  const openDuplicateModal = (transaction: Transaction) => {
+    const directCategoryId = normalizeId(transaction.categoryId);
+    const subcategoryId = normalizeId(transaction.subcategoryId);
+    const fallbackCategoryId =
+      directCategoryId ??
+      (subcategoryId !== null
+        ? subcategoryById.get(subcategoryId)?.categoryId ?? null
+        : null);
+    const numericValue = Number(transaction.value);
+    setFormError(null);
+    setSuccessVariant(null);
+    setIsSuccessOpen(false);
+    setIsDuplicateMode(true);
+    setValue(Number.isNaN(numericValue) ? "" : formatAmountValue(numericValue, locale));
+    setDate(toDateInputValue(transaction.date));
+    setCategoryId(fallbackCategoryId ? String(fallbackCategoryId) : "");
+    setSubcategoryId(
+      transaction.subcategoryId ? String(transaction.subcategoryId) : ""
+    );
+    setTransactionType(transaction.transactionType);
+    setTransactionSource(transaction.transactionSource);
+    setAccountId(transaction.accountId ? String(transaction.accountId) : "");
+    setCardId(transaction.creditCardId ? String(transaction.creditCardId) : "");
+    setIsInstallment(transaction.isInstallment);
+    setTotalMonths(transaction.totalMonths ? String(transaction.totalMonths) : "");
+    setIsRecurring(transaction.isRecurring);
+    setPaymentDay(transaction.paymentDay ? String(transaction.paymentDay) : "");
+    setTagIds((transaction.tags ?? []).map(String));
+    setObservation(transaction.observation || "");
+    setFormKey((prev) => prev + 1);
+    setIsCreateAdvancedOpen(
+      transaction.isInstallment ||
+        transaction.isRecurring ||
+        Boolean(transaction.observation) ||
+        (transaction.tags ?? []).length > 0
+    );
+    setIsCreateOpen(true);
   };
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -1151,6 +1458,7 @@ export default function TransactionsPage() {
     }
 
     try {
+      const wasDuplicate = isDuplicateMode;
       const parsedAmount = parseAmountInput(value);
       if (parsedAmount === null) {
         setFormError(t("resource.transactions.validation.amountPositive"));
@@ -1175,6 +1483,9 @@ export default function TransactionsPage() {
         observation: observation.trim() || undefined,
       });
       setIsCreateOpen(false);
+      setIsDuplicateMode(false);
+      setSuccessVariant(wasDuplicate ? "duplicate" : "create");
+      setIsSuccessOpen(true);
       resetForm(transactionType);
     } catch (error) {
       setFormError(getApiErrorMessage(error, t("resource.common.errors.generic")));
@@ -1182,10 +1493,13 @@ export default function TransactionsPage() {
   };
 
   const openEditModal = (transaction: (typeof filteredTransactions)[number]) => {
+    const directCategoryId = normalizeId(transaction.categoryId);
+    const subcategoryId = normalizeId(transaction.subcategoryId);
     const fallbackCategoryId =
-      transaction.categoryId ??
-      subcategoryById.get(transaction.subcategoryId ?? -1)?.categoryId ??
-      null;
+      directCategoryId ??
+      (subcategoryId !== null
+        ? subcategoryById.get(subcategoryId)?.categoryId ?? null
+        : null);
     const numericValue = Number(transaction.value);
     setEditId(transaction.id);
     setEditValue(
@@ -1208,7 +1522,12 @@ export default function TransactionsPage() {
     setEditObservation(transaction.observation || "");
     setEditError(null);
     setEditKey((prev) => prev + 1);
-    setIsEditAdvancedOpen(false);
+    setIsEditAdvancedOpen(
+      transaction.isInstallment ||
+        transaction.isRecurring ||
+        Boolean(transaction.observation) ||
+        (transaction.tags ?? []).length > 0
+    );
     setIsEditOpen(true);
   };
 
@@ -1293,23 +1612,27 @@ export default function TransactionsPage() {
     }
   };
 
-  const openDeleteModal = (id: number) => {
-    setDeleteTargetId(id);
+  const openDeleteModal = (ids: number | number[]) => {
+    const nextIds = Array.isArray(ids) ? ids : [ids];
+    setDeleteTargetIds(nextIds);
     setIsDeleteOpen(true);
   };
 
   const closeDeleteModal = () => {
     setIsDeleteOpen(false);
-    setDeleteTargetId(null);
+    setDeleteTargetIds([]);
   };
 
   const handleDelete = async () => {
-    if (!deleteTargetId) {
+    if (!deleteTargetIds.length) {
       return;
     }
     try {
-      await deleteTransactionMutation.mutateAsync(deleteTargetId);
+      for (const id of deleteTargetIds) {
+        await deleteTransactionMutation.mutateAsync(id);
+      }
       closeDeleteModal();
+      setSelectedTransactionIds([]);
     } catch {
       // Error handled by mutation state.
     }
@@ -1321,7 +1644,9 @@ export default function TransactionsPage() {
     if (!transaction.active) {
       return;
     }
-    if (!transaction.categoryId && !transaction.subcategoryId) {
+    const categoryId = normalizeId(transaction.categoryId);
+    const subcategoryId = normalizeId(transaction.subcategoryId);
+    if (categoryId === null && subcategoryId === null) {
       return;
     }
     try {
@@ -1329,8 +1654,8 @@ export default function TransactionsPage() {
         id: transaction.id,
         payload: {
           active: false,
-          category_id: transaction.categoryId ?? undefined,
-          subcategory_id: transaction.subcategoryId ?? undefined,
+          category_id: categoryId ?? undefined,
+          subcategory_id: subcategoryId ?? undefined,
         },
       });
     } catch {
@@ -1417,6 +1742,8 @@ export default function TransactionsPage() {
   };
 
   const handleSortChange = (key: SortKey) => {
+    setCurrentPage(1);
+    setSelectedTransactionIds([]);
     setSortKey((currentKey) => {
       if (currentKey === key) {
         setSortDirection((currentDirection) =>
@@ -1427,6 +1754,72 @@ export default function TransactionsPage() {
       setSortDirection("asc");
       return key;
     });
+  };
+
+  const handlePageChange = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages);
+    setCurrentPage(nextPage);
+    setSelectedTransactionIds([]);
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    const nextSize = Number(value);
+    if (Number.isNaN(nextSize) || nextSize <= 0) {
+      return;
+    }
+    setPageSize(nextSize);
+    setCurrentPage(1);
+    setSelectedTransactionIds([]);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedTransactionIds(sortedTransactions.map((transaction) => transaction.id));
+      return;
+    }
+    setSelectedTransactionIds([]);
+  };
+
+  const handleSelectTransaction = (id: number, checked: boolean) => {
+    setSelectedTransactionIds((prev) => {
+      if (checked) {
+        return prev.includes(id) ? prev : [...prev, id];
+      }
+      return prev.filter((selectedId) => selectedId !== id);
+    });
+  };
+
+  const handleBulkArchive = async () => {
+    if (!selectedTransactionIds.length) {
+      return;
+    }
+    const targets = selectedTransactionIds
+      .map((id) => transactionById.get(id))
+      .filter((transaction): transaction is Transaction => Boolean(transaction));
+
+    for (const transaction of targets) {
+      if (!transaction.active) {
+        continue;
+      }
+      const categoryId = normalizeId(transaction.categoryId);
+      const subcategoryId = normalizeId(transaction.subcategoryId);
+      if (categoryId === null && subcategoryId === null) {
+        continue;
+      }
+      try {
+        await updateTransactionMutation.mutateAsync({
+          id: transaction.id,
+          payload: {
+            active: false,
+            category_id: categoryId ?? undefined,
+            subcategory_id: subcategoryId ?? undefined,
+          },
+        });
+      } catch {
+        // Error handled by mutation state.
+      }
+    }
+    setSelectedTransactionIds([]);
   };
 
   const renderSortIcon = (key: SortKey) => {
@@ -1537,7 +1930,7 @@ export default function TransactionsPage() {
     <button
       type="button"
       onClick={() => handleSortChange(key)}
-      className="inline-flex items-center gap-1"
+      className="inline-flex w-full items-center justify-between gap-1 text-left"
       aria-label={label}
       title={label}
     >
@@ -1551,6 +1944,19 @@ export default function TransactionsPage() {
   const tableHeader = (
     <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
       <TableRow>
+        <TableCell
+          isHeader
+          className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
+        >
+          <div onClick={(event) => event.stopPropagation()}>
+            <Checkbox
+              checked={allVisibleSelected}
+              onChange={handleSelectAll}
+              ariaLabel={t("resource.transactions.bulk.selectAll")}
+              disabled={sortedTransactions.length === 0}
+            />
+          </div>
+        </TableCell>
         <TableCell
           isHeader
           className="px-5 py-3 text-start text-theme-xs font-medium text-gray-500 dark:text-gray-400"
@@ -1597,10 +2003,38 @@ export default function TransactionsPage() {
     </TableHeader>
   );
 
-  const createModalTitle =
-    transactionType === "expense"
-      ? t("resource.transactions.actions.addExpense")
-      : t("resource.transactions.actions.addIncome");
+  const createModalTitle = isDuplicateMode
+    ? transactionType === "expense"
+      ? t("resource.transactions.actions.duplicateExpense")
+      : t("resource.transactions.actions.duplicateIncome")
+    : transactionType === "expense"
+    ? t("resource.transactions.actions.addExpense")
+    : t("resource.transactions.actions.addIncome");
+  const createModalSubmitLabel = isDuplicateMode
+    ? t("resource.transactions.duplicate.actions.submit")
+    : t("resource.transactions.create.actions.submit");
+  const successTitle =
+    successVariant === "duplicate"
+      ? t("resource.transactions.duplicate.successTitle")
+      : t("resource.transactions.create.successTitle");
+  const successMessage =
+    successVariant === "duplicate"
+      ? t("resource.transactions.duplicate.successMessage")
+      : t("resource.transactions.create.successMessage");
+  const deleteTitle =
+    deleteTargetIds.length > 1
+      ? t("resource.transactions.delete.bulkTitle")
+      : t("resource.transactions.delete.title");
+  const deleteSubtitle =
+    deleteTargetIds.length > 1
+      ? t("resource.transactions.delete.bulkWarningTitle")
+      : t("resource.transactions.delete.warningTitle");
+  const deleteMessage =
+    deleteTargetIds.length > 1
+      ? t("resource.transactions.delete.bulkWarningMessage", {
+          count: deleteTargetIds.length,
+        })
+      : t("resource.transactions.delete.warningMessage");
 
   return (
     <div className="space-y-6">
@@ -1640,10 +2074,10 @@ export default function TransactionsPage() {
                 <div>
                   <Label>{t("resource.transactions.filters.type")}</Label>
                   <Select
-                    key={`filter-type-${filterType}`}
+                    key={`filter-type-${filterFormKey}`}
                     options={filterTypeOptions}
-                    defaultValue={filterType}
-                    onChange={setFilterType}
+                    defaultValue={filterTypeDraft}
+                    onChange={setFilterTypeDraft}
                     placeholder={t(
                       "resource.transactions.filters.placeholders.type"
                     )}
@@ -1652,58 +2086,130 @@ export default function TransactionsPage() {
                 <div>
                   <Label>{t("resource.transactions.filters.source")}</Label>
                   <Select
-                    key={`filter-source-${filterSource}`}
+                    key={`filter-source-${filterFormKey}`}
                     options={filterSourceOptions}
-                    defaultValue={filterSource}
-                    onChange={setFilterSource}
+                    defaultValue={filterSourceDraft}
+                    onChange={setFilterSourceDraft}
                     placeholder={t(
                       "resource.transactions.filters.placeholders.source"
                     )}
                   />
                 </div>
-                <div>
-                  <Label>{t("resource.transactions.filters.category")}</Label>
-                  <Select
-                    key={`filter-category-${filterType}-${filterCategoryId}`}
-                    options={filterCategoryOptions}
-                    defaultValue={filterCategoryId}
-                    onChange={setFilterCategoryId}
-                    placeholder={t(
-                      "resource.transactions.filters.placeholders.category"
-                    )}
-                  />
-                </div>
-                <div>
-                  <Label>{t("resource.transactions.filters.tag")}</Label>
-                  <Select
-                    key={`filter-tag-${filterTagId}`}
-                    options={tagFilterOptions}
-                    defaultValue={filterTagId}
-                    onChange={setFilterTagId}
-                    placeholder={t(
-                      "resource.transactions.filters.placeholders.tag"
-                    )}
-                  />
-                </div>
+                <MultiSelect
+                  key={`filter-category-${filterCategoryKey}`}
+                  label={t("resource.transactions.filters.category")}
+                  options={filterCategoryOptions}
+                  defaultSelected={filterCategoryIdsDraft}
+                  onChange={setFilterCategoryIdsDraft}
+                />
+                <MultiSelect
+                  key={`filter-tag-${filterFormKey}`}
+                  label={t("resource.transactions.filters.tag")}
+                  options={tagFilterOptions}
+                  defaultSelected={filterTagIdsDraft}
+                  onChange={setFilterTagIdsDraft}
+                />
                 <div>
                   <DatePicker
-                    id="transactions-date-range"
+                    key={`filter-date-${filterFormKey}`}
+                    id={`transactions-date-range-${filterFormKey}`}
                     mode="range"
                     label={t("resource.transactions.filters.dateRange")}
                     placeholder={t(
                       "resource.transactions.placeholders.dateRange"
                     )}
                     dateFormat={datePickerFormat}
+                    iconPosition="left"
                     staticPosition={false}
                     appendTo={datePickerPortal}
+                    defaultDate={filterDateRangeDefault}
                     onChange={(dates) => {
                       const [start, end] = dates;
-                      setFilterDateRange({
+                      setFilterDateRangeDraft({
                         start: start ? toDateInputValue(start) : "",
                         end: end ? toDateInputValue(end) : "",
                       });
                     }}
                   />
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={handleClearFilters}
+                >
+                  {t("resource.transactions.filters.actions.clear")}
+                </Button>
+                <Button size="sm" type="button" onClick={handleApplyFilters}>
+                  {t("resource.transactions.filters.actions.apply")}
+                </Button>
+              </div>
+            </div>
+            {isBulkMode && (
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-100 p-3 dark:border-white/[0.05]">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {t("resource.transactions.bulk.selectedCount", {
+                    count: selectedTransactionIds.length,
+                  })}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    disabled={updateTransactionMutation.isPending}
+                    onClick={handleBulkArchive}
+                  >
+                    {t("resource.transactions.bulk.archive")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    disabled={deleteTransactionMutation.isPending}
+                    onClick={() => openDeleteModal(selectedTransactionIds)}
+                  >
+                    {t("resource.transactions.bulk.delete")}
+                  </Button>
+                </div>
+              </div>
+            )}
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-[240px] flex-1">
+                <Label>{t("resource.transactions.filters.search")}</Label>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder={t(
+                      "resource.transactions.filters.placeholders.search"
+                    )}
+                    value={searchQuery}
+                    onChange={(event) => {
+                      setSearchQuery(event.target.value);
+                      setCurrentPage(1);
+                      setSelectedTransactionIds([]);
+                    }}
+                    className="pl-10"
+                  />
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    <MagnifyingGlass size={18} />
+                  </span>
+                </div>
+              </div>
+              <div className="min-w-[200px]">
+                <Label>{t("resource.transactions.pagination.itemsPerPage")}</Label>
+                <div className="relative">
+                  <Select
+                    key={`page-size-${pageSize}`}
+                    options={pageSizeOptions}
+                    defaultValue={String(pageSize)}
+                    onChange={handlePageSizeChange}
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    <CaretDown size={16} />
+                  </span>
                 </div>
               </div>
             </div>
@@ -1715,6 +2221,9 @@ export default function TransactionsPage() {
                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                       {Array.from({ length: 6 }).map((_, index) => (
                         <TableRow key={`skeleton-${index}`} className="animate-pulse">
+                          <TableCell className="px-5 py-4">
+                            <div className="h-4 w-4 rounded bg-gray-200 dark:bg-gray-800" />
+                          </TableCell>
                           <TableCell className="px-5 py-4">
                             <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-800" />
                           </TableCell>
@@ -1752,57 +2261,75 @@ export default function TransactionsPage() {
                 {renderCreateActions()}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <div className="min-w-[980px]">
-                  <Table>
-                    {tableHeader}
-                    <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                      {sortedTransactions.map((transaction) => (
-                        <TableRow
-                          key={transaction.id}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => openViewModal(transaction)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              openViewModal(transaction);
-                            }
+              <>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[980px]">
+                    <Table>
+                      {tableHeader}
+                      <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                        {sortedTransactions.map((transaction) => (
+                          <TableRow
+                            key={transaction.id}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => openViewModal(transaction)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                openViewModal(transaction);
+                              }
                           }}
                           className="cursor-pointer transition hover:bg-gray-50 dark:hover:bg-white/[0.03]"
                         >
+                          <TableCell className="px-5 py-4">
+                            <div
+                              onClick={(event) => event.stopPropagation()}
+                              onKeyDown={(event) => event.stopPropagation()}
+                            >
+                              <Checkbox
+                                checked={selectedIdSet.has(transaction.id)}
+                                onChange={(checked) =>
+                                  handleSelectTransaction(transaction.id, checked)
+                                }
+                                ariaLabel={t("resource.transactions.bulk.selectRow", {
+                                  id: transaction.id,
+                                })}
+                              />
+                            </div>
+                          </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {formatDateForPreference(
                               transaction.date,
                               preferredDateFormat
                             )}
                           </TableCell>
+                            <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              {typeLabels.get(transaction.transactionType) ??
+                                transaction.transactionType}
+                            </TableCell>
+                            <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              {resolveSourceLabel(transaction)}
+                            </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {typeLabels.get(transaction.transactionType) ??
-                              transaction.transactionType}
+                            {renderCategoryBadges(transaction)}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {resolveSourceLabel(transaction)}
+                            {renderTagBadges(transaction)}
                           </TableCell>
-                          <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {resolveCategoryLabel(transaction)}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                            {resolveTagLabels(transaction)}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
-                            {currency
-                              ? formatMoney(transaction.value, { currency })
-                              : formatMoney(transaction.value)}
-                          </TableCell>
-                          <TableCell className="px-5 py-4">
-                            <div className="flex items-center gap-2">
+                            <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+                              {currency
+                                ? formatMoney(transaction.value, { currency })
+                                : formatMoney(transaction.value)}
+                            </TableCell>
+                            <TableCell className="px-5 py-4">
+                              <div className="flex items-center gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="!h-9 !w-9 !px-0 !py-0"
                                 title={t("resource.common.actions.edit")}
                                 ariaLabel={t("resource.common.actions.edit")}
+                                disabled={isBulkMode}
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   openEditModal(transaction);
@@ -1814,11 +2341,32 @@ export default function TransactionsPage() {
                                 size="sm"
                                 variant="outline"
                                 className="!h-9 !w-9 !px-0 !py-0"
-                                title={t("resource.transactions.actions.archive")}
+                                title={t(
+                                  "resource.transactions.actions.duplicate"
+                                )}
+                                ariaLabel={t(
+                                  "resource.transactions.actions.duplicate"
+                                )}
+                                disabled={isBulkMode}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openDuplicateModal(transaction);
+                                }}
+                              >
+                                <Copy size={16} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="!h-9 !w-9 !px-0 !py-0"
+                                title={t(
+                                  "resource.transactions.actions.archive"
+                                )}
                                 ariaLabel={t(
                                   "resource.transactions.actions.archive"
                                 )}
                                 disabled={
+                                  isBulkMode ||
                                   !transaction.active ||
                                   updateTransactionMutation.isPending
                                 }
@@ -1835,7 +2383,10 @@ export default function TransactionsPage() {
                                 className="!h-9 !w-9 !px-0 !py-0"
                                 title={t("resource.common.actions.delete")}
                                 ariaLabel={t("resource.common.actions.delete")}
-                                disabled={deleteTransactionMutation.isPending}
+                                disabled={
+                                  isBulkMode ||
+                                  deleteTransactionMutation.isPending
+                                }
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   openDeleteModal(transaction.id);
@@ -1843,14 +2394,24 @@ export default function TransactionsPage() {
                               >
                                 <Trash size={16} />
                               </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
-              </div>
+                {totalPages > 1 && (
+                  <div className="mt-4 flex justify-end">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -1859,7 +2420,7 @@ export default function TransactionsPage() {
       <TransactionModal
         isOpen={isCreateOpen}
         title={createModalTitle}
-        submitLabel={t("resource.transactions.create.actions.submit")}
+        submitLabel={createModalSubmitLabel}
         isSubmitting={createTransactionMutation.isPending}
         onClose={closeCreateModal}
         onSubmit={handleCreate}
@@ -1979,12 +2540,8 @@ export default function TransactionsPage() {
                   {t("resource.transactions.fields.subcategory")}
                 </p>
                 <p className="text-sm text-gray-800 dark:text-white/90">
-                  {viewTransaction.subcategoryId
-                    ? subcategoryById.get(viewTransaction.subcategoryId)?.name ||
-                      t("resource.transactions.fallbacks.subcategoryWithId", {
-                        id: viewTransaction.subcategoryId,
-                      })
-                    : t("resource.common.placeholders.emptyValue")}
+                  {resolveSubcategoryLabel(viewTransaction) ??
+                    t("resource.common.placeholders.emptyValue")}
                 </p>
               </div>
               <div>
@@ -2071,17 +2628,57 @@ export default function TransactionsPage() {
         </div>
       </Modal>
 
-      <Modal isOpen={isDeleteOpen} onClose={closeDeleteModal}>
-        <div className="p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            {t("resource.transactions.delete.title")}
-          </h3>
-          <Alert
-            variant="warning"
-            title={t("resource.transactions.delete.warningTitle")}
-            message={t("resource.transactions.delete.warningMessage")}
-          />
-          <div className="flex justify-end gap-3">
+      <Modal
+        isOpen={isSuccessOpen && Boolean(successVariant)}
+        onClose={closeSuccessModal}
+        className="m-4 w-full max-w-[520px]"
+      >
+        <div className="p-6 space-y-6 text-center">
+          <div className="flex flex-col items-center gap-3">
+            <CheckCircle size={56} weight="fill" className="text-success-500" />
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                {successTitle}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {successMessage}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={closeSuccessModal}
+            >
+              {t("resource.common.actions.close")}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteOpen}
+        onClose={closeDeleteModal}
+        className="m-4 w-full max-w-[520px]"
+      >
+        <div className="p-6 space-y-6 text-center">
+          <div className="flex flex-col items-center gap-3">
+            <WarningCircle size={56} weight="fill" className="text-warning-500" />
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                {deleteTitle}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {deleteSubtitle}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {deleteMessage}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center gap-3">
             <Button
               variant="outline"
               size="sm"

@@ -7,6 +7,9 @@
         "addExpense": "Add expense",
         "addIncome": "Add income",
         "archive": "Archive",
+        "duplicate": "Duplicate",
+        "duplicateExpense": "Duplicate expense",
+        "duplicateIncome": "Duplicate income",
         "moreOptions": "More options",
         "lessOptions": "Fewer options"
       },
@@ -14,15 +17,27 @@
         "actions": {
           "submit": "Create transaction"
         },
+        "successTitle": "Transaction created",
+        "successMessage": "The transaction was created successfully.",
         "desc": "Record a new transaction.",
         "errors": {
           "notCreated": "Transaction could not be created."
         },
         "title": "Create transaction"
       },
+      "duplicate": {
+        "actions": {
+          "submit": "Duplicate transaction"
+        },
+        "successTitle": "Transaction duplicated",
+        "successMessage": "The transaction was duplicated successfully."
+      },
       "delete": {
         "title": "Delete transaction",
+        "bulkTitle": "Delete transactions",
         "warningTitle": "This action cannot be undone",
+        "bulkWarningTitle": "This action cannot be undone",
+        "bulkWarningMessage": "{{count}} transactions will be permanently removed.",
         "warningMessage": "The transaction will be permanently removed."
       },
       "edit": {
@@ -49,12 +64,18 @@
         "paymentDay": "Choose the day of month for recurring payments."
       },
       "filters": {
+        "search": "Search",
         "type": "Type",
         "source": "Origin",
         "category": "Category",
         "tag": "Tag",
         "dateRange": "Date range",
+        "actions": {
+          "apply": "Apply filters",
+          "clear": "Clear filters"
+        },
         "placeholders": {
+          "search": "Search by text",
           "type": "Filter by type",
           "source": "Filter by origin",
           "category": "Filter by category",
@@ -75,9 +96,19 @@
         "title": "Transaction list",
         "unavailable": "Unable to load transactions."
       },
+      "pagination": {
+        "itemsPerPage": "Items per page"
+      },
+      "bulk": {
+        "archive": "Archive selected",
+        "delete": "Delete selected",
+        "selectedCount": "{{count}} selected",
+        "selectAll": "Select all transactions",
+        "selectRow": "Select transaction {{id}}"
+      },
       "placeholders": {
         "date": "Select a date",
-        "dateRange": "Select a date range",
+        "dateRange": "Select start and end dates",
         "observation": "Add notes",
         "paymentDay": "Day of month (1-31)",
         "selectAccount": "Select an account",

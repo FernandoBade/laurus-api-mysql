@@ -9,7 +9,17 @@ type BadgeColor =
   | "warning"
   | "info"
   | "light"
-  | "dark";
+  | "dark"
+  | "red"
+  | "blue"
+  | "green"
+  | "purple"
+  | "yellow"
+  | "orange"
+  | "pink"
+  | "gray"
+  | "cyan"
+  | "indigo";
 
 interface BadgeProps {
   variant?: BadgeVariant; // Light or solid variant
@@ -51,6 +61,21 @@ const Badge: React.FC<BadgeProps> = ({
       info: "bg-blue-light-50 text-blue-light-500 dark:bg-blue-light-500/15 dark:text-blue-light-500",
       light: "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
       dark: "bg-gray-500 text-white dark:bg-white/5 dark:text-white",
+      red: "bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-400",
+      blue: "bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+      green:
+        "bg-green-50 text-green-600 dark:bg-green-500/15 dark:text-green-400",
+      purple:
+        "bg-purple-50 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+      yellow:
+        "bg-yellow-50 text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-400",
+      orange:
+        "bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400",
+      pink: "bg-pink-50 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400",
+      gray: "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
+      cyan: "bg-cyan-50 text-cyan-600 dark:bg-cyan-500/15 dark:text-cyan-400",
+      indigo:
+        "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
     },
     solid: {
       primary: "bg-brand-500 text-white dark:text-white",
@@ -60,6 +85,16 @@ const Badge: React.FC<BadgeProps> = ({
       info: "bg-blue-light-500 text-white dark:text-white",
       light: "bg-gray-400 dark:bg-white/5 text-white dark:text-white/80",
       dark: "bg-gray-700 text-white dark:text-white",
+      red: "bg-red-500 text-white dark:text-white",
+      blue: "bg-blue-500 text-white dark:text-white",
+      green: "bg-green-500 text-white dark:text-white",
+      purple: "bg-purple-500 text-white dark:text-white",
+      yellow: "bg-yellow-500 text-white dark:text-white",
+      orange: "bg-orange-500 text-white dark:text-white",
+      pink: "bg-pink-500 text-white dark:text-white",
+      gray: "bg-gray-500 text-white dark:text-white",
+      cyan: "bg-cyan-500 text-white dark:text-white",
+      indigo: "bg-indigo-500 text-white dark:text-white",
     },
   };
 
