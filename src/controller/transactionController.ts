@@ -3,11 +3,33 @@ import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../service/transactionService';
 import { validateCreateTransaction, validateUpdateTransaction } from '../utils/validation/validateRequest';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../utils/enum';
 import { Resource } from '../utils/resources/resource';
 import { LanguageCode } from '../utils/resources/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 // #endregion Imports
+
+const parseIdList = (value: unknown): number[] => {
+    if (!value) {
+        return [];
+    }
+    const raw = Array.isArray(value) ? value.join(',') : String(value);
+    return raw
+        .split(',')
+        .map((item) => Number(item.trim()))
+        .filter((item) => !Number.isNaN(item) && item > 0);
+};
+
+const parseDateParam = (value: unknown): Date | null => {
+    if (!value) {
+        return null;
+    }
+    const date = new Date(String(value));
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+    return date;
+};
 
 /** @summary Handles HTTP requests for transaction resources. */
 class TransactionController {
@@ -69,9 +91,56 @@ class TransactionController {
 
         try {
             const { page, pageSize, limit, offset, sort, order } = parsePagination(req.query);
+            const accountIds = parseIdList(req.query.accountIds);
+            const creditCardIds = parseIdList(req.query.creditCardIds);
+            const categoryIds = parseIdList(req.query.categoryIds);
+            const subcategoryIds = parseIdList(req.query.subcategoryIds);
+            const tagIds = parseIdList(req.query.tagIds);
+            const transactionTypeRaw =
+                typeof req.query.transactionType === 'string'
+                    ? req.query.transactionType
+                    : undefined;
+            const transactionSourceRaw =
+                typeof req.query.transactionSource === 'string'
+                    ? req.query.transactionSource
+                    : undefined;
+            const transactionType = Object.values(TransactionType).includes(transactionTypeRaw as TransactionType)
+                ? (transactionTypeRaw as TransactionType)
+                : undefined;
+            const transactionSource = Object.values(TransactionSource).includes(transactionSourceRaw as TransactionSource)
+                ? (transactionSourceRaw as TransactionSource)
+                : undefined;
+            const startDate = parseDateParam(req.query.startDate);
+            const endDate = parseDateParam(req.query.endDate);
+            const filters: NonNullable<Parameters<InstanceType<typeof TransactionService>['countTransactions']>[0]> = {
+                ...(accountIds.length
+                    ? { accountId: { operator: Operator.IN as Operator.IN, value: accountIds } }
+                    : {}),
+                ...(creditCardIds.length
+                    ? { creditCardId: { operator: Operator.IN as Operator.IN, value: creditCardIds } }
+                    : {}),
+                ...(transactionType
+                    ? { transactionType: { operator: Operator.EQUAL as Operator.EQUAL, value: transactionType } }
+                    : {}),
+                ...(transactionSource
+                    ? { transactionSource: { operator: Operator.EQUAL as Operator.EQUAL, value: transactionSource } }
+                    : {}),
+                ...(categoryIds.length
+                    ? { categoryId: { operator: Operator.IN as Operator.IN, value: categoryIds } }
+                    : {}),
+                ...(subcategoryIds.length
+                    ? { subcategoryId: { operator: Operator.IN as Operator.IN, value: subcategoryIds } }
+                    : {}),
+                ...(tagIds.length
+                    ? { tagIds: { operator: Operator.IN as Operator.IN, value: tagIds } }
+                    : {}),
+                ...((startDate || endDate)
+                    ? { date: { operator: Operator.BETWEEN as Operator.BETWEEN, value: [startDate, endDate] } }
+                    : {}),
+            };
             const [rows, total] = await Promise.all([
-                transactionService.getTransactions({ limit, offset, sort, order }),
-                transactionService.countTransactions()
+                transactionService.getTransactions(filters, { limit, offset, sort, order }),
+                transactionService.countTransactions(filters)
             ]);
 
             if (!rows.success) {

@@ -16,6 +16,18 @@ import { withTransaction, db } from '../db';
 export type TransactionWithTags = SelectTransaction & { tags: number[] };
 export type TransactionRow = TransactionWithTags;
 type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
+type TransactionFilters = {
+    accountId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+    creditCardId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+    categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+    subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+    tagIds?: { operator: Operator.IN; value: number[] };
+    transactionType?: { operator: Operator.EQUAL | Operator.IN; value: TransactionType | TransactionType[] };
+    transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: TransactionSource | TransactionSource[] };
+    active?: { operator: Operator.EQUAL; value: boolean };
+    date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
+};
+type TransactionCountFilters = TransactionFilters;
 
 /**
  * Service for transaction business logic.
@@ -288,9 +300,12 @@ export class TransactionService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all transaction records.
      */
-    async getTransactions(options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
+    async getTransactions(
+        filters?: TransactionFilters,
+        options?: QueryOptions<SelectTransaction>
+    ): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
-            const transactions = await this.transactionRepository.findMany(undefined, {
+            const transactions = await this.transactionRepository.findMany(filters, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
@@ -309,9 +324,9 @@ export class TransactionService {
      * @summary Gets total count of transactions.
      * @returns Total transaction count.
      */
-    async countTransactions(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+    async countTransactions(filters?: TransactionCountFilters): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
-            const count = await this.transactionRepository.count();
+            const count = await this.transactionRepository.count(filters);
             return { success: true, data: count };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };

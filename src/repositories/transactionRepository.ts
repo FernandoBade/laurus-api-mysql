@@ -1,6 +1,6 @@
-import { eq, and, inArray, between, desc, asc, SQL, gte, lte } from 'drizzle-orm';
+import { eq, and, inArray, between, desc, asc, SQL, or, gte, lte } from 'drizzle-orm';
 import { db } from '../db';
-import { transactions, SelectTransaction, InsertTransaction } from '../db/schema';
+import { transactions, transactionTags, SelectTransaction, InsertTransaction } from '../db/schema';
 import { Operator } from '../utils/enum';
 
 /**
@@ -34,8 +34,11 @@ export class TransactionRepository {
             creditCardId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+            tagIds?: { operator: Operator.IN; value: number[] };
+            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
+            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
             active?: { operator: Operator.EQUAL; value: boolean };
-            date?: { operator: Operator.BETWEEN; value: [Date, Date] };
+            date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
         },
         options?: {
             limit?: number;
@@ -48,19 +51,45 @@ export class TransactionRepository {
         let query = connection.select().from(transactions);
 
         const conditions: SQL[] = [];
-        if (filters?.accountId) {
-            if (filters.accountId.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.accountId, filters.accountId.value as number));
-            } else if (Array.isArray(filters.accountId.value)) {
-                conditions.push(inArray(transactions.accountId, filters.accountId.value));
+        if (filters?.transactionType) {
+            if (filters.transactionType.operator === Operator.EQUAL) {
+                conditions.push(eq(transactions.transactionType, filters.transactionType.value as string));
+            } else if (Array.isArray(filters.transactionType.value)) {
+                conditions.push(inArray(transactions.transactionType, filters.transactionType.value as string[]));
             }
         }
+        if (filters?.transactionSource) {
+            if (filters.transactionSource.operator === Operator.EQUAL) {
+                conditions.push(eq(transactions.transactionSource, filters.transactionSource.value as string));
+            } else if (Array.isArray(filters.transactionSource.value)) {
+                conditions.push(inArray(transactions.transactionSource, filters.transactionSource.value as string[]));
+            }
+        }
+        let accountCondition: SQL | undefined;
+        if (filters?.accountId) {
+            if (filters.accountId.operator === Operator.EQUAL) {
+                accountCondition = eq(transactions.accountId, filters.accountId.value as number);
+            } else if (Array.isArray(filters.accountId.value)) {
+                accountCondition = inArray(transactions.accountId, filters.accountId.value);
+            }
+        }
+        let cardCondition: SQL | undefined;
         if (filters?.creditCardId) {
             if (filters.creditCardId.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.creditCardId, filters.creditCardId.value as number));
+                cardCondition = eq(transactions.creditCardId, filters.creditCardId.value as number);
             } else if (Array.isArray(filters.creditCardId.value)) {
-                conditions.push(inArray(transactions.creditCardId, filters.creditCardId.value));
+                cardCondition = inArray(transactions.creditCardId, filters.creditCardId.value);
             }
+        }
+        if (accountCondition && cardCondition) {
+            const orCondition = or(accountCondition, cardCondition);
+            if (orCondition) {
+                conditions.push(orCondition);
+            }
+        } else if (accountCondition) {
+            conditions.push(accountCondition);
+        } else if (cardCondition) {
+            conditions.push(cardCondition);
         }
         if (filters?.categoryId) {
             if (filters.categoryId.operator === Operator.EQUAL) {
@@ -76,11 +105,31 @@ export class TransactionRepository {
                 conditions.push(inArray(transactions.subcategoryId, filters.subcategoryId.value));
             }
         }
+        if (filters?.tagIds && Array.isArray(filters.tagIds.value) && filters.tagIds.value.length) {
+            const tagRows = await connection
+                .select({ transactionId: transactionTags.transactionId })
+                .from(transactionTags)
+                .where(inArray(transactionTags.tagId, filters.tagIds.value));
+            const tagTransactionIds = Array.from(
+                new Set(tagRows.map((row) => row.transactionId))
+            );
+            if (!tagTransactionIds.length) {
+                return [];
+            }
+            conditions.push(inArray(transactions.id, tagTransactionIds));
+        }
         if (filters?.active) {
             conditions.push(eq(transactions.active, filters.active.value));
         }
         if (filters?.date) {
-            conditions.push(between(transactions.date, filters.date.value[0], filters.date.value[1]));
+            const [start, end] = filters.date.value;
+            if (start && end) {
+                conditions.push(between(transactions.date, start, end));
+            } else if (start) {
+                conditions.push(gte(transactions.date, start));
+            } else if (end) {
+                conditions.push(lte(transactions.date, end));
+            }
         }
 
         if (conditions.length > 0) {
@@ -118,26 +167,56 @@ export class TransactionRepository {
             creditCardId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
+            tagIds?: { operator: Operator.IN; value: number[] };
+            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
+            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
             active?: { operator: Operator.EQUAL; value: boolean };
+            date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
         },
         connection: typeof db = db
     ): Promise<number> {
         let query = connection.select({ count: transactions.id }).from(transactions);
 
         const conditions: SQL[] = [];
-        if (filters?.accountId) {
-            if (filters.accountId.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.accountId, filters.accountId.value as number));
-            } else if (Array.isArray(filters.accountId.value)) {
-                conditions.push(inArray(transactions.accountId, filters.accountId.value));
+        if (filters?.transactionType) {
+            if (filters.transactionType.operator === Operator.EQUAL) {
+                conditions.push(eq(transactions.transactionType, filters.transactionType.value as string));
+            } else if (Array.isArray(filters.transactionType.value)) {
+                conditions.push(inArray(transactions.transactionType, filters.transactionType.value as string[]));
             }
         }
+        if (filters?.transactionSource) {
+            if (filters.transactionSource.operator === Operator.EQUAL) {
+                conditions.push(eq(transactions.transactionSource, filters.transactionSource.value as string));
+            } else if (Array.isArray(filters.transactionSource.value)) {
+                conditions.push(inArray(transactions.transactionSource, filters.transactionSource.value as string[]));
+            }
+        }
+        let accountCondition: SQL | undefined;
+        if (filters?.accountId) {
+            if (filters.accountId.operator === Operator.EQUAL) {
+                accountCondition = eq(transactions.accountId, filters.accountId.value as number);
+            } else if (Array.isArray(filters.accountId.value)) {
+                accountCondition = inArray(transactions.accountId, filters.accountId.value);
+            }
+        }
+        let cardCondition: SQL | undefined;
         if (filters?.creditCardId) {
             if (filters.creditCardId.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.creditCardId, filters.creditCardId.value as number));
+                cardCondition = eq(transactions.creditCardId, filters.creditCardId.value as number);
             } else if (Array.isArray(filters.creditCardId.value)) {
-                conditions.push(inArray(transactions.creditCardId, filters.creditCardId.value));
+                cardCondition = inArray(transactions.creditCardId, filters.creditCardId.value);
             }
+        }
+        if (accountCondition && cardCondition) {
+            const orCondition = or(accountCondition, cardCondition);
+            if (orCondition) {
+                conditions.push(orCondition);
+            }
+        } else if (accountCondition) {
+            conditions.push(accountCondition);
+        } else if (cardCondition) {
+            conditions.push(cardCondition);
         }
         if (filters?.categoryId) {
             if (filters.categoryId.operator === Operator.EQUAL) {
@@ -153,8 +232,31 @@ export class TransactionRepository {
                 conditions.push(inArray(transactions.subcategoryId, filters.subcategoryId.value));
             }
         }
+        if (filters?.tagIds && Array.isArray(filters.tagIds.value) && filters.tagIds.value.length) {
+            const tagRows = await connection
+                .select({ transactionId: transactionTags.transactionId })
+                .from(transactionTags)
+                .where(inArray(transactionTags.tagId, filters.tagIds.value));
+            const tagTransactionIds = Array.from(
+                new Set(tagRows.map((row) => row.transactionId))
+            );
+            if (!tagTransactionIds.length) {
+                return 0;
+            }
+            conditions.push(inArray(transactions.id, tagTransactionIds));
+        }
         if (filters?.active) {
             conditions.push(eq(transactions.active, filters.active.value));
+        }
+        if (filters?.date) {
+            const [start, end] = filters.date.value;
+            if (start && end) {
+                conditions.push(between(transactions.date, start, end));
+            } else if (start) {
+                conditions.push(gte(transactions.date, start));
+            } else if (end) {
+                conditions.push(lte(transactions.date, end));
+            }
         }
 
         if (conditions.length > 0) {

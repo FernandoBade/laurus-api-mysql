@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 
 "use client";
 
@@ -587,14 +589,18 @@ export default function TransactionsPage() {
   ].includes(sortKey);
   const serverSortKey = isServerSortable ? sortKey : "date";
   const serverSortDirection = isServerSortable ? sortDirection : "desc";
-  const transactionsQuery = useTransactions({
-    sort: serverSortKey,
-    order: serverSortDirection,
-    page: currentPage,
-    pageSize,
-  });
-  const accountsQuery = useAccountsByUser(userId);
-  const cardsQuery = useCreditCardsByUser(userId);
+  const accountsQuery = useAccountsByUser(userId, { pageSize: 500 });
+  const cardsQuery = useCreditCardsByUser(userId, { pageSize: 500 });
+  const accountIdsParam = useMemo(() => {
+    const ids = accountsQuery.data?.data?.map((account) => account.id) ?? [];
+    ids.sort((a, b) => a - b);
+    return ids.length ? ids.join(",") : undefined;
+  }, [accountsQuery.data]);
+  const creditCardIdsParam = useMemo(() => {
+    const ids = cardsQuery.data?.data?.map((card) => card.id) ?? [];
+    ids.sort((a, b) => a - b);
+    return ids.length ? ids.join(",") : undefined;
+  }, [cardsQuery.data]);
   const categoriesQuery = useCategoriesByUser(userId, { pageSize: 500 });
   const subcategoriesQuery = useSubcategoriesByUser(userId, { pageSize: 500 });
   const tagsQuery = useTagsByUser(userId, { pageSize: 500 });
@@ -663,6 +669,9 @@ export default function TransactionsPage() {
   const [filterCategoryIdsDraft, setFilterCategoryIdsDraft] = useState<
     string[]
   >([]);
+  const [filterSubcategoryIdsDraft, setFilterSubcategoryIdsDraft] = useState<
+    string[]
+  >([]);
   const [filterTagIdsDraft, setFilterTagIdsDraft] = useState<string[]>([]);
   const [filterDateRangeDraft, setFilterDateRangeDraft] =
     useState<DateRangeFilter>({
@@ -672,6 +681,7 @@ export default function TransactionsPage() {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSource, setFilterSource] = useState<string>("all");
   const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>([]);
+  const [filterSubcategoryIds, setFilterSubcategoryIds] = useState<string[]>([]);
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<DateRangeFilter>({
     start: "",
@@ -680,6 +690,53 @@ export default function TransactionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterFormKey, setFilterFormKey] = useState(0);
   const [filterCategoryKey, setFilterCategoryKey] = useState(0);
+  const [filterSubcategoryKey, setFilterSubcategoryKey] = useState(0);
+  const filterCategoryIdsParam = useMemo(
+    () => (filterCategoryIds.length ? filterCategoryIds.join(",") : undefined),
+    [filterCategoryIds]
+  );
+  const filterSubcategoryIdsParam = useMemo(
+    () =>
+      filterSubcategoryIds.length
+        ? filterSubcategoryIds.join(",")
+        : undefined,
+    [filterSubcategoryIds]
+  );
+  const filterTagIdsParam = useMemo(
+    () => (filterTagIds.length ? filterTagIds.join(",") : undefined),
+    [filterTagIds]
+  );
+  const filterTypeParam = filterType !== "all" ? filterType : undefined;
+  const filterSourceParam =
+    filterSource !== "all" ? filterSource : undefined;
+  const filterStartDate = filterDateRange.start || undefined;
+  const filterEndDate = filterDateRange.end || undefined;
+  const hasOwnershipIds = Boolean(accountIdsParam || creditCardIdsParam);
+  const transactionsQuery = useTransactions(
+    {
+      sort: serverSortKey,
+      order: serverSortDirection,
+      page: currentPage,
+      pageSize,
+      limit: pageSize,
+      accountIds: accountIdsParam,
+      creditCardIds: creditCardIdsParam,
+      transactionType: filterTypeParam,
+      transactionSource: filterSourceParam,
+      categoryIds: filterCategoryIdsParam,
+      subcategoryIds: filterSubcategoryIdsParam,
+      tagIds: filterTagIdsParam,
+      startDate: filterStartDate,
+      endDate: filterEndDate,
+    },
+    {
+      enabled:
+        Boolean(userId) &&
+        accountsQuery.isSuccess &&
+        cardsQuery.isSuccess &&
+        hasOwnershipIds,
+    }
+  );
   const [selectedTransactionIds, setSelectedTransactionIds] = useState<
     number[]
   >([]);
@@ -786,26 +843,70 @@ export default function TransactionsPage() {
     }
   }, [categories, filterCategoryIdsDraft, filterTypeDraft]);
 
+  useEffect(() => {
+    if (!filterSubcategoryIdsDraft.length) {
+      return;
+    }
+    const categoriesByType =
+      filterTypeDraft === "all"
+        ? categories
+        : categories.filter((category) => category.type === filterTypeDraft);
+    const allowedCategories = new Set(categoriesByType.map((category) => category.id));
+    const allowedCategoryIds = filterCategoryIdsDraft.length
+      ? new Set(
+          filterCategoryIdsDraft
+            .map((id) => Number(id))
+            .filter((id) => allowedCategories.has(id))
+        )
+      : allowedCategories;
+    const allowedSubcategoryIds = new Set(
+      subcategories
+        .filter((subcategory) => allowedCategoryIds.has(subcategory.categoryId))
+        .map((subcategory) => String(subcategory.id))
+    );
+    const nextSelected = filterSubcategoryIdsDraft.filter((id) =>
+      allowedSubcategoryIds.has(id)
+    );
+    if (nextSelected.length !== filterSubcategoryIdsDraft.length) {
+      setFilterSubcategoryIdsDraft(nextSelected);
+      setFilterSubcategoryKey((prev) => prev + 1);
+    }
+  }, [
+    categories,
+    subcategories,
+    filterCategoryIdsDraft,
+    filterSubcategoryIdsDraft,
+    filterTypeDraft,
+  ]);
+
   const accountOptions = useMemo(
     () =>
-      accounts.map((account) => ({
-        value: String(account.id),
-        label:
-          account.name ||
-          t("resource.accounts.fallbacks.accountWithId", { id: account.id }),
-      })),
-    [accounts, t]
+      accounts
+        .map((account) => ({
+          value: String(account.id),
+          label:
+            account.name ||
+            t("resource.accounts.fallbacks.accountWithId", { id: account.id }),
+        }))
+        .sort((left, right) =>
+          left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+        ),
+    [accounts, locale, t]
   );
 
   const cardOptions = useMemo(
     () =>
-      cards.map((card) => ({
-        value: String(card.id),
-        label:
-          card.name ||
-          t("resource.creditCards.fallbacks.cardWithId", { id: card.id }),
-      })),
-    [cards, t]
+      cards
+        .map((card) => ({
+          value: String(card.id),
+          label:
+            card.name ||
+            t("resource.creditCards.fallbacks.cardWithId", { id: card.id }),
+        }))
+        .sort((left, right) =>
+          left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+        ),
+    [cards, locale, t]
   );
 
   const categoryOptions = useMemo(
@@ -819,8 +920,11 @@ export default function TransactionsPage() {
             t("resource.categories.fallbacks.categoryWithId", {
               id: category.id,
             }),
-        })),
-    [categories, transactionType, t]
+        }))
+        .sort((left, right) =>
+          left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+        ),
+    [categories, locale, transactionType, t]
   );
 
   const editCategoryOptions = useMemo(
@@ -834,8 +938,11 @@ export default function TransactionsPage() {
             t("resource.categories.fallbacks.categoryWithId", {
               id: category.id,
             }),
-        })),
-    [categories, editTransactionType, t]
+        }))
+        .sort((left, right) =>
+          left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+        ),
+    [categories, editTransactionType, locale, t]
   );
 
   const filterCategoryOptions = useMemo(() => {
@@ -843,16 +950,49 @@ export default function TransactionsPage() {
       filterTypeDraft === "all"
         ? categories
         : categories.filter((category) => category.type === filterTypeDraft);
-    return filtered.map((category) => ({
-      value: String(category.id),
-      text:
-        category.name ||
-        t("resource.categories.fallbacks.categoryWithId", {
-          id: category.id,
-        }),
-      selected: false,
-    }));
-  }, [categories, filterTypeDraft, t]);
+    return filtered
+      .map((category) => ({
+        value: String(category.id),
+        text:
+          category.name ||
+          t("resource.categories.fallbacks.categoryWithId", {
+            id: category.id,
+          }),
+        selected: false,
+      }))
+      .sort((left, right) =>
+        left.text.localeCompare(right.text, locale, { sensitivity: "base" })
+      );
+  }, [categories, filterTypeDraft, locale, t]);
+
+  const filterSubcategoryOptions = useMemo(() => {
+    const categoriesByType =
+      filterTypeDraft === "all"
+        ? categories
+        : categories.filter((category) => category.type === filterTypeDraft);
+    const allowedCategoryIds = new Set(categoriesByType.map((category) => category.id));
+    const selectedCategoryIds = filterCategoryIdsDraft.length
+      ? new Set(
+          filterCategoryIdsDraft
+            .map((id) => Number(id))
+            .filter((id) => allowedCategoryIds.has(id))
+        )
+      : allowedCategoryIds;
+    return subcategories
+      .filter((subcategory) => selectedCategoryIds.has(subcategory.categoryId))
+      .map((subcategory) => ({
+        value: String(subcategory.id),
+        text:
+          subcategory.name ||
+          t("resource.transactions.fallbacks.subcategoryWithId", {
+            id: subcategory.id,
+          }),
+        selected: false,
+      }))
+      .sort((left, right) =>
+        left.text.localeCompare(right.text, locale, { sensitivity: "base" })
+      );
+  }, [categories, filterCategoryIdsDraft, filterTypeDraft, locale, subcategories, t]);
 
   const subcategoryOptions = useMemo(() => {
     if (!categoryId) {
@@ -868,8 +1008,11 @@ export default function TransactionsPage() {
           t("resource.transactions.fallbacks.subcategoryWithId", {
             id: subcategory.id,
           }),
-      }));
-  }, [categoryId, subcategories, t]);
+      }))
+      .sort((left, right) =>
+        left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+      );
+  }, [categoryId, locale, subcategories, t]);
 
   const editSubcategoryOptions = useMemo(() => {
     if (!editCategoryId) {
@@ -885,27 +1028,40 @@ export default function TransactionsPage() {
           t("resource.transactions.fallbacks.subcategoryWithId", {
             id: subcategory.id,
           }),
-      }));
-  }, [editCategoryId, subcategories, t]);
+      }))
+      .sort((left, right) =>
+        left.label.localeCompare(right.label, locale, { sensitivity: "base" })
+      );
+  }, [editCategoryId, locale, subcategories, t]);
 
   const tagOptions = useMemo(
     () =>
-      tags.map((tag) => ({
-        value: String(tag.id),
-        text: tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
-        selected: false,
-      })),
-    [tags, t]
+      tags
+        .map((tag) => ({
+          value: String(tag.id),
+          text:
+            tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
+          selected: false,
+        }))
+        .sort((left, right) =>
+          left.text.localeCompare(right.text, locale, { sensitivity: "base" })
+        ),
+    [tags, locale, t]
   );
 
   const tagFilterOptions = useMemo(
     () =>
-      tags.map((tag) => ({
-        value: String(tag.id),
-        text: tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
-        selected: false,
-      })),
-    [tags, t]
+      tags
+        .map((tag) => ({
+          value: String(tag.id),
+          text:
+            tag.name || t("resource.tags.fallbacks.tagWithId", { id: tag.id }),
+          selected: false,
+        }))
+        .sort((left, right) =>
+          left.text.localeCompare(right.text, locale, { sensitivity: "base" })
+        ),
+    [tags, locale, t]
   );
 
   const accountMap = useMemo(
@@ -1011,7 +1167,7 @@ export default function TransactionsPage() {
   const resolveTagLabels = (transaction: Transaction) => {
     const tagIds = transaction.tags ?? [];
     if (!tagIds.length) {
-      return t("resource.common.placeholders.emptyValue");
+      return t("resource.common.placeholders.emptyDash");
     }
     return tagIds
       .map((tagId) =>
@@ -1053,7 +1209,7 @@ export default function TransactionsPage() {
     if (!tagIds.length) {
       return (
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {t("resource.common.placeholders.emptyValue")}
+          {t("resource.common.placeholders.emptyDash")}
         </span>
       );
     }
@@ -1069,89 +1225,33 @@ export default function TransactionsPage() {
     );
   };
 
-  const filteredTransactions = useMemo(() => {
-    const transactions = transactionsQuery.data?.data ?? [];
-    const accountIds = new Set(accounts.map((account) => account.id));
-    const cardIds = new Set(cards.map((card) => card.id));
-    let filtered = transactions.filter((transaction) => {
-      if (!accounts.length && !cards.length) {
-        return true;
-      }
-      return (
-        (transaction.accountId && accountIds.has(transaction.accountId)) ||
-        (transaction.creditCardId && cardIds.has(transaction.creditCardId))
-      );
-    });
+  const transactions = useMemo(
+    () => transactionsQuery.data?.data ?? [],
+    [transactionsQuery.data]
+  );
 
-    if (filterType !== "all") {
-      filtered = filtered.filter(
-        (transaction) => transaction.transactionType === filterType
-      );
-    }
-    if (filterSource !== "all") {
-      filtered = filtered.filter(
-        (transaction) => transaction.transactionSource === filterSource
-      );
-    }
-    if (filterCategoryIds.length) {
-      const selectedCategories = new Set(
-        filterCategoryIds.map((id) => Number(id))
-      );
-      filtered = filtered.filter((transaction) => {
-        const directCategoryId = normalizeId(transaction.categoryId);
-        const subcategoryId = normalizeId(transaction.subcategoryId);
-        const effectiveCategoryId =
-          directCategoryId ??
-          (subcategoryId !== null
-            ? subcategoryById.get(subcategoryId)?.categoryId ?? null
-            : null);
-        return (
-          effectiveCategoryId !== null &&
-          selectedCategories.has(effectiveCategoryId)
-        );
-      });
-    }
-    if (filterTagIds.length) {
-      const selectedTags = new Set(filterTagIds.map((id) => Number(id)));
-      filtered = filtered.filter((transaction) =>
-        (transaction.tags ?? []).some((tagId) => selectedTags.has(tagId))
-      );
-    }
-    if (filterDateRange.start || filterDateRange.end) {
-      const start = filterDateRange.start
-        ? new Date(filterDateRange.start)
-        : null;
-      const end = filterDateRange.end
-        ? new Date(filterDateRange.end)
-        : null;
-      if (end) {
-        end.setHours(23, 59, 59, 999);
-      }
-      filtered = filtered.filter((transaction) => {
-        const date = new Date(transaction.date);
-        if (Number.isNaN(date.getTime())) {
-          return false;
-        }
-        if (start && date < start) {
-          return false;
-        }
-        if (end && date > end) {
-          return false;
-        }
-        return true;
-      });
-    }
+  const filteredTransactions = useMemo(() => {
+    let filtered = transactions;
     const searchTerm = normalizeSearchText(searchQuery);
     if (searchTerm) {
       filtered = filtered.filter((transaction) => {
+        const formattedDate = formatDateForPreference(
+          transaction.date,
+          preferredDateFormat
+        );
+        const isoDate = toDateInputValue(transaction.date);
         const searchable = [
           typeLabels.get(transaction.transactionType) ??
             transaction.transactionType,
           sourceLabels.get(transaction.transactionSource) ??
             transaction.transactionSource,
+          resolveSourceLabel(transaction),
           resolveCategoryLabel(transaction),
           resolveSubcategoryLabel(transaction) ?? "",
           resolveTagLabels(transaction),
+          formattedDate,
+          isoDate,
+          transaction.date,
           transaction.observation ?? "",
           String(transaction.value ?? ""),
         ]
@@ -1163,21 +1263,15 @@ export default function TransactionsPage() {
 
     return filtered;
   }, [
-    transactionsQuery.data,
-    accounts,
-    cards,
-    filterType,
-    filterSource,
-    filterCategoryIds,
-    filterTagIds,
-    filterDateRange,
+    transactions,
     searchQuery,
-    subcategoryById,
     resolveCategoryLabel,
+    resolveSourceLabel,
     resolveSubcategoryLabel,
     resolveTagLabels,
     sourceLabels,
     typeLabels,
+    preferredDateFormat,
   ]);
 
   const sortedTransactions = useMemo(() => {
@@ -1248,6 +1342,10 @@ export default function TransactionsPage() {
     }
     return 1;
   }, [transactionsQuery.data?.pageCount, transactionsQuery.data?.totalItems, pageSize]);
+  const isTransactionsLoading =
+    transactionsQuery.isLoading ||
+    accountsQuery.isLoading ||
+    cardsQuery.isLoading;
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -1256,11 +1354,18 @@ export default function TransactionsPage() {
   }, [currentPage, totalPages]);
 
   useEffect(() => {
-    setSelectedTransactionIds((prev) =>
-      prev.filter((id) =>
+    setSelectedTransactionIds((prev) => {
+      const next = prev.filter((id) =>
         sortedTransactions.some((transaction) => transaction.id === id)
-      )
-    );
+      );
+      if (
+        next.length === prev.length &&
+        next.every((id, index) => id === prev[index])
+      ) {
+        return prev;
+      }
+      return next;
+    });
   }, [sortedTransactions]);
 
   const resetForm = (nextType: TransactionType = "expense") => {
@@ -1285,6 +1390,7 @@ export default function TransactionsPage() {
     setFilterType(filterTypeDraft);
     setFilterSource(filterSourceDraft);
     setFilterCategoryIds(filterCategoryIdsDraft);
+    setFilterSubcategoryIds(filterSubcategoryIdsDraft);
     setFilterTagIds(filterTagIdsDraft);
     setFilterDateRange(filterDateRangeDraft);
     setCurrentPage(1);
@@ -1295,17 +1401,20 @@ export default function TransactionsPage() {
     setFilterTypeDraft("all");
     setFilterSourceDraft("all");
     setFilterCategoryIdsDraft([]);
+    setFilterSubcategoryIdsDraft([]);
     setFilterTagIdsDraft([]);
     setFilterDateRangeDraft({ start: "", end: "" });
     setFilterType("all");
     setFilterSource("all");
     setFilterCategoryIds([]);
+    setFilterSubcategoryIds([]);
     setFilterTagIds([]);
     setFilterDateRange({ start: "", end: "" });
     setSearchQuery("");
     setCurrentPage(1);
     setFilterFormKey((prev) => prev + 1);
     setFilterCategoryKey((prev) => prev + 1);
+    setFilterSubcategoryKey((prev) => prev + 1);
     setSelectedTransactionIds([]);
   };
 
@@ -1744,16 +1853,15 @@ export default function TransactionsPage() {
   const handleSortChange = (key: SortKey) => {
     setCurrentPage(1);
     setSelectedTransactionIds([]);
-    setSortKey((currentKey) => {
-      if (currentKey === key) {
-        setSortDirection((currentDirection) =>
-          currentDirection === "asc" ? "desc" : "asc"
-        );
-        return currentKey;
-      }
-      setSortDirection("asc");
-      return key;
-    });
+    const isSameKey = sortKey === key;
+    setSortKey(key);
+    if (isSameKey) {
+      setSortDirection((currentDirection) =>
+        currentDirection === "asc" ? "desc" : "asc"
+      );
+      return;
+    }
+    setSortDirection(key === "date" ? "desc" : "asc");
   };
 
   const handlePageChange = (page: number) => {
@@ -2070,7 +2178,7 @@ export default function TransactionsPage() {
         {!transactionsQuery.isError && (
           <>
             <div className="mb-6 rounded-xl border border-gray-100 p-4 dark:border-white/[0.05]">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div>
                   <Label>{t("resource.transactions.filters.type")}</Label>
                   <Select
@@ -2101,6 +2209,13 @@ export default function TransactionsPage() {
                   options={filterCategoryOptions}
                   defaultSelected={filterCategoryIdsDraft}
                   onChange={setFilterCategoryIdsDraft}
+                />
+                <MultiSelect
+                  key={`filter-subcategory-${filterSubcategoryKey}`}
+                  label={t("resource.transactions.filters.subcategory")}
+                  options={filterSubcategoryOptions}
+                  defaultSelected={filterSubcategoryIdsDraft}
+                  onChange={setFilterSubcategoryIdsDraft}
                 />
                 <MultiSelect
                   key={`filter-tag-${filterFormKey}`}
@@ -2176,8 +2291,22 @@ export default function TransactionsPage() {
                 </div>
               </div>
             )}
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div className="min-w-[240px] flex-1">
+            <div className="mb-4 flex flex-wrap items-end gap-3">
+              <div className="min-w-[200px]">
+                <Label>{t("resource.transactions.pagination.itemsPerPage")}</Label>
+                <div className="relative">
+                  <Select
+                    key={`page-size-${pageSize}`}
+                    options={pageSizeOptions}
+                    defaultValue={String(pageSize)}
+                    onChange={handlePageSizeChange}
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    <CaretDown size={16} />
+                  </span>
+                </div>
+              </div>
+              <div className="w-full max-w-[420px] sm:ml-auto">
                 <Label>{t("resource.transactions.filters.search")}</Label>
                 <div className="relative">
                   <Input
@@ -2198,22 +2327,8 @@ export default function TransactionsPage() {
                   </span>
                 </div>
               </div>
-              <div className="min-w-[200px]">
-                <Label>{t("resource.transactions.pagination.itemsPerPage")}</Label>
-                <div className="relative">
-                  <Select
-                    key={`page-size-${pageSize}`}
-                    options={pageSizeOptions}
-                    defaultValue={String(pageSize)}
-                    onChange={handlePageSizeChange}
-                  />
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    <CaretDown size={16} />
-                  </span>
-                </div>
-              </div>
             </div>
-            {transactionsQuery.isLoading ? (
+            {isTransactionsLoading ? (
               <div className="overflow-x-auto">
                 <div className="min-w-[980px]">
                   <Table>
@@ -2316,7 +2431,13 @@ export default function TransactionsPage() {
                           <TableCell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {renderTagBadges(transaction)}
                           </TableCell>
-                            <TableCell className="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+                            <TableCell
+                                    className={`px-5 py-4 text-sm`}>
+                                {/* //  ${transaction.transactionType === "income"
+                                //   ? "text-cyan-600 dark:text-success-400"
+                                //   : "text-orange-600 dark:text-error-400"}`
+                                //     } */}
+
                               {currency
                                 ? formatMoney(transaction.value, { currency })
                                 : formatMoney(transaction.value)}

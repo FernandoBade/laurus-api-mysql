@@ -35,7 +35,7 @@ const Select: React.FC<SelectProps> = ({
         selectedValue
           ? "text-gray-800 dark:text-white/90"
           : "text-gray-400 dark:text-gray-400"
-      } ${className}`}
+      } ${className} max-h-56 overflow-y-auto`}
       value={selectedValue}
       onChange={handleChange}
     >

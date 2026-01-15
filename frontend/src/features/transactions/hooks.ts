@@ -29,10 +29,14 @@ const transactionsByUserKey = (
   params?: QueryParams
 ) => ["transactions", "user", userId, params];
 
-export const useTransactions = (params?: QueryParams) =>
+export const useTransactions = (
+  params?: QueryParams,
+  options?: { enabled?: boolean }
+) =>
   useQuery({
     queryKey: transactionsKey(params),
     queryFn: () => getTransactions(params),
+    enabled: options?.enabled ?? true,
   });
 
 export const useTransactionsByAccount = (

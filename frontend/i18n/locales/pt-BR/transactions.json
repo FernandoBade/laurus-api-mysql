@@ -68,6 +68,7 @@
         "type": "Tipo",
         "source": "Origem",
         "category": "Categoria",
+        "subcategory": "Subcategoria",
         "tag": "Tag",
         "dateRange": "Período",
         "actions": {
@@ -79,6 +80,7 @@
           "type": "Filtrar por tipo",
           "source": "Filtrar por origem",
           "category": "Filtrar por categoria",
+          "subcategory": "Filtrar por subcategoria",
           "tag": "Filtrar por tag"
         },
         "options": {
