@@ -1342,6 +1342,9 @@ export default function TransactionsPage() {
     }
     return 1;
   }, [transactionsQuery.data?.pageCount, transactionsQuery.data?.totalItems, pageSize]);
+  const totalResults = searchQuery
+    ? filteredTransactions.length
+    : transactionsQuery.data?.totalItems ?? sortedTransactions.length;
   const isTransactionsLoading =
     transactionsQuery.isLoading ||
     accountsQuery.isLoading ||
@@ -2523,15 +2526,20 @@ export default function TransactionsPage() {
                     </Table>
                   </div>
                 </div>
-                {totalPages > 1 && (
-                  <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
+                  <span>
+                    {t("resource.transactions.list.totalResults", {
+                      count: totalResults,
+                    })}
+                  </span>
+                  {totalPages > 1 && (
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}
                       onPageChange={handlePageChange}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
               </>
             )}
           </>

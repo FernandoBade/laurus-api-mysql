@@ -2,6 +2,16 @@
   "resource": {
     "categories": {
       "title": "Categorías",
+      "actions": {
+        "addCategory": "Agregar categoría",
+        "addSubcategory": "Agregar subcategoría",
+        "archive": "Archivar",
+        "unarchive": "Desarchivar",
+        "collapse": "Contraer",
+        "collapseAll": "Contraer todas",
+        "expand": "Expandir",
+        "expandAll": "Expandir todas"
+      },
       "colors": {
         "blue": "Azul",
         "cyan": "Cian",
@@ -23,7 +33,15 @@
         "errors": {
           "notCreated": "No se pudo crear la categoría."
         },
+        "successTitle": "Categoría creada",
+        "successMessage": "La categoría ya puede usarse en las transacciones.",
         "title": "Crear categoría"
+      },
+      "delete": {
+        "categoryTitle": "Eliminar categoría",
+        "subcategoryTitle": "Eliminar subcategoría",
+        "warningTitle": "Esta acción no se puede deshacer.",
+        "warningMessage": "Esto eliminará el elemento seleccionado de forma permanente."
       },
       "edit": {
         "title": "Editar categoría"
@@ -33,21 +51,66 @@
         "notSelected": "Selecciona una categoría para editar."
       },
       "fallbacks": {
-        "categoryWithId": "Categoría {{id}}"
+        "categoryWithId": "Categoría {{id}}",
+        "subcategoryWithId": "Subcategoría {{id}}"
       },
       "fields": {
         "color": "Color"
       },
+      "filters": {
+        "search": "Buscar",
+        "showArchived": "Ver archivados",
+        "placeholders": {
+          "search": "Buscar categorías o subcategorías"
+        }
+      },
       "list": {
-        "desc": "Gestiona categorías de ingresos y gastos.",
+        "desc": "Gestiona categorías y subcategorías.",
         "empty": "No se encontraron categorías.",
-        "loading": "Cargando categorías...",
-        "title": "Lista de categorías",
+        "emptyHelper": "Crea una categoría para empezar a organizar las transacciones.",
+        "emptySearch": "No se encontraron resultados.",
+        "emptySearchHelper": "Prueba con otro término de búsqueda.",
+        "loading": "Cargando categorías y subcategorías...",
+        "title": "Categorías y subcategorías",
+        "totalResults": "{{count}} categorías",
         "unavailable": "No se pudieron cargar las categorías.",
         "unnamed": "Categoría sin nombre"
       },
+      "pagination": {
+        "itemsPerPage": "Elementos por página"
+      },
       "placeholders": {
         "name": "Nombre de la categoría"
+      },
+      "subcategories": {
+        "create": {
+          "actions": {
+            "submit": "Crear subcategoría"
+          },
+          "errors": {
+            "notCreated": "No se pudo crear la subcategoría."
+          },
+          "title": "Crear subcategoría"
+        },
+        "edit": {
+          "title": "Editar subcategoría"
+        },
+        "errors": {
+          "categoryRequired": "Selecciona una categoría para la subcategoría.",
+          "nameRequired": "El nombre de la subcategoría es obligatorio.",
+          "notSelected": "Selecciona una subcategoría para editar."
+        },
+        "helpers": {
+          "colorInherited": "El color se hereda de la categoría."
+        },
+        "list": {
+          "unnamed": "Subcategoría sin nombre",
+          "unavailable": "No se pudieron cargar las subcategorías."
+        },
+        "placeholders": {
+          "category": "Selecciona una categoría",
+          "name": "Nombre de la subcategoría"
+        }
       },
       "types": {
         "expense": "Gasto",

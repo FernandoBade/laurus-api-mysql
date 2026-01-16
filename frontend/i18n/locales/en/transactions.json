@@ -96,7 +96,8 @@
         "emptyHelper": "Use the buttons below to add your first transaction.",
         "loading": "Loading transactions...",
         "title": "Transaction list",
-        "unavailable": "Unable to load transactions."
+        "unavailable": "Unable to load transactions.",
+        "totalResults": "{{count}} results"
       },
       "pagination": {
         "itemsPerPage": "Items per page"

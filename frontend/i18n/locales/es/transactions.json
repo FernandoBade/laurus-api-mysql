@@ -96,7 +96,8 @@
         "emptyHelper": "Usa los botones de abajo para agregar tu primera transacción.",
         "loading": "Cargando transacciones...",
         "title": "Lista de transacciones",
-        "unavailable": "No se pudieron cargar las transacciones."
+        "unavailable": "No se pudieron cargar las transacciones.",
+        "totalResults": "{{count}} resultados"
       },
       "pagination": {
         "itemsPerPage": "Elementos por página"
