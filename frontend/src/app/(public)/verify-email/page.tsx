@@ -1,4 +1,4 @@
-import AuthLayout from "@/app/(full-width-pages)/(auth)/layout";
+import AuthLayout from "@/app/(public)/(auth)/layout";
 import VerifyEmailForm from "@/features/auth/components/VerifyEmailForm";
 import { Metadata } from "next";
 import { Suspense } from "react";

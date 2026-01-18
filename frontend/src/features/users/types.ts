@@ -5,6 +5,7 @@ import type {
     Profile,
     Theme,
 } from "@/shared/types/domain";
+import type { ResourceLanguage } from "@/shared/i18n";
 
 export type UpdateUserPayload = Partial<{
     firstName: string;
@@ -43,4 +44,19 @@ export type User = {
     active: boolean;
     createdAt: string;
     updatedAt: string;
+};
+
+export type ProfileSection = "account" | "preferences";
+
+export type ProfileFormState = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    birthDate: string;
+    theme: Theme;
+    language: ResourceLanguage;
+    dateFormat: DateFormat;
+    currency: Currency;
+    hideValues: boolean;
 };

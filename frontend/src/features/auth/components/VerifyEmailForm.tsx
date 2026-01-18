@@ -8,7 +8,7 @@ import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
-import { LoadingState } from "@/shared/ui";
+import { LoadingState } from "@/components/ui/states";
 import { normalizeApiError } from "@/shared/lib/api/errors";
 import { useResendVerificationEmail, useVerifyEmail } from "@/features/auth/hooks";
 import { useTranslation } from "react-i18next";
@@ -32,20 +32,18 @@ export default function VerifyEmailForm() {
   const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
   const [resendEmail, setResendEmail] = useState(queryEmail);
+  const [hasEditedResendEmail, setHasEditedResendEmail] = useState(false);
   const [resendSuccess, setResendSuccess] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
   const lastVerifiedTokenRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (queryEmail) {
-      setResendEmail(queryEmail);
-    }
-  }, [queryEmail]);
+  const effectiveResendEmail = hasEditedResendEmail
+    ? resendEmail
+    : queryEmail || resendEmail;
+  const resolvedVerifyStatus = token ? verifyStatus : "idle";
 
   useEffect(() => {
     if (!token) {
-      setVerifyStatus("idle");
       return;
     }
     if (lastVerifiedTokenRef.current === token) {
@@ -89,7 +87,10 @@ export default function VerifyEmailForm() {
   }, [token, t, verifyMutation]);
 
   useEffect(() => {
-    if (verifyStatus !== "success" && verifyStatus !== "alreadyVerified") {
+    if (
+      resolvedVerifyStatus !== "success" &&
+      resolvedVerifyStatus !== "alreadyVerified"
+    ) {
       return;
     }
     const params = new URLSearchParams();
@@ -98,7 +99,7 @@ export default function VerifyEmailForm() {
       params.set("email", verifiedEmail);
     }
     router.replace(`/app/login?${params.toString()}`);
-  }, [router, verifyStatus, verifiedEmail]);
+  }, [router, resolvedVerifyStatus, verifiedEmail]);
 
   useEffect(() => {
     if (cooldown <= 0) {
@@ -128,13 +129,13 @@ export default function VerifyEmailForm() {
     setResendSuccess(null);
     setResendError(null);
 
-    if (!resendEmail) {
+    if (!effectiveResendEmail) {
       setResendError(t("resource.auth.verifyEmail.resend.errors.missingEmail"));
       return;
     }
 
     try {
-      await resendMutation.mutateAsync({ email: resendEmail });
+      await resendMutation.mutateAsync({ email: effectiveResendEmail });
       setResendSuccess(t("resource.auth.verifyEmail.resend.success"));
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (error) {
@@ -160,7 +161,9 @@ export default function VerifyEmailForm() {
   };
 
   const showResend =
-    verifyStatus === "idle" || verifyStatus === "invalid" || verifyStatus === "error";
+    resolvedVerifyStatus === "idle" ||
+    resolvedVerifyStatus === "invalid" ||
+    resolvedVerifyStatus === "error";
   const loginUrl = useMemo(() => {
     const params = new URLSearchParams();
     params.set("verified", "1");
@@ -201,13 +204,13 @@ export default function VerifyEmailForm() {
               />
             )}
 
-            {verifyStatus === "loading" && (
+            {resolvedVerifyStatus === "loading" && (
               <LoadingState
                 message={t("resource.auth.verifyEmail.status.loading")}
               />
             )}
 
-            {verifyStatus === "success" && (
+            {resolvedVerifyStatus === "success" && (
               <Alert
                 variant="success"
                 title={t("resource.auth.verifyEmail.status.success.title")}
@@ -215,7 +218,7 @@ export default function VerifyEmailForm() {
               />
             )}
 
-            {verifyStatus === "alreadyVerified" && (
+            {resolvedVerifyStatus === "alreadyVerified" && (
               <Alert
                 variant="info"
                 title={t("resource.auth.verifyEmail.status.alreadyVerified.title")}
@@ -223,7 +226,7 @@ export default function VerifyEmailForm() {
               />
             )}
 
-            {verifyStatus === "invalid" && (
+            {resolvedVerifyStatus === "invalid" && (
               <Alert
                 variant="error"
                 title={t("resource.auth.verifyEmail.status.invalid.title")}
@@ -234,7 +237,7 @@ export default function VerifyEmailForm() {
               />
             )}
 
-            {verifyStatus === "error" && (
+            {resolvedVerifyStatus === "error" && (
               <Alert
                 variant="error"
                 title={t("resource.auth.verifyEmail.status.error.title")}
@@ -269,8 +272,13 @@ export default function VerifyEmailForm() {
                     type="email"
                     name="email"
                     placeholder={t("resource.auth.login.placeholders.email")}
-                    value={resendEmail}
-                    onChange={(event) => setResendEmail(event.target.value)}
+                    value={effectiveResendEmail}
+                    onChange={(event) => {
+                      setResendEmail(event.target.value);
+                      if (!hasEditedResendEmail) {
+                        setHasEditedResendEmail(true);
+                      }
+                    }}
                   />
                 </div>
                 {resendError && (
@@ -307,7 +315,8 @@ export default function VerifyEmailForm() {
             </div>
           )}
 
-          {(verifyStatus === "success" || verifyStatus === "alreadyVerified") && (
+          {(resolvedVerifyStatus === "success" ||
+            resolvedVerifyStatus === "alreadyVerified") && (
             <div className="mt-6">
               <Button
                 className="w-full"

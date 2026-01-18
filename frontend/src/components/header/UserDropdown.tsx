@@ -1,14 +1,14 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useAuthSession } from "@/features/auth/context";
 import { useLogout } from "@/features/auth/hooks";
-import { useUser } from "@/features/users/hooks";
 import { useTranslation } from "react-i18next";
 import { CaretDown, Lifebuoy, SignOut, UserCircle } from "@phosphor-icons/react";
+import type { User } from "@/features/users/types";
 
 const getInitials = (firstName?: string | null, lastName?: string | null) => {
     const firstInitial = firstName?.trim().charAt(0) ?? "";
@@ -17,13 +17,16 @@ const getInitials = (firstName?: string | null, lastName?: string | null) => {
     return initials || "";
 };
 
-export default function UserDropdown() {
+type UserDropdownProps = {
+    user: User | undefined;
+    userId: number | null;
+};
+
+export default function UserDropdown({ user, userId }: UserDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
-    const { userId, clearSession } = useAuthSession();
+    const { clearSession } = useAuthSession();
     const logoutMutation = useLogout();
-    const { data: userResponse } = useUser(userId);
-    const user = userResponse?.data;
     const { t } = useTranslation(["resource-layout", "resource-common"]);
 
     function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -73,10 +76,13 @@ export default function UserDropdown() {
             >
                 <span className="mr-3 overflow-hidden rounded-full h-11 w-11 border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                     {avatarUrl ? (
-                        <img
+                        <Image
                             src={avatarUrl}
                             alt={t("resource.layout.userMenu.userAvatarAlt")}
                             className="h-full w-full object-cover"
+                            width={44}
+                            height={44}
+                            unoptimized
                         />
                     ) : (
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-200">
@@ -113,7 +119,7 @@ export default function UserDropdown() {
                         <DropdownItem
                             onItemClick={closeDropdown}
                             tag="a"
-                            href="/profile"
+                            href="/app/profile"
                             className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                         >
                             <UserCircle
@@ -141,7 +147,7 @@ export default function UserDropdown() {
                         <DropdownItem
                             onItemClick={closeDropdown}
                             tag="a"
-                            href="/profile"
+                            href="/app/profile"
                             className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                         >
                             <Lifebuoy

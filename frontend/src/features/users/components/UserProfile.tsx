@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useAuthSession } from "@/features/auth/context";
 import { useTheme } from "@/shared/context/ThemeContext";
@@ -12,14 +13,15 @@ import {
   type ResourceLanguage,
 } from "@/shared/i18n";
 import { useModal } from "@/shared/hooks/useModal";
-import { Modal } from "../ui/modal";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import Select from "../form/Select";
-import Switch from "../form/switch/Switch";
-import Button from "../ui/button/Button";
-import Badge from "../ui/badge/Badge";
+import { Modal } from "@/components/ui/modal";
+import Input from "@/components/form/input/InputField";
+import Label from "@/components/form/Label";
+import Select from "@/components/form/Select";
+import Switch from "@/components/form/switch/Switch";
+import Button from "@/components/ui/button/Button";
+import Badge from "@/components/ui/badge/Badge";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
+import type { ProfileFormState, ProfileSection } from "@/features/users/types";
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = new Set([
@@ -30,21 +32,6 @@ const ALLOWED_AVATAR_TYPES = new Set([
   "image/x-png",
 ]);
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type ProfileSection = "account" | "preferences";
-
-type ProfileFormState = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  theme: "light" | "dark";
-  language: ResourceLanguage;
-  dateFormat: "DD/MM/YYYY" | "MM/DD/YYYY";
-  currency: "BRL" | "USD" | "EUR" | "ARS" | "COP";
-  hideValues: boolean;
-};
 
 const padDatePart = (value: number) => String(value).padStart(2, "0");
 
@@ -479,10 +466,13 @@ export default function UserProfile() {
       <div className="flex items-center gap-4">
         <div className="h-20 w-20 overflow-hidden rounded-full border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
           {avatarSrc ? (
-            <img
+            <Image
               src={avatarSrc}
               alt={t("resource.profile.meta.avatarAlt")}
               className="h-full w-full object-cover"
+              width={80}
+              height={80}
+              unoptimized
             />
           ) : (
             <span className="text-lg font-semibold text-gray-600 dark:text-gray-200">

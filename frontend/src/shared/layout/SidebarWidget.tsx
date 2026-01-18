@@ -4,7 +4,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/shared/hooks/useModal";
-import BetaFeedbackModal from "@/features/beta-feedback/components/BetaFeedbackModal";
+import FeedbackModal from "@/features/feedback/components/FeedbackModal";
 
 export default function SidebarWidget() {
   const { t } = useTranslation(["resource-layout", "resource-common"]);
@@ -30,7 +30,7 @@ export default function SidebarWidget() {
           {t("resource.layout.sidebarWidget.upgrade")}
         </Button>
       </div>
-      <BetaFeedbackModal isOpen={isOpen} onClose={closeModal} />
+      <FeedbackModal isOpen={isOpen} onClose={closeModal} />
     </>
   );
 }

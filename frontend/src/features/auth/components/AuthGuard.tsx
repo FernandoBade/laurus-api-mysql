@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthSession } from "@/features/auth/context";
 import { useTranslation } from "react-i18next";
-import { LoadingState } from "@/shared/ui";
+import { LoadingState } from "@/components/ui/states";
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();

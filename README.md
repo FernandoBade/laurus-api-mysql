@@ -40,3 +40,10 @@ With a strong focus on **performance, modularity, and scalability**, Laurus ensu
 ---
 
 With **Laurus**, users can take full control of their finances, **spend wisely, save smarter, and dream freely**. 🚀
+
+## Frontend Structure
+
+- `frontend/src/features/<domain>` holds domain modules (auth, users, accounts, credit-cards, categories, subcategories, transactions, tags, feedback).
+- `frontend/src/components` is the shared UI component library (forms, tables, modals, alerts, etc.).
+- `frontend/src/shared` contains app-wide contexts, hooks, and utilities.
+- `frontend/src/app/(public)` contains public routes (login, register, verify-email); `frontend/src/app/(admin)` contains authenticated app routes.

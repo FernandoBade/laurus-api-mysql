@@ -1,4 +1,4 @@
-export type BetaFeedbackPayload = {
+export type FeedbackPayload = {
   title: string;
   message: string;
   subject: string;
@@ -8,6 +8,6 @@ export type BetaFeedbackPayload = {
   audio?: File | null;
 };
 
-export type BetaFeedbackResponse = {
+export type FeedbackResponse = {
   sent: boolean;
 };

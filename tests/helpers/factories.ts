@@ -156,6 +156,7 @@ export function makeTransaction(
         paymentDay?: number | null;
         accountId?: number | null;
         creditCardId?: number | null;
+        tags?: number[];
         active?: boolean;
         createdAt?: Date;
         updatedAt?: Date;
@@ -178,6 +179,7 @@ export function makeTransaction(
         paymentDay: overrides.paymentDay ?? null,
         accountId: overrides.accountId ?? 1,
         creditCardId: overrides.creditCardId ?? null,
+        tags: overrides.tags ?? [],
         active: overrides.active ?? true,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,

@@ -156,7 +156,7 @@ describe('TransactionController', () => {
 
             await TransactionController.getTransactions(req, res, next);
 
-            expect(TransactionService.prototype.getTransactions).toHaveBeenCalledWith({
+            expect(TransactionService.prototype.getTransactions).toHaveBeenCalledWith({}, {
                 limit: 2,
                 offset: 0,
                 sort: 'date',

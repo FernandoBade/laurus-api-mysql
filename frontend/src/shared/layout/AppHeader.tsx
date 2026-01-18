@@ -2,6 +2,8 @@
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/shared/context/SidebarContext";
+import { useAuthSession } from "@/features/auth/context";
+import { useUser } from "@/features/users/hooks";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
@@ -18,6 +20,9 @@ const AppHeader: React.FC = () => {
   const { t } = useTranslation(["resource-layout", "resource-common"]);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const { userId } = useAuthSession();
+  const { data: userResponse } = useUser(userId);
+  const user = userResponse?.data;
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -122,7 +127,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown /> 
+          <UserDropdown user={user} userId={userId} />
     
         </div>
       </div>

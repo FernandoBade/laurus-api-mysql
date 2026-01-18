@@ -1,10 +1,10 @@
 "use client";
 
-import UserProfile from "@/components/user-profile";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UserProfile from "@/features/users/components/UserProfile";
 
-export default function ProfileContent() {
+export default function ProfilePage() {
   const { t } = useTranslation(["resource-profile"]);
 
   return (

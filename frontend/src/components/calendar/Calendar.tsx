@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -46,8 +46,29 @@ const Calendar: React.FC = () => {
   const [eventStartDate, setEventStartDate] = useState("");
   const [eventEndDate, setEventEndDate] = useState("");
   const [eventLevel, setEventLevel] = useState<CalendarLevel | "">("");
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>(() => [
+    {
+      id: defaultEventIds.conference,
+      title: i18n.t("resource.calendar.events.conference"),
+      start: new Date().toISOString().split("T")[0],
+      extendedProps: { calendar: "danger" },
+    },
+    {
+      id: defaultEventIds.meeting,
+      title: i18n.t("resource.calendar.events.meeting"),
+      start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      extendedProps: { calendar: "success" },
+    },
+    {
+      id: defaultEventIds.workshop,
+      title: i18n.t("resource.calendar.events.workshop"),
+      start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
+      end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
+      extendedProps: { calendar: "primary" },
+    },
+  ]);
   const calendarRef = useRef<FullCalendar>(null);
+  const nextEventIdRef = useRef(1);
   const { isOpen, openModal, closeModal } = useModal();
   const calendarLocale =
     i18n.language === "pt-BR"
@@ -56,32 +77,7 @@ const Calendar: React.FC = () => {
       ? esLocale
       : undefined;
 
-  useEffect(() => {
-    // Initialize with some events
-    setEvents([
-      {
-        id: defaultEventIds.conference,
-        title: i18n.t("resource.calendar.events.conference"),
-        start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "danger" },
-      },
-      {
-        id: defaultEventIds.meeting,
-        title: i18n.t("resource.calendar.events.meeting"),
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "success" },
-      },
-      {
-        id: defaultEventIds.workshop,
-        title: i18n.t("resource.calendar.events.workshop"),
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "primary" },
-      },
-    ]);
-  }, [i18n]);
-
-  useEffect(() => {
+  const syncDefaultEventTitles = useCallback(() => {
     setEvents((prevEvents) =>
       prevEvents.map((event) => {
         if (event.id === defaultEventIds.conference) {
@@ -105,7 +101,14 @@ const Calendar: React.FC = () => {
         return event;
       })
     );
-  }, [i18n.language, i18n]);
+  }, [i18n]);
+
+  useEffect(() => {
+    i18n.on("languageChanged", syncDefaultEventTitles);
+    return () => {
+      i18n.off("languageChanged", syncDefaultEventTitles);
+    };
+  }, [i18n, syncDefaultEventTitles]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
@@ -144,8 +147,10 @@ const Calendar: React.FC = () => {
       );
     } else {
       // Add new event
+      const nextId = nextEventIdRef.current;
+      nextEventIdRef.current += 1;
       const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
+        id: `user-event-${nextId}`,
         title: eventTitle,
         start: eventStartDate,
         end: eventEndDate,

@@ -1,4 +1,4 @@
-import ProfileContent from "@/components/pages/ProfileContent";
+import ProfilePage from "@/features/users/pages/ProfilePage";
 import { Metadata } from "next";
 import React from "react";
 
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function Profile() {
-  return <ProfileContent />;
+  return <ProfilePage />;
 }

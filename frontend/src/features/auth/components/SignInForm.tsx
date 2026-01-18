@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
@@ -25,6 +24,7 @@ export default function SignInForm() {
   const [resendError, setResendError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
   const [email, setEmail] = useState("");
+  const [hasTypedEmail, setHasTypedEmail] = useState(false);
   const [password, setPassword] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,12 +39,7 @@ export default function SignInForm() {
     () => (searchParams.get("email") ?? "").trim(),
     [searchParams]
   );
-
-  useEffect(() => {
-    if (queryEmail) {
-      setEmail((current) => current || queryEmail);
-    }
-  }, [queryEmail]);
+  const effectiveEmail = hasTypedEmail ? email : queryEmail || email;
 
   useEffect(() => {
     if (cooldown <= 0) {
@@ -73,7 +68,7 @@ export default function SignInForm() {
     setResendSuccess(null);
     setResendError(null);
 
-    const targetEmail = (notVerifiedEmail || email).trim();
+    const targetEmail = (notVerifiedEmail || effectiveEmail).trim();
     if (!targetEmail) {
       setResendError(t("resource.auth.verifyEmail.resend.errors.missingEmail"));
       return;
@@ -107,7 +102,8 @@ export default function SignInForm() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email || !password) {
+    const submittedEmail = effectiveEmail.trim();
+    if (!submittedEmail || !password) {
       setFormError(t("resource.auth.login.errors.missingCredentials"));
       return;
     }
@@ -117,7 +113,10 @@ export default function SignInForm() {
     setResendError(null);
     setResendSuccess(null);
     try {
-      const result = await loginMutation.mutateAsync({ email, password });
+      const result = await loginMutation.mutateAsync({
+        email: submittedEmail,
+        password,
+      });
       const token = result.data?.token;
       if (result.success && token) {
         setSession(token);
@@ -137,7 +136,7 @@ export default function SignInForm() {
           typeof (normalized.data as { email?: string } | undefined)?.email ===
           "string"
             ? (normalized.data as { email?: string }).email
-            : email;
+            : submittedEmail;
         setNotVerifiedEmail(errorEmail?.trim() || null);
         setFormError(null);
         return;
@@ -254,8 +253,13 @@ export default function SignInForm() {
                     placeholder={t("resource.auth.login.placeholders.email")}
                     type="email"
                     name="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    value={effectiveEmail}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      if (!hasTypedEmail) {
+                        setHasTypedEmail(true);
+                      }
+                    }}
                   />
                 </div>
                 <div>

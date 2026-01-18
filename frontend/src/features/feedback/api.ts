@@ -1,8 +1,8 @@
 import type { ApiResponse } from "@/shared/types/api";
 import { apiPost } from "@/shared/lib/api/client";
-import type { BetaFeedbackPayload, BetaFeedbackResponse } from "./types";
+import type { FeedbackPayload, FeedbackResponse } from "./types";
 
-const buildFeedbackFormData = (payload: BetaFeedbackPayload) => {
+const buildFeedbackFormData = (payload: FeedbackPayload) => {
   const formData = new FormData();
   formData.append("title", payload.title);
   formData.append("message", payload.message);
@@ -18,7 +18,7 @@ const buildFeedbackFormData = (payload: BetaFeedbackPayload) => {
   return formData;
 };
 
-export const sendBetaFeedback = (
-  payload: BetaFeedbackPayload
-): Promise<ApiResponse<BetaFeedbackResponse>> =>
-  apiPost<BetaFeedbackResponse>("/feedback", buildFeedbackFormData(payload));
+export const sendFeedback = (
+  payload: FeedbackPayload
+): Promise<ApiResponse<FeedbackResponse>> =>
+  apiPost<FeedbackResponse>("/feedback", buildFeedbackFormData(payload));

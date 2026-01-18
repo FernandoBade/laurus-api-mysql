@@ -10,9 +10,10 @@ import {
 } from "./api";
 import type {
   CreateTransactionPayload,
+  Transaction,
   UpdateTransactionPayload,
 } from "./types";
-import type { QueryParams } from "@/shared/types/api";
+import type { ApiListResponse, QueryParams } from "@/shared/types/api";
 
 const transactionsKey = (params?: QueryParams) => [
   "transactions",
@@ -29,14 +30,20 @@ const transactionsByUserKey = (
   params?: QueryParams
 ) => ["transactions", "user", userId, params];
 
+type UseTransactionsOptions = {
+  enabled?: boolean;
+  onSuccess?: (data: ApiListResponse<Transaction>) => void;
+};
+
 export const useTransactions = (
   params?: QueryParams,
-  options?: { enabled?: boolean }
+  options?: UseTransactionsOptions
 ) =>
   useQuery({
     queryKey: transactionsKey(params),
     queryFn: () => getTransactions(params),
     enabled: options?.enabled ?? true,
+    onSuccess: options?.onSuccess,
   });
 
 export const useTransactionsByAccount = (

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +12,7 @@ import FileInput from "@/components/form/input/FileInput";
 import Label from "@/components/form/Label";
 import { useAuthSession } from "@/features/auth/context";
 import { useUser } from "@/features/users/hooks";
-import { useSendBetaFeedback } from "../hooks";
+import { useSendFeedback } from "../hooks";
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const MAX_AUDIO_BYTES = 2 * 1024 * 1024;
@@ -43,20 +42,20 @@ const getAudioExtension = (mimeType: string) => {
   return "webm";
 };
 
-type BetaFeedbackModalProps = {
+type FeedbackModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-export default function BetaFeedbackModal({
+export default function FeedbackModal({
   isOpen,
   onClose,
-}: BetaFeedbackModalProps) {
+}: FeedbackModalProps) {
   const { t } = useTranslation(["resource-layout", "resource-common"]);
   const { userId } = useAuthSession();
   const { data: userResponse } = useUser(userId);
   const user = userResponse?.data;
-  const sendFeedbackMutation = useSendBetaFeedback();
+  const sendFeedbackMutation = useSendFeedback();
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -70,7 +69,6 @@ export default function BetaFeedbackModal({
   const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -226,7 +224,6 @@ export default function BetaFeedbackModal({
 
   useEffect(() => {
     mountedRef.current = true;
-    setIsMounted(true);
     return () => {
       mountedRef.current = false;
       if (stopTimeoutRef.current !== null) {
@@ -360,7 +357,7 @@ export default function BetaFeedbackModal({
         }
 
         const extension = getAudioExtension(mimeType);
-        const file = new File([blob], `beta-feedback.${extension}`, {
+        const file = new File([blob], `feedback.${extension}`, {
           type: mimeType,
         });
         const previewUrl = URL.createObjectURL(blob);
@@ -461,7 +458,7 @@ export default function BetaFeedbackModal({
 
   const submitDisabled = sendFeedbackMutation.isPending || isRecording;
 
-  if (!isMounted) {
+  if (typeof document === "undefined") {
     return null;
   }
 

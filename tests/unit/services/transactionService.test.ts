@@ -78,6 +78,11 @@ describe('TransactionService', () => {
         jest.spyOn(database, 'withTransaction').mockImplementation(async (callback) => {
             return callback(connection as unknown as typeof database.db);
         });
+        jest.spyOn(database.db, 'select').mockReturnValue({
+            from: jest.fn().mockReturnValue({
+                where: jest.fn().mockResolvedValue([]),
+            }),
+        } as unknown as ReturnType<typeof database.db.select>);
     });
 
     afterEach(() => {
@@ -283,7 +288,7 @@ describe('TransactionService', () => {
                 { id: 1, name: 'Urgent', userId: account.userId, active: true, createdAt: new Date(), updatedAt: new Date() },
                 { id: 2, name: 'Family', userId: account.userId, active: true, createdAt: new Date(), updatedAt: new Date() },
             ]);
-            const created = makeTransaction({ id: 12, accountId: 1, categoryId: 2 });
+            const created = makeTransaction({ id: 12, accountId: 1, categoryId: 2, tags: [1, 2] });
             jest.spyOn(TransactionRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new TransactionService();
@@ -380,7 +385,7 @@ describe('TransactionService', () => {
             const findManySpy = jest.spyOn(TransactionRepository.prototype, 'findMany').mockResolvedValue(transactions);
 
             const service = new TransactionService();
-            const result = await service.getTransactions({ limit: 2, offset: 2, sort: 'date', order: Operator.DESC });
+            const result = await service.getTransactions(undefined, { limit: 2, offset: 2, sort: 'date', order: Operator.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,

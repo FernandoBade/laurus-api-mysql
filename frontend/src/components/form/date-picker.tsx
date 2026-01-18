@@ -96,6 +96,7 @@ export default function DatePicker({
     appendTo,
     staticPosition,
     inputClasses,
+    defaultDate,
   ]);
 
   return (

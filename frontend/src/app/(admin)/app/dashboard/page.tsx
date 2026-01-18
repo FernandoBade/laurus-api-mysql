@@ -15,7 +15,7 @@ import { useCreditCardsByUser } from "@/features/credit-cards/hooks";
 import { useRecentTransactions } from "@/features/transactions/hooks";
 import { getApiErrorMessage } from "@/shared/lib/api/errors";
 import { formatDate, formatMoney } from "@/shared/lib/formatters";
-import { EmptyState, ErrorState, LoadingState } from "@/shared/ui";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import { useTranslation } from "react-i18next";
 
 export default function DashboardPage() {
@@ -36,8 +36,14 @@ export default function DashboardPage() {
       order: "desc",
     });
 
-  const accounts = accountsQuery.data?.data ?? [];
-  const creditCards = creditCardsQuery.data?.data ?? [];
+  const accounts = useMemo(
+    () => accountsQuery.data?.data ?? [],
+    [accountsQuery.data]
+  );
+  const creditCards = useMemo(
+    () => creditCardsQuery.data?.data ?? [],
+    [creditCardsQuery.data]
+  );
   const accountMap = useMemo(
     () => new Map(accounts.map((account) => [account.id, account.name])),
     [accounts]

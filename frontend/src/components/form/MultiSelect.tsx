@@ -32,15 +32,6 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setSelectedOptions((prev) => {
-      const hasSameLength = prev.length === defaultSelected.length;
-      const hasSameValues =
-        hasSameLength && prev.every((value, index) => value === defaultSelected[index]);
-      return hasSameValues ? prev : defaultSelected;
-    });
-  }, [defaultSelected]);
-
-  useEffect(() => {
     if (!isOpen) {
       return;
     }
