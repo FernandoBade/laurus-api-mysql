@@ -1,4 +1,52 @@
-# Keep environment variables out of version control
-node_modules
+################################
+# Dependências
+################################
+backend/node_modules
+frontend_old/node_modules
+
+################################
+# Environment variables
+################################
 .env
-coverage
+backend/.env
+frontend_old/.env*
+.env*.local
+
+################################
+# Builds / outputs
+################################
+backend/coverage
+frontend_old/coverage
+frontend_old/.next
+frontend_old/out
+frontend_old/build
+
+################################
+# IDE / OS
+################################
+.idea
+.vscode
+.DS_Store
+
+################################
+# Logs
+################################
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+################################
+# Next.js / TypeScript
+################################
+*.tsbuildinfo
+frontend_old/next-env.d.ts
+
+################################
+# Vercel
+################################
+frontend_old/.vercel
+
+################################
+# Security
+################################
+*.pem
