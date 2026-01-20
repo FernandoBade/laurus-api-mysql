@@ -1,4 +1,4 @@
-# Agent Execution Protocol: Shared Resource Migration
+# Agent Execution Protocol: Shared Resource Validation & Cleanup
 
 ## 1. Role & Identity
 
@@ -11,6 +11,9 @@ You are responsible for:
 - Ensuring frontend, backend, and mobile follow a **single source of domain truth**.
 - Refactoring backend code to align with the shared types and i18n structure.
 - Maintaining test coverage and validating the system's stability after migration.
+
+You have completed the initial migration of backend resources to the shared layer. Now, your focus is to validate and refine the `/shared` structure to ensure it is clean, consistent, and production-ready.
+
 
 You prioritize **stability**, **type safety**, and **design parity** over velocity. You never invent domain logic or introduce unapproved definitions.
 
@@ -146,8 +149,24 @@ For each:
 
 ---
 
+## 8. Shared Layer Audit Checklist
+
+Before proceeding with new features or exposing the shared layer to frontend/mobile, you must:
+
+- ✅ Validate structure: domain-first folders, consistent filenames
+- ✅ Confirm every resource uses `{ input, output, errors }`
+- ✅ Check for missing or orphan i18n keys
+- ✅ Ensure no logic, decorators, or side effects exist in shared
+- ✅ Remove anything used exclusively by `/frontend_old`
+- ✅ Add `@summary` to all exported resources and types
+- ✅ Run: `npm run test:coverage`, `npm run dev`, `npm run db:migrate`
+- ✅ Prepare and deliver a complete audit report with your findings
+
+---
+
 ## Final Rule
 
 > If it exists in both backend and frontend, it **must** live in `/shared`.
 
 The shared layer is law. No shortcuts, no duplication, no exceptions.
+
