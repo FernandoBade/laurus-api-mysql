@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { CategoryType, CategoryColor } from '../../utils/enum';
+import { CategoryType, CategoryColor } from '../../../../shared/enums';
 
 /**
  * Categories table schema.
@@ -9,8 +9,8 @@ import { CategoryType, CategoryColor } from '../../utils/enum';
 export const categories = mysqlTable('category', {
     id: int('id').primaryKey().autoincrement(),
     name: varchar('name', { length: 255 }),
-    type: mysqlEnum('type', Object.values(CategoryType) as [string, ...string[]]).notNull(),
-    color: mysqlEnum('color', Object.values(CategoryColor) as [string, ...string[]]).default(CategoryColor.PURPLE).notNull(),
+    type: mysqlEnum('type', Object.values(CategoryType) as [CategoryType, ...CategoryType[]]).notNull(),
+    color: mysqlEnum('color', Object.values(CategoryColor) as [CategoryColor, ...CategoryColor[]]).default(CategoryColor.PURPLE).notNull(),
     active: boolean('active').default(true).notNull(),
     userId: int('user_id').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),

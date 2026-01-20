@@ -1,7 +1,7 @@
 import { eq, and, inArray, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { subcategories, SelectSubcategory, InsertSubcategory } from '../db/schema';
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 
 /**
  * Repository for subcategory database operations.

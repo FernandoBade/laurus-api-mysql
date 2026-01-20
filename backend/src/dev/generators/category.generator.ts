@@ -1,7 +1,7 @@
 import CategoryController from '../../controller/categoryController';
 import SubcategoryController from '../../controller/subcategoryController';
 import { SelectCategory, SelectSubcategory } from '../../db/schema';
-import { CategoryColor, CategoryType } from '../../utils/enum';
+import { CategoryColor, CategoryType } from '../../../../shared/enums';
 import { CategoryTemplate } from '../seed.config';
 import { SeedContext, executeController } from '../seed.utils';
 

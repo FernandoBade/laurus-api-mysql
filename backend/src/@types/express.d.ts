@@ -1,5 +1,5 @@
 import 'express-serve-static-core';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
 declare module 'express-serve-static-core' {
   interface Request {

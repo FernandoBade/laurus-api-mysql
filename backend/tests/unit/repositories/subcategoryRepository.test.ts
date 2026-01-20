@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { SubcategoryRepository } from '../../../src/repositories/subcategoryRepository';
 import { db } from '../../../src/db';
 import { subcategories, SelectSubcategory } from '../../../src/db/schema';
-import { Operator } from '../../../src/utils/enum';
+import { Operator } from '../../../../shared/enums';
 
 const makeSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubcategory => {
     const now = new Date('2024-01-01T00:00:00Z');

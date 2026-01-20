@@ -1,12 +1,13 @@
-import { CreditCardFlag, Operator } from '../utils/enum';
+import { CreditCardFlag, Operator } from '../../../shared/enums';
 import { CreditCardRepository } from '../repositories/creditCardRepository';
 import { UserService } from './userService';
 import { AccountService } from './accountService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectCreditCard, InsertCreditCard } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import type { CreditCardEntity, CreateCreditCardInput, UpdateCreditCardInput } from '../../../shared/domains/creditCard/creditCard.types';
 
-export type CreditCardRow = SelectCreditCard;
+export type CreditCardRow = CreditCardEntity;
 
 /** @summary Service for credit card business logic.
  * Handles credit card operations including validation and user/account linking.
@@ -25,15 +26,7 @@ export class CreditCardService {
      * @param data - Credit card creation data.
      * @returns The created credit card record.
      */
-    async createCreditCard(data: {
-        name: string;
-        flag: CreditCardFlag;
-        observation?: string;
-        userId: number;
-        accountId?: number;
-        limit?: number;
-        active?: boolean;
-    }): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+    async createCreditCard(data: CreateCreditCardInput): Promise<{ success: true; data: CreditCardEntity } | { success: false; error: Resource }> {
         const userService = new UserService();
         const user = await userService.getUserById(data.userId);
 
@@ -79,7 +72,7 @@ export class CreditCardService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all credit cards.
      */
-    async getCreditCards(options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: SelectCreditCard[] } | { success: false; error: Resource }> {
+    async getCreditCards(options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: CreditCardEntity[] } | { success: false; error: Resource }> {
         try {
             const creditCards = await this.creditCardRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -115,7 +108,7 @@ export class CreditCardService {
      * @param id - ID of the credit card.
      * @returns Credit card record if found.
      */
-    async getCreditCardById(id: number): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+    async getCreditCardById(id: number): Promise<{ success: true; data: CreditCardEntity } | { success: false; error: Resource }> {
         const creditCard = await this.creditCardRepository.findById(id);
         if (!creditCard) {
             return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
@@ -130,7 +123,7 @@ export class CreditCardService {
      * @param userId - User ID.
      * @returns A list of credit cards owned by the user.
      */
-    async getCreditCardsByUser(userId: number, options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: SelectCreditCard[] } | { success: false; error: Resource }> {
+    async getCreditCardsByUser(userId: number, options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: CreditCardEntity[] } | { success: false; error: Resource }> {
         try {
             const creditCards = await this.creditCardRepository.findMany({
                 userId: { operator: Operator.EQUAL, value: userId }
@@ -172,7 +165,7 @@ export class CreditCardService {
      * @param data - Partial credit card data to update.
      * @returns Updated credit card record.
      */
-    async updateCreditCard(id: number, data: Partial<Omit<InsertCreditCard, 'balance' | 'limit'>> & { balance?: number; limit?: number | string }): Promise<{ success: true; data: SelectCreditCard } | { success: false; error: Resource }> {
+    async updateCreditCard(id: number, data: UpdateCreditCardInput): Promise<{ success: true; data: CreditCardEntity } | { success: false; error: Resource }> {
         const { balance: _ignored, ...safeData } = data;
 
         if (data.userId !== undefined) {

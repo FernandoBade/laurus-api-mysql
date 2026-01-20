@@ -1,9 +1,10 @@
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 import { SubcategoryRepository } from '../repositories/subcategoryRepository';
 import { CategoryService } from './categoryService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectSubcategory, InsertSubcategory } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import type { CreateSubcategoryInput, SubcategoryEntity, UpdateSubcategoryInput } from '../../../shared/domains/subcategory/subcategory.types';
 
 /**
  * Service for subcategory business logic.
@@ -25,11 +26,7 @@ export class SubcategoryService {
      * @param userId - Optional ID of the user performing the operation.
      * @returns The created subcategory record.
      */
-    async createSubcategory(data: {
-        name: string;
-        categoryId: number;
-        active?: boolean;
-    }, userId?: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
+    async createSubcategory(data: CreateSubcategoryInput, userId?: number): Promise<{ success: true; data: SubcategoryEntity } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
         const category = await categoryService.getCategoryById(data.categoryId);
 
@@ -59,7 +56,7 @@ export class SubcategoryService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all subcategories.
      */
-    async getSubcategories(options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
+    async getSubcategories(options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const subcategories = await this.subcategoryRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -95,7 +92,7 @@ export class SubcategoryService {
      * @param categoryId - ID of the parent category.
      * @returns A list of subcategories under the specified category.
      */
-    async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
+    async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const subcategories = await this.subcategoryRepository.findMany({
                 categoryId: { operator: Operator.EQUAL, value: categoryId }
@@ -136,7 +133,7 @@ export class SubcategoryService {
      * @param id - ID of the subcategory.
      * @returns Subcategory record if found.
      */
-    async getSubcategoryById(id: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
+    async getSubcategoryById(id: number): Promise<{ success: true; data: SubcategoryEntity } | { success: false; error: Resource }> {
         const subcategory = await this.subcategoryRepository.findById(id);
         if (!subcategory) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
@@ -151,7 +148,7 @@ export class SubcategoryService {
      * @param userId - ID of the user whose subcategories are being requested.
      * @returns A list of subcategories across all categories owned by the user.
      */
-    async getSubcategoriesByUser(userId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SelectSubcategory[] } | { success: false; error: Resource }> {
+    async getSubcategoriesByUser(userId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
         const userCategories = await categoryService.getCategoriesByUser(userId);
 
@@ -223,7 +220,7 @@ export class SubcategoryService {
      * @param userId - Optional ID of the user performing the operation.
      * @returns Updated subcategory record.
      */
-    async updateSubcategory(id: number, data: Partial<InsertSubcategory>, userId?: number): Promise<{ success: true; data: SelectSubcategory } | { success: false; error: Resource }> {
+    async updateSubcategory(id: number, data: UpdateSubcategoryInput, userId?: number): Promise<{ success: true; data: SubcategoryEntity } | { success: false; error: Resource }> {
         if (data.categoryId !== undefined) {
             const categoryService = new CategoryService();
             const category = await categoryService.getCategoryById(data.categoryId);

@@ -2,7 +2,7 @@ import { and, asc, between, desc, eq, inArray } from 'drizzle-orm';
 import { TransactionRepository } from '../../../src/repositories/transactionRepository';
 import { db } from '../../../src/db';
 import { transactions } from '../../../src/db/schema';
-import { Operator, TransactionSource, TransactionType } from '../../../src/utils/enum';
+import { Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
 import { makeTransaction } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {

@@ -1,14 +1,14 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { LogCategory, LogType, LogOperation, TokenType } from '../utils/enum';
+import { LogCategory, LogType, LogOperation, TokenType } from '../../../shared/enums';
 import { TokenUtils } from '../utils/auth/tokenUtils';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { TokenService } from './tokenService';
 import { UserService } from './userService';
-import { SelectUser } from '../db/schema';
 import { createLog } from '../utils/commons';
 import { buildPersistedTokenExpiresAt, buildSessionExpiresAt, EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS } from '../utils/auth/tokenConfig';
 import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../utils/email/authEmail';
+import type { LoginContext, LogoutContext, RefreshContext, ResetPasswordOutput, VerifyEmailOutput } from '../../../shared/domains/auth/auth.types';
 
 /**
  * Service for authentication operations.
@@ -33,7 +33,7 @@ export class AuthService {
      * @param password - User's plain-text password.
      * @returns Access token and rotation token along with user data, or error if credentials are invalid.
      */
-    async login(email: string, password: string): Promise<{ success: true; data: { token: string; refreshToken: string; user: SelectUser } } | { success: false; error: Resource }> {
+    async login(email: string, password: string): Promise<{ success: true; data: LoginContext } | { success: false; error: Resource }> {
         if (!password) {
             return { success: false, error: Resource.INVALID_CREDENTIALS };
         }
@@ -104,7 +104,7 @@ export class AuthService {
      * @param token - Token from cookies.
      * @returns New access and refresh tokens or error if the token is expired or invalid.
      */
-    async refresh(token: string): Promise<{ success: true; data: { token: string; refreshToken: string } } | { success: false; error: Resource }> {
+    async refresh(token: string): Promise<{ success: true; data: RefreshContext } | { success: false; error: Resource }> {
         const tokenHash = TokenUtils.hashRefreshToken(token);
         const tokenResult = await this.tokenService.findByTokenHash(tokenHash);
         if (!tokenResult.success || !tokenResult.data) {
@@ -213,7 +213,7 @@ export class AuthService {
      * @param token - Token to invalidate.
      * @returns Success status and user ID if logout succeeds, or error if token is not found.
      */
-    async logout(token: string): Promise<{ success: true; data: { userId: number } } | { success: false; error: Resource }> {
+    async logout(token: string): Promise<{ success: true; data: LogoutContext } | { success: false; error: Resource }> {
         const tokenHash = TokenUtils.hashRefreshToken(token);
         const tokenResult = await this.tokenService.findByTokenHash(tokenHash);
         const stored = tokenResult.success ? tokenResult.data : null;
@@ -248,7 +248,7 @@ export class AuthService {
      * @param token - Verification token.
      * @returns Success status or error.
      */
-    async verifyEmail(token: string): Promise<{ success: true; data: { verified: true; alreadyVerified?: boolean } } | { success: false; error: Resource }> {
+    async verifyEmail(token: string): Promise<{ success: true; data: VerifyEmailOutput } | { success: false; error: Resource }> {
         const tokenResult = await this.tokenService.verifyEmailVerificationToken(token);
         if (!tokenResult.success || !tokenResult.data) {
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
@@ -361,7 +361,7 @@ export class AuthService {
      * @param newPassword - New password.
      * @returns Success status or error.
      */
-    async resetPassword(token: string, newPassword: string): Promise<{ success: true; data: { reset: true } } | { success: false; error: Resource }> {
+    async resetPassword(token: string, newPassword: string): Promise<{ success: true; data: ResetPasswordOutput } | { success: false; error: Resource }> {
         const tokenResult = await this.tokenService.verifyPasswordResetToken(token);
         if (!tokenResult.success || !tokenResult.data) {
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };

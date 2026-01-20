@@ -1,7 +1,6 @@
-import { LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 const originalEnv = { ...process.env };
 
 const setEnv = (overrides: Record<string, string | undefined>) => {
@@ -87,7 +86,7 @@ describe('feedbackEmail utils', () => {
         expect(payload).toEqual(expect.objectContaining({
             from: 'no-reply@example.com',
             to: 'fer@bade.digital',
-            subject: ResourceBase.translate(Resource.FEEDBACK_EMAIL_SUBJECT, 'en-US'),
+            subject: translateResource(Resource.FEEDBACK_EMAIL_SUBJECT, 'en-US'),
         }));
         expect(payload.attachments).toEqual([
             expect.objectContaining({
@@ -98,7 +97,7 @@ describe('feedbackEmail utils', () => {
         ]);
 
         const html = payload.html as string;
-        expect(html).toContain(ResourceBase.translate(Resource.FEEDBACK_EMAIL_INTRO, 'en-US'));
+        expect(html).toContain(translateResource(Resource.FEEDBACK_EMAIL_INTRO, 'en-US'));
         expect(html).toContain('Title');
         expect(html).toContain('Message');
     });

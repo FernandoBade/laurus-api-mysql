@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { accounts, SelectAccount, InsertAccount } from '../db/schema';
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 
 /**
  * Repository for account database operations.

@@ -1,9 +1,10 @@
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 import { CategoryRepository } from '../repositories/categoryRepository';
 import { UserService } from './userService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectCategory, InsertCategory } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import type { CategoryEntity, CreateCategoryInput, UpdateCategoryInput } from '../../../shared/domains/category/category.types';
 
 /**
  * Service for category business logic.
@@ -23,13 +24,7 @@ export class CategoryService {
      * @param data - Category creation data.
      * @returns The created category record.
      */
-    async createCategory(data: {
-        name: string;
-        type: string;
-        color?: string;
-        active?: boolean;
-        userId: number;
-    }): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
+    async createCategory(data: CreateCategoryInput): Promise<{ success: true; data: CategoryEntity } | { success: false; error: Resource }> {
         const userService = new UserService();
         const user = await userService.getUserById(data.userId);
 
@@ -55,7 +50,7 @@ export class CategoryService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all categories.
      */
-    async getCategories(options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: SelectCategory[] } | { success: false; error: Resource }> {
+    async getCategories(options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: CategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const categories = await this.categoryRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -91,7 +86,7 @@ export class CategoryService {
      * @param id - ID of the category.
      * @returns The category if found.
      */
-    async getCategoryById(id: number): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
+    async getCategoryById(id: number): Promise<{ success: true; data: CategoryEntity } | { success: false; error: Resource }> {
         const category = await this.categoryRepository.findById(id);
         if (!category) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
@@ -106,7 +101,7 @@ export class CategoryService {
      * @param userId - ID of the user.
      * @returns A list of categories owned by the user.
      */
-    async getCategoriesByUser(userId: number, options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: SelectCategory[] } | { success: false; error: Resource }> {
+    async getCategoriesByUser(userId: number, options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: CategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const categories = await this.categoryRepository.findMany({
                 userId: { operator: Operator.EQUAL, value: userId }
@@ -149,7 +144,7 @@ export class CategoryService {
      * @param data - Partial category data to update.
      * @returns Updated category record.
      */
-    async updateCategory(id: number, data: Partial<InsertCategory>): Promise<{ success: true; data: SelectCategory } | { success: false; error: Resource }> {
+    async updateCategory(id: number, data: UpdateCategoryInput): Promise<{ success: true; data: CategoryEntity } | { success: false; error: Resource }> {
         if (data.userId !== undefined) {
             const userService = new UserService();
             const user = await userService.getUserById(data.userId);

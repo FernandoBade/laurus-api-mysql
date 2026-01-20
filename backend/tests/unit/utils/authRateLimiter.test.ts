@@ -1,6 +1,6 @@
-import { HTTPStatus } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { HTTPStatus } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 import {
     clearRateLimitState,
     rateLimitLogin,
@@ -33,7 +33,7 @@ describe('auth rate limiter', () => {
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: ResourceBase.translate(Resource.TOO_MANY_REQUESTS, 'en-US'),
+                message: translateResource(Resource.TOO_MANY_REQUESTS, 'en-US'),
             })
         );
         expect(next).not.toHaveBeenCalled();

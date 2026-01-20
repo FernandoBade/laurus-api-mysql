@@ -1,9 +1,10 @@
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 import { AccountRepository } from '../repositories/accountRepository';
 import { UserService } from './userService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectAccount, InsertAccount } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import type { AccountEntity, CreateAccountInput, UpdateAccountInput } from '../../../shared/domains/account/account.types';
 
 /**
  * Service for account business logic.
@@ -24,15 +25,7 @@ export class AccountService {
      * @param data - Account creation data.
      * @returns The created account record.
      */
-    async createAccount(data: {
-        name: string;
-        institution: string;
-        type: string;
-        observation?: string;
-        balance?: number | string;
-        userId: number;
-        active?: boolean;
-    }): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+    async createAccount(data: CreateAccountInput): Promise<{ success: true; data: AccountEntity } | { success: false; error: Resource }> {
         const userService = new UserService();
         const user = await userService.getUserById(data.userId);
 
@@ -63,7 +56,7 @@ export class AccountService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all account records.
      */
-    async getAccounts(options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: SelectAccount[] } | { success: false; error: Resource }> {
+    async getAccounts(options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: AccountEntity[] } | { success: false; error: Resource }> {
         try {
             const accounts = await this.accountRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -99,7 +92,7 @@ export class AccountService {
      * @param id - ID of the account.
      * @returns Account record if found.
      */
-    async getAccountById(id: number): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+    async getAccountById(id: number): Promise<{ success: true; data: AccountEntity } | { success: false; error: Resource }> {
         const account = await this.accountRepository.findById(id);
         if (!account) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
@@ -114,7 +107,7 @@ export class AccountService {
      * @param userId - ID of the user.
      * @returns A list of accounts owned by the user.
      */
-    async getAccountsByUser(userId: number, options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: SelectAccount[] } | { success: false; error: Resource }> {
+    async getAccountsByUser(userId: number, options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: AccountEntity[] } | { success: false; error: Resource }> {
         try {
             const accounts = await this.accountRepository.findMany({
                 userId: { operator: Operator.EQUAL, value: userId }
@@ -157,7 +150,7 @@ export class AccountService {
      * @param data - Partial account data to update.
      * @returns Updated account record.
      */
-    async updateAccount(id: number, data: Partial<Omit<InsertAccount, 'balance'>> & { balance?: number | string }): Promise<{ success: true; data: SelectAccount } | { success: false; error: Resource }> {
+    async updateAccount(id: number, data: UpdateAccountInput): Promise<{ success: true; data: AccountEntity } | { success: false; error: Resource }> {
         if (data.userId !== undefined) {
             const userService = new UserService();
             const user = await userService.getUserById(data.userId);

@@ -1,7 +1,7 @@
 import { eq, and, inArray, between, desc, asc, SQL, or, gte, lte } from 'drizzle-orm';
 import { db } from '../db';
 import { transactions, transactionTags, SelectTransaction, InsertTransaction } from '../db/schema';
-import { Operator } from '../utils/enum';
+import { Operator, TransactionSource, TransactionType } from '../../../shared/enums';
 
 /**
  * Repository for transaction database operations.
@@ -35,8 +35,8 @@ export class TransactionRepository {
             categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             tagIds?: { operator: Operator.IN; value: number[] };
-            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
-            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
+            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: TransactionType | TransactionType[] };
+            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: TransactionSource | TransactionSource[] };
             active?: { operator: Operator.EQUAL; value: boolean };
             date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
         },
@@ -52,17 +52,19 @@ export class TransactionRepository {
 
         const conditions: SQL[] = [];
         if (filters?.transactionType) {
-            if (filters.transactionType.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.transactionType, filters.transactionType.value as string));
-            } else if (Array.isArray(filters.transactionType.value)) {
-                conditions.push(inArray(transactions.transactionType, filters.transactionType.value as string[]));
+            const typeValue = filters.transactionType.value;
+            if (filters.transactionType.operator === Operator.EQUAL && !Array.isArray(typeValue)) {
+                conditions.push(eq(transactions.transactionType, typeValue));
+            } else if (Array.isArray(typeValue)) {
+                conditions.push(inArray(transactions.transactionType, typeValue));
             }
         }
         if (filters?.transactionSource) {
-            if (filters.transactionSource.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.transactionSource, filters.transactionSource.value as string));
-            } else if (Array.isArray(filters.transactionSource.value)) {
-                conditions.push(inArray(transactions.transactionSource, filters.transactionSource.value as string[]));
+            const sourceValue = filters.transactionSource.value;
+            if (filters.transactionSource.operator === Operator.EQUAL && !Array.isArray(sourceValue)) {
+                conditions.push(eq(transactions.transactionSource, sourceValue));
+            } else if (Array.isArray(sourceValue)) {
+                conditions.push(inArray(transactions.transactionSource, sourceValue));
             }
         }
         let accountCondition: SQL | undefined;
@@ -168,8 +170,8 @@ export class TransactionRepository {
             categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
             tagIds?: { operator: Operator.IN; value: number[] };
-            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
-            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: string | string[] };
+            transactionType?: { operator: Operator.EQUAL | Operator.IN; value: TransactionType | TransactionType[] };
+            transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: TransactionSource | TransactionSource[] };
             active?: { operator: Operator.EQUAL; value: boolean };
             date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
         },
@@ -179,17 +181,19 @@ export class TransactionRepository {
 
         const conditions: SQL[] = [];
         if (filters?.transactionType) {
-            if (filters.transactionType.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.transactionType, filters.transactionType.value as string));
-            } else if (Array.isArray(filters.transactionType.value)) {
-                conditions.push(inArray(transactions.transactionType, filters.transactionType.value as string[]));
+            const typeValue = filters.transactionType.value;
+            if (filters.transactionType.operator === Operator.EQUAL && !Array.isArray(typeValue)) {
+                conditions.push(eq(transactions.transactionType, typeValue));
+            } else if (Array.isArray(typeValue)) {
+                conditions.push(inArray(transactions.transactionType, typeValue));
             }
         }
         if (filters?.transactionSource) {
-            if (filters.transactionSource.operator === Operator.EQUAL) {
-                conditions.push(eq(transactions.transactionSource, filters.transactionSource.value as string));
-            } else if (Array.isArray(filters.transactionSource.value)) {
-                conditions.push(inArray(transactions.transactionSource, filters.transactionSource.value as string[]));
+            const sourceValue = filters.transactionSource.value;
+            if (filters.transactionSource.operator === Operator.EQUAL && !Array.isArray(sourceValue)) {
+                conditions.push(eq(transactions.transactionSource, sourceValue));
+            } else if (Array.isArray(sourceValue)) {
+                conditions.push(inArray(transactions.transactionSource, sourceValue));
             }
         }
         let accountCondition: SQL | undefined;

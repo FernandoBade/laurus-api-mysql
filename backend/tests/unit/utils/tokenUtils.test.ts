@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
 import { PERSISTED_TOKEN_EXPIRES_IN } from '../../../src/utils/auth/tokenConfig';
 
 jest.mock('jsonwebtoken', () => ({

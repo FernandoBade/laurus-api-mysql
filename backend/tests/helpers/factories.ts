@@ -1,6 +1,6 @@
 import { SelectUser, SelectAccount } from '../../src/db/schema';
-import { AccountType, Currency, DateFormat, Language, Profile, Theme, TransactionType, TransactionSource } from '../../src/utils/enum';
-import { SanitizedUser } from '../../src/service/userService';
+import { AccountType, Currency, DateFormat, Language, Profile, Theme, TransactionType, TransactionSource } from '../../../shared/enums';
+import type { SanitizedUser } from '../../../shared/domains/user/user.types';
 
 /**
  * @summary Builds a complete SelectUser object with sensible defaults for tests.

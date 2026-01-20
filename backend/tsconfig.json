@@ -7,10 +7,11 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": "..",
+        "rootDirs": [ "./src", "../shared" ],
         "typeRoots": [ "./node_modules/@types", "src/@types" ],
         "allowSyntheticDefaultImports": true
     },
-    "include": [ "src/**/*", "src/@types" ],
+    "include": [ "src/**/*", "src/@types", "../shared/**/*" ],
     "exclude": [ "node_modules" ],
 }

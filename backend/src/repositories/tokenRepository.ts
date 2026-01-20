@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { tokens, SelectToken, InsertToken } from '../db/schema';
-import { Operator, TokenType } from '../utils/enum';
+import { Operator, TokenType } from '../../../shared/enums';
 
 /**
  * Repository for token database operations.

@@ -1,7 +1,7 @@
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-import { Resource } from '../../../src/utils/resources/resource';
+import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 jest.mock('winston', () => ({
     createLogger: jest.fn(),
@@ -127,7 +127,7 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
-            expect(response.message).toBe(ResourceBase.translate(Resource.INVALID_TYPE, 'pt-BR'));
+            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, 'pt-BR'));
             expect(response.error).toEqual({ reason: 'x' });
             expect(typeof response.elapsedTime).toBe('number');
         });
@@ -216,7 +216,7 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
-            expect(response.message).toBe(ResourceBase.translate(Resource.INVALID_TYPE, 'en-US'));
+            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, 'en-US'));
             expect(response.error).toEqual(expect.objectContaining({ message: 'boom', name: 'Error' }));
             expect(typeof response.elapsedTime).toBe('number');
         });

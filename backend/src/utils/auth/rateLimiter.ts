@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { answerAPI } from '../commons';
-import { HTTPStatus } from '../enum';
-import { Resource } from '../resources/resource';
+import { HTTPStatus } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;

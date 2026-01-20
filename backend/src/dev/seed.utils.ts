@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { SeedConfig } from './seed.config';
 
 export type SeedRegistry = {

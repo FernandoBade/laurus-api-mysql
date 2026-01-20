@@ -2,11 +2,11 @@ import bcrypt from 'bcrypt';
 import { UserService } from '../../../src/service/userService';
 import { UserRepository } from '../../../src/repositories/userRepository';
 import { TokenService } from '../../../src/service/tokenService';
-import { Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { makeCreateUserInput, makeUser } from '../../helpers/factories';
 import { sendEmailVerificationEmail } from '../../../src/utils/email/authEmail';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const ftpClientMock = {
     access: jest.fn(),
@@ -38,7 +38,7 @@ const hashMock = bcrypt.hash as jest.MockedFunction<HashFn>;
 const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 describe('UserService', () => {

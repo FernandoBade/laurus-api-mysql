@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { FeedbackService } from '../service/feedbackService';
 import { UserService } from '../service/userService';
 import { answerAPI, createLog, formatError } from '../utils/commons';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
+import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../shared/enums';
 import { validateFeedbackRequest } from '../utils/validation/validateRequest';
 import { createValidationError, ValidationError } from '../utils/validation/errors';
-import { Resource } from '../utils/resources/resource';
-import { ResourceBase } from '../utils/resources/languages/resourceService';
-import type { LanguageCode } from '../utils/resources/resourceTypes';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
+import type { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import type { FeedbackAttachmentInput } from '../utils/email/feedbackEmail';
+import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 
 const ALLOWED_IMAGE_TYPES = new Set([
     'image/jpeg',
@@ -38,7 +38,7 @@ const validateAttachmentTypes = (
         errors.push(
             createValidationError(
                 'image',
-                ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'image',
                     expected: 'image/png or image/jpeg',
                     received: imageFile.mimetype,
@@ -51,7 +51,7 @@ const validateAttachmentTypes = (
         errors.push(
             createValidationError(
                 'audio',
-                ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'audio',
                     expected: 'audio/webm, audio/ogg, audio/mpeg, audio/mp4',
                     received: audioFile.mimetype,

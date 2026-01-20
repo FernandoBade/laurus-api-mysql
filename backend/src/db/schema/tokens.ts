@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, mysqlEnum, index } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { TokenType } from '../../utils/enum';
+import { TokenType } from '../../../../shared/enums';
 
 /**
  * Tokens table schema.
@@ -9,7 +9,7 @@ import { TokenType } from '../../utils/enum';
 export const tokens = mysqlTable('token', {
     id: int('id').primaryKey().autoincrement(),
     userId: int('user_id').notNull(),
-    type: mysqlEnum('type', Object.values(TokenType) as [string, ...string[]]).notNull(),
+    type: mysqlEnum('type', Object.values(TokenType) as [TokenType, ...TokenType[]]).notNull(),
     tokenHash: varchar('token_hash', { length: 64 }).unique().notNull(),
     sessionId: varchar('session_id', { length: 64 }),
     sessionExpiresAt: timestamp('session_expires_at'),

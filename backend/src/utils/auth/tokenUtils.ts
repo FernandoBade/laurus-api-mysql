@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { createLog } from '../commons';
-import { LogCategory, LogType, LogOperation } from '../enum';
+import { LogCategory, LogType, LogOperation } from '../../../../shared/enums';
 import { PERSISTED_TOKEN_EXPIRES_IN } from './tokenConfig';
 
 dotenv.config();

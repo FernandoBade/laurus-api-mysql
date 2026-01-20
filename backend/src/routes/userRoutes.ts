@@ -1,13 +1,13 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import { LogType, LogOperation, LogCategory, HTTPStatus } from '../utils/enum';
+import { LogType, LogOperation, LogCategory, HTTPStatus } from '../../../shared/enums';
 import { answerAPI, createLog, formatError } from '../utils/commons';
 import { verifyToken } from '../utils/auth/verifyToken';
 import UserController from '../controller/userController';
-import { Resource } from '../utils/resources/resource';
-import { ResourceBase } from '../utils/resources/languages/resourceService';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { createValidationError } from '../utils/validation/errors';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
+import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 
 const router = Router();
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -23,7 +23,7 @@ const handleAvatarUpload = (req: Request, res: Response, next: NextFunction) => 
         if (error instanceof multer.MulterError) {
             if (error.code === 'LIMIT_FILE_SIZE') {
                 const errors = [
-                    createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                    createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                         path: 'avatar',
                         expected: 'file size <= 2MB',
                         received: 'exceeds limit',
@@ -33,7 +33,7 @@ const handleAvatarUpload = (req: Request, res: Response, next: NextFunction) => 
             }
 
             const errors = [
-                createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'avatar',
                     expected: 'avatar file',
                     received: error.field ?? error.code,

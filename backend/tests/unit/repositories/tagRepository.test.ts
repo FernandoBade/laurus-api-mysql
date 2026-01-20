@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { TagRepository } from '../../../src/repositories/tagRepository';
 import { db } from '../../../src/db';
 import { tags, SelectTag } from '../../../src/db/schema';
-import { Operator } from '../../../src/utils/enum';
+import { Operator } from '../../../../shared/enums';
 
 const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
     const now = new Date('2024-01-01T00:00:00Z');

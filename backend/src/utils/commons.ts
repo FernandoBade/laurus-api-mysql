@@ -1,9 +1,9 @@
+import { translateResource } from '../../../shared/i18n/resource.utils';
 // #region Imports
-import { HTTPStatus, LogType, LogOperation, LogCategory } from './enum';
+import { HTTPStatus, LogType, LogOperation, LogCategory } from '../../../shared/enums';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
-import { ResourceBase } from './resources/languages/resourceService';
-import { Resource } from './resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 // #endregion Imports
 
 // #region Logger Configuration
@@ -71,11 +71,12 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * @param ignoreKeys - Optional list of extra keys to remove.
  * @returns Sanitized log detail without timestamp fields.
  */
-export function sanitizeLogDetail<T extends Record<string, unknown>>(detail: T, ignoreKeys: string[] = []): Record<string, unknown> {
+export function sanitizeLogDetail<T extends object>(detail: T, ignoreKeys: string[] = []): Record<string, unknown> {
     const ignored = new Set([...LOG_DETAIL_IGNORED_FIELDS, ...ignoreKeys]);
-    return Object.keys(detail).reduce((acc, key) => {
+    const payload = detail as Record<string, unknown>;
+    return Object.keys(payload).reduce((acc, key) => {
         if (!ignored.has(key)) {
-            acc[key] = detail[key];
+            acc[key] = payload[key];
         }
         return acc;
     }, {} as Record<string, unknown>);
@@ -112,7 +113,7 @@ function areLogValuesEqual(left: unknown, right: unknown): boolean {
  * @param ignoreKeys - Optional list of keys to exclude from the delta.
  * @returns Object containing only changed fields with from/to values.
  */
-export function buildLogDelta<T extends Record<string, unknown>>(
+export function buildLogDelta<T extends object>(
     before: T,
     after: T,
     ignoreKeys: string[] = []
@@ -190,7 +191,7 @@ export function answerAPI(
 
     const response: any = {
         success,
-        ...(resource && { message: ResourceBase.translate(resource, language) })
+        ...(resource && { message: translateResource(resource, language) })
     };
 
     if (data !== undefined) {
@@ -284,7 +285,7 @@ export function sendErrorResponse(
     const language = req.language ?? 'pt-BR';
     return res.status(status).json({
         success: false,
-        message: ResourceBase.translate(resource, language),
+        message: translateResource(resource, language),
         ...(error ? { error: formatError(error) } : {}),
         elapsedTime: getDurationMs(res)
 

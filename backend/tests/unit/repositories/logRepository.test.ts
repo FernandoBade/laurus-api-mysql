@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { LogRepository } from '../../../src/repositories/logRepository';
 import { db } from '../../../src/db';
 import { logs, SelectLog } from '../../../src/db/schema';
-import { LogCategory, LogOperation, LogType, Operator } from '../../../src/utils/enum';
+import { LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {
     const now = new Date('2024-01-01T00:00:00Z');

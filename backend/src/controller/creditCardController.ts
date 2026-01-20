@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { CreditCardService } from '../service/creditCardService';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { validateCreateCreditCard, validateUpdateCreditCard } from '../utils/validation/validateRequest';
-import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
-import { Resource } from '../utils/resources/resource';
+import { LogCategory, HTTPStatus, LogOperation, LogType } from '../../../shared/enums';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { parsePagination, buildMeta } from '../utils/pagination';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
 /** @summary Handles HTTP requests for credit card resources. */
 class CreditCardController {

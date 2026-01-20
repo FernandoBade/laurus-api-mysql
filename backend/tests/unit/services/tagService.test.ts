@@ -1,13 +1,13 @@
 import { TagService } from '../../../src/service/tagService';
 import { TagRepository } from '../../../src/repositories/tagRepository';
 import { UserService } from '../../../src/service/userService';
-import { Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectTag } from '../../../src/db/schema';
 import { makeUser } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {

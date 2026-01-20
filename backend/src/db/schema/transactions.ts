@@ -1,6 +1,6 @@
 import { mysqlTable, int, decimal, date, text, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { TransactionType, TransactionSource } from '../../utils/enum';
+import { TransactionType, TransactionSource } from '../../../../shared/enums';
 
 /**
  * Transactions table schema.
@@ -10,9 +10,9 @@ export const transactions = mysqlTable('transaction', {
     id: int('id').primaryKey().autoincrement(),
     value: decimal('value', { precision: 10, scale: 2 }).notNull(),
     date: date('date').notNull(),
-    transactionType: mysqlEnum('transactionType', Object.values(TransactionType) as [string, ...string[]]).notNull(),
+    transactionType: mysqlEnum('transactionType', Object.values(TransactionType) as [TransactionType, ...TransactionType[]]).notNull(),
     observation: text('observation'),
-    transactionSource: mysqlEnum('transactionSource', Object.values(TransactionSource) as [string, ...string[]]).notNull(),
+    transactionSource: mysqlEnum('transactionSource', Object.values(TransactionSource) as [TransactionSource, ...TransactionSource[]]).notNull(),
     isInstallment: boolean('isInstallment').default(false).notNull(),
     totalMonths: int('totalMonths'),
     isRecurring: boolean('isRecurring').default(false).notNull(),

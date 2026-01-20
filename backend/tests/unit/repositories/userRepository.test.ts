@@ -2,7 +2,7 @@ import { and, asc, desc, eq, like } from 'drizzle-orm';
 import { UserRepository } from '../../../src/repositories/userRepository';
 import { db } from '../../../src/db';
 import { users } from '../../../src/db/schema';
-import { Operator } from '../../../src/utils/enum';
+import { Operator } from '../../../../shared/enums';
 import { makeUser } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {

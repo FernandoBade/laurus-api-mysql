@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { TokenRepository } from '../repositories/tokenRepository';
 import { SelectToken, InsertToken, tokens } from '../db/schema';
-import { Resource } from '../utils/resources/resource';
-import { LogCategory, LogOperation, LogType, TokenType } from '../utils/enum';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
+import { LogCategory, LogOperation, LogType, TokenType } from '../../../shared/enums';
 import { db } from '../db';
 import { lt } from 'drizzle-orm';
 import { createLog } from '../utils/commons';

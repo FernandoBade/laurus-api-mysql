@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { CreditCardRepository } from '../../../src/repositories/creditCardRepository';
 import { db } from '../../../src/db';
 import { creditCards, SelectCreditCard } from '../../../src/db/schema';
-import { CreditCardFlag, Operator } from '../../../src/utils/enum';
+import { CreditCardFlag, Operator } from '../../../../shared/enums';
 
 const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCreditCard => {
     const now = new Date('2024-01-01T00:00:00Z');

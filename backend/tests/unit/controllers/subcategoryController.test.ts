@@ -1,10 +1,10 @@
 import SubcategoryController from '../../../src/controller/subcategoryController';
 import { SubcategoryService } from '../../../src/service/subcategoryService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 999 };
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
@@ -54,7 +54,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+          message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -85,7 +85,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.CATEGORY_NOT_FOUND, 'en-US'),
+          message: translateResource(Resource.CATEGORY_NOT_FOUND, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -136,7 +136,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -198,7 +198,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -219,7 +219,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -238,7 +238,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -267,7 +267,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INVALID_CATEGORY_ID, 'en-US'),
+          message: translateResource(Resource.INVALID_CATEGORY_ID, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -318,7 +318,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -337,7 +337,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -366,7 +366,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INVALID_SUBCATEGORY_ID, 'en-US'),
+          message: translateResource(Resource.INVALID_SUBCATEGORY_ID, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -384,7 +384,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US'),
+          message: translateResource(Resource.NO_RECORDS_FOUND, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -417,7 +417,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -446,7 +446,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US'),
+          message: translateResource(Resource.INVALID_USER_ID, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -497,7 +497,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -516,7 +516,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -543,7 +543,7 @@ describe('SubcategoryController', () => {
       expect(getSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_SUBCATEGORY_ID, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_SUBCATEGORY_ID, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -558,7 +558,7 @@ describe('SubcategoryController', () => {
 
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.NO_RECORDS_FOUND, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -576,7 +576,7 @@ describe('SubcategoryController', () => {
       expect(updateSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.VALIDATION_ERROR, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -593,7 +593,7 @@ describe('SubcategoryController', () => {
 
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.USER_NOT_FOUND, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -636,7 +636,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -663,7 +663,7 @@ describe('SubcategoryController', () => {
       expect(deleteSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_SUBCATEGORY_ID, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_SUBCATEGORY_ID, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -679,7 +679,7 @@ describe('SubcategoryController', () => {
 
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.SUBCATEGORY_NOT_FOUND, 'en-US') })
+        expect.objectContaining({ success: false, message: translateResource(Resource.SUBCATEGORY_NOT_FOUND, 'en-US') })
       );
       expect(logSpy).not.toHaveBeenCalled();
     });
@@ -725,7 +725,7 @@ describe('SubcategoryController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(

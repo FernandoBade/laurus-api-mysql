@@ -1,7 +1,7 @@
-import { LogType, LogOperation, LogCategory, Operator } from '../utils/enum';
+import { LogType, LogOperation, LogCategory, Operator } from '../../../shared/enums';
 import { LogRepository } from '../repositories/logRepository';
 import { UserRepository } from '../repositories/userRepository';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectLog, InsertLog } from '../db/schema';
 import { createLog } from '../utils/commons';
 import { db } from '../db';

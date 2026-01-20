@@ -1,11 +1,11 @@
 import UserController from '../../../src/controller/userController';
 import { UserService } from '../../../src/service/userService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeCreateUserInput, makeSanitizedUser, makeUser } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 describe('UserController', () => {
   let logSpy: jest.SpyInstance;
@@ -41,7 +41,7 @@ describe('UserController', () => {
         expect.objectContaining({
           success: true,
           data: sanitized,
-          message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_REQUIRED, 'en-US'),
+          message: translateResource(Resource.EMAIL_VERIFICATION_REQUIRED, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -69,7 +69,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+          message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
           error: expect.arrayContaining([
             expect.objectContaining({ property: 'firstName', error: 'First name must be at least 2 characters.' }),
             expect.objectContaining({ property: 'lastName', error: 'Last name must be at least 2 characters.' }),
@@ -97,7 +97,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.EMAIL_IN_USE, 'en-US'),
+          message: translateResource(Resource.EMAIL_IN_USE, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
+          message: translateResource(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
           error: expect.objectContaining({
             code: Resource.EMAIL_NOT_VERIFIED,
             email: 'user@example.com',
@@ -183,7 +183,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -205,7 +205,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -226,7 +226,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US'),
+          message: translateResource(Resource.INVALID_USER_ID, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -244,7 +244,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US'),
+          message: translateResource(Resource.USER_NOT_FOUND, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -279,7 +279,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).toHaveBeenCalledWith(
@@ -308,7 +308,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.SEARCH_TERM_TOO_SHORT, 'en-US'),
+          message: translateResource(Resource.SEARCH_TERM_TOO_SHORT, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -361,7 +361,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+          message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -379,7 +379,7 @@ describe('UserController', () => {
 
       expect(findOneSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US') }));
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_USER_ID, 'en-US') }));
       expect(logSpy).not.toHaveBeenCalled();
     });
 
@@ -392,7 +392,7 @@ describe('UserController', () => {
       await UserController.updateUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US') }));
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: translateResource(Resource.USER_NOT_FOUND, 'en-US') }));
       expect(logSpy).not.toHaveBeenCalled();
     });
 
@@ -410,7 +410,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+          message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
         })
       );
       expect(logSpy).not.toHaveBeenCalled();
@@ -456,7 +456,7 @@ describe('UserController', () => {
 
       expect(deleteSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US') }));
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_USER_ID, 'en-US') }));
       expect(logSpy).not.toHaveBeenCalled();
     });
 
@@ -470,7 +470,7 @@ describe('UserController', () => {
       await UserController.deleteUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.USER_NOT_FOUND, 'en-US') }));
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: translateResource(Resource.USER_NOT_FOUND, 'en-US') }));
       expect(logSpy).not.toHaveBeenCalled();
     });
 
@@ -512,7 +512,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+          message: translateResource(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
         })
       );
     });
@@ -530,7 +530,7 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+          message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
           error: expect.arrayContaining([
             expect.objectContaining({ property: 'avatar' }),
           ]),

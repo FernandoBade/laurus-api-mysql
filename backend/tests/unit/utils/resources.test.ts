@@ -1,36 +1,35 @@
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-import { Resource } from '../../../src/utils/resources/resource';
-import esES from '../../../src/utils/resources/languages/es-ES';
-import { LanguageCode } from '../../../src/utils/resources/resourceTypes';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import type { LanguageCode } from '../../../../shared/i18n/resourceTypes';
+import { translateResource, translateResourceWithParams } from '../../../../shared/i18n/resource.utils';
 
-describe('ResourceBase.translate', () => {
-    afterEach(() => {
-        ResourceBase.addLanguage('es-ES', esES);
-    });
+describe('resource.utils', () => {
 
     it('returns a value for each supported language', () => {
         const languages: LanguageCode[] = ['en-US', 'pt-BR', 'es-ES'];
 
         languages.forEach((lang) => {
-            const result = ResourceBase.translate(Resource.VALIDATION_ERROR, lang);
+            const result = translateResource(Resource.VALIDATION_ERROR, lang);
             expect(typeof result).toBe('string');
             expect(result.length).toBeGreaterThan(0);
         });
     });
 
     it('falls back to default language for unknown language codes', () => {
-        const fallback = ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US');
-        const result = ResourceBase.translate(Resource.VALIDATION_ERROR, 'fr-FR' as LanguageCode);
+        const fallback = translateResource(Resource.VALIDATION_ERROR, 'en-US');
+        const result = translateResource(Resource.VALIDATION_ERROR, 'fr-FR' as LanguageCode);
 
         expect(result).toBe(fallback);
     });
 
-    it('falls back to default language when key is missing', () => {
-        ResourceBase.addLanguage('es-ES', { [Resource.VALIDATION_ERROR]: 'x' } as any);
+    it('replaces params in translated messages', () => {
+        const result = translateResourceWithParams(Resource.INVALID_TYPE, 'en-US', {
+            path: 'amount',
+            expected: 'number',
+            received: 'text',
+        });
 
-        const fallback = ResourceBase.translate(Resource.EMAIL_INVALID, 'en-US');
-        const result = ResourceBase.translate(Resource.EMAIL_INVALID, 'es-ES');
-
-        expect(result).toBe(fallback);
+        expect(result).toContain('amount');
+        expect(result).toContain('number');
+        expect(result).toContain('text');
     });
 });

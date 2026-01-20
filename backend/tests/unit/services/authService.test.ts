@@ -3,15 +3,15 @@ import crypto from 'crypto';
 import { AuthService } from '../../../src/service/authService';
 import { TokenService } from '../../../src/service/tokenService';
 import { UserService } from '../../../src/service/userService';
-import { LogCategory, LogOperation, LogType, TokenType } from '../../../src/utils/enum';
+import { LogCategory, LogOperation, LogType, TokenType } from '../../../../shared/enums';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
 import { PERSISTED_TOKEN_TTL_DAYS, SESSION_TTL_DAYS } from '../../../src/utils/auth/tokenConfig';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectToken } from '../../../src/db/schema';
 import * as commons from '../../../src/utils/commons';
 import { makeSanitizedUser, makeUser } from '../../helpers/factories';
 import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../../../src/utils/email/authEmail';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn(),
@@ -29,7 +29,7 @@ type CompareFn = (data: string | Buffer, encrypted: string) => Promise<boolean>;
 const hashMock = bcrypt.hash as jest.MockedFunction<HashFn>;
 const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 const SESSION_ID = '00000000-0000-4000-8000-000000000000';
 const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;

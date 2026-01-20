@@ -1,3 +1,4 @@
+import { translateResource, translateResourceWithParams } from '../../../../shared/i18n/resource.utils';
 import {
     validateCreateUser,
     validateUpdateUser,
@@ -26,8 +27,7 @@ import {
     isValidEmail,
     hasMinLength,
 } from '../../../src/utils/validation/guards';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-import { Resource } from '../../../src/utils/resources/resource';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import {
     AccountType,
     CategoryColor,
@@ -40,10 +40,10 @@ import {
     Theme,
     TransactionSource,
     TransactionType,
-} from '../../../src/utils/enum';
+} from '../../../../shared/enums';
 
 const lang = 'en-US' as const;
-const t = (resource: Resource) => ResourceBase.translate(resource, lang);
+const t = (resource: Resource) => translateResource(resource, lang);
 
 describe('validation errors', () => {
     it('creates validation error objects', () => {
@@ -385,7 +385,7 @@ describe('validateRequest', () => {
             if (result.success) return;
             expect(result.errors).toEqual(
                 expect.arrayContaining([
-                    createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                    createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                         path: 'name',
                         min: 1
                     })),
@@ -537,11 +537,11 @@ describe('validateRequest', () => {
             expect(result.success).toBe(false);
             if (result.success) return;
             expect(result.errors).toEqual([
-                createValidationError('title', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                createValidationError('title', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'title',
                     min: 1
                 })),
-                createValidationError('message', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+                createValidationError('message', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'message',
                     min: 1
                 })),

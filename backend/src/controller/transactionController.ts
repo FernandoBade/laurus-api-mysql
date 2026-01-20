@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../service/transactionService';
 import { validateCreateTransaction, validateUpdateTransaction } from '../utils/validation/validateRequest';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../utils/enum';
-import { Resource } from '../utils/resources/resource';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../../../shared/enums';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 // #endregion Imports
 
@@ -303,7 +303,6 @@ class TransactionController {
 
             const updated = await transactionService.updateTransaction(id, {
                 ...parseResult.data,
-                value: parseResult.data.value !== undefined ? parseResult.data.value.toString() : undefined,
             });
             if (!updated.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, updated.error);

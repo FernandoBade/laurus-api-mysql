@@ -1,5 +1,5 @@
-import { AccountType, CategoryColor, CategoryType, CreditCardFlag, Currency, DateFormat, Language, Profile, Theme } from '../utils/enum';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { AccountType, CategoryColor, CategoryType, CreditCardFlag, Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
 export type AccountTemplate = {
     name: string;

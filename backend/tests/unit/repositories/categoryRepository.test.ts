@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { CategoryRepository } from '../../../src/repositories/categoryRepository';
 import { db } from '../../../src/db';
 import { categories, SelectCategory } from '../../../src/db/schema';
-import { CategoryColor, CategoryType, Operator } from '../../../src/utils/enum';
+import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
 
 const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');

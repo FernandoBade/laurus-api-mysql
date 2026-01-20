@@ -15,9 +15,9 @@ import tagRoutes from './routes/tagRoutes';
 import feedbackRoutes from './routes/feedbackRoutes';
 
 import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
-import { LogCategory, LogOperation, LogType } from './utils/enum';
-import { LanguageCode } from './utils/resources/resourceTypes';
-import { Resource } from './utils/resources/resource';
+import { LogCategory, LogOperation, LogType } from '../../shared/enums';
+import { LanguageCode } from '../../shared/i18n/resourceTypes';
+import { ResourceKey as Resource } from '../../shared/i18n/resource.keys';
 
 // #endregion Imports
 

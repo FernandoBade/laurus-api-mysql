@@ -1,5 +1,5 @@
 import { buildMeta, parsePagination } from '../../../src/utils/pagination';
-import { Operator } from '../../../src/utils/enum';
+import { Operator } from '../../../../shared/enums';
 
 describe('pagination utils', () => {
     describe('parsePagination', () => {

@@ -1,11 +1,11 @@
 import TransactionController from '../../../src/controller/transactionController';
 import { TransactionService } from '../../../src/service/transactionService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeTransaction, makeTransactionInput } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 999 };
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
@@ -37,7 +37,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+                    message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.ACCOUNT_NOT_FOUND, 'en-US'),
+                    message: translateResource(Resource.ACCOUNT_NOT_FOUND, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -192,7 +192,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -213,7 +213,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -261,7 +261,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INVALID_TRANSACTION_ID, 'en-US'),
+                    message: translateResource(Resource.INVALID_TRANSACTION_ID, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -279,7 +279,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US'),
+                    message: translateResource(Resource.NO_RECORDS_FOUND, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -312,7 +312,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -341,7 +341,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INVALID_ACCOUNT_ID, 'en-US'),
+                    message: translateResource(Resource.INVALID_ACCOUNT_ID, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -393,7 +393,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -414,7 +414,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -433,7 +433,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -462,7 +462,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INVALID_USER_ID, 'en-US'),
+                    message: translateResource(Resource.INVALID_USER_ID, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -513,7 +513,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.ACCOUNT_NOT_FOUND, 'en-US'),
+                    message: translateResource(Resource.ACCOUNT_NOT_FOUND, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -534,7 +534,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -553,7 +553,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -580,7 +580,7 @@ describe('TransactionController', () => {
             expect(getSpy).not.toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TRANSACTION_ID, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_TRANSACTION_ID, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -595,7 +595,7 @@ describe('TransactionController', () => {
 
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.NO_RECORDS_FOUND, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.NO_RECORDS_FOUND, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -613,7 +613,7 @@ describe('TransactionController', () => {
             expect(updateSpy).not.toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.VALIDATION_ERROR, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -633,7 +633,7 @@ describe('TransactionController', () => {
 
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.ACCOUNT_NOT_FOUND, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.ACCOUNT_NOT_FOUND, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -654,7 +654,7 @@ describe('TransactionController', () => {
             await TransactionController.updateTransaction(req, res, next);
 
             expect(TransactionService.prototype.updateTransaction).toHaveBeenCalledWith(11, expect.objectContaining({
-                value: '200',
+                value: 200,
                 accountId: existing.accountId,
                 transactionSource: TransactionSource.ACCOUNT,
                 transactionType: TransactionType.EXPENSE,
@@ -689,7 +689,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -716,7 +716,7 @@ describe('TransactionController', () => {
             expect(deleteSpy).not.toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.INVALID_TRANSACTION_ID, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.INVALID_TRANSACTION_ID, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -732,7 +732,7 @@ describe('TransactionController', () => {
 
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: false, message: ResourceBase.translate(Resource.TRANSACTION_NOT_FOUND, 'en-US') })
+                expect.objectContaining({ success: false, message: translateResource(Resource.TRANSACTION_NOT_FOUND, 'en-US') })
             );
             expect(logSpy).not.toHaveBeenCalled();
         });
@@ -773,7 +773,7 @@ describe('TransactionController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(

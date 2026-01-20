@@ -7,14 +7,14 @@ import { AccountService } from '../../../src/service/accountService';
 import { CreditCardService } from '../../../src/service/creditCardService';
 import { CategoryService } from '../../../src/service/categoryService';
 import { SubcategoryService } from '../../../src/service/subcategoryService';
-import { CategoryColor, CategoryType, CreditCardFlag, Operator, TransactionSource, TransactionType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { CategoryColor, CategoryType, CreditCardFlag, Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCategory, SelectCreditCard, SelectSubcategory, transactionTags } from '../../../src/db/schema';
 import { makeAccount, makeTransaction, makeTransactionInput } from '../../helpers/factories';
 import * as database from '../../../src/db';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeConnection = () => ({

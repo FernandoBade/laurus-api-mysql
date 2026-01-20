@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
 import { createLog } from '../commons';
-import { LogCategory, LogOperation, LogType } from '../enum';
-import { ResourceBase } from '../resources/languages/resourceService';
-import { Resource } from '../resources/resource';
-import type { LanguageCode } from '../resources/resourceTypes';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import type { LanguageCode } from '../../../../shared/i18n/resourceTypes';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 export type FeedbackAttachmentInput = {
     filename: string;
@@ -38,12 +38,12 @@ const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 const buildFeedbackEmailContent = (language?: LanguageCode): FeedbackEmailContent => ({
-    subject: ResourceBase.translate(Resource.FEEDBACK_EMAIL_SUBJECT, language),
-    intro: ResourceBase.translate(Resource.FEEDBACK_EMAIL_INTRO, language),
-    titleLabel: ResourceBase.translate(Resource.FEEDBACK_EMAIL_TITLE_LABEL, language),
-    messageLabel: ResourceBase.translate(Resource.FEEDBACK_EMAIL_MESSAGE_LABEL, language),
-    userIdLabel: ResourceBase.translate(Resource.FEEDBACK_EMAIL_USER_ID_LABEL, language),
-    userEmailLabel: ResourceBase.translate(Resource.FEEDBACK_EMAIL_USER_EMAIL_LABEL, language),
+    subject: translateResource(Resource.FEEDBACK_EMAIL_SUBJECT, language),
+    intro: translateResource(Resource.FEEDBACK_EMAIL_INTRO, language),
+    titleLabel: translateResource(Resource.FEEDBACK_EMAIL_TITLE_LABEL, language),
+    messageLabel: translateResource(Resource.FEEDBACK_EMAIL_MESSAGE_LABEL, language),
+    userIdLabel: translateResource(Resource.FEEDBACK_EMAIL_USER_ID_LABEL, language),
+    userEmailLabel: translateResource(Resource.FEEDBACK_EMAIL_USER_EMAIL_LABEL, language),
 });
 
 const buildFeedbackEmailHtml = (

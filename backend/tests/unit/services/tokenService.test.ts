@@ -1,13 +1,13 @@
 import { TokenService } from '../../../src/service/tokenService';
 import { TokenRepository } from '../../../src/repositories/tokenRepository';
-import { LogCategory, LogOperation, LogType, TokenType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { LogCategory, LogOperation, LogType, TokenType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectToken, tokens } from '../../../src/db/schema';
 import { db } from '../../../src/db';
 import * as commons from '../../../src/utils/commons';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {

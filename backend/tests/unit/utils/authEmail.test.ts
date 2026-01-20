@@ -1,7 +1,6 @@
-import { LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
-
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 const originalEnv = { ...process.env };
 
 const setEnv = (overrides: Record<string, string | undefined>) => {
@@ -126,17 +125,17 @@ describe('authEmail utils', () => {
         expect(payload).toEqual(expect.objectContaining({
             from: 'no-reply@example.com',
             to: 'user@example.com',
-            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT),
+            subject: translateResource(Resource.EMAIL_VERIFICATION_SUBJECT),
         }));
 
         const html = payload.html as string;
-        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY));
-        expect(html).toContain(ResourceBase.translate(Resource.EMAIL_LINK_LABEL));
+        expect(html).toContain(translateResource(Resource.EMAIL_VERIFICATION_BODY));
+        expect(html).toContain(translateResource(Resource.EMAIL_LINK_LABEL));
         expect(html).toContain('https://app.example.com/verify-email?token=verify-token');
 
         const text = payload.text as string;
-        expect(text).toContain(ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY));
-        expect(text).toContain(ResourceBase.translate(Resource.EMAIL_LINK_LABEL));
+        expect(text).toContain(translateResource(Resource.EMAIL_VERIFICATION_BODY));
+        expect(text).toContain(translateResource(Resource.EMAIL_LINK_LABEL));
         expect(text).toContain('https://app.example.com/verify-email?token=verify-token');
     });
 
@@ -154,12 +153,12 @@ describe('authEmail utils', () => {
         expect(payload).toEqual(expect.objectContaining({
             from: 'no-reply@example.com',
             to: 'user@example.com',
-            subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT),
+            subject: translateResource(Resource.PASSWORD_RESET_SUBJECT),
         }));
 
         const html = payload.html as string;
-        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_BODY));
-        expect(html).toContain(ResourceBase.translate(Resource.PASSWORD_RESET_WARNING));
+        expect(html).toContain(translateResource(Resource.PASSWORD_RESET_BODY));
+        expect(html).toContain(translateResource(Resource.PASSWORD_RESET_WARNING));
         expect(html).toContain('https://app.example.com/reset-password?token=reset-token');
     });
 

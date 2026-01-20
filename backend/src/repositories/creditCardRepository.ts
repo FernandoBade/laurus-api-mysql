@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { creditCards, SelectCreditCard, InsertCreditCard } from '../db/schema';
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 
 /**
  * Repository for credit card database operations.

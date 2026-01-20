@@ -1,6 +1,6 @@
 import CreditCardController from '../../controller/creditCardController';
 import { SelectAccount, SelectCreditCard } from '../../db/schema';
-import { CreditCardFlag } from '../../utils/enum';
+import { CreditCardFlag } from '../../../../shared/enums';
 import { SeedContext, executeController, roundCurrency } from '../seed.utils';
 
 type CreditCardRequestBody = {

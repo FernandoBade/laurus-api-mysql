@@ -2,7 +2,7 @@ import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { TokenRepository } from '../../../src/repositories/tokenRepository';
 import { db } from '../../../src/db';
 import { tokens, SelectToken } from '../../../src/db/schema';
-import { Operator, TokenType } from '../../../src/utils/enum';
+import { Operator, TokenType } from '../../../../shared/enums';
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');

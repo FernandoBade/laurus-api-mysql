@@ -1,5 +1,5 @@
 import { eq, inArray } from 'drizzle-orm';
-import { TransactionSource, Operator, TransactionType } from '../utils/enum';
+import { TransactionSource, Operator, TransactionType } from '../../../shared/enums';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { AccountRepository } from '../repositories/accountRepository';
 import { CreditCardRepository } from '../repositories/creditCardRepository';
@@ -8,14 +8,12 @@ import { AccountService } from './accountService';
 import { CreditCardService } from './creditCardService';
 import { CategoryService } from './categoryService';
 import { SubcategoryService } from './subcategoryService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectTransaction, InsertTransaction, InsertAccount, InsertCreditCard, transactionTags } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 import { withTransaction, db } from '../db';
+import type { AccountTransactions, CreateTransactionInput, TransactionWithTags, UpdateTransactionInput } from '../../../shared/domains/transaction/transaction.types';
 
-export type TransactionWithTags = SelectTransaction & { tags: number[] };
-export type TransactionRow = TransactionWithTags;
-type AccountTransactions = { accountId: number; transactions: TransactionRow[] | undefined };
 type TransactionFilters = {
     accountId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
     creditCardId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
@@ -198,23 +196,7 @@ export class TransactionService {
      * @param data - Transaction creation data.
      * @returns The created transaction record.
      */
-    async createTransaction(data: {
-        value: number;
-        date: Date;
-        categoryId?: number;
-        subcategoryId?: number;
-        observation?: string;
-        transactionType: TransactionType;
-        transactionSource: TransactionSource;
-        isInstallment: boolean;
-        totalMonths?: number;
-        isRecurring: boolean;
-        paymentDay?: number;
-        accountId?: number;
-        creditCardId?: number;
-        tags?: number[];
-        active?: boolean;
-    }): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
+    async createTransaction(data: CreateTransactionInput): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         let ownerUserId: number | undefined;
 
         if (data.transactionSource === TransactionSource.ACCOUNT) {
@@ -465,13 +447,16 @@ export class TransactionService {
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: Partial<InsertTransaction> & { tags?: number[] }): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
+    async updateTransaction(id: number, data: UpdateTransactionInput): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         const current = await this.transactionRepository.findById(id);
         if (!current) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
         }
 
-        const { tags, ...updateData } = data;
+        const { tags, value, ...restUpdateData } = data;
+        const updateData: UpdateTransactionInput = value !== undefined
+            ? { ...restUpdateData, value }
+            : { ...restUpdateData };
         let ownerUserId: number | undefined;
         const effectiveSource = updateData.transactionSource !== undefined ? updateData.transactionSource : current.transactionSource;
 
@@ -532,7 +517,12 @@ export class TransactionService {
             }
 
             const updated = await withTransaction(async (connection) => {
-                const updated = await this.transactionRepository.update(id, updateData, connection);
+                const { value, ...restUpdate } = updateData;
+                const dbUpdateData: Partial<InsertTransaction> = { ...restUpdate };
+                if (value !== undefined) {
+                    dbUpdateData.value = typeof value === 'number' ? value.toString() : String(value);
+                }
+                const updated = await this.transactionRepository.update(id, dbUpdateData, connection);
                 await this.applyBalanceUpdate(connection, current, updated);
                 if (tagIds) {
                     await this.replaceTransactionTags(connection, updated.id, tagIds);

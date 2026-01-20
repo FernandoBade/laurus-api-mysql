@@ -1,12 +1,12 @@
 import FeedbackController from '../../../src/controller/feedbackController';
 import { FeedbackService } from '../../../src/service/feedbackService';
 import { UserService } from '../../../src/service/userService';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeUser } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 42 };
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
@@ -50,7 +50,7 @@ describe('FeedbackController', () => {
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+                message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
             })
         );
         expect(logSpy).not.toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe('FeedbackController', () => {
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: ResourceBase.translate(Resource.VALIDATION_ERROR, 'en-US'),
+                message: translateResource(Resource.VALIDATION_ERROR, 'en-US'),
             })
         );
     });

@@ -1,16 +1,16 @@
 import { LogService } from '../../../src/service/logService';
 import { LogRepository } from '../../../src/repositories/logRepository';
 import { UserRepository } from '../../../src/repositories/userRepository';
-import { LogCategory, LogOperation, LogType, Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectLog } from '../../../src/db/schema';
 import { db } from '../../../src/db';
 import { logs } from '../../../src/db/schema';
 import * as commons from '../../../src/utils/commons';
 import { makeUser } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {

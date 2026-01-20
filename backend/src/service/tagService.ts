@@ -1,9 +1,10 @@
-import { Operator } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 import { TagRepository } from '../repositories/tagRepository';
 import { UserService } from './userService';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectTag, InsertTag } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
+import type { CreateTagInput, TagEntity, UpdateTagInput } from '../../../shared/domains/tag/tag.types';
 
 /**
  * Service for tag business logic.
@@ -23,11 +24,7 @@ export class TagService {
      * @param data - Tag creation data.
      * @returns The created tag record.
      */
-    async createTag(data: {
-        name: string;
-        userId: number;
-        active?: boolean;
-    }): Promise<{ success: true; data: SelectTag } | { success: false; error: Resource }> {
+    async createTag(data: CreateTagInput): Promise<{ success: true; data: TagEntity } | { success: false; error: Resource }> {
         const userService = new UserService();
         const user = await userService.getUserById(data.userId);
 
@@ -63,7 +60,7 @@ export class TagService {
      * @param options - Query options for pagination and sorting.
      * @returns A list of all tags.
      */
-    async getTags(options?: QueryOptions<SelectTag>): Promise<{ success: true; data: SelectTag[] } | { success: false; error: Resource }> {
+    async getTags(options?: QueryOptions<SelectTag>): Promise<{ success: true; data: TagEntity[] } | { success: false; error: Resource }> {
         try {
             const tags = await this.tagRepository.findMany(undefined, {
                 limit: options?.limit,
@@ -99,7 +96,7 @@ export class TagService {
      * @param id - ID of the tag.
      * @returns Tag record if found.
      */
-    async getTagById(id: number): Promise<{ success: true; data: SelectTag } | { success: false; error: Resource }> {
+    async getTagById(id: number): Promise<{ success: true; data: TagEntity } | { success: false; error: Resource }> {
         const tag = await this.tagRepository.findById(id);
         if (!tag) {
             return { success: false, error: Resource.TAG_NOT_FOUND };
@@ -114,7 +111,7 @@ export class TagService {
      * @param userId - ID of the user.
      * @returns A list of tags owned by the user.
      */
-    async getTagsByUser(userId: number, options?: QueryOptions<SelectTag>): Promise<{ success: true; data: SelectTag[] } | { success: false; error: Resource }> {
+    async getTagsByUser(userId: number, options?: QueryOptions<SelectTag>): Promise<{ success: true; data: TagEntity[] } | { success: false; error: Resource }> {
         try {
             const tags = await this.tagRepository.findMany({
                 userId: { operator: Operator.EQUAL, value: userId }
@@ -157,7 +154,7 @@ export class TagService {
      * @param data - Partial tag data to update.
      * @returns Updated tag record.
      */
-    async updateTag(id: number, data: Partial<InsertTag>): Promise<{ success: true; data: SelectTag } | { success: false; error: Resource }> {
+    async updateTag(id: number, data: UpdateTagInput): Promise<{ success: true; data: TagEntity } | { success: false; error: Resource }> {
         if (data.userId !== undefined) {
             const userService = new UserService();
             const user = await userService.getUserById(data.userId);

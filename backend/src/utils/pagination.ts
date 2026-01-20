@@ -1,4 +1,4 @@
-import { Operator } from './enum';
+import { Operator } from '../../../shared/enums';
 
 export type QueryOptions<T = any> = {
     limit?: number;

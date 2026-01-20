@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
 import { createLog } from '../commons';
-import { LogCategory, LogOperation, LogType } from '../enum';
-import { ResourceBase } from '../resources/languages/resourceService';
-import { Resource } from '../resources/resource';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 type AuthEmailType = 'email_verification' | 'password_reset';
 
@@ -37,17 +37,17 @@ const buildAuthLink = (path: string, token: string): string => {
 const buildAuthEmailContent = (type: AuthEmailType): AuthEmailContent => {
     if (type === 'email_verification') {
         return {
-            subject: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUBJECT),
-            body: ResourceBase.translate(Resource.EMAIL_VERIFICATION_BODY),
-            linkLabel: ResourceBase.translate(Resource.EMAIL_LINK_LABEL),
+            subject: translateResource(Resource.EMAIL_VERIFICATION_SUBJECT),
+            body: translateResource(Resource.EMAIL_VERIFICATION_BODY),
+            linkLabel: translateResource(Resource.EMAIL_LINK_LABEL),
         };
     }
 
     return {
-        subject: ResourceBase.translate(Resource.PASSWORD_RESET_SUBJECT),
-        body: ResourceBase.translate(Resource.PASSWORD_RESET_BODY),
-        warning: ResourceBase.translate(Resource.PASSWORD_RESET_WARNING),
-        linkLabel: ResourceBase.translate(Resource.EMAIL_LINK_LABEL),
+        subject: translateResource(Resource.PASSWORD_RESET_SUBJECT),
+        body: translateResource(Resource.PASSWORD_RESET_BODY),
+        warning: translateResource(Resource.PASSWORD_RESET_WARNING),
+        linkLabel: translateResource(Resource.EMAIL_LINK_LABEL),
     };
 };
 

@@ -1,13 +1,13 @@
 import { CategoryService } from '../../../src/service/categoryService';
 import { CategoryRepository } from '../../../src/repositories/categoryRepository';
 import { UserService } from '../../../src/service/userService';
-import { CategoryColor, CategoryType, Operator } from '../../../src/utils/enum';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCategory } from '../../../src/db/schema';
 import { makeUser } from '../../helpers/factories';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-const translate = (resource: Resource) => ResourceBase.translate(resource, 'en-US');
+const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => value in Resource;
 
 const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {

@@ -3,11 +3,11 @@ import multer from 'multer';
 import { verifyToken } from '../utils/auth/verifyToken';
 import FeedbackController from '../controller/feedbackController';
 import { answerAPI, createLog, formatError } from '../utils/commons';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../utils/enum';
-import { Resource } from '../utils/resources/resource';
-import { ResourceBase } from '../utils/resources/languages/resourceService';
+import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../shared/enums';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { createValidationError } from '../utils/validation/errors';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
+import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 
 const router = Router();
 const MAX_FEEDBACK_BYTES = 2 * 1024 * 1024;
@@ -28,7 +28,7 @@ const handleFeedbackUpload = (req: Request, res: Response, next: NextFunction) =
             const fieldName = error.field ?? 'file';
             if (error.code === 'LIMIT_FILE_SIZE') {
                 const errors = [
-                    createValidationError(fieldName, ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                    createValidationError(fieldName, translateResourceWithParams(Resource.INVALID_TYPE, language, {
                         path: fieldName,
                         expected: 'file size <= 2MB',
                         received: 'exceeds limit',
@@ -38,7 +38,7 @@ const handleFeedbackUpload = (req: Request, res: Response, next: NextFunction) =
             }
 
             const errors = [
-                createValidationError(fieldName, ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                createValidationError(fieldName, translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: fieldName,
                     expected: 'feedback attachment',
                     received: error.field ?? error.code,

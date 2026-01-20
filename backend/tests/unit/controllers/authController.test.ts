@@ -1,13 +1,13 @@
 import AuthController from '../../../src/controller/authController';
 import { makeUser } from '../../helpers/factories';
 import { AuthService } from '../../../src/service/authService';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../src/utils/enum';
+import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
 import { TokenCookie } from '../../../src/utils/auth/cookieConfig';
-import { Resource } from '../../../src/utils/resources/resource';
-import { ResourceBase } from '../../../src/utils/resources/languages/resourceService';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import * as rateLimiter from '../../../src/utils/auth/rateLimiter';
+import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 describe('AuthController', () => {
     let logSpy: jest.SpyInstance;
@@ -37,7 +37,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INVALID_CREDENTIALS, 'en-US'),
+                    message: translateResource(Resource.INVALID_CREDENTIALS, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INVALID_CREDENTIALS, 'en-US'),
+                    message: translateResource(Resource.INVALID_CREDENTIALS, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
+                    message: translateResource(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
                     error: expect.objectContaining({
                         code: Resource.EMAIL_NOT_VERIFIED,
                         email: 'user@example.com',
@@ -141,7 +141,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -172,7 +172,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                    message: translateResource(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -194,7 +194,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                    message: translateResource(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -261,7 +261,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.TOKEN_NOT_FOUND, 'en-US'),
+                    message: translateResource(Resource.TOKEN_NOT_FOUND, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
@@ -280,7 +280,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.TOKEN_NOT_FOUND, 'en-US'),
+                    message: translateResource(Resource.TOKEN_NOT_FOUND, 'en-US'),
                 })
             );
             expect(logSpy).not.toHaveBeenCalled();
@@ -321,7 +321,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -350,7 +350,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                    message: translateResource(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
                 })
             );
         });
@@ -369,7 +369,7 @@ describe('AuthController', () => {
                 expect.objectContaining({
                     success: true,
                     data: { verified: true, alreadyVerified: false },
-                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_SUCCESS, 'en-US'),
+                    message: translateResource(Resource.EMAIL_VERIFICATION_SUCCESS, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
@@ -391,7 +391,7 @@ describe('AuthController', () => {
                 expect.objectContaining({
                     success: true,
                     data: { verified: true, alreadyVerified: true },
-                    message: ResourceBase.translate(Resource.EMAIL_ALREADY_VERIFIED, 'en-US'),
+                    message: translateResource(Resource.EMAIL_ALREADY_VERIFIED, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
@@ -412,7 +412,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EMAIL_INVALID, 'en-US'),
+                    message: translateResource(Resource.EMAIL_INVALID, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
@@ -435,7 +435,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_COOLDOWN, 'en-US'),
+                    message: translateResource(Resource.EMAIL_VERIFICATION_COOLDOWN, 'en-US'),
                     error: expect.objectContaining({
                         code: Resource.EMAIL_VERIFICATION_COOLDOWN,
                         cooldownSeconds: 30,
@@ -462,7 +462,7 @@ describe('AuthController', () => {
                 expect.objectContaining({
                     success: true,
                     data: { sent: true },
-                    message: ResourceBase.translate(Resource.EMAIL_VERIFICATION_REQUESTED, 'en-US'),
+                    message: translateResource(Resource.EMAIL_VERIFICATION_REQUESTED, 'en-US'),
                 })
             );
             expect(next).not.toHaveBeenCalled();
@@ -483,7 +483,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EMAIL_INVALID, 'en-US'),
+                    message: translateResource(Resource.EMAIL_INVALID, 'en-US'),
                 })
             );
         });
@@ -502,7 +502,7 @@ describe('AuthController', () => {
                 expect.objectContaining({
                     success: true,
                     data: { sent: true },
-                    message: ResourceBase.translate(Resource.PASSWORD_RESET_REQUESTED, 'en-US'),
+                    message: translateResource(Resource.PASSWORD_RESET_REQUESTED, 'en-US'),
                 })
             );
         });
@@ -519,7 +519,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
+                    message: translateResource(Resource.INTERNAL_SERVER_ERROR, 'en-US'),
                 })
             );
             expect(logSpy).toHaveBeenCalledWith(
@@ -548,7 +548,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
+                    message: translateResource(Resource.EXPIRED_OR_INVALID_TOKEN, 'en-US'),
                 })
             );
         });
@@ -566,7 +566,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
-                    message: ResourceBase.translate(Resource.PASSWORD_TOO_SHORT, 'en-US'),
+                    message: translateResource(Resource.PASSWORD_TOO_SHORT, 'en-US'),
                 })
             );
         });
@@ -585,7 +585,7 @@ describe('AuthController', () => {
                 expect.objectContaining({
                     success: true,
                     data: { reset: true },
-                    message: ResourceBase.translate(Resource.PASSWORD_RESET_SUCCESS, 'en-US'),
+                    message: translateResource(Resource.PASSWORD_RESET_SUCCESS, 'en-US'),
                 })
             );
         });

@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
-import { LogCategory, HTTPStatus, LogOperation, LogType } from '../utils/enum';
+import { LogCategory, HTTPStatus, LogOperation, LogType } from '../../../shared/enums';
 import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
 import { createValidationError, ValidationError } from '../utils/validation/errors';
-import { Resource } from '../utils/resources/resource';
-import { ResourceBase } from '../utils/resources/languages/resourceService';
-import { LanguageCode } from '../utils/resources/resourceTypes';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
+import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
+import { translateResource, translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 const ALLOWED_AVATAR_MIME_TYPES = new Set([
@@ -284,10 +284,10 @@ class UserController {
         const file = req.file;
 
         if (!file) {
-            errors.push(createValidationError('avatar', ResourceBase.translate(Resource.FIELD_REQUIRED, language)));
+            errors.push(createValidationError('avatar', translateResource(Resource.FIELD_REQUIRED, language)));
         } else {
             if (!ALLOWED_AVATAR_MIME_TYPES.has(file.mimetype)) {
-                errors.push(createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                errors.push(createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'avatar',
                     expected: 'image/jpeg, image/png',
                     received: file.mimetype,
@@ -295,7 +295,7 @@ class UserController {
             }
 
             if (file.size > MAX_AVATAR_BYTES) {
-                errors.push(createValidationError('avatar', ResourceBase.translateWithParams(Resource.INVALID_TYPE, language, {
+                errors.push(createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'avatar',
                     expected: 'file size <= 2MB',
                     received: `${(file.size / 1024 / 1024).toFixed(2)}MB`,

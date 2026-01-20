@@ -2,15 +2,14 @@ import bcrypt from 'bcrypt';
 import path from 'path';
 import { Readable } from 'stream';
 import { Client as FtpClient } from 'basic-ftp';
-import { Operator, Theme, Language, Currency, DateFormat, Profile } from '../utils/enum';
+import { Operator } from '../../../shared/enums';
 import { UserRepository } from '../repositories/userRepository';
-import { Resource } from '../utils/resources/resource';
+import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 import { TokenService } from './tokenService';
 import { sendEmailVerificationEmail } from '../utils/email/authEmail';
-
-export type SanitizedUser = Omit<SelectUser, 'password'>;
+import type { CreateUserInput, SanitizedUser, UpdateUserInput, UserEntity } from '../../../shared/domains/user/user.types';
 
 const AVATAR_PUBLIC_BASE_URL = 'https://laurus.bade.digital/laurus/users';
 const AVATAR_FILE_BASE = 'avatar';
@@ -56,7 +55,7 @@ export class UserService {
      * @param data - User registration data.
      * @returns Created user record or error if email is already in use.
      */
-    async createUser(data: { firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean }): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
+    async createUser(data: CreateUserInput): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         data.email = data.email.trim().toLowerCase();
 
         const existingUsers = await this.userRepository.findMany({
@@ -266,7 +265,7 @@ export class UserService {
      * @param data - Partial user data.
      * @returns Updated user or error if not found.
      */
-    async updateUser(id: number, data: Partial<SelectUser>): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
+    async updateUser(id: number, data: UpdateUserInput): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         const current = await this.userRepository.findById(id);
         if (!current) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
@@ -333,7 +332,7 @@ export class UserService {
      * @param id - User ID.
      * @returns User record or error.
      */
-    async findOne(id: number): Promise<{ success: true; data: SelectUser } | { success: false; error: Resource }> {
+    async findOne(id: number): Promise<{ success: true; data: UserEntity } | { success: false; error: Resource }> {
         const user = await this.userRepository.findById(id);
         if (!user) {
             return { success: false, error: Resource.USER_NOT_FOUND };

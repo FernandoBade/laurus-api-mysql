@@ -1,5 +1,5 @@
 import { verifyToken } from '../../../src/utils/auth/verifyToken';
-import { HTTPStatus } from '../../../src/utils/enum';
+import { HTTPStatus } from '../../../../shared/enums';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { Request } from 'express';

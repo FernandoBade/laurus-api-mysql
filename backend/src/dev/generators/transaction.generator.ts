@@ -1,6 +1,6 @@
 import TransactionController from '../../controller/transactionController';
 import { SelectAccount, SelectCreditCard, SelectTransaction, SelectTag } from '../../db/schema';
-import { CategoryType, TransactionSource, TransactionType } from '../../utils/enum';
+import { CategoryType, TransactionSource, TransactionType } from '../../../../shared/enums';
 import { CategorySeed } from './category.generator';
 import {
     SeedContext,

@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { db } from '../../../src/db';
 import { accounts } from '../../../src/db/schema';
-import { AccountType, Operator } from '../../../src/utils/enum';
+import { AccountType, Operator } from '../../../../shared/enums';
 import { makeAccount } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {

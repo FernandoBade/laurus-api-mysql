@@ -1,9 +1,17 @@
 import { isString, isNumber, isNumberArray, isBoolean, isDate, isEnum, isValidEmail, hasMinLength } from './guards';
 import { createValidationError, ValidationError } from './errors';
-import { Theme, Language, Currency, DateFormat, Profile, AccountType, CategoryType, CategoryColor, CreditCardFlag, TransactionType, TransactionSource } from '../enum';
-import { ResourceBase } from '../resources/languages/resourceService';
-import { Resource } from '../resources/resource';
-import { LanguageCode } from '../resources/resourceTypes';
+import { Theme, Language, Currency, DateFormat, Profile, AccountType, CategoryType, CategoryColor, CreditCardFlag, TransactionType, TransactionSource } from '../../../../shared/enums';
+import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import { LanguageCode } from '../../../../shared/i18n/resourceTypes';
+import type { CreateAccountInput, UpdateAccountInput } from '../../../../shared/domains/account/account.types';
+import type { CreateCategoryInput, UpdateCategoryInput } from '../../../../shared/domains/category/category.types';
+import type { CreateCreditCardInput, UpdateCreditCardInput } from '../../../../shared/domains/creditCard/creditCard.types';
+import type { SendFeedbackInput } from '../../../../shared/domains/feedback/feedback.types';
+import type { CreateSubcategoryInput, UpdateSubcategoryInput } from '../../../../shared/domains/subcategory/subcategory.types';
+import type { CreateTagInput, UpdateTagInput } from '../../../../shared/domains/tag/tag.types';
+import type { CreateTransactionInput, UpdateTransactionInput } from '../../../../shared/domains/transaction/transaction.types';
+import type { CreateUserInput, UpdateUserInput } from '../../../../shared/domains/user/user.types';
+import { translateResource, translateResourceWithParams } from '../../../../shared/i18n/resource.utils';
 
 /**
  * Validates user creation data.
@@ -16,61 +24,61 @@ import { LanguageCode } from '../resources/resourceTypes';
 export function validateCreateUser(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateUserInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.firstName) || !hasMinLength(body.firstName, 2)) {
-        errors.push(createValidationError('firstName', ResourceBase.translate(Resource.FIRST_NAME_TOO_SHORT, lang)));
+        errors.push(createValidationError('firstName', translateResource(Resource.FIRST_NAME_TOO_SHORT, lang)));
     }
 
     if (!isString(body.lastName) || !hasMinLength(body.lastName, 2)) {
-        errors.push(createValidationError('lastName', ResourceBase.translate(Resource.LAST_NAME_TOO_SHORT, lang)));
+        errors.push(createValidationError('lastName', translateResource(Resource.LAST_NAME_TOO_SHORT, lang)));
     }
 
     if (!isString(body.email) || !isValidEmail(body.email)) {
-        errors.push(createValidationError('email', ResourceBase.translate(Resource.EMAIL_INVALID, lang)));
+        errors.push(createValidationError('email', translateResource(Resource.EMAIL_INVALID, lang)));
     }
 
     if (!isString(body.password) || !hasMinLength(body.password, 6)) {
-        errors.push(createValidationError('password', ResourceBase.translate(Resource.PASSWORD_TOO_SHORT, lang)));
+        errors.push(createValidationError('password', translateResource(Resource.PASSWORD_TOO_SHORT, lang)));
     }
 
     if (body.phone !== undefined && !isString(body.phone)) {
-        errors.push(createValidationError('phone', ResourceBase.translate(Resource.INVALID_PHONE_TYPE, lang)));
+        errors.push(createValidationError('phone', translateResource(Resource.INVALID_PHONE_TYPE, lang)));
     }
 
     if (body.birthDate !== undefined && !isDate(body.birthDate)) {
-        errors.push(createValidationError('birthDate', ResourceBase.translate(Resource.INVALID_DATE_FORMAT, lang)));
+        errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
     }
 
     if (body.theme !== undefined && !isEnum(body.theme, Theme)) {
-        errors.push(createValidationError('theme', ResourceBase.translate(Resource.INVALID_THEME_VALUE, lang)));
+        errors.push(createValidationError('theme', translateResource(Resource.INVALID_THEME_VALUE, lang)));
     }
 
     if (body.language !== undefined && !isEnum(body.language, Language)) {
-        errors.push(createValidationError('language', ResourceBase.translate(Resource.INVALID_LANGUAGE_VALUE, lang)));
+        errors.push(createValidationError('language', translateResource(Resource.INVALID_LANGUAGE_VALUE, lang)));
     }
 
     if (body.currency !== undefined && !isEnum(body.currency, Currency)) {
-        errors.push(createValidationError('currency', ResourceBase.translate(Resource.INVALID_CURRENCY_VALUE, lang)));
+        errors.push(createValidationError('currency', translateResource(Resource.INVALID_CURRENCY_VALUE, lang)));
     }
 
     if (body.dateFormat !== undefined && !isEnum(body.dateFormat, DateFormat)) {
-        errors.push(createValidationError('dateFormat', ResourceBase.translate(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
+        errors.push(createValidationError('dateFormat', translateResource(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
-        errors.push(createValidationError('profile', ResourceBase.translate(Resource.INVALID_PROFILE_VALUE, lang)));
+        errors.push(createValidationError('profile', translateResource(Resource.INVALID_PROFILE_VALUE, lang)));
     }
 
     if (body.hideValues !== undefined && !isBoolean(body.hideValues)) {
-        errors.push(createValidationError('hideValues', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('hideValues', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'hideValues',
             expected: 'boolean',
             received: String(body.hideValues)
@@ -78,7 +86,7 @@ export function validateCreateUser(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_ACTIVE_TYPE, lang)));
     }
 
     if (errors.length > 0) {
@@ -116,11 +124,11 @@ export function validateCreateUser(
 export function validateUpdateUser(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ firstName: string; lastName: string; email: string; password: string; phone?: string; birthDate?: Date; theme?: Theme; language?: Language; currency?: Currency; dateFormat?: DateFormat; profile?: Profile; hideValues?: boolean; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateUserInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
@@ -128,7 +136,7 @@ export function validateUpdateUser(
 
     if (body.firstName !== undefined) {
         if (!isString(body.firstName) || !hasMinLength(body.firstName, 2)) {
-            errors.push(createValidationError('firstName', ResourceBase.translate(Resource.FIRST_NAME_TOO_SHORT, lang)));
+            errors.push(createValidationError('firstName', translateResource(Resource.FIRST_NAME_TOO_SHORT, lang)));
         } else {
             result.firstName = body.firstName;
         }
@@ -136,7 +144,7 @@ export function validateUpdateUser(
 
     if (body.lastName !== undefined) {
         if (!isString(body.lastName) || !hasMinLength(body.lastName, 2)) {
-            errors.push(createValidationError('lastName', ResourceBase.translate(Resource.LAST_NAME_TOO_SHORT, lang)));
+            errors.push(createValidationError('lastName', translateResource(Resource.LAST_NAME_TOO_SHORT, lang)));
         } else {
             result.lastName = body.lastName;
         }
@@ -144,7 +152,7 @@ export function validateUpdateUser(
 
     if (body.email !== undefined) {
         if (!isString(body.email) || !isValidEmail(body.email)) {
-            errors.push(createValidationError('email', ResourceBase.translate(Resource.EMAIL_INVALID, lang)));
+            errors.push(createValidationError('email', translateResource(Resource.EMAIL_INVALID, lang)));
         } else {
             result.email = (body.email as string).toLowerCase().trim();
         }
@@ -152,7 +160,7 @@ export function validateUpdateUser(
 
     if (body.password !== undefined) {
         if (!isString(body.password) || !hasMinLength(body.password, 6)) {
-            errors.push(createValidationError('password', ResourceBase.translate(Resource.PASSWORD_TOO_SHORT, lang)));
+            errors.push(createValidationError('password', translateResource(Resource.PASSWORD_TOO_SHORT, lang)));
         } else {
             result.password = body.password;
         }
@@ -160,7 +168,7 @@ export function validateUpdateUser(
 
     if (body.phone !== undefined && body.phone !== null) {
         if (!isString(body.phone)) {
-            errors.push(createValidationError('phone', ResourceBase.translate(Resource.INVALID_PHONE_TYPE, lang)));
+            errors.push(createValidationError('phone', translateResource(Resource.INVALID_PHONE_TYPE, lang)));
         } else {
             result.phone = body.phone;
         }
@@ -168,45 +176,45 @@ export function validateUpdateUser(
 
     if (body.birthDate !== undefined && body.birthDate !== null) {
         if (!isDate(body.birthDate)) {
-            errors.push(createValidationError('birthDate', ResourceBase.translate(Resource.INVALID_DATE_FORMAT, lang)));
+            errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
         } else {
             result.birthDate = new Date(body.birthDate as string);
         }
     }
 
     if (body.theme !== undefined && !isEnum(body.theme, Theme)) {
-        errors.push(createValidationError('theme', ResourceBase.translate(Resource.INVALID_THEME_VALUE, lang)));
+        errors.push(createValidationError('theme', translateResource(Resource.INVALID_THEME_VALUE, lang)));
     } else if (body.theme !== undefined) {
         result.theme = body.theme;
     }
 
     if (body.language !== undefined && !isEnum(body.language, Language)) {
-        errors.push(createValidationError('language', ResourceBase.translate(Resource.INVALID_LANGUAGE_VALUE, lang)));
+        errors.push(createValidationError('language', translateResource(Resource.INVALID_LANGUAGE_VALUE, lang)));
     } else if (body.language !== undefined) {
         result.language = body.language;
     }
 
     if (body.currency !== undefined && !isEnum(body.currency, Currency)) {
-        errors.push(createValidationError('currency', ResourceBase.translate(Resource.INVALID_CURRENCY_VALUE, lang)));
+        errors.push(createValidationError('currency', translateResource(Resource.INVALID_CURRENCY_VALUE, lang)));
     } else if (body.currency !== undefined) {
         result.currency = body.currency;
     }
 
     if (body.dateFormat !== undefined && !isEnum(body.dateFormat, DateFormat)) {
-        errors.push(createValidationError('dateFormat', ResourceBase.translate(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
+        errors.push(createValidationError('dateFormat', translateResource(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
     } else if (body.dateFormat !== undefined) {
         result.dateFormat = body.dateFormat;
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
-        errors.push(createValidationError('profile', ResourceBase.translate(Resource.INVALID_PROFILE_VALUE, lang)));
+        errors.push(createValidationError('profile', translateResource(Resource.INVALID_PROFILE_VALUE, lang)));
     } else if (body.profile !== undefined) {
         result.profile = body.profile;
     }
 
     if (body.hideValues !== undefined) {
         if (!isBoolean(body.hideValues)) {
-            errors.push(createValidationError('hideValues', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('hideValues', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'hideValues',
                 expected: 'boolean',
                 received: String(body.hideValues)
@@ -217,7 +225,7 @@ export function validateUpdateUser(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_ACTIVE_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_ACTIVE_TYPE, lang)));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -240,31 +248,31 @@ export function validateUpdateUser(
 export function validateCreateAccount(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateAccountInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'name',
             min: 1
         })));
     }
 
     if (!isString(body.institution) || body.institution.length < 1) {
-        errors.push(createValidationError('institution', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('institution', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'institution',
             min: 1
         })));
     }
 
     if (!isEnum(body.type, AccountType)) {
-        errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('type', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'type',
             received: body.type === undefined ? 'undefined' : String(body.type),
             options: Object.values(AccountType).join(', ')
@@ -272,18 +280,18 @@ export function validateCreateAccount(
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+        errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (body.balance !== undefined) {
         if (!isNumber(body.balance)) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'balance',
                 expected: 'number',
                 received: String(body.balance)
             })));
         } else if (body.balance < 0) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'balance',
                 min: 0
             })));
@@ -291,11 +299,11 @@ export function validateCreateAccount(
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
-        errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -331,19 +339,19 @@ export function validateCreateAccount(
 export function validateUpdateAccount(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateAccountInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'name',
                 min: 1
             })));
@@ -354,7 +362,7 @@ export function validateUpdateAccount(
 
     if (body.institution !== undefined) {
         if (!isString(body.institution) || body.institution.length < 1) {
-            errors.push(createValidationError('institution', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('institution', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'institution',
                 min: 1
             })));
@@ -365,7 +373,7 @@ export function validateUpdateAccount(
 
     if (body.type !== undefined) {
         if (!isEnum(body.type, AccountType)) {
-            errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('type', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'type',
                 received: body.type === undefined ? 'undefined' : String(body.type),
                 options: Object.values(AccountType).join(', ')
@@ -377,7 +385,7 @@ export function validateUpdateAccount(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+            errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -385,13 +393,13 @@ export function validateUpdateAccount(
 
     if (body.balance !== undefined) {
         if (!isNumber(body.balance)) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'balance',
                 expected: 'number',
                 received: String(body.balance)
             })));
         } else if (body.balance < 0) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'balance',
                 min: 0
             })));
@@ -402,14 +410,14 @@ export function validateUpdateAccount(
 
     if (body.user_id !== undefined) {
         if (!isNumber(body.user_id) || body.user_id <= 0) {
-            errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.userId = body.user_id;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -436,24 +444,24 @@ export function validateUpdateAccount(
 export function validateCreateCategory(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; type: CategoryType; color?: CategoryColor; active?: boolean; userId: number } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateCategoryInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'name',
             min: 1
         })));
     }
 
     if (!isEnum(body.type, CategoryType)) {
-        errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('type', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'type',
             received: body.type === undefined ? 'undefined' : String(body.type),
             options: Object.values(CategoryType).join(', ')
@@ -461,7 +469,7 @@ export function validateCreateCategory(
     }
 
     if (body.color !== undefined && !isEnum(body.color, CategoryColor)) {
-        errors.push(createValidationError('color', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('color', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'color',
             received: body.color === undefined ? 'undefined' : String(body.color),
             options: Object.values(CategoryColor).join(', ')
@@ -469,7 +477,7 @@ export function validateCreateCategory(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -477,7 +485,7 @@ export function validateCreateCategory(
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
-        errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (errors.length > 0) {
@@ -507,19 +515,19 @@ export function validateCreateCategory(
 export function validateUpdateCategory(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; type: CategoryType; color?: CategoryColor; active?: boolean; userId: number }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateCategoryInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'name',
                 min: 1
             })));
@@ -530,7 +538,7 @@ export function validateUpdateCategory(
 
     if (body.type !== undefined) {
         if (!isEnum(body.type, CategoryType)) {
-            errors.push(createValidationError('type', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('type', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'type',
                 received: body.type === undefined ? 'undefined' : String(body.type),
                 options: Object.values(CategoryType).join(', ')
@@ -542,7 +550,7 @@ export function validateUpdateCategory(
 
     if (body.color !== undefined) {
         if (!isEnum(body.color, CategoryColor)) {
-            errors.push(createValidationError('color', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('color', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'color',
                 received: body.color === undefined ? 'undefined' : String(body.color),
                 options: Object.values(CategoryColor).join(', ')
@@ -553,7 +561,7 @@ export function validateUpdateCategory(
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -564,7 +572,7 @@ export function validateUpdateCategory(
 
     if (body.user_id !== undefined) {
         if (!isNumber(body.user_id) || body.user_id <= 0) {
-            errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.userId = body.user_id;
         }
@@ -588,28 +596,28 @@ export function validateUpdateCategory(
 export function validateCreateSubcategory(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; categoryId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateSubcategoryInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'name',
             min: 1
         })));
     }
 
     if (!isNumber(body.category_id) || body.category_id <= 0) {
-        errors.push(createValidationError('category_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('category_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -641,19 +649,19 @@ export function validateCreateSubcategory(
 export function validateUpdateSubcategory(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; categoryId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateSubcategoryInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'name',
                 min: 1
             })));
@@ -664,14 +672,14 @@ export function validateUpdateSubcategory(
 
     if (body.category_id !== undefined) {
         if (!isNumber(body.category_id) || body.category_id <= 0) {
-            errors.push(createValidationError('category_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('category_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.categoryId = body.category_id;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_TYPE, lang)));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -694,24 +702,24 @@ export function validateUpdateSubcategory(
 export function validateCreateCreditCard(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; flag: CreditCardFlag; observation?: string; balance?: number; limit?: number; userId: number; accountId?: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateCreditCardInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'name',
             min: 1
         })));
     }
 
     if (!isEnum(body.flag, CreditCardFlag)) {
-        errors.push(createValidationError('flag', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('flag', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'flag',
             received: body.flag === undefined ? 'undefined' : String(body.flag),
             options: Object.values(CreditCardFlag).join(', ')
@@ -719,18 +727,18 @@ export function validateCreateCreditCard(
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+        errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (body.balance !== undefined) {
         if (!isNumber(body.balance)) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'balance',
                 expected: 'number',
                 received: String(body.balance)
             })));
         } else if (body.balance < 0) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'balance',
                 min: 0
             })));
@@ -739,13 +747,13 @@ export function validateCreateCreditCard(
 
     if (body.limit !== undefined) {
         if (!isNumber(body.limit)) {
-            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('limit', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'limit',
                 expected: 'number',
                 received: String(body.limit)
             })));
         } else if (body.limit < 0) {
-            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('limit', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'limit',
                 min: 0
             })));
@@ -753,15 +761,15 @@ export function validateCreateCreditCard(
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
-        errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.account_id !== undefined && (!isNumber(body.account_id) || body.account_id <= 0)) {
-        errors.push(createValidationError('account_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('account_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_TYPE, lang)));
     }
 
     if (errors.length > 0) {
@@ -794,19 +802,19 @@ export function validateCreateCreditCard(
 export function validateUpdateCreditCard(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; flag: CreditCardFlag; observation?: string; balance?: number; limit?: number; userId: number; accountId?: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateCreditCardInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'name',
                 min: 1
             })));
@@ -817,7 +825,7 @@ export function validateUpdateCreditCard(
 
     if (body.flag !== undefined) {
         if (!isEnum(body.flag, CreditCardFlag)) {
-            errors.push(createValidationError('flag', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('flag', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'flag',
                 received: body.flag === undefined ? 'undefined' : String(body.flag),
                 options: Object.values(CreditCardFlag).join(', ')
@@ -829,7 +837,7 @@ export function validateUpdateCreditCard(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+            errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -837,13 +845,13 @@ export function validateUpdateCreditCard(
 
     if (body.balance !== undefined) {
         if (!isNumber(body.balance)) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'balance',
                 expected: 'number',
                 received: String(body.balance)
             })));
         } else if (body.balance < 0) {
-            errors.push(createValidationError('balance', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'balance',
                 min: 0
             })));
@@ -854,13 +862,13 @@ export function validateUpdateCreditCard(
 
     if (body.limit !== undefined) {
         if (!isNumber(body.limit)) {
-            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('limit', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'limit',
                 expected: 'number',
                 received: String(body.limit)
             })));
         } else if (body.limit < 0) {
-            errors.push(createValidationError('limit', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('limit', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'limit',
                 min: 0
             })));
@@ -871,7 +879,7 @@ export function validateUpdateCreditCard(
 
     if (body.user_id !== undefined) {
         if (!isNumber(body.user_id) || body.user_id <= 0) {
-            errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.userId = body.user_id;
         }
@@ -879,14 +887,14 @@ export function validateUpdateCreditCard(
 
     if (body.account_id !== undefined && body.account_id !== null) {
         if (!isNumber(body.account_id) || body.account_id <= 0) {
-            errors.push(createValidationError('account_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('account_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.accountId = body.account_id;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_TYPE, lang)));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -909,28 +917,28 @@ export function validateUpdateCreditCard(
 export function validateCreateTag(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { name: string; userId: number; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateTagInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isString(body.name) || body.name.length < 1) {
-        errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'name',
             min: 1
         })));
     }
 
     if (!isNumber(body.user_id) || body.user_id <= 0) {
-        errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -962,19 +970,19 @@ export function validateCreateTag(
 export function validateUpdateTag(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ name: string; userId: number; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateTagInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.name !== undefined) {
         if (!isString(body.name) || body.name.length < 1) {
-            errors.push(createValidationError('name', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'name',
                 min: 1
             })));
@@ -985,14 +993,14 @@ export function validateUpdateTag(
 
     if (body.user_id !== undefined) {
         if (!isNumber(body.user_id) || body.user_id <= 0) {
-            errors.push(createValidationError('user_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('user_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.userId = body.user_id;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'active',
             expected: 'boolean',
             received: String(body.active)
@@ -1019,41 +1027,41 @@ export function validateUpdateTag(
 export function validateCreateTransaction(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; tags?: number[]; active?: boolean } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: CreateTransactionInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (!isNumber(body.value) || body.value <= 0) {
-        errors.push(createValidationError('value', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('value', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'value',
             min: 1
         })));
     }
 
     if (!isDate(body.date)) {
-        errors.push(createValidationError('date', ResourceBase.translate(Resource.INVALID_DATE_FORMAT, lang)));
+        errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
     }
 
     if (body.category_id !== undefined && body.category_id !== null && (!isNumber(body.category_id) || body.category_id <= 0)) {
-        errors.push(createValidationError('category_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('category_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (body.subcategory_id !== undefined && body.subcategory_id !== null && (!isNumber(body.subcategory_id) || body.subcategory_id <= 0)) {
-        errors.push(createValidationError('subcategory_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+        errors.push(createValidationError('subcategory_id', translateResource(Resource.VALIDATION_ERROR, lang)));
     }
 
     if (!body.category_id && !body.subcategory_id) {
-        errors.push(createValidationError('category_id', ResourceBase.translate(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang)));
-        errors.push(createValidationError('subcategory_id', ResourceBase.translate(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang)));
+        errors.push(createValidationError('category_id', translateResource(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang)));
+        errors.push(createValidationError('subcategory_id', translateResource(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED, lang)));
     }
 
     if (!isEnum(body.transactionType, TransactionType)) {
-        errors.push(createValidationError('transactionType', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('transactionType', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'transactionType',
             received: body.transactionType === undefined ? 'undefined' : String(body.transactionType),
             options: Object.values(TransactionType).join(', ')
@@ -1061,7 +1069,7 @@ export function validateCreateTransaction(
     }
 
     if (!isEnum(body.transactionSource, TransactionSource)) {
-        errors.push(createValidationError('transactionSource', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+        errors.push(createValidationError('transactionSource', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
             path: 'transactionSource',
             received: body.transactionSource === undefined ? 'undefined' : String(body.transactionSource),
             options: Object.values(TransactionSource).join(', ')
@@ -1069,7 +1077,7 @@ export function validateCreateTransaction(
     }
 
     if (!isBoolean(body.isInstallment)) {
-        errors.push(createValidationError('isInstallment', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('isInstallment', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'isInstallment',
             expected: 'boolean',
             received: String(body.isInstallment)
@@ -1077,11 +1085,11 @@ export function validateCreateTransaction(
     }
 
     if (body.isInstallment && (!isNumber(body.totalMonths) || body.totalMonths <= 0)) {
-        errors.push(createValidationError('totalMonths', ResourceBase.translate(Resource.TOTAL_MONTHS_REQUIRED, lang)));
+        errors.push(createValidationError('totalMonths', translateResource(Resource.TOTAL_MONTHS_REQUIRED, lang)));
     }
 
     if (!isBoolean(body.isRecurring)) {
-        errors.push(createValidationError('isRecurring', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+        errors.push(createValidationError('isRecurring', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
             path: 'isRecurring',
             expected: 'boolean',
             received: String(body.isRecurring)
@@ -1089,37 +1097,37 @@ export function validateCreateTransaction(
     }
 
     if (body.isRecurring && (!isNumber(body.paymentDay) || body.paymentDay < 1 || body.paymentDay > 31)) {
-        errors.push(createValidationError('paymentDay', ResourceBase.translate(Resource.PAYMENT_DAY_REQUIRED, lang)));
+        errors.push(createValidationError('paymentDay', translateResource(Resource.PAYMENT_DAY_REQUIRED, lang)));
     }
 
     if (body.transactionSource === TransactionSource.ACCOUNT) {
         if (!isNumber(body.account_id) || body.account_id <= 0) {
-            errors.push(createValidationError('account_id', ResourceBase.translate(Resource.INVALID_ACCOUNT_ID, lang)));
+            errors.push(createValidationError('account_id', translateResource(Resource.INVALID_ACCOUNT_ID, lang)));
         }
         if (body.creditCard_id !== undefined) {
-            errors.push(createValidationError('creditCard_id', ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, lang)));
+            errors.push(createValidationError('creditCard_id', translateResource(Resource.INVALID_CREDIT_CARD_ID, lang)));
         }
     } else if (body.transactionSource === TransactionSource.CREDIT_CARD) {
         if (!isNumber(body.creditCard_id) || body.creditCard_id <= 0) {
-            errors.push(createValidationError('creditCard_id', ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, lang)));
+            errors.push(createValidationError('creditCard_id', translateResource(Resource.INVALID_CREDIT_CARD_ID, lang)));
         }
         if (body.account_id !== undefined) {
-            errors.push(createValidationError('account_id', ResourceBase.translate(Resource.INVALID_ACCOUNT_ID, lang)));
+            errors.push(createValidationError('account_id', translateResource(Resource.INVALID_ACCOUNT_ID, lang)));
         }
     }
 
     if (body.observation !== undefined && !isString(body.observation)) {
-        errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+        errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
     }
 
     if (body.tags !== undefined) {
         if (!isNumberArray(body.tags) || (body.tags as number[]).some(tagId => tagId <= 0)) {
-            errors.push(createValidationError('tags', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('tags', translateResource(Resource.VALIDATION_ERROR, lang)));
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_TYPE, lang)));
     }
 
     if (errors.length > 0) {
@@ -1161,19 +1169,19 @@ export function validateCreateTransaction(
 export function validateUpdateTransaction(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: Partial<{ value: number; date: Date; categoryId?: number; subcategoryId?: number; observation?: string; transactionType: TransactionType; transactionSource: TransactionSource; isInstallment: boolean; totalMonths?: number; isRecurring: boolean; paymentDay?: number; accountId?: number; creditCardId?: number; tags?: number[]; active?: boolean }> } | { success: false; errors: ValidationError[] } {
+): { success: true; data: UpdateTransactionInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const result: Record<string, unknown> = {};
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
 
     if (body.value !== undefined) {
         if (!isNumber(body.value) || body.value <= 0) {
-            errors.push(createValidationError('value', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+            errors.push(createValidationError('value', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'value',
                 min: 1
             })));
@@ -1184,7 +1192,7 @@ export function validateUpdateTransaction(
 
     if (body.date !== undefined) {
         if (!isDate(body.date)) {
-            errors.push(createValidationError('date', ResourceBase.translate(Resource.INVALID_DATE_FORMAT, lang)));
+            errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
         } else {
             result.date = body.date instanceof Date ? body.date : new Date(body.date as string);
         }
@@ -1192,7 +1200,7 @@ export function validateUpdateTransaction(
 
     if (body.category_id !== undefined && body.category_id !== null) {
         if (!isNumber(body.category_id) || body.category_id <= 0) {
-            errors.push(createValidationError('category_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('category_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.categoryId = body.category_id;
         }
@@ -1200,7 +1208,7 @@ export function validateUpdateTransaction(
 
     if (body.subcategory_id !== undefined && body.subcategory_id !== null) {
         if (!isNumber(body.subcategory_id) || body.subcategory_id <= 0) {
-            errors.push(createValidationError('subcategory_id', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('subcategory_id', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.subcategoryId = body.subcategory_id;
         }
@@ -1208,7 +1216,7 @@ export function validateUpdateTransaction(
 
     if (body.transactionType !== undefined) {
         if (!isEnum(body.transactionType, TransactionType)) {
-            errors.push(createValidationError('transactionType', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('transactionType', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'transactionType',
                 received: body.transactionType === undefined ? 'undefined' : String(body.transactionType),
                 options: Object.values(TransactionType).join(', ')
@@ -1220,7 +1228,7 @@ export function validateUpdateTransaction(
 
     if (body.transactionSource !== undefined) {
         if (!isEnum(body.transactionSource, TransactionSource)) {
-            errors.push(createValidationError('transactionSource', ResourceBase.translateWithParams(Resource.INVALID_ENUM, lang, {
+            errors.push(createValidationError('transactionSource', translateResourceWithParams(Resource.INVALID_ENUM, lang, {
                 path: 'transactionSource',
                 received: body.transactionSource === undefined ? 'undefined' : String(body.transactionSource),
                 options: Object.values(TransactionSource).join(', ')
@@ -1232,7 +1240,7 @@ export function validateUpdateTransaction(
 
     if (body.isInstallment !== undefined) {
         if (!isBoolean(body.isInstallment)) {
-            errors.push(createValidationError('isInstallment', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+            errors.push(createValidationError('isInstallment', translateResource(Resource.INVALID_TYPE, lang)));
         } else {
             result.isInstallment = body.isInstallment;
         }
@@ -1240,7 +1248,7 @@ export function validateUpdateTransaction(
 
     if (body.totalMonths !== undefined && body.totalMonths !== null) {
         if (!isNumber(body.totalMonths) || body.totalMonths <= 0) {
-            errors.push(createValidationError('isInstallment', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('isInstallment', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'isInstallment',
                 expected: 'boolean',
                 received: String(body.isInstallment)
@@ -1252,7 +1260,7 @@ export function validateUpdateTransaction(
 
     if (body.isRecurring !== undefined) {
         if (!isBoolean(body.isRecurring)) {
-            errors.push(createValidationError('isRecurring', ResourceBase.translateWithParams(Resource.INVALID_TYPE, lang, {
+            errors.push(createValidationError('isRecurring', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
                 path: 'isRecurring',
                 expected: 'boolean',
                 received: String(body.isRecurring)
@@ -1264,7 +1272,7 @@ export function validateUpdateTransaction(
 
     if (body.paymentDay !== undefined && body.paymentDay !== null) {
         if (!isNumber(body.paymentDay) || body.paymentDay < 1 || body.paymentDay > 31) {
-            errors.push(createValidationError('paymentDay', ResourceBase.translate(Resource.PAYMENT_DAY_OUT_OF_RANGE, lang)));
+            errors.push(createValidationError('paymentDay', translateResource(Resource.PAYMENT_DAY_OUT_OF_RANGE, lang)));
         } else {
             result.paymentDay = body.paymentDay;
         }
@@ -1272,7 +1280,7 @@ export function validateUpdateTransaction(
 
     if (body.account_id !== undefined && body.account_id !== null) {
         if (!isNumber(body.account_id) || body.account_id <= 0) {
-            errors.push(createValidationError('account_id', ResourceBase.translate(Resource.INVALID_ACCOUNT_ID, lang)));
+            errors.push(createValidationError('account_id', translateResource(Resource.INVALID_ACCOUNT_ID, lang)));
         } else {
             result.accountId = body.account_id;
         }
@@ -1280,7 +1288,7 @@ export function validateUpdateTransaction(
 
     if (body.creditCard_id !== undefined && body.creditCard_id !== null) {
         if (!isNumber(body.creditCard_id) || body.creditCard_id <= 0) {
-            errors.push(createValidationError('creditCard_id', ResourceBase.translate(Resource.INVALID_CREDIT_CARD_ID, lang)));
+            errors.push(createValidationError('creditCard_id', translateResource(Resource.INVALID_CREDIT_CARD_ID, lang)));
         } else {
             result.creditCardId = body.creditCard_id;
         }
@@ -1288,7 +1296,7 @@ export function validateUpdateTransaction(
 
     if (body.observation !== undefined && body.observation !== null) {
         if (!isString(body.observation)) {
-            errors.push(createValidationError('observation', ResourceBase.translate(Resource.INVALID_OBSERVATION_TYPE, lang)));
+            errors.push(createValidationError('observation', translateResource(Resource.INVALID_OBSERVATION_TYPE, lang)));
         } else {
             result.observation = body.observation;
         }
@@ -1296,14 +1304,14 @@ export function validateUpdateTransaction(
 
     if (body.tags !== undefined) {
         if (!isNumberArray(body.tags) || (body.tags as number[]).some(tagId => tagId <= 0)) {
-            errors.push(createValidationError('tags', ResourceBase.translate(Resource.VALIDATION_ERROR, lang)));
+            errors.push(createValidationError('tags', translateResource(Resource.VALIDATION_ERROR, lang)));
         } else {
             result.tags = body.tags;
         }
     }
 
     if (body.active !== undefined && !isBoolean(body.active)) {
-        errors.push(createValidationError('active', ResourceBase.translate(Resource.INVALID_TYPE, lang)));
+        errors.push(createValidationError('active', translateResource(Resource.INVALID_TYPE, lang)));
     } else if (body.active !== undefined) {
         result.active = body.active;
     }
@@ -1326,11 +1334,11 @@ export function validateUpdateTransaction(
 export function validateFeedbackRequest(
     data: unknown,
     lang?: LanguageCode
-): { success: true; data: { title: string; message: string } } | { success: false; errors: ValidationError[] } {
+): { success: true; data: SendFeedbackInput } | { success: false; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
 
     if (!data || typeof data !== 'object') {
-        return { success: false, errors: [createValidationError('body', ResourceBase.translate(Resource.VALIDATION_ERROR, lang))] };
+        return { success: false, errors: [createValidationError('body', translateResource(Resource.VALIDATION_ERROR, lang))] };
     }
 
     const body = data as Record<string, unknown>;
@@ -1338,14 +1346,14 @@ export function validateFeedbackRequest(
     const message = typeof body.message === 'string' ? body.message.trim() : '';
 
     if (!title) {
-        errors.push(createValidationError('title', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('title', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'title',
             min: 1
         })));
     }
 
     if (!message) {
-        errors.push(createValidationError('message', ResourceBase.translateWithParams(Resource.TOO_SMALL, lang, {
+        errors.push(createValidationError('message', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'message',
             min: 1
         })));
