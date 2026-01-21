@@ -640,7 +640,7 @@ export default function CategoriesPage() {
         name: name.trim(),
         type: categoryType,
         color,
-        user_id: userId,
+        userId: userId,
         active,
       });
       setIsCreateOpen(false);
@@ -704,7 +704,7 @@ export default function CategoriesPage() {
     try {
       await createSubcategoryMutation.mutateAsync({
         name: subcategoryName.trim(),
-        category_id: Number(subcategoryCategoryId),
+        categoryId: Number(subcategoryCategoryId),
         active: subcategoryActive,
       });
       setIsSubcategoryCreateOpen(false);
@@ -746,7 +746,7 @@ export default function CategoriesPage() {
         id: editSubcategoryId,
         payload: {
           name: editSubcategoryName.trim(),
-          category_id: Number(editSubcategoryCategoryId),
+          categoryId: Number(editSubcategoryCategoryId),
           active: editSubcategoryActive,
         },
       });

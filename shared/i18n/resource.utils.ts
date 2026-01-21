@@ -1,13 +1,22 @@
 import { ResourceKey } from './resource.keys';
 import { resourceMessages, type LanguageCode } from './resource.messages';
+import { fieldLabelKeys } from './resource.fields';
 
-const DEFAULT_LANGUAGE: LanguageCode = 'en-US';
+const defaultLanguage: LanguageCode = 'en-US';
 
+/** @summary Translate a resource key to a localized string. */
 export const translateResource = (key: ResourceKey, lang?: LanguageCode): string => {
-    const language = lang && resourceMessages[lang] ? lang : DEFAULT_LANGUAGE;
-    return resourceMessages[language][key] || resourceMessages[DEFAULT_LANGUAGE][key];
+    const language = lang && resourceMessages[lang] ? lang : defaultLanguage;
+    return resourceMessages[language][key] || resourceMessages[defaultLanguage][key];
 };
 
+/** @summary Translate a field name into a localized label when available. */
+export const translateFieldLabel = (field: string, lang?: LanguageCode): string => {
+    const labelKey = fieldLabelKeys[field];
+    return labelKey ? translateResource(labelKey, lang) : field;
+};
+
+/** @summary Translate a resource key and interpolate named params. */
 export const translateResourceWithParams = (
     key: ResourceKey,
     lang?: LanguageCode,
@@ -15,8 +24,15 @@ export const translateResourceWithParams = (
 ): string => {
     let value = translateResource(key, lang);
     if (!params) return value;
+    const resolvedParams: Record<string, string | number | undefined> = { ...params };
+    if (typeof resolvedParams.path === 'string') {
+        resolvedParams.path = translateFieldLabel(resolvedParams.path, lang);
+    }
+    if (typeof resolvedParams.field === 'string') {
+        resolvedParams.field = translateFieldLabel(resolvedParams.field, lang);
+    }
     return value.replace(/\{(\w+)\}/g, (match, name) => {
-        const replacement = params[name];
+        const replacement = resolvedParams[name];
         return replacement === undefined ? match : String(replacement);
     });
 };

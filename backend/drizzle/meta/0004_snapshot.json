@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "9bae4497-71e3-47bc-ad5e-d3765c97447b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "be7d4796-74c9-4ac5-921d-cd89c6b2013c",
+  "prevId": "9bae4497-71e3-47bc-ad5e-d3765c97447b",
   "tables": {
     "user": {
       "name": "user",
@@ -752,10 +752,10 @@
         "transactions__to__tags_transactionId_fk": {
           "name": "transactions__to__tags_transactionId_fk",
           "tableFrom": "transactions__to__tags",
+          "tableTo": "transaction",
           "columnsFrom": [
             "transactionId"
           ],
-          "tableTo": "transaction",
           "columnsTo": [
             "id"
           ],
@@ -765,10 +765,10 @@
         "transactions__to__tags_tagId_fk": {
           "name": "transactions__to__tags_tagId_fk",
           "tableFrom": "transactions__to__tags",
+          "tableTo": "tag",
           "columnsFrom": [
             "tagId"
           ],
-          "tableTo": "tag",
           "columnsTo": [
             "id"
           ],

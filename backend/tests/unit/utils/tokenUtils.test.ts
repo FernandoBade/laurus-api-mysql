@@ -145,3 +145,4 @@ describe('TokenUtils', () => {
         expect(result).toBe(expected);
     });
 });
+

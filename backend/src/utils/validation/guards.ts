@@ -66,6 +66,38 @@ export function isDate(value: unknown): value is Date | string {
 }
 
 /**
+ * Checks if a value is a valid ISO 8601 date string.
+ *
+ * @summary Validates that a value is a date string in ISO format.
+ * @param value - Value to check.
+ * @returns True if value is a valid ISO date string, false otherwise.
+ */
+export function isISODateString(value: unknown): value is string {
+    if (typeof value !== 'string') {
+        return false;
+    }
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+}
+
+/**
+ * Checks if a value is a valid monetary string.
+ *
+ * @summary Validates that a value is a numeric string for money.
+ * @param value - Value to check.
+ * @returns True if value is a valid monetary string, false otherwise.
+ */
+export function isMonetaryString(value: unknown): value is string {
+    if (typeof value !== 'string') {
+        return false;
+    }
+    if (!value.length) {
+        return false;
+    }
+    return /^-?\d+(\.\d{1,2})?$/.test(value.trim());
+}
+
+/**
  * Checks if a value is a member of an enum object.
  *
  * @summary Validates enum membership.

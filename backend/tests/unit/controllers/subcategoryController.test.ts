@@ -7,25 +7,26 @@ import { createMockRequest, createMockResponse, createNext } from '../../helpers
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 999 };
+const DEFAULT_ISO_DATE = '2024-01-01T00:00:00.000Z';
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
   createMockRequest({ user: authUser, ...overrides });
 
 const makeSubcategoryInput = (overrides: Partial<{ name: string; categoryId: number; active?: boolean; userId?: number }> = {}) => ({
   name: overrides.name ?? 'Groceries',
-  category_id: overrides.categoryId ?? 1,
+  categoryId: overrides.categoryId ?? 1,
   active: overrides.active ?? true,
-  user_id: overrides.userId ?? 1,
+  userId: overrides.userId ?? 1,
 });
 
 const makeSubcategory = (
-  overrides: Partial<{ id: number; name: string; categoryId: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
+  overrides: Partial<{ id: number; name: string; categoryId: number; active?: boolean; createdAt: string; updatedAt: string }> = {}
 ) => ({
   id: overrides.id ?? 1,
   name: overrides.name ?? 'Groceries',
   categoryId: overrides.categoryId ?? 1,
   active: overrides.active ?? true,
-  createdAt: overrides.createdAt ?? new Date('2024-01-01T00:00:00Z'),
-  updatedAt: overrides.updatedAt ?? new Date('2024-01-01T00:00:00Z'),
+  createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+  updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
 });
 
 describe('SubcategoryController', () => {
@@ -43,7 +44,7 @@ describe('SubcategoryController', () => {
   describe('createSubcategory', () => {
     it('returns 400 without calling service when validation fails', async () => {
       const createSpy = jest.spyOn(SubcategoryService.prototype, 'createSubcategory');
-      const req = createMockRequest({ body: { name: '', category_id: 0 } });
+      const req = createMockRequest({ body: { name: '', categoryId: 0 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -76,10 +77,10 @@ describe('SubcategoryController', () => {
       expect(createSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           name: input.name,
-          categoryId: input.category_id,
+          categoryId: input.categoryId,
           active: input.active,
         }),
-        input.user_id
+        input.userId
       );
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
       expect(res.json).toHaveBeenCalledWith(
@@ -94,7 +95,7 @@ describe('SubcategoryController', () => {
 
     it('returns 201 and logs when subcategory is created', async () => {
       const input = makeSubcategoryInput({ userId: 4 });
-      const created = makeSubcategory({ id: 12, categoryId: input.category_id });
+      const created = makeSubcategory({ id: 12, categoryId: input.categoryId });
       const createSpy = jest.spyOn(SubcategoryService.prototype, 'createSubcategory').mockResolvedValue({ success: true, data: created });
       const req = createAuthRequest({ body: input });
       const res = createMockResponse();
@@ -106,10 +107,10 @@ describe('SubcategoryController', () => {
       expect(createSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           name: input.name,
-          categoryId: input.category_id,
+          categoryId: input.categoryId,
           active: input.active,
         }),
-        input.user_id
+        input.userId
       );
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.CREATED);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: created }));
@@ -585,7 +586,7 @@ describe('SubcategoryController', () => {
       const existing = makeSubcategory({ id: 9 });
       jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(SubcategoryService.prototype, 'updateSubcategory').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '9' }, body: { user_id: 99 } });
+      const req = createMockRequest({ params: { id: '9' }, body: { userId: 99 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -604,7 +605,7 @@ describe('SubcategoryController', () => {
       const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(SubcategoryService.prototype, 'getSubcategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(SubcategoryService.prototype, 'updateSubcategory').mockResolvedValue({ success: true, data: updated });
-      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: 1 } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', userId: 1 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -740,3 +741,5 @@ describe('SubcategoryController', () => {
     });
   });
 });
+
+

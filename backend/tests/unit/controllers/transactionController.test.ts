@@ -26,7 +26,7 @@ describe('TransactionController', () => {
     describe('createTransaction', () => {
         it('returns 400 without calling service when validation fails', async () => {
             const createSpy = jest.spyOn(TransactionService.prototype, 'createTransaction');
-            const req = createMockRequest({ body: { value: -1 } });
+            const req = createMockRequest({ body: { value: '-1' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -59,14 +59,14 @@ describe('TransactionController', () => {
             expect(createSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     value: input.value,
-                    date: expect.any(Date),
-                    categoryId: input.category_id,
+                    date: input.date,
+                    categoryId: input.categoryId,
                     transactionType: input.transactionType,
                     transactionSource: input.transactionSource,
                     isInstallment: input.isInstallment,
                     isRecurring: input.isRecurring,
-                    accountId: input.account_id,
-                    creditCardId: input.creditCard_id,
+                    accountId: input.accountId,
+                    creditCardId: input.creditCardId,
                 })
             );
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
@@ -82,7 +82,7 @@ describe('TransactionController', () => {
 
         it('returns 201 and logs when transaction is created', async () => {
             const input = makeTransactionInput({ accountId: 2 });
-            const created = makeTransaction({ id: 10, accountId: input.account_id as number });
+            const created = makeTransaction({ id: 10, accountId: input.accountId as number });
             const createSpy = jest.spyOn(TransactionService.prototype, 'createTransaction').mockResolvedValue({ success: true, data: created });
             const req = createAuthRequest({ body: input });
             const res = createMockResponse();
@@ -94,14 +94,14 @@ describe('TransactionController', () => {
             expect(createSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     value: input.value,
-                    date: expect.any(Date),
-                    categoryId: input.category_id,
+                    date: input.date,
+                    categoryId: input.categoryId,
                     transactionType: input.transactionType,
                     transactionSource: input.transactionSource,
                     isInstallment: input.isInstallment,
                     isRecurring: input.isRecurring,
-                    accountId: input.account_id,
-                    creditCardId: input.creditCard_id,
+                    accountId: input.accountId,
+                    creditCardId: input.creditCardId,
                     active: input.active,
                 })
             );
@@ -587,7 +587,7 @@ describe('TransactionController', () => {
 
         it('returns 400 when transaction does not exist', async () => {
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: false, error: Resource.NO_RECORDS_FOUND });
-            const req = createMockRequest({ params: { id: '6' }, body: { value: 50 } });
+            const req = createMockRequest({ params: { id: '6' }, body: { value: '50.00' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -604,7 +604,7 @@ describe('TransactionController', () => {
             const existing = makeTransaction({ id: 8 });
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: true, data: existing });
             const updateSpy = jest.spyOn(TransactionService.prototype, 'updateTransaction');
-            const req = createMockRequest({ params: { id: '8' }, body: { value: -5 } });
+            const req = createMockRequest({ params: { id: '8' }, body: { value: '-5.00' } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -624,7 +624,7 @@ describe('TransactionController', () => {
             jest.spyOn(TransactionService.prototype, 'updateTransaction').mockResolvedValue({ success: false, error: Resource.ACCOUNT_NOT_FOUND });
             const req = createMockRequest({
                 params: { id: '9' },
-                body: { value: 50, account_id: 99, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
+                body: { value: '50.00', accountId: 99, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
             });
             const res = createMockResponse();
             const next = createNext();
@@ -640,13 +640,13 @@ describe('TransactionController', () => {
 
         it('returns 200 and logs when update succeeds', async () => {
             const existing = makeTransaction({ id: 11, accountId: 3 });
-            const updated = makeTransaction({ id: 11, accountId: 3, value: '200' });
+            const updated = makeTransaction({ id: 11, accountId: 3, value: '200.00' });
             const expectedDelta = { value: { from: existing.value, to: updated.value } };
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: true, data: existing });
             jest.spyOn(TransactionService.prototype, 'updateTransaction').mockResolvedValue({ success: true, data: updated });
             const req = createAuthRequest({
                 params: { id: '11' },
-                body: { value: 200, account_id: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
+                body: { value: '200.00', accountId: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
             });
             const res = createMockResponse();
             const next = createNext();
@@ -654,7 +654,7 @@ describe('TransactionController', () => {
             await TransactionController.updateTransaction(req, res, next);
 
             expect(TransactionService.prototype.updateTransaction).toHaveBeenCalledWith(11, expect.objectContaining({
-                value: 200,
+                value: '200.00',
                 accountId: existing.accountId,
                 transactionSource: TransactionSource.ACCOUNT,
                 transactionType: TransactionType.EXPENSE,
@@ -678,7 +678,7 @@ describe('TransactionController', () => {
             jest.spyOn(TransactionService.prototype, 'updateTransaction').mockRejectedValue(new Error('boom'));
             const req = createAuthRequest({
                 params: { id: '12' },
-                body: { value: 150, account_id: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
+                body: { value: '150.00', accountId: existing.accountId, transactionSource: TransactionSource.ACCOUNT, transactionType: TransactionType.EXPENSE, isInstallment: false, isRecurring: false },
             });
             const res = createMockResponse();
             const next = createNext();
@@ -788,3 +788,5 @@ describe('TransactionController', () => {
         });
     });
 });
+
+

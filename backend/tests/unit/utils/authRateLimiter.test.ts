@@ -60,3 +60,4 @@ describe('auth rate limiter', () => {
         expect(res.status).not.toHaveBeenCalled();
     });
 });
+

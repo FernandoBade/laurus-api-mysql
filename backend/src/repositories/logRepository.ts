@@ -62,7 +62,7 @@ export class LogRepository {
         }
 
         if (options?.offset) {
-            query = query.offset(options.offset) as typeof query    ;
+            query = query.offset(options.offset) as typeof query;
         }
 
         return await query;
@@ -112,4 +112,6 @@ export class LogRepository {
         return created;
     }
 }
+
+
 

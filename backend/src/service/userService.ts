@@ -5,7 +5,7 @@ import { Client as FtpClient } from 'basic-ftp';
 import { Operator } from '../../../shared/enums';
 import { UserRepository } from '../repositories/userRepository';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
-import { SelectUser } from '../db/schema';
+import { SelectUser, InsertUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 import { TokenService } from './tokenService';
 import { sendEmailVerificationEmail } from '../utils/email/authEmail';
@@ -42,8 +42,25 @@ export class UserService {
      * @param data - Raw user object with sensitive fields.
      * @returns User object without the password.
      */
+    private toIsoString(value: Date | null): string | null {
+        if (!value) {
+            return null;
+        }
+        return value.toISOString();
+    }
+
+    private toUserEntity(data: SelectUser): UserEntity {
+        return {
+            ...data,
+            birthDate: this.toIsoString(data.birthDate),
+            emailVerifiedAt: this.toIsoString(data.emailVerifiedAt),
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     private sanitizeUser(data: SelectUser): SanitizedUser {
-        const { password, ...safeUser } = data;
+        const { password, ...safeUser } = this.toUserEntity(data);
         return safeUser;
     }
 
@@ -71,10 +88,12 @@ export class UserService {
         }
 
         const hashedPassword = await bcrypt.hash(data.password, 10);
-        const created = await this.userRepository.create({
+        const insertData: InsertUser = {
             ...data,
+            birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
             password: hashedPassword,
-        });
+        };
+        const created = await this.userRepository.create(insertData);
 
         const rollbackUser = async () => {
             try {
@@ -280,7 +299,14 @@ export class UserService {
             }
         }
 
-        const updated = await this.userRepository.update(id, data);
+        const { birthDate, ...restUpdate } = data;
+        const updateData: Partial<InsertUser> = {
+            ...restUpdate,
+        };
+        if (birthDate !== undefined) {
+            updateData.birthDate = new Date(birthDate);
+        }
+        const updated = await this.userRepository.update(id, updateData);
         return {
             success: true,
             data: this.sanitizeUser(updated)
@@ -337,7 +363,7 @@ export class UserService {
         if (!user) {
             return { success: false, error: Resource.USER_NOT_FOUND };
         }
-        return { success: true, data: user };
+        return { success: true, data: this.toUserEntity(user) };
     }
 
     /**
@@ -413,3 +439,5 @@ export class UserService {
         }
     }
 }
+
+

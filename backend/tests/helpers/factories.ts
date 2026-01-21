@@ -1,20 +1,41 @@
-import { SelectUser, SelectAccount } from '../../src/db/schema';
+import { SelectUser, SelectAccount, SelectTransaction } from '../../src/db/schema';
 import { AccountType, Currency, DateFormat, Language, Profile, Theme, TransactionType, TransactionSource } from '../../../shared/enums';
-import type { SanitizedUser } from '../../../shared/domains/user/user.types';
+import type { AccountEntity } from '../../../shared/domains/account/account.types';
+import type { TransactionWithTags } from '../../../shared/domains/transaction/transaction.types';
+import type { SanitizedUser, UserEntity } from '../../../shared/domains/user/user.types';
+import type { ISODateString } from '../../../shared/types/format.types';
+
+const DEFAULT_DATE = new Date('2024-01-01T00:00:00Z');
+const DEFAULT_ISO_DATE = DEFAULT_DATE.toISOString();
+
+const normalizeIsoDate = (value: ISODateString | Date | null | undefined, fallback: ISODateString | null): ISODateString | null => {
+    if (value === undefined) {
+        return fallback;
+    }
+    if (value === null) {
+        return null;
+    }
+    return value instanceof Date ? value.toISOString() : value;
+};
+
+const normalizeRequiredIsoDate = (value: ISODateString | Date | undefined, fallback: ISODateString): ISODateString => {
+    if (value === undefined) {
+        return fallback;
+    }
+    return value instanceof Date ? value.toISOString() : value;
+};
 
 /**
  * @summary Builds a complete SelectUser object with sensible defaults for tests.
  */
-export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
-    const now = new Date('2024-01-01T00:00:00Z');
-
+export function makeDbUser(overrides: Partial<SelectUser> = {}): SelectUser {
     return {
         id: overrides.id ?? 1,
         firstName: overrides.firstName ?? 'Test',
         lastName: overrides.lastName ?? 'User',
         email: overrides.email ?? 'testuser@example.com',
         password: overrides.password ?? 'hashed-password',
-        birthDate: overrides.birthDate ?? now,
+        birthDate: overrides.birthDate ?? DEFAULT_DATE,
         phone: overrides.phone ?? '555-0100',
         avatarUrl: overrides.avatarUrl ?? null,
         theme: overrides.theme ?? Theme.DARK,
@@ -24,9 +45,35 @@ export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
         profile: overrides.profile ?? Profile.STARTER,
         hideValues: overrides.hideValues ?? false,
         active: overrides.active ?? true,
-        emailVerifiedAt: overrides.emailVerifiedAt !== undefined ? overrides.emailVerifiedAt : now,
-        createdAt: overrides.createdAt ?? now,
-        updatedAt: overrides.updatedAt ?? now,
+        emailVerifiedAt: overrides.emailVerifiedAt !== undefined ? overrides.emailVerifiedAt : DEFAULT_DATE,
+        createdAt: overrides.createdAt ?? DEFAULT_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_DATE,
+    };
+}
+
+/**
+ * @summary Builds a full user entity using shared ISO string formats.
+ */
+export function makeUser(overrides: Partial<UserEntity> = {}): UserEntity {
+    return {
+        id: overrides.id ?? 1,
+        firstName: overrides.firstName ?? 'Test',
+        lastName: overrides.lastName ?? 'User',
+        email: overrides.email ?? 'testuser@example.com',
+        password: overrides.password ?? 'hashed-password',
+        birthDate: normalizeIsoDate(overrides.birthDate, DEFAULT_ISO_DATE),
+        phone: overrides.phone ?? '555-0100',
+        avatarUrl: overrides.avatarUrl ?? null,
+        theme: overrides.theme ?? Theme.DARK,
+        language: overrides.language ?? Language.EN_US,
+        dateFormat: overrides.dateFormat ?? DateFormat.DD_MM_YYYY,
+        currency: overrides.currency ?? Currency.BRL,
+        profile: overrides.profile ?? Profile.STARTER,
+        hideValues: overrides.hideValues ?? false,
+        active: overrides.active ?? true,
+        emailVerifiedAt: normalizeIsoDate(overrides.emailVerifiedAt, DEFAULT_ISO_DATE),
+        createdAt: normalizeRequiredIsoDate(overrides.createdAt, DEFAULT_ISO_DATE),
+        updatedAt: normalizeRequiredIsoDate(overrides.updatedAt, DEFAULT_ISO_DATE),
     };
 }
 
@@ -34,8 +81,8 @@ export function makeUser(overrides: Partial<SelectUser> = {}): SelectUser {
  * @summary Returns a sanitized user object without sensitive fields.
  */
 export function makeSanitizedUser(overrides: Partial<SanitizedUser> = {}): SanitizedUser {
-    const { password: _ignored, ...user } = makeUser(overrides);
-    return user;
+    const { password: _ignored, ...user } = makeUser(overrides as Partial<UserEntity>);
+    return user as SanitizedUser;
 }
 
 /**
@@ -54,9 +101,7 @@ export function makeCreateUserInput(overrides: Partial<{ firstName: string; last
 /**
  * @summary Builds a SelectAccount object ready for service/repository tests.
  */
-export function makeAccount(overrides: Partial<SelectAccount> = {}): SelectAccount {
-    const now = new Date('2024-01-01T00:00:00Z');
-
+export function makeDbAccount(overrides: Partial<SelectAccount> = {}): SelectAccount {
     return {
         id: overrides.id ?? 1,
         name: overrides.name ?? 'Main Account',
@@ -66,15 +111,33 @@ export function makeAccount(overrides: Partial<SelectAccount> = {}): SelectAccou
         balance: overrides.balance ?? '0.00',
         active: overrides.active ?? true,
         userId: overrides.userId ?? 1,
-        createdAt: overrides.createdAt ?? now,
-        updatedAt: overrides.updatedAt ?? now,
+        createdAt: overrides.createdAt ?? DEFAULT_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_DATE,
+    };
+}
+
+/**
+ * @summary Builds an account entity formatted for API responses.
+ */
+export function makeAccount(overrides: Partial<AccountEntity> = {}): AccountEntity {
+    return {
+        id: overrides.id ?? 1,
+        name: overrides.name ?? 'Main Account',
+        institution: overrides.institution ?? 'Test Bank',
+        type: overrides.type ?? AccountType.CHECKING,
+        observation: overrides.observation ?? null,
+        balance: overrides.balance ?? '0.00',
+        active: overrides.active ?? true,
+        userId: overrides.userId ?? 1,
+        createdAt: normalizeRequiredIsoDate(overrides.createdAt, DEFAULT_ISO_DATE),
+        updatedAt: normalizeRequiredIsoDate(overrides.updatedAt, DEFAULT_ISO_DATE),
     };
 }
 
 /**
  * @summary Provides a valid payload for creating an account.
  */
-export function makeAccountInput(overrides: Partial<{ name: string; institution: string; type: AccountType; observation?: string; balance?: number; userId: number; active?: boolean }> = {}) {
+export function makeAccountInput(overrides: Partial<{ name: string; institution: string; type: AccountType; observation?: string; balance?: string; userId: number; active?: boolean }> = {}) {
     return {
         name: overrides.name ?? 'Wallet',
         institution: overrides.institution ?? 'Sample Bank',
@@ -100,8 +163,8 @@ export function makeAccountInput(overrides: Partial<{ name: string; institution:
 
 export function makeTransactionInput(
     overrides: Partial<{
-        value: number;
-        date: Date;
+        value: string;
+        date: string;
         categoryId?: number;
         subcategoryId?: number;
         observation?: string;
@@ -118,8 +181,8 @@ export function makeTransactionInput(
     }> = {}
 ) {
     const body: Record<string, unknown> = {
-        value: overrides.value ?? 100,
-        date: overrides.date ?? new Date('2024-01-01T00:00:00Z'),
+        value: overrides.value ?? '100.00',
+        date: overrides.date ?? DEFAULT_ISO_DATE,
         transactionType: overrides.transactionType ?? TransactionType.EXPENSE,
         transactionSource: overrides.transactionSource ?? TransactionSource.ACCOUNT,
         isInstallment: overrides.isInstallment ?? false,
@@ -127,20 +190,20 @@ export function makeTransactionInput(
         active: overrides.active ?? true,
     };
 
-    // category_id is commonly required by tests; default to 1 when not provided to mirror prior factories
-    body.category_id = overrides.categoryId ?? 1;
-    if (overrides.subcategoryId !== undefined) body.subcategory_id = overrides.subcategoryId;
+    // categoryId is commonly required by tests; default to 1 when not provided to mirror prior factories
+    body.categoryId = overrides.categoryId ?? 1;
+    if (overrides.subcategoryId !== undefined) body.subcategoryId = overrides.subcategoryId;
     if (overrides.observation !== undefined) body.observation = overrides.observation;
     if (overrides.totalMonths !== undefined) body.totalMonths = overrides.totalMonths;
     if (overrides.paymentDay !== undefined) body.paymentDay = overrides.paymentDay;
-    if (overrides.accountId !== undefined) body.account_id = overrides.accountId;
-    if (overrides.creditCardId !== undefined) body.creditCard_id = overrides.creditCardId;
+    if (overrides.accountId !== undefined) body.accountId = overrides.accountId;
+    if (overrides.creditCardId !== undefined) body.creditCardId = overrides.creditCardId;
     if (overrides.tags !== undefined) body.tags = overrides.tags;
 
     return body;
 }
 
-export function makeTransaction(
+export function makeDbTransaction(
     overrides: Partial<{
         id: number;
         value: string;
@@ -156,18 +219,15 @@ export function makeTransaction(
         paymentDay?: number | null;
         accountId?: number | null;
         creditCardId?: number | null;
-        tags?: number[];
         active?: boolean;
         createdAt?: Date;
         updatedAt?: Date;
     }> = {}
-) {
-    const now = new Date('2024-01-01T00:00:00Z');
-
+) : SelectTransaction {
     return {
         id: overrides.id ?? 1,
         value: overrides.value ?? '100',
-        date: overrides.date ?? now,
+        date: overrides.date ?? DEFAULT_DATE,
         categoryId: overrides.categoryId ?? 1,
         subcategoryId: overrides.subcategoryId ?? null,
         observation: overrides.observation ?? 'Groceries',
@@ -179,9 +239,34 @@ export function makeTransaction(
         paymentDay: overrides.paymentDay ?? null,
         accountId: overrides.accountId ?? 1,
         creditCardId: overrides.creditCardId ?? null,
-        tags: overrides.tags ?? [],
         active: overrides.active ?? true,
-        createdAt: overrides.createdAt ?? now,
-        updatedAt: overrides.updatedAt ?? now,
+        createdAt: overrides.createdAt ?? DEFAULT_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_DATE,
+    };
+}
+
+/**
+ * @summary Builds a transaction response payload with ISO strings.
+ */
+export function makeTransaction(overrides: Partial<TransactionWithTags> = {}): TransactionWithTags {
+    return {
+        id: overrides.id ?? 1,
+        value: overrides.value ?? '100.00',
+        date: normalizeRequiredIsoDate(overrides.date, DEFAULT_ISO_DATE),
+        transactionType: overrides.transactionType ?? TransactionType.EXPENSE,
+        observation: overrides.observation ?? 'Groceries',
+        transactionSource: overrides.transactionSource ?? TransactionSource.ACCOUNT,
+        isInstallment: overrides.isInstallment ?? false,
+        totalMonths: overrides.totalMonths ?? null,
+        isRecurring: overrides.isRecurring ?? false,
+        paymentDay: overrides.paymentDay ?? null,
+        active: overrides.active ?? true,
+        accountId: overrides.accountId ?? 1,
+        creditCardId: overrides.creditCardId ?? null,
+        categoryId: overrides.categoryId ?? 1,
+        subcategoryId: overrides.subcategoryId ?? null,
+        tags: overrides.tags ?? [],
+        createdAt: normalizeRequiredIsoDate(overrides.createdAt, DEFAULT_ISO_DATE),
+        updatedAt: normalizeRequiredIsoDate(overrides.updatedAt, DEFAULT_ISO_DATE),
     };
 }

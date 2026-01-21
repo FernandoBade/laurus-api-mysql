@@ -125,3 +125,4 @@ describe('verifyToken middleware', () => {
         expect(next).not.toHaveBeenCalled();
     });
 });
+

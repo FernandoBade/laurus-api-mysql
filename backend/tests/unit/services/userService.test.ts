@@ -4,7 +4,7 @@ import { UserRepository } from '../../../src/repositories/userRepository';
 import { TokenService } from '../../../src/service/tokenService';
 import { Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
-import { makeCreateUserInput, makeUser } from '../../helpers/factories';
+import { makeCreateUserInput, makeDbUser, makeUser } from '../../helpers/factories';
 import { sendEmailVerificationEmail } from '../../../src/utils/email/authEmail';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
@@ -39,7 +39,7 @@ const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
 describe('UserService', () => {
     beforeEach(() => {
@@ -54,7 +54,7 @@ describe('UserService', () => {
         it('returns email not verified when existing user is unverified', async () => {
             const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([
-                makeUser({ emailVerifiedAt: null }),
+                makeDbUser({ emailVerifiedAt: null }),
             ]);
             const createSpy = jest.spyOn(UserRepository.prototype, 'create');
 
@@ -78,7 +78,7 @@ describe('UserService', () => {
         it('returns email in use when existing user is verified', async () => {
             const payload = makeCreateUserInput({ email: '  TEST@Example.com  ' });
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([
-                makeUser({ emailVerifiedAt: new Date('2024-01-01T00:00:00Z') }),
+                makeDbUser({ emailVerifiedAt: new Date('2024-01-01T00:00:00Z') }),
             ]);
             const createSpy = jest.spyOn(UserRepository.prototype, 'create');
 
@@ -104,7 +104,7 @@ describe('UserService', () => {
             const originalPassword = payload.password;
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
             hashMock.mockResolvedValue('hashed-password');
-            const created = makeUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password', hideValues: true });
+            const created = makeDbUser({ id: 2, email: 'jane.doe@example.com', password: 'hashed-password', hideValues: true });
             const createSpy = jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
             const createTokenSpy = jest.spyOn(TokenService.prototype, 'createEmailVerificationToken').mockResolvedValue({
                 success: true,
@@ -147,7 +147,7 @@ describe('UserService', () => {
             const payload = makeCreateUserInput({ email: '  Jane.Doe@Example.com ' });
             jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([]);
             hashMock.mockResolvedValue('hashed-password');
-            const created = makeUser({ id: 3, email: 'jane.doe@example.com', password: 'hashed-password' });
+            const created = makeDbUser({ id: 3, email: 'jane.doe@example.com', password: 'hashed-password' });
             jest.spyOn(UserRepository.prototype, 'create').mockResolvedValue(created);
             const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete').mockResolvedValue();
             const createTokenSpy = jest.spyOn(TokenService.prototype, 'createEmailVerificationToken').mockResolvedValue({
@@ -191,7 +191,7 @@ describe('UserService', () => {
 
     describe('getUsers', () => {
         it('returns sanitized users when repository succeeds', async () => {
-            const users = [makeUser({ id: 1, password: 'hash1' }), makeUser({ id: 2, password: 'hash2' })];
+            const users = [makeDbUser({ id: 1, password: 'hash1' }), makeDbUser({ id: 2, password: 'hash2' })];
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
@@ -276,7 +276,7 @@ describe('UserService', () => {
         });
 
         it('returns sanitized user when repository returns a record', async () => {
-            const user = makeUser({ id: 7, password: 'hash' });
+            const user = makeDbUser({ id: 7, password: 'hash' });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
 
             const service = new UserService();
@@ -318,7 +318,7 @@ describe('UserService', () => {
 
     describe('getUsersByEmail', () => {
         it('returns sanitized users when repository succeeds', async () => {
-            const users = [makeUser({ id: 4, password: 'hash' })];
+            const users = [makeDbUser({ id: 4, password: 'hash' })];
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
@@ -358,7 +358,7 @@ describe('UserService', () => {
 
     describe('getUserByEmailExact', () => {
         it('returns sanitized users when repository succeeds', async () => {
-            const users = [makeUser({ id: 4, password: 'hash' })];
+            const users = [makeDbUser({ id: 4, password: 'hash' })];
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
@@ -416,7 +416,7 @@ describe('UserService', () => {
         });
 
         it('returns sanitized user when repository returns a record', async () => {
-            const user = makeUser({ id: 9, password: 'hash' });
+            const user = makeDbUser({ id: 9, password: 'hash' });
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue([user]);
 
             const service = new UserService();
@@ -440,8 +440,8 @@ describe('UserService', () => {
 
         it('throws when multiple users share the same email', async () => {
             const users = [
-                makeUser({ id: 1, email: 'dup@example.com' }),
-                makeUser({ id: 2, email: 'dup@example.com' }),
+                makeDbUser({ id: 1, email: 'dup@example.com' }),
+                makeDbUser({ id: 2, email: 'dup@example.com' }),
             ];
             jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
@@ -507,10 +507,10 @@ describe('UserService', () => {
         });
 
         it('removes password update when password matches current hash', async () => {
-            const current = makeUser({ id: 5, password: 'hashed' });
+            const current = makeDbUser({ id: 5, password: 'hashed' });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
             compareMock.mockResolvedValue(true);
-            const updated = makeUser({ id: 5, password: current.password, firstName: 'Updated' });
+            const updated = makeDbUser({ id: 5, password: current.password, firstName: 'Updated' });
             const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new UserService();
@@ -530,11 +530,11 @@ describe('UserService', () => {
         });
 
         it('rehashes password when updated password differs', async () => {
-            const current = makeUser({ id: 6, password: 'hashed-old' });
+            const current = makeDbUser({ id: 6, password: 'hashed-old' });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
             compareMock.mockResolvedValue(false);
             hashMock.mockResolvedValue('hashed-new');
-            const updated = makeUser({ id: 6, password: 'hashed-new' });
+            const updated = makeDbUser({ id: 6, password: 'hashed-new' });
             const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new UserService();
@@ -556,7 +556,7 @@ describe('UserService', () => {
         });
 
         it('throws when repository update rejects', async () => {
-            const current = makeUser({ id: 7, password: 'hashed-old' });
+            const current = makeDbUser({ id: 7, password: 'hashed-old' });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(current);
             compareMock.mockResolvedValue(false);
             hashMock.mockResolvedValue('hashed-new');
@@ -600,7 +600,7 @@ describe('UserService', () => {
         });
 
         it('deletes and returns id when user exists', async () => {
-            const user = makeUser({ id: 11 });
+            const user = makeDbUser({ id: 11 });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             const deleteSpy = jest.spyOn(UserRepository.prototype, 'delete').mockResolvedValue();
 
@@ -612,7 +612,7 @@ describe('UserService', () => {
         });
 
         it('throws when repository delete rejects', async () => {
-            const user = makeUser({ id: 12 });
+            const user = makeDbUser({ id: 12 });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             jest.spyOn(UserRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -652,13 +652,14 @@ describe('UserService', () => {
         });
 
         it('returns user when repository returns a record', async () => {
-            const user = makeUser({ id: 21 });
+            const user = makeDbUser({ id: 21 });
+            const expected = makeUser({ id: 21 });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
 
             const service = new UserService();
             const result = await service.findOne(21);
 
-            expect(result).toEqual({ success: true, data: user });
+            expect(result).toEqual({ success: true, data: expected });
             expect(result.success).toBe(true);
             if (result.success) {
                 expect(result.data).toHaveProperty('password');
@@ -730,7 +731,7 @@ describe('UserService', () => {
         });
 
         it('uploads avatar and updates url when upload succeeds', async () => {
-            const user = makeUser({ id: 7 });
+            const user = makeDbUser({ id: 7 });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue({
                 ...user,
@@ -763,7 +764,7 @@ describe('UserService', () => {
         });
 
         it('returns internal server error when ftp upload fails', async () => {
-            const user = makeUser({ id: 8 });
+            const user = makeDbUser({ id: 8 });
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             jest.spyOn(UserRepository.prototype, 'update');
             ftpClientMock.uploadFrom.mockRejectedValue(new Error('ftp error'));
@@ -782,3 +783,6 @@ describe('UserService', () => {
         });
     });
 });
+
+
+

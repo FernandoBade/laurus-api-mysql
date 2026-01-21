@@ -19,6 +19,14 @@ export class CreditCardService {
         this.creditCardRepository = new CreditCardRepository();
     }
 
+    private toCreditCardEntity(data: SelectCreditCard): CreditCardEntity {
+        return {
+            ...data,
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     /**
      * Creates a new credit card.
      *
@@ -57,9 +65,10 @@ export class CreditCardService {
                 active: data.active,
                 userId: data.userId,
                 accountId: data.accountId,
-                limit: data.limit !== undefined ? data.limit.toFixed(2) : undefined,
+                balance: data.balance,
+                limit: data.limit,
             } as InsertCreditCard);
-            return { success: true, data: created };
+            return { success: true, data: this.toCreditCardEntity(created) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -80,7 +89,7 @@ export class CreditCardService {
                 sort: options?.sort as keyof SelectCreditCard,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: creditCards };
+            return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -113,7 +122,7 @@ export class CreditCardService {
         if (!creditCard) {
             return { success: false, error: Resource.CREDIT_CARD_NOT_FOUND };
         }
-        return { success: true, data: creditCard };
+        return { success: true, data: this.toCreditCardEntity(creditCard) };
     }
 
     /**
@@ -133,7 +142,7 @@ export class CreditCardService {
                 sort: options?.sort as keyof SelectCreditCard,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: creditCards };
+            return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -166,7 +175,7 @@ export class CreditCardService {
      * @returns Updated credit card record.
      */
     async updateCreditCard(id: number, data: UpdateCreditCardInput): Promise<{ success: true; data: CreditCardEntity } | { success: false; error: Resource }> {
-        const { balance: _ignored, ...safeData } = data;
+        const { balance, ...safeData } = data;
 
         if (data.userId !== undefined) {
             const userService = new UserService();
@@ -196,13 +205,12 @@ export class CreditCardService {
         }
 
         try {
-            const { limit, ...rest } = safeData as any;
-            const dbData: Partial<InsertCreditCard> = { ...rest } as Partial<InsertCreditCard>;
-            if (limit !== undefined && limit !== null) {
-                dbData.limit = typeof limit === 'number' ? limit.toFixed(2) as InsertCreditCard['limit'] : String(limit) as InsertCreditCard['limit'];
-            }
+            const dbData: Partial<InsertCreditCard> = {
+                ...safeData,
+                ...(balance !== undefined ? { balance } : {}),
+            };
             const updated = await this.creditCardRepository.update(id, dbData);
-            return { success: true, data: updated };
+            return { success: true, data: this.toCreditCardEntity(updated) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -229,3 +237,5 @@ export class CreditCardService {
         }
     }
 }
+
+

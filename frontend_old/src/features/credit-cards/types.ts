@@ -20,8 +20,8 @@ export type CreateCreditCardPayload = {
   observation?: string;
   balance?: number;
   limit?: number;
-  user_id: number;
-  account_id?: number;
+  userId: number;
+  accountId?: number;
   active?: boolean;
 };
 

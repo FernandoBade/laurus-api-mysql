@@ -1,5 +1,6 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Supported account types. */
 export enum AccountType {
     CHECKING = 'checking',
     PAYROLL = 'payroll',
@@ -9,6 +10,7 @@ export enum AccountType {
     OTHER = 'other',
 }
 
+/** @summary Account-related error codes mapped to i18n resources. */
 export enum AccountErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,
     UserNotFound = ResourceKey.USER_NOT_FOUND,

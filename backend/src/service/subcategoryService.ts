@@ -17,6 +17,14 @@ export class SubcategoryService {
         this.subcategoryRepository = new SubcategoryRepository();
     }
 
+    private toSubcategoryEntity(data: SelectSubcategory): SubcategoryEntity {
+        return {
+            ...data,
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     /**
      * Creates a new subcategory.
      * Ensures the required data is present and linked to a valid and authorized category.
@@ -41,9 +49,9 @@ export class SubcategoryService {
         try {
             const created = await this.subcategoryRepository.create({
                 ...data,
-                category_id: data.categoryId,
+                categoryId: data.categoryId,
             } as InsertSubcategory);
-            return { success: true, data: created };
+            return { success: true, data: this.toSubcategoryEntity(created) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -64,7 +72,7 @@ export class SubcategoryService {
                 sort: options?.sort as keyof SelectSubcategory,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: subcategories };
+            return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -102,7 +110,7 @@ export class SubcategoryService {
                 sort: options?.sort as keyof SelectSubcategory,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: subcategories };
+            return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -138,7 +146,7 @@ export class SubcategoryService {
         if (!subcategory) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
         }
-        return { success: true, data: subcategory };
+        return { success: true, data: this.toSubcategoryEntity(subcategory) };
     }
 
     /**
@@ -177,7 +185,7 @@ export class SubcategoryService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
 
-            return { success: true, data: allSubcategories };
+            return { success: true, data: allSubcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -236,7 +244,7 @@ export class SubcategoryService {
 
         try {
             const updated = await this.subcategoryRepository.update(id, data);
-            return { success: true, data: updated };
+            return { success: true, data: this.toSubcategoryEntity(updated) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -263,3 +271,5 @@ export class SubcategoryService {
         }
     }
 }
+
+

@@ -19,7 +19,7 @@ export type CreateAccountPayload = {
   type: AccountType;
   observation?: string;
   balance?: number;
-  user_id: number;
+  userId: number;
   active?: boolean;
 };
 

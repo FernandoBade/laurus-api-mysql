@@ -1,10 +1,12 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Supported category types. */
 export enum CategoryType {
     INCOME = 'income',
     EXPENSE = 'expense',
 }
 
+/** @summary Supported category colors. */
 export enum CategoryColor {
     RED = 'red',
     BLUE = 'blue',
@@ -18,6 +20,7 @@ export enum CategoryColor {
     INDIGO = 'indigo',
 }
 
+/** @summary Category-related error codes mapped to i18n resources. */
 export enum CategoryErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,
     UserNotFound = ResourceKey.USER_NOT_FOUND,

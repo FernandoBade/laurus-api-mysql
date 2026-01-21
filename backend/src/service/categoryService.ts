@@ -17,6 +17,14 @@ export class CategoryService {
         this.categoryRepository = new CategoryRepository();
     }
 
+    private toCategoryEntity(data: SelectCategory): CategoryEntity {
+        return {
+            ...data,
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     /**
      * Creates a new category linked to a valid user.
      *
@@ -35,9 +43,9 @@ export class CategoryService {
         try {
             const created = await this.categoryRepository.create({
                 ...data,
-                user_id: data.userId,
+                userId: data.userId,
             } as InsertCategory);
-            return { success: true, data: created };
+            return { success: true, data: this.toCategoryEntity(created) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -58,7 +66,7 @@ export class CategoryService {
                 sort: options?.sort as keyof SelectCategory,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: categories };
+            return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -91,7 +99,7 @@ export class CategoryService {
         if (!category) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
         }
-        return { success: true, data: category };
+        return { success: true, data: this.toCategoryEntity(category) };
     }
 
     /**
@@ -111,7 +119,7 @@ export class CategoryService {
                 sort: options?.sort as keyof SelectCategory,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: categories };
+            return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -156,7 +164,7 @@ export class CategoryService {
 
         try {
             const updated = await this.categoryRepository.update(id, data);
-            return { success: true, data: updated };
+            return { success: true, data: this.toCategoryEntity(updated) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -183,3 +191,5 @@ export class CategoryService {
         }
     }
 }
+
+

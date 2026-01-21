@@ -1,5 +1,8 @@
 import TransactionController from '../../controller/transactionController';
-import { SelectAccount, SelectCreditCard, SelectTransaction, SelectTag } from '../../db/schema';
+import type { AccountEntity } from '../../../../shared/domains/account/account.types';
+import type { CreditCardEntity } from '../../../../shared/domains/creditCard/creditCard.types';
+import type { TagEntity } from '../../../../shared/domains/tag/tag.types';
+import type { TransactionWithTags } from '../../../../shared/domains/transaction/transaction.types';
 import { CategoryType, TransactionSource, TransactionType } from '../../../../shared/enums';
 import { CategorySeed } from './category.generator';
 import {
@@ -14,10 +17,10 @@ import {
 } from '../seed.utils';
 
 type TransactionRequestBody = {
-    value: number;
-    date: Date;
-    category_id?: number;
-    subcategory_id?: number;
+    value: string;
+    date: string;
+    categoryId?: number;
+    subcategoryId?: number;
     observation?: string;
     transactionType: TransactionType;
     transactionSource: TransactionSource;
@@ -25,8 +28,8 @@ type TransactionRequestBody = {
     totalMonths?: number;
     isRecurring: boolean;
     paymentDay?: number;
-    account_id?: number;
-    creditCard_id?: number;
+    accountId?: number;
+    creditCardId?: number;
     tags?: number[];
     active?: boolean;
 };
@@ -41,10 +44,10 @@ export type TransactionSummary = {
 
 type TransactionSeedInput = {
     userId: number;
-    accounts: SelectAccount[];
-    creditCards: SelectCreditCard[];
+    accounts: AccountEntity[];
+    creditCards: CreditCardEntity[];
     categories: CategorySeed[];
-    tags: SelectTag[];
+    tags: TagEntity[];
     startDate: Date;
     endDate: Date;
 };
@@ -132,7 +135,7 @@ async function createAccountTransactions(
             tags: input.tags,
         });
 
-        await executeController<SelectTransaction>(TransactionController.createTransaction, {
+        await executeController<TransactionWithTags>(TransactionController.createTransaction, {
             body,
             language: context.language,
             userId: input.userId,
@@ -167,7 +170,7 @@ async function createCardTransactions(
             tags: input.tags,
         });
 
-        await executeController<SelectTransaction>(TransactionController.createTransaction, {
+        await executeController<TransactionWithTags>(TransactionController.createTransaction, {
             body,
             language: context.language,
             userId: input.userId,
@@ -183,7 +186,7 @@ type BuildTransactionParams = {
     transactionType: TransactionType;
     startDate: Date;
     endDate: Date;
-    tags: SelectTag[];
+    tags: TagEntity[];
 };
 
 /**
@@ -204,7 +207,7 @@ function buildTransactionBody(context: SeedContext, params: BuildTransactionPara
         : undefined;
 
     const { isInstallment, totalMonths, isRecurring, paymentDay } = buildTransactionFlags(context, params.source, categorySeed);
-    const date = isRecurring && paymentDay
+    const dateValue = isRecurring && paymentDay
         ? randomDateWithDay(context.random, params.startDate, params.endDate, paymentDay)
         : randomDateBetween(context.random, params.startDate, params.endDate);
     const value = buildAmount(context, transactionType, categorySeed.template.amountRange);
@@ -212,9 +215,9 @@ function buildTransactionBody(context: SeedContext, params: BuildTransactionPara
 
     return {
         value,
-        date,
-        category_id: categorySeed.category.id,
-        ...(subcategory ? { subcategory_id: subcategory.id } : {}),
+        date: dateValue.toISOString(),
+        categoryId: categorySeed.category.id,
+        ...(subcategory ? { subcategoryId: subcategory.id } : {}),
         ...(observation ? { observation } : {}),
         transactionType,
         transactionSource: params.source,
@@ -222,8 +225,8 @@ function buildTransactionBody(context: SeedContext, params: BuildTransactionPara
         ...(totalMonths ? { totalMonths } : {}),
         isRecurring,
         ...(paymentDay ? { paymentDay } : {}),
-        ...(params.accountId ? { account_id: params.accountId } : {}),
-        ...(params.creditCardId ? { creditCard_id: params.creditCardId } : {}),
+        ...(params.accountId ? { accountId: params.accountId } : {}),
+        ...(params.creditCardId ? { creditCardId: params.creditCardId } : {}),
         ...(tagIds ? { tags: tagIds } : {}),
         active: true,
     };
@@ -259,12 +262,12 @@ function buildAmount(
     context: SeedContext,
     transactionType: TransactionType,
     range: { min: number; max: number }
-): number {
+): string {
     const bias = transactionType === TransactionType.INCOME ? 0.75 : 1.45;
     const spread = range.max - range.min;
     const scaled = Math.pow(context.random.float(0, 1), bias);
     const value = range.min + spread * scaled;
-    return roundCurrency(value);
+    return roundCurrency(value).toFixed(2);
 }
 
 /**
@@ -312,7 +315,7 @@ function calculateIncomeCount(context: SeedContext, accountTotal: number): numbe
  *
  * @summary Selects tags for transaction seeding.
  */
-function pickTransactionTags(context: SeedContext, tags: SelectTag[]): number[] | undefined {
+function pickTransactionTags(context: SeedContext, tags: TagEntity[]): number[] | undefined {
     if (tags.length === 0) {
         return undefined;
     }

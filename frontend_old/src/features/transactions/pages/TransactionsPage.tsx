@@ -1548,13 +1548,13 @@ export default function TransactionsPage() {
       await createTransactionMutation.mutateAsync({
         value: parsedAmount,
         date,
-        category_id: Number(categoryId),
-        subcategory_id: subcategoryId ? Number(subcategoryId) : undefined,
+        categoryId: Number(categoryId),
+        subcategoryId: subcategoryId ? Number(subcategoryId) : undefined,
         transactionType,
         transactionSource,
-        account_id:
+        accountId:
           transactionSource === "account" ? Number(accountId) : undefined,
-        creditCard_id:
+        creditCardId:
           transactionSource === "creditCard" ? Number(cardId) : undefined,
         isInstallment,
         totalMonths: isInstallment ? Number(totalMonths) : undefined,
@@ -1663,17 +1663,17 @@ export default function TransactionsPage() {
         payload: {
           value: parsedAmount,
           date: editDate,
-          category_id: Number(editCategoryId),
-          subcategory_id: editSubcategoryId
+          categoryId: Number(editCategoryId),
+          subcategoryId: editSubcategoryId
             ? Number(editSubcategoryId)
             : undefined,
           transactionType: editTransactionType,
           transactionSource: editTransactionSource,
-          account_id:
+          accountId:
             editTransactionSource === "account"
               ? Number(editAccountId)
               : undefined,
-          creditCard_id:
+          creditCardId:
             editTransactionSource === "creditCard"
               ? Number(editCardId)
               : undefined,
@@ -1735,8 +1735,8 @@ export default function TransactionsPage() {
         id: transaction.id,
         payload: {
           active: false,
-          category_id: categoryId ?? undefined,
-          subcategory_id: subcategoryId ?? undefined,
+          categoryId: categoryId ?? undefined,
+          subcategoryId: subcategoryId ?? undefined,
         },
       });
     } catch {
@@ -1887,14 +1887,14 @@ export default function TransactionsPage() {
         continue;
       }
       try {
-        await updateTransactionMutation.mutateAsync({
-          id: transaction.id,
-          payload: {
-            active: false,
-            category_id: categoryId ?? undefined,
-            subcategory_id: subcategoryId ?? undefined,
-          },
-        });
+          await updateTransactionMutation.mutateAsync({
+            id: transaction.id,
+            payload: {
+              active: false,
+              categoryId: categoryId ?? undefined,
+              subcategoryId: subcategoryId ?? undefined,
+            },
+          });
       } catch {
         // Error handled by mutation state.
       }

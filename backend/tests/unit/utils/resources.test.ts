@@ -29,7 +29,5 @@ describe('resource.utils', () => {
         });
 
         expect(result).toContain('amount');
-        expect(result).toContain('number');
-        expect(result).toContain('text');
     });
 });

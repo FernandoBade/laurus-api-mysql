@@ -44,6 +44,17 @@ export class TransactionService {
         this.tagRepository = new TagRepository();
     }
 
+    private toTransactionWithTags(transaction: SelectTransaction, tags: number[]): TransactionWithTags {
+        return {
+            ...transaction,
+            value: this.formatAmount(this.normalizeAmount(transaction.value)),
+            date: transaction.date.toISOString(),
+            createdAt: transaction.createdAt.toISOString(),
+            updatedAt: transaction.updatedAt.toISOString(),
+            tags,
+        };
+    }
+
     private normalizeTagIds(tags?: number[]): number[] | undefined {
         if (!tags) return undefined;
         const unique = new Set(tags);
@@ -182,10 +193,9 @@ export class TransactionService {
             tagMap.set(row.transactionId, existing);
         }
 
-        return transactions.map(transaction => ({
-            ...transaction,
-            tags: tagMap.get(transaction.id) ?? [],
-        }));
+        return transactions.map(transaction =>
+            this.toTransactionWithTags(transaction, tagMap.get(transaction.id) ?? [])
+        );
     }
 
     /**
@@ -244,8 +254,8 @@ export class TransactionService {
 
             const created = await withTransaction(async (connection) => {
                 const created = await this.transactionRepository.create({
-                    value: data.value.toString(),
-                    date: data.date,
+                    value: String(data.value),
+                    date: new Date(data.date),
                     transactionType: data.transactionType,
                     transactionSource: data.transactionSource,
                     isInstallment: data.isInstallment,
@@ -267,7 +277,7 @@ export class TransactionService {
                     await this.replaceTransactionTags(connection, created.id, tagIds);
                 }
 
-                return { ...created, tags: tagIds ?? [] };
+                return this.toTransactionWithTags(created, tagIds ?? []);
             });
             return { success: true, data: created };
         } catch (error) {
@@ -517,10 +527,13 @@ export class TransactionService {
             }
 
             const updated = await withTransaction(async (connection) => {
-                const { value, ...restUpdate } = updateData;
+                const { value, date, ...restUpdate } = updateData;
                 const dbUpdateData: Partial<InsertTransaction> = { ...restUpdate };
                 if (value !== undefined) {
-                    dbUpdateData.value = typeof value === 'number' ? value.toString() : String(value);
+                    dbUpdateData.value = String(value);
+                }
+                if (date !== undefined) {
+                    dbUpdateData.date = new Date(date);
                 }
                 const updated = await this.transactionRepository.update(id, dbUpdateData, connection);
                 await this.applyBalanceUpdate(connection, current, updated);
@@ -562,3 +575,5 @@ export class TransactionService {
         }
     }
 }
+
+

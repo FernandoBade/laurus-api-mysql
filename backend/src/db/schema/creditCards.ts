@@ -14,8 +14,8 @@ export const creditCards = mysqlTable('credit_card', {
     balance: decimal('balance', { precision: 10, scale: 2 }).default('0.00').notNull(),
     limit: decimal('limit', { precision: 10, scale: 2 }).default('0.00').notNull(),
     active: boolean('active').default(true).notNull(),
-    userId: int('user_id').notNull(),
-    accountId: int('account_id'),
+    userId: int('userId').notNull(),
+    accountId: int('accountId'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 });

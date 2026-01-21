@@ -4,13 +4,16 @@ import { UserService } from '../../../src/service/userService';
 import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCategory } from '../../../src/db/schema';
-import { makeUser } from '../../helpers/factories';
+import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
+import { makeSanitizedUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
-const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
+const DEFAULT_ISO_DATE = new Date('2024-01-01T00:00:00Z').toISOString();
+
+const makeDbCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
@@ -21,6 +24,19 @@ const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory =
         userId: overrides.userId ?? 1,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
+    };
+};
+
+const makeCategory = (overrides: Partial<CategoryEntity> = {}): CategoryEntity => {
+    return {
+        id: overrides.id ?? 1,
+        name: overrides.name ?? 'Groceries',
+        type: overrides.type ?? CategoryType.EXPENSE,
+        color: overrides.color ?? CategoryColor.BLUE,
+        active: overrides.active ?? true,
+        userId: overrides.userId ?? 1,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
     };
 };
 
@@ -60,9 +76,10 @@ describe('CategoryService', () => {
         });
 
         it('creates category when user exists', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 2 });
+            const sanitized = makeSanitizedUser({ id: 2 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
-            const created = makeCategory({ id: 10, userId: 2 });
+            const created = makeDbCategory({ id: 10, userId: 2 });
+            const expected = makeCategory({ id: 10, userId: 2 });
             const createSpy = jest.spyOn(CategoryRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new CategoryService();
@@ -79,15 +96,15 @@ describe('CategoryService', () => {
                     name: 'Food',
                     type: CategoryType.EXPENSE,
                     color: CategoryColor.RED,
-                    user_id: 2,
+                    userId: 2,
                     active: true,
                 })
             );
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository create fails', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 3 });
+            const sanitized = makeSanitizedUser({ id: 3 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(CategoryRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -110,8 +127,9 @@ describe('CategoryService', () => {
 
     describe('getCategories', () => {
         it('returns categories when repository succeeds', async () => {
-            const categories = [makeCategory({ id: 1 }), makeCategory({ id: 2 })];
-            const findManySpy = jest.spyOn(CategoryRepository.prototype, 'findMany').mockResolvedValue(categories);
+            const dbCategories = [makeDbCategory({ id: 1 }), makeDbCategory({ id: 2 })];
+            const expected = [makeCategory({ id: 1 }), makeCategory({ id: 2 })];
+            const findManySpy = jest.spyOn(CategoryRepository.prototype, 'findMany').mockResolvedValue(dbCategories);
 
             const service = new CategoryService();
             const result = await service.getCategories({ limit: 2, offset: 2, sort: 'name', order: Operator.DESC });
@@ -122,7 +140,7 @@ describe('CategoryService', () => {
                 sort: 'name',
                 order: 'desc',
             });
-            expect(result).toEqual({ success: true, data: categories });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -183,13 +201,14 @@ describe('CategoryService', () => {
         });
 
         it('returns category when repository returns a record', async () => {
-            const category = makeCategory({ id: 6 });
+            const category = makeDbCategory({ id: 6 });
+            const expected = makeCategory({ id: 6 });
             jest.spyOn(CategoryRepository.prototype, 'findById').mockResolvedValue(category);
 
             const service = new CategoryService();
             const result = await service.getCategoryById(6);
 
-            expect(result).toEqual({ success: true, data: category });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('throws when repository lookup rejects', async () => {
@@ -216,7 +235,8 @@ describe('CategoryService', () => {
 
     describe('getCategoriesByUser', () => {
         it('returns categories when repository succeeds', async () => {
-            const categories = [makeCategory({ id: 7, userId: 2 })];
+            const categories = [makeDbCategory({ id: 7, userId: 2 })];
+            const expected = [makeCategory({ id: 7, userId: 2 })];
             const findManySpy = jest.spyOn(CategoryRepository.prototype, 'findMany').mockResolvedValue(categories);
 
             const service = new CategoryService();
@@ -226,7 +246,7 @@ describe('CategoryService', () => {
                 { userId: { operator: Operator.EQUAL, value: 2 } },
                 { limit: 3, offset: 3, sort: 'name', order: 'asc' }
             );
-            expect(result).toEqual({ success: true, data: categories });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -292,20 +312,21 @@ describe('CategoryService', () => {
         });
 
         it('updates category when validation succeeds', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 4 });
+            const sanitized = makeSanitizedUser({ id: 4 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
-            const updated = makeCategory({ id: 4, userId: 4, name: 'Updated' });
+            const updated = makeDbCategory({ id: 4, userId: 4, name: 'Updated' });
+            const expected = makeCategory({ id: 4, userId: 4, name: 'Updated' });
             const updateSpy = jest.spyOn(CategoryRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new CategoryService();
             const result = await service.updateCategory(4, { userId: 4, name: 'Updated' });
 
             expect(updateSpy).toHaveBeenCalledWith(4, expect.objectContaining({ userId: 4, name: 'Updated' }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository update throws', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 5 });
+            const sanitized = makeSanitizedUser({ id: 5 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(CategoryRepository.prototype, 'update').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -340,7 +361,7 @@ describe('CategoryService', () => {
         });
 
         it('deletes and returns id when category exists', async () => {
-            const category = makeCategory({ id: 11 });
+            const category = makeDbCategory({ id: 11 });
             jest.spyOn(CategoryRepository.prototype, 'findById').mockResolvedValue(category);
             const deleteSpy = jest.spyOn(CategoryRepository.prototype, 'delete').mockResolvedValue();
 
@@ -352,7 +373,7 @@ describe('CategoryService', () => {
         });
 
         it('returns internal server error when repository delete throws', async () => {
-            const category = makeCategory({ id: 12 });
+            const category = makeDbCategory({ id: 12 });
             jest.spyOn(CategoryRepository.prototype, 'findById').mockResolvedValue(category);
             jest.spyOn(CategoryRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -368,3 +389,7 @@ describe('CategoryService', () => {
         });
     });
 });
+
+
+
+

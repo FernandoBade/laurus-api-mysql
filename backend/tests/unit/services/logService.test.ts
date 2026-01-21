@@ -7,11 +7,11 @@ import { SelectLog } from '../../../src/db/schema';
 import { db } from '../../../src/db';
 import { logs } from '../../../src/db/schema';
 import * as commons from '../../../src/utils/commons';
-import { makeUser } from '../../helpers/factories';
+import { makeDbUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -82,7 +82,7 @@ describe('LogService', () => {
         });
 
         it('creates log for UPDATE when detail is not empty', async () => {
-            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 4 }));
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeDbUser({ id: 4 }));
             const createSpy = jest.spyOn(LogRepository.prototype, 'create').mockResolvedValue(makeLog({ id: 13 }));
 
             const service = new LogService();
@@ -117,7 +117,7 @@ describe('LogService', () => {
         });
 
         it('returns internal server error when repository create fails', async () => {
-            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeUser({ id: 2 }));
+            jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(makeDbUser({ id: 2 }));
             jest.spyOn(LogRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
             const service = new LogService();
@@ -237,3 +237,5 @@ describe('LogService', () => {
         });
     });
 });
+
+

@@ -70,7 +70,7 @@ export default function TagsPage() {
     try {
       await createTagMutation.mutateAsync({
         name: name.trim(),
-        user_id: userId,
+        userId: userId,
         active,
       });
       resetForm();

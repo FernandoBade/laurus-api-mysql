@@ -284,7 +284,9 @@ class UserController {
         const file = req.file;
 
         if (!file) {
-            errors.push(createValidationError('avatar', translateResource(Resource.FIELD_REQUIRED, language)));
+            errors.push(createValidationError('avatar', translateResourceWithParams(Resource.FIELD_REQUIRED, language, {
+                field: 'avatar'
+            })));
         } else {
             if (!ALLOWED_AVATAR_MIME_TYPES.has(file.mimetype)) {
                 errors.push(createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
@@ -329,3 +331,4 @@ class UserController {
 }
 
 export default UserController;
+

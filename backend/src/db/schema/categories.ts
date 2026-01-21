@@ -12,7 +12,7 @@ export const categories = mysqlTable('category', {
     type: mysqlEnum('type', Object.values(CategoryType) as [CategoryType, ...CategoryType[]]).notNull(),
     color: mysqlEnum('color', Object.values(CategoryColor) as [CategoryColor, ...CategoryColor[]]).default(CategoryColor.PURPLE).notNull(),
     active: boolean('active').default(true).notNull(),
-    userId: int('user_id').notNull(),
+    userId: int('userId').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 });

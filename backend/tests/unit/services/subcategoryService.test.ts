@@ -3,13 +3,17 @@ import { SubcategoryRepository } from '../../../src/repositories/subcategoryRepo
 import { CategoryService } from '../../../src/service/categoryService';
 import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
+import type { SubcategoryEntity } from '../../../../shared/domains/subcategory/subcategory.types';
 import { SelectCategory, SelectSubcategory } from '../../../src/db/schema';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
-const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
+const DEFAULT_ISO_DATE = new Date('2024-01-01T00:00:00Z').toISOString();
+
+const makeDbCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
@@ -23,7 +27,20 @@ const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory =
     };
 };
 
-const makeSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubcategory => {
+const makeCategory = (overrides: Partial<CategoryEntity> = {}): CategoryEntity => {
+    return {
+        id: overrides.id ?? 1,
+        name: overrides.name ?? 'Category',
+        type: overrides.type ?? CategoryType.EXPENSE,
+        color: overrides.color ?? CategoryColor.BLUE,
+        active: overrides.active ?? true,
+        userId: overrides.userId ?? 1,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
+    };
+};
+
+const makeDbSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubcategory => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
@@ -32,6 +49,17 @@ const makeSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubc
         categoryId: overrides.categoryId ?? 1,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
+    };
+};
+
+const makeSubcategory = (overrides: Partial<SubcategoryEntity> = {}): SubcategoryEntity => {
+    return {
+        id: overrides.id ?? 1,
+        name: overrides.name ?? 'Restaurants',
+        active: overrides.active ?? true,
+        categoryId: overrides.categoryId ?? 1,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
     };
 };
 
@@ -88,7 +116,8 @@ describe('SubcategoryService', () => {
                 success: true,
                 data: makeCategory({ id: 12, active: true, userId: 1 }),
             });
-            const created = makeSubcategory({ id: 5, categoryId: 12 });
+            const created = makeDbSubcategory({ id: 5, categoryId: 12 });
+            const expected = makeSubcategory({ id: 5, categoryId: 12 });
             const createSpy = jest.spyOn(SubcategoryRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new SubcategoryService();
@@ -97,10 +126,10 @@ describe('SubcategoryService', () => {
             expect(createSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     name: 'Coffee',
-                    category_id: 12,
+                    categoryId: 12,
                 })
             );
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository create fails', async () => {
@@ -124,7 +153,8 @@ describe('SubcategoryService', () => {
 
     describe('getSubcategories', () => {
         it('returns subcategories when repository succeeds', async () => {
-            const subcategories = [makeSubcategory({ id: 1 }), makeSubcategory({ id: 2 })];
+            const subcategories = [makeDbSubcategory({ id: 1 }), makeDbSubcategory({ id: 2 })];
+            const expected = [makeSubcategory({ id: 1 }), makeSubcategory({ id: 2 })];
             const findManySpy = jest.spyOn(SubcategoryRepository.prototype, 'findMany').mockResolvedValue(subcategories);
 
             const service = new SubcategoryService();
@@ -136,7 +166,7 @@ describe('SubcategoryService', () => {
                 sort: 'name',
                 order: 'desc',
             });
-            expect(result).toEqual({ success: true, data: subcategories });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -182,7 +212,8 @@ describe('SubcategoryService', () => {
 
     describe('getSubcategoriesByCategory', () => {
         it('returns subcategories when repository succeeds', async () => {
-            const subcategories = [makeSubcategory({ id: 3, categoryId: 7 })];
+            const subcategories = [makeDbSubcategory({ id: 3, categoryId: 7 })];
+            const expected = [makeSubcategory({ id: 3, categoryId: 7 })];
             const findManySpy = jest.spyOn(SubcategoryRepository.prototype, 'findMany').mockResolvedValue(subcategories);
 
             const service = new SubcategoryService();
@@ -192,7 +223,7 @@ describe('SubcategoryService', () => {
                 { categoryId: { operator: Operator.EQUAL, value: 7 } },
                 { limit: 2, offset: 0, sort: 'name', order: 'asc' }
             );
-            expect(result).toEqual({ success: true, data: subcategories });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -253,13 +284,14 @@ describe('SubcategoryService', () => {
         });
 
         it('returns subcategory when repository returns a record', async () => {
-            const subcategory = makeSubcategory({ id: 10 });
+            const subcategory = makeDbSubcategory({ id: 10 });
+            const expected = makeSubcategory({ id: 10 });
             jest.spyOn(SubcategoryRepository.prototype, 'findById').mockResolvedValue(subcategory);
 
             const service = new SubcategoryService();
             const result = await service.getSubcategoryById(10);
 
-            expect(result).toEqual({ success: true, data: subcategory });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('throws when repository lookup rejects', async () => {
@@ -310,8 +342,15 @@ describe('SubcategoryService', () => {
                 success: true,
                 data: [makeCategory({ id: 1 }), makeCategory({ id: 2 })],
             });
-            const firstBatch = [makeSubcategory({ id: 1, categoryId: 1 })];
-            const allBatch = [makeSubcategory({ id: 1, categoryId: 1 }), makeSubcategory({ id: 2, categoryId: 2 })];
+            const firstBatch = [makeDbSubcategory({ id: 1, categoryId: 1 })];
+            const allBatch = [
+                makeDbSubcategory({ id: 1, categoryId: 1 }),
+                makeDbSubcategory({ id: 2, categoryId: 2 }),
+            ];
+            const expected = [
+                makeSubcategory({ id: 1, categoryId: 1 }),
+                makeSubcategory({ id: 2, categoryId: 2 }),
+            ];
             const findManySpy = jest.spyOn(SubcategoryRepository.prototype, 'findMany')
                 .mockResolvedValueOnce(firstBatch)
                 .mockResolvedValueOnce(allBatch);
@@ -329,7 +368,7 @@ describe('SubcategoryService', () => {
                 { categoryId: { operator: Operator.IN, value: [1, 2] } },
                 { limit: 5, offset: 0, sort: 'name', order: 'asc' }
             );
-            expect(result).toEqual({ success: true, data: allBatch });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -448,14 +487,15 @@ describe('SubcategoryService', () => {
                 success: true,
                 data: makeCategory({ id: 22, active: true, userId: 1 }),
             });
-            const updated = makeSubcategory({ id: 5, categoryId: 22, name: 'Updated' });
+            const updated = makeDbSubcategory({ id: 5, categoryId: 22, name: 'Updated' });
+            const expected = makeSubcategory({ id: 5, categoryId: 22, name: 'Updated' });
             const updateSpy = jest.spyOn(SubcategoryRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new SubcategoryService();
             const result = await service.updateSubcategory(5, { categoryId: 22, name: 'Updated' }, 1);
 
             expect(updateSpy).toHaveBeenCalledWith(5, expect.objectContaining({ categoryId: 22, name: 'Updated' }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository update throws', async () => {
@@ -496,7 +536,7 @@ describe('SubcategoryService', () => {
         });
 
         it('deletes and returns id when subcategory exists', async () => {
-            const subcategory = makeSubcategory({ id: 8 });
+            const subcategory = makeDbSubcategory({ id: 8 });
             jest.spyOn(SubcategoryRepository.prototype, 'findById').mockResolvedValue(subcategory);
             const deleteSpy = jest.spyOn(SubcategoryRepository.prototype, 'delete').mockResolvedValue();
 
@@ -508,7 +548,7 @@ describe('SubcategoryService', () => {
         });
 
         it('returns internal server error when repository delete throws', async () => {
-            const subcategory = makeSubcategory({ id: 9 });
+            const subcategory = makeDbSubcategory({ id: 9 });
             jest.spyOn(SubcategoryRepository.prototype, 'findById').mockResolvedValue(subcategory);
             jest.spyOn(SubcategoryRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -524,3 +564,6 @@ describe('SubcategoryService', () => {
         });
     });
 });
+
+
+

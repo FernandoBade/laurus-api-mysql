@@ -9,7 +9,7 @@ export type Tag = {
 
 export type CreateTagPayload = {
   name: string;
-  user_id: number;
+  userId: number;
   active?: boolean;
 };
 

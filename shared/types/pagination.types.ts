@@ -1,5 +1,7 @@
+/** @summary Sort direction for list queries. */
 export type SortOrder = 'asc' | 'desc';
 
+/** @summary Pagination and sorting input parameters. */
 export interface PaginationInput {
     page?: number;
     pageSize?: number;
@@ -9,6 +11,7 @@ export interface PaginationInput {
     order?: SortOrder;
 }
 
+/** @summary Pagination metadata for a list response. */
 export interface PaginationMeta {
     page: number;
     pageSize: number;
@@ -16,6 +19,7 @@ export interface PaginationMeta {
     pageCount: number;
 }
 
+/** @summary Paginated list response wrapper. */
 export interface PaginatedResult<T> {
     data: T[];
     meta: PaginationMeta;

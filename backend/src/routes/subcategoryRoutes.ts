@@ -19,7 +19,7 @@ router.post('/', verifyToken, async (req: Request, res: Response, next: NextFunc
             LogOperation.CREATE,
             LogCategory.CATEGORY,
             formatError(error),
-            req.body?.category_id,
+            req.body?.categoryId,
             next
         );
     }
@@ -140,3 +140,4 @@ router.delete('/:id', verifyToken, async (req: Request, res: Response, next: Nex
 });
 
 export default router;
+

@@ -11,7 +11,7 @@ export type Subcategory = {
 
 export type CreateSubcategoryPayload = {
   name: string;
-  category_id: number;
+  categoryId: number;
   active?: boolean;
 };
 

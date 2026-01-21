@@ -1,13 +1,24 @@
 import type { AccountType } from './account.enums';
 import type { UserId } from '../user/user.types';
+import type { ISODateString, MonetaryString } from '../../types/format.types';
 import type { PaginationInput, PaginatedResult } from '../../types/pagination.types';
 
+/** @summary Unique identifier for an account. */
 export type AccountId = number;
-export type AccountName = string;
-export type InstitutionName = string;
-export type AccountObservation = string;
-export type AccountBalance = string;
 
+/** @summary Account display name. */
+export type AccountName = string;
+
+/** @summary Financial institution name. */
+export type InstitutionName = string;
+
+/** @summary Free-form account observation. */
+export type AccountObservation = string;
+
+/** @summary Account balance represented as a monetary string. */
+export type AccountBalance = MonetaryString;
+
+/** @summary Account record persisted by the system. */
 export interface AccountEntity {
     id: AccountId;
     name: AccountName | null;
@@ -17,54 +28,72 @@ export interface AccountEntity {
     balance: AccountBalance;
     active: boolean;
     userId: UserId;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: ISODateString;
+    updatedAt: ISODateString;
 }
 
+/** @summary Input payload for account creation. */
 export interface CreateAccountInput {
     name: AccountName;
     institution: InstitutionName;
     type: AccountType;
     observation?: AccountObservation;
-    balance?: number;
+    balance?: AccountBalance;
     userId: UserId;
     active?: boolean;
 }
 
+/** @summary Input payload for account updates. */
 export interface UpdateAccountInput {
     name?: AccountName;
     institution?: InstitutionName;
     type?: AccountType;
     observation?: AccountObservation;
-    balance?: number;
+    balance?: AccountBalance;
     userId?: UserId;
     active?: boolean;
 }
 
-export interface GetAccountsInput extends PaginationInput { }
+/** @summary Input payload for listing accounts. */
+export interface GetAccountsInput extends PaginationInput {}
 
+/** @summary Input payload for fetching an account by id. */
 export interface GetAccountByIdInput {
     id: AccountId;
 }
 
+/** @summary Input payload for listing accounts by user. */
 export interface GetAccountsByUserInput extends PaginationInput {
     userId: UserId;
 }
 
+/** @summary Update request payload with target id and data. */
 export interface UpdateAccountRequest {
     id: AccountId;
     data: UpdateAccountInput;
 }
 
+/** @summary Input payload for deleting an account. */
 export interface DeleteAccountInput {
     id: AccountId;
 }
 
+/** @summary Output payload for account creation. */
 export type CreateAccountOutput = AccountEntity;
+
+/** @summary Output payload for listing accounts. */
 export type GetAccountsOutput = PaginatedResult<AccountEntity>;
+
+/** @summary Output payload for fetching an account by id. */
 export type GetAccountByIdOutput = AccountEntity;
+
+/** @summary Output payload for listing accounts by user. */
 export type GetAccountsByUserOutput = PaginatedResult<AccountEntity>;
+
+/** @summary Output payload for account updates. */
 export type UpdateAccountOutput = AccountEntity;
+
+/** @summary Output payload for account deletion. */
 export interface DeleteAccountOutput {
     id: AccountId;
 }

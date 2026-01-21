@@ -139,7 +139,7 @@ export function buildLogDelta<T extends object>(
  * Used across the system for centralized logging with support for log levels, user context, and categories.
  *
  * @summary Logs to console and delegates persistence.
- * @param logType - Severity level of the log (e.g., ERROR, DEBUG).
+ * @param LogType - Severity level of the log (e.g., ERROR, DEBUG).
  * @param operation - Type of operation being logged (e.g., CREATE, DELETE).
  * @param category - Area of the system the log relates to (e.g., USER, AUTH).
  * @param detail - Log message or object, automatically serialized if needed.
@@ -147,7 +147,7 @@ export function buildLogDelta<T extends object>(
  * @param next - Optional Express error handler for chaining errors.
  */
 export async function createLog(
-    logType: LogType,
+    LogType: LogType,
     operation: LogOperation,
     category: LogCategory,
     detail: any,
@@ -157,10 +157,10 @@ export async function createLog(
     const normalizedDetail = isPlainObject(detail) ? sanitizeLogDetail(detail) : detail;
     const logMessage = typeof normalizedDetail === 'object' ? JSON.stringify(normalizedDetail) : String(normalizedDetail);
 
-    logger.log(logType, `[${operation}][${category}]: ${logMessage}`.trim());
+    logger.log(LogType, `[${operation}][${category}]: ${logMessage}`.trim());
 
     const logService = await getLogService();
-    await logService.createLog(logType, operation, category, logMessage, userId);
+    await logService.createLog(LogType, operation, category, logMessage, userId);
 }
 
 // #endregion Logger Configuration
@@ -308,3 +308,4 @@ function getDurationMs(res: Response): number {
 
 
 // #endregion API Response Helpers
+

@@ -160,8 +160,8 @@ export default function CreditCardsPage() {
         observation: observation.trim() || undefined,
         balance: parsedBalance,
         limit: parsedLimit,
-        account_id: accountId !== "none" ? Number(accountId) : undefined,
-        user_id: userId,
+        accountId: accountId !== "none" ? Number(accountId) : undefined,
+        userId: userId,
         active,
       });
       resetForm();
@@ -229,7 +229,7 @@ export default function CreditCardsPage() {
           observation: editObservation.trim() || undefined,
           balance: parsedBalance,
           limit: parsedLimit,
-          account_id: editAccountId !== "none" ? Number(editAccountId) : undefined,
+          accountId: editAccountId !== "none" ? Number(editAccountId) : undefined,
           active: editActive,
         },
       });

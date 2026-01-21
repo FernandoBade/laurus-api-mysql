@@ -9,7 +9,7 @@ export const subcategories = mysqlTable('subcategory', {
     id: int('id').primaryKey().autoincrement(),
     name: varchar('name', { length: 255 }),
     active: boolean('active').default(true).notNull(),
-    categoryId: int('category_id').notNull(),
+    categoryId: int('categoryId').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 });

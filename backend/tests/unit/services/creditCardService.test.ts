@@ -4,14 +4,17 @@ import { AccountService } from '../../../src/service/accountService';
 import { UserService } from '../../../src/service/userService';
 import { CreditCardFlag, Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import type { CreditCardEntity } from '../../../../shared/domains/creditCard/creditCard.types';
 import { SelectCreditCard } from '../../../src/db/schema';
-import { makeAccount, makeUser } from '../../helpers/factories';
+import { makeAccount, makeSanitizedUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
-const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCreditCard => {
+const DEFAULT_ISO_DATE = new Date('2024-01-01T00:00:00Z').toISOString();
+
+const makeDbCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCreditCard => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
@@ -25,6 +28,22 @@ const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCredit
         accountId: overrides.accountId ?? null,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
+    };
+};
+
+const makeCreditCard = (overrides: Partial<CreditCardEntity> = {}): CreditCardEntity => {
+    return {
+        id: overrides.id ?? 1,
+        name: overrides.name ?? 'Visa Gold',
+        flag: overrides.flag ?? CreditCardFlag.VISA,
+        observation: overrides.observation ?? 'Primary card',
+        balance: overrides.balance ?? '0.00',
+        limit: overrides.limit ?? '0.00',
+        active: overrides.active ?? true,
+        userId: overrides.userId ?? 1,
+        accountId: overrides.accountId ?? null,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
     };
 };
 
@@ -64,7 +83,7 @@ describe('CreditCardService', () => {
         });
 
         it('returns account not found when linked account is missing', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 2 });
+            const sanitized = makeSanitizedUser({ id: 2 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({
                 success: false,
@@ -90,14 +109,14 @@ describe('CreditCardService', () => {
         });
 
         it('returns data already exists when account already has a card', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 3 });
+            const sanitized = makeSanitizedUser({ id: 3 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({
                 success: true,
                 data: makeAccount({ id: 12 }),
             });
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue([
-                makeCreditCard({ id: 8, accountId: 12 }),
+                makeDbCreditCard({ id: 8, accountId: 12 }),
             ]);
             const createSpy = jest.spyOn(CreditCardRepository.prototype, 'create');
 
@@ -120,11 +139,12 @@ describe('CreditCardService', () => {
         });
 
         it('creates credit card when account is valid', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 4 });
+            const sanitized = makeSanitizedUser({ id: 4 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 20 }) });
             jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue([]);
-            const created = makeCreditCard({ id: 10, userId: 4, accountId: 20 });
+            const created = makeDbCreditCard({ id: 10, userId: 4, accountId: 20 });
+            const expected = makeCreditCard({ id: 10, userId: 4, accountId: 20 });
             const createSpy = jest.spyOn(CreditCardRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new CreditCardService();
@@ -133,7 +153,7 @@ describe('CreditCardService', () => {
                 flag: CreditCardFlag.VISA,
                 userId: 4,
                 accountId: 20,
-                limit: 5000,
+                limit: '5000.00',
                 active: true,
             });
 
@@ -147,14 +167,15 @@ describe('CreditCardService', () => {
                     active: true,
                 })
             );
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('creates credit card when account is not provided', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 5 });
+            const sanitized = makeSanitizedUser({ id: 5 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             const accountSpy = jest.spyOn(AccountService.prototype, 'getAccountById');
-            const created = makeCreditCard({ id: 11, userId: 5, accountId: null });
+            const created = makeDbCreditCard({ id: 11, userId: 5, accountId: null });
+            const expected = makeCreditCard({ id: 11, userId: 5, accountId: null });
             const createSpy = jest.spyOn(CreditCardRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new CreditCardService();
@@ -173,11 +194,11 @@ describe('CreditCardService', () => {
                     accountId: undefined,
                 })
             );
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository create fails', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 6 });
+            const sanitized = makeSanitizedUser({ id: 6 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(CreditCardRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -199,7 +220,8 @@ describe('CreditCardService', () => {
 
     describe('getCreditCards', () => {
         it('returns credit cards when repository succeeds', async () => {
-            const cards = [makeCreditCard({ id: 1 }), makeCreditCard({ id: 2 })];
+            const cards = [makeDbCreditCard({ id: 1 }), makeDbCreditCard({ id: 2 })];
+            const expected = [makeCreditCard({ id: 1 }), makeCreditCard({ id: 2 })];
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue(cards);
 
             const service = new CreditCardService();
@@ -211,7 +233,7 @@ describe('CreditCardService', () => {
                 sort: 'name',
                 order: 'desc',
             });
-            expect(result).toEqual({ success: true, data: cards });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -272,13 +294,14 @@ describe('CreditCardService', () => {
         });
 
         it('returns credit card when repository returns a record', async () => {
-            const card = makeCreditCard({ id: 3 });
+            const card = makeDbCreditCard({ id: 3 });
+            const expected = makeCreditCard({ id: 3 });
             jest.spyOn(CreditCardRepository.prototype, 'findById').mockResolvedValue(card);
 
             const service = new CreditCardService();
             const result = await service.getCreditCardById(3);
 
-            expect(result).toEqual({ success: true, data: card });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('throws when repository lookup rejects', async () => {
@@ -305,7 +328,8 @@ describe('CreditCardService', () => {
 
     describe('getCreditCardsByUser', () => {
         it('returns credit cards when repository succeeds', async () => {
-            const cards = [makeCreditCard({ id: 4, userId: 7 })];
+            const cards = [makeDbCreditCard({ id: 4, userId: 7 })];
+            const expected = [makeCreditCard({ id: 4, userId: 7 })];
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue(cards);
 
             const service = new CreditCardService();
@@ -315,7 +339,7 @@ describe('CreditCardService', () => {
                 { userId: { operator: Operator.EQUAL, value: 7 } },
                 { limit: 5, offset: 0, sort: 'name', order: 'asc' }
             );
-            expect(result).toEqual({ success: true, data: cards });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -380,11 +404,12 @@ describe('CreditCardService', () => {
         });
 
         it('updates credit card with null accountId without account validation', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 8 });
+            const sanitized = makeSanitizedUser({ id: 8 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             const accountSpy = jest.spyOn(AccountService.prototype, 'getAccountById');
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany');
-            const updated = makeCreditCard({ id: 5, accountId: null });
+            const updated = makeDbCreditCard({ id: 5, accountId: null });
+            const expected = makeCreditCard({ id: 5, accountId: null });
             const updateSpy = jest.spyOn(CreditCardRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new CreditCardService();
@@ -393,11 +418,11 @@ describe('CreditCardService', () => {
             expect(accountSpy).not.toHaveBeenCalled();
             expect(findManySpy).not.toHaveBeenCalled();
             expect(updateSpy).toHaveBeenCalledWith(5, expect.objectContaining({ accountId: null }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns account not found when account validation fails', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 9 });
+            const sanitized = makeSanitizedUser({ id: 9 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({
                 success: false,
@@ -418,11 +443,11 @@ describe('CreditCardService', () => {
         });
 
         it('returns data already exists when account is already linked to another card', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 10 });
+            const sanitized = makeSanitizedUser({ id: 10 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 40 }) });
             jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue([
-                makeCreditCard({ id: 99, accountId: 40 }),
+                makeDbCreditCard({ id: 99, accountId: 40 }),
             ]);
             const updateSpy = jest.spyOn(CreditCardRepository.prototype, 'update');
 
@@ -439,24 +464,25 @@ describe('CreditCardService', () => {
         });
 
         it('updates credit card when validations succeed', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 11 });
+            const sanitized = makeSanitizedUser({ id: 11 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 50 }) });
             jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue([
-                makeCreditCard({ id: 8, accountId: 50 }),
+                makeDbCreditCard({ id: 8, accountId: 50 }),
             ]);
-            const updated = makeCreditCard({ id: 8, accountId: 50, name: 'Updated' });
+            const updated = makeDbCreditCard({ id: 8, accountId: 50, name: 'Updated' });
+            const expected = makeCreditCard({ id: 8, accountId: 50, name: 'Updated' });
             const updateSpy = jest.spyOn(CreditCardRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new CreditCardService();
             const result = await service.updateCreditCard(8, { accountId: 50, name: 'Updated' });
 
             expect(updateSpy).toHaveBeenCalledWith(8, expect.objectContaining({ accountId: 50, name: 'Updated' }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository update throws', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 12 });
+            const sanitized = makeSanitizedUser({ id: 12 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: makeAccount({ id: 60 }) });
             jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue([]);
@@ -493,7 +519,7 @@ describe('CreditCardService', () => {
         });
 
         it('deletes and returns id when credit card exists', async () => {
-            const card = makeCreditCard({ id: 11 });
+            const card = makeDbCreditCard({ id: 11 });
             jest.spyOn(CreditCardRepository.prototype, 'findById').mockResolvedValue(card);
             const deleteSpy = jest.spyOn(CreditCardRepository.prototype, 'delete').mockResolvedValue();
 
@@ -505,7 +531,7 @@ describe('CreditCardService', () => {
         });
 
         it('returns internal server error when repository delete throws', async () => {
-            const card = makeCreditCard({ id: 12 });
+            const card = makeDbCreditCard({ id: 12 });
             jest.spyOn(CreditCardRepository.prototype, 'findById').mockResolvedValue(card);
             jest.spyOn(CreditCardRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -521,3 +547,6 @@ describe('CreditCardService', () => {
         });
     });
 });
+
+
+

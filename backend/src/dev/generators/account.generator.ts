@@ -1,5 +1,5 @@
 import AccountController from '../../controller/accountController';
-import { SelectAccount } from '../../db/schema';
+import type { AccountEntity } from '../../../../shared/domains/account/account.types';
 import { AccountType } from '../../../../shared/enums';
 import { SeedContext, executeController } from '../seed.utils';
 
@@ -8,7 +8,7 @@ type AccountRequestBody = {
     institution: string;
     type: AccountType;
     observation?: string;
-    user_id: number;
+    userId: number;
     active?: boolean;
 };
 
@@ -17,10 +17,10 @@ type AccountRequestBody = {
  *
  * @summary Generates and persists financial accounts for a user.
  */
-export async function createAccounts(context: SeedContext, userId: number): Promise<SelectAccount[]> {
+export async function createAccounts(context: SeedContext, userId: number): Promise<AccountEntity[]> {
     const count = context.random.int(context.config.accountsPerUser.min, context.config.accountsPerUser.max);
     const templates = context.random.pickMany(context.config.accountTemplates, count);
-    const accounts: SelectAccount[] = [];
+    const accounts: AccountEntity[] = [];
 
     for (let i = 0; i < count; i += 1) {
         const template = templates[i % templates.length];
@@ -32,11 +32,11 @@ export async function createAccounts(context: SeedContext, userId: number): Prom
             institution,
             type: template.type,
             ...(observation ? { observation } : {}),
-            user_id: userId,
+            userId,
             active: true,
         };
 
-        const created = await executeController<SelectAccount>(AccountController.createAccount, {
+        const created = await executeController<AccountEntity>(AccountController.createAccount, {
             body,
             language: context.language,
             userId,

@@ -17,6 +17,14 @@ export class TagService {
         this.tagRepository = new TagRepository();
     }
 
+    private toTagEntity(data: SelectTag): TagEntity {
+        return {
+            ...data,
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     /**
      * Creates a new tag linked to a valid user.
      *
@@ -47,7 +55,7 @@ export class TagService {
                 active: data.active,
                 userId: data.userId,
             } as InsertTag);
-            return { success: true, data: created };
+            return { success: true, data: this.toTagEntity(created) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -68,7 +76,7 @@ export class TagService {
                 sort: options?.sort as keyof SelectTag,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: tags };
+            return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -101,7 +109,7 @@ export class TagService {
         if (!tag) {
             return { success: false, error: Resource.TAG_NOT_FOUND };
         }
-        return { success: true, data: tag };
+        return { success: true, data: this.toTagEntity(tag) };
     }
 
     /**
@@ -121,7 +129,7 @@ export class TagService {
                 sort: options?.sort as keyof SelectTag,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: tags };
+            return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -186,7 +194,7 @@ export class TagService {
 
         try {
             const updated = await this.tagRepository.update(id, data);
-            return { success: true, data: updated };
+            return { success: true, data: this.toTagEntity(updated) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -213,3 +221,5 @@ export class TagService {
         }
     }
 }
+
+

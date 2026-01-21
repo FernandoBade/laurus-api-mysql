@@ -29,8 +29,8 @@ export type TransactionGroup = {
 export type CreateTransactionPayload = {
   value: number;
   date: string;
-  category_id?: number;
-  subcategory_id?: number;
+  categoryId?: number;
+  subcategoryId?: number;
   observation?: string;
   transactionType: TransactionType;
   transactionSource: TransactionSource;
@@ -38,8 +38,8 @@ export type CreateTransactionPayload = {
   totalMonths?: number;
   isRecurring: boolean;
   paymentDay?: number;
-  account_id?: number;
-  creditCard_id?: number;
+  accountId?: number;
+  creditCardId?: number;
   tags?: number[];
   active?: boolean;
 };

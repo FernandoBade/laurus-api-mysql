@@ -3,11 +3,11 @@ import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { UserService } from '../../../src/service/userService';
 import { Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
-import { makeAccount, makeAccountInput, makeUser } from '../../helpers/factories';
+import { makeAccount, makeAccountInput, makeDbAccount, makeSanitizedUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
 describe('AccountService', () => {
     beforeEach(() => {
@@ -42,9 +42,10 @@ describe('AccountService', () => {
 
         it('creates account when user exists', async () => {
             const payload = makeAccountInput({ userId: 2 });
-            const { password: _ignored, ...sanitized } = makeUser({ id: 2 });
+            const sanitized = makeSanitizedUser({ id: 2 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
-            const created = makeAccount({ id: 11, userId: 2 });
+            const created = makeDbAccount({ id: 11, userId: 2 });
+            const expected = makeAccount({ id: 11, userId: 2 });
             const createSpy = jest.spyOn(AccountRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new AccountService();
@@ -60,12 +61,12 @@ describe('AccountService', () => {
                     active: payload.active,
                 })
             );
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository create fails', async () => {
             const payload = makeAccountInput({ userId: 3 });
-            const { password: _ignored, ...sanitized } = makeUser({ id: 3 });
+            const sanitized = makeSanitizedUser({ id: 3 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -83,8 +84,9 @@ describe('AccountService', () => {
 
     describe('getAccounts', () => {
         it('returns accounts when repository succeeds', async () => {
-            const accounts = [makeAccount({ id: 1 }), makeAccount({ id: 2 })];
-            const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(accounts);
+            const dbAccounts = [makeDbAccount({ id: 1 }), makeDbAccount({ id: 2 })];
+            const expected = [makeAccount({ id: 1 }), makeAccount({ id: 2 })];
+            const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(dbAccounts);
 
             const service = new AccountService();
             const result = await service.getAccounts({ limit: 2, offset: 0, sort: 'name', order: Operator.DESC });
@@ -95,7 +97,7 @@ describe('AccountService', () => {
                 sort: 'name',
                 order: 'desc',
             });
-            expect(result).toEqual({ success: true, data: accounts });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -156,13 +158,14 @@ describe('AccountService', () => {
         });
 
         it('returns account when repository returns a record', async () => {
-            const account = makeAccount({ id: 12 });
-            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(account);
+            const dbAccount = makeDbAccount({ id: 12 });
+            const expected = makeAccount({ id: 12 });
+            jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(dbAccount);
 
             const service = new AccountService();
             const result = await service.getAccountById(12);
 
-            expect(result).toEqual({ success: true, data: account });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('throws when repository lookup rejects', async () => {
@@ -189,8 +192,9 @@ describe('AccountService', () => {
 
     describe('getAccountsByUser', () => {
         it('returns accounts when repository succeeds', async () => {
-            const accounts = [makeAccount({ id: 3, userId: 4 })];
-            const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(accounts);
+            const dbAccounts = [makeDbAccount({ id: 3, userId: 4 })];
+            const expected = [makeAccount({ id: 3, userId: 4 })];
+            const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(dbAccounts);
 
             const service = new AccountService();
             const result = await service.getAccountsByUser(4, { limit: 3, offset: 6, sort: 'name', order: Operator.ASC });
@@ -199,7 +203,7 @@ describe('AccountService', () => {
                 { userId: { operator: Operator.EQUAL, value: 4 } },
                 { limit: 3, offset: 6, sort: 'name', order: 'asc' }
             );
-            expect(result).toEqual({ success: true, data: accounts });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository throws', async () => {
@@ -265,20 +269,21 @@ describe('AccountService', () => {
         });
 
         it('updates account when validation succeeds', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 8 });
+            const sanitized = makeSanitizedUser({ id: 8 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
-            const updated = makeAccount({ id: 8, userId: 8, name: 'Updated' });
+            const updated = makeDbAccount({ id: 8, userId: 8, name: 'Updated' });
+            const expected = makeAccount({ id: 8, userId: 8, name: 'Updated' });
             const updateSpy = jest.spyOn(AccountRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new AccountService();
             const result = await service.updateAccount(8, { userId: 8, name: 'Updated' });
 
             expect(updateSpy).toHaveBeenCalledWith(8, expect.objectContaining({ userId: 8, name: 'Updated' }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository update throws', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 9 });
+            const sanitized = makeSanitizedUser({ id: 9 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(AccountRepository.prototype, 'update').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -313,7 +318,7 @@ describe('AccountService', () => {
         });
 
         it('deletes and returns id when account exists', async () => {
-            const account = makeAccount({ id: 16 });
+            const account = makeDbAccount({ id: 16 });
             jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(account);
             const deleteSpy = jest.spyOn(AccountRepository.prototype, 'delete').mockResolvedValue();
 
@@ -325,7 +330,7 @@ describe('AccountService', () => {
         });
 
         it('returns internal server error when repository delete throws', async () => {
-            const account = makeAccount({ id: 17 });
+            const account = makeDbAccount({ id: 17 });
             jest.spyOn(AccountRepository.prototype, 'findById').mockResolvedValue(account);
             jest.spyOn(AccountRepository.prototype, 'delete').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
 
@@ -341,3 +346,6 @@ describe('AccountService', () => {
         });
     });
 });
+
+
+

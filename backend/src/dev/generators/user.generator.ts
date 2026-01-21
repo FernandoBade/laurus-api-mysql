@@ -9,7 +9,7 @@ type UserRequestBody = {
     email: string;
     password: string;
     phone?: string;
-    birthDate?: Date;
+    birthDate?: string;
     theme?: Theme;
     language?: Language;
     currency?: Currency;
@@ -109,7 +109,7 @@ function buildPhoneNumber(context: SeedContext): string | undefined {
  *
  * @summary Creates birth dates for seeded users.
  */
-function buildBirthDate(context: SeedContext): Date | undefined {
+function buildBirthDate(context: SeedContext): string | undefined {
     if (!context.random.chance(context.config.userOptions.birthDateChance)) {
         return undefined;
     }
@@ -117,5 +117,5 @@ function buildBirthDate(context: SeedContext): Date | undefined {
     const now = new Date();
     const start = new Date(now.getFullYear() - 65, 0, 1);
     const end = new Date(now.getFullYear() - 18, 11, 31);
-    return randomDateBetween(context.random, start, end);
+    return randomDateBetween(context.random, start, end).toISOString();
 }

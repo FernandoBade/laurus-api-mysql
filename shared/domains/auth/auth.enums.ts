@@ -1,11 +1,13 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Token classification used by auth flows. */
 export enum TokenType {
     REFRESH = 'refresh',
-    EMAIL_VERIFICATION = 'email_verification',
-    PASSWORD_RESET = 'password_reset',
+    EMAIL_VERIFICATION = 'emailVerification',
+    PASSWORD_RESET = 'passwordReset',
 }
 
+/** @summary Auth-related error codes mapped to i18n resources. */
 export enum AuthErrorCode {
     InvalidCredentials = ResourceKey.INVALID_CREDENTIALS,
     EmailNotVerified = ResourceKey.EMAIL_NOT_VERIFIED,

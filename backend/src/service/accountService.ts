@@ -17,6 +17,14 @@ export class AccountService {
         this.accountRepository = new AccountRepository();
     }
 
+    private toAccountEntity(data: SelectAccount): AccountEntity {
+        return {
+            ...data,
+            createdAt: data.createdAt.toISOString(),
+            updatedAt: data.updatedAt.toISOString(),
+        };
+    }
+
     /**
      * Creates a new financial account.
      * Ensures the required data is present and linked to a valid user.
@@ -39,11 +47,11 @@ export class AccountService {
                 institution: data.institution,
                 type: data.type,
                 observation: data.observation,
-                balance: data.balance !== undefined ? (typeof data.balance === 'number' ? data.balance.toFixed(2) : String(data.balance)) : undefined,
+                balance: data.balance,
                 active: data.active,
                 userId: data.userId,
             } as InsertAccount);
-            return { success: true, data: created };
+            return { success: true, data: this.toAccountEntity(created) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -64,7 +72,7 @@ export class AccountService {
                 sort: options?.sort as keyof SelectAccount,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: accounts };
+            return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -97,7 +105,7 @@ export class AccountService {
         if (!account) {
             return { success: false, error: Resource.NO_RECORDS_FOUND };
         }
-        return { success: true, data: account };
+        return { success: true, data: this.toAccountEntity(account) };
     }
 
     /**
@@ -117,7 +125,7 @@ export class AccountService {
                 sort: options?.sort as keyof SelectAccount,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
-            return { success: true, data: accounts };
+            return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -161,13 +169,8 @@ export class AccountService {
         }
 
         try {
-            const { balance, ...safeData } = data;
-            const dbData: Partial<InsertAccount> = { ...safeData };
-            if (balance !== undefined) {
-                dbData.balance = typeof balance === 'number' ? balance.toFixed(2) : String(balance);
-            }
-            const updated = await this.accountRepository.update(id, dbData);
-            return { success: true, data: updated };
+            const updated = await this.accountRepository.update(id, data as Partial<InsertAccount>);
+            return { success: true, data: this.toAccountEntity(updated) };
         } catch (error) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -194,3 +197,5 @@ export class AccountService {
         }
     }
 }
+
+

@@ -5,6 +5,9 @@ export { TokenType } from './domains/auth/auth.enums';
 export { TransactionSource, TransactionType } from './domains/transaction/transaction.enums';
 export { Currency, DateFormat, Language, Profile, Theme } from './domains/user/user.enums';
 
+/** @summary HTTP status codes used by the API.
+ * @internal
+ */
 export enum HTTPStatus {
     OK = 200,
     CREATED = 201,
@@ -25,6 +28,9 @@ export enum HTTPStatus {
     GATEWAY_TIMEOUT = 504
 }
 
+/** @summary Log categories for audit and telemetry.
+ * @internal
+ */
 export enum LogCategory {
     ACCOUNT = 'account',
     AUTH = 'auth',
@@ -37,6 +43,9 @@ export enum LogCategory {
     TAG = 'tag',
 }
 
+/** @summary Log entry severity types.
+ * @internal
+ */
 export enum LogType {
     ALERT = 'alert',
     DEBUG = 'debug',
@@ -44,6 +53,9 @@ export enum LogType {
     SUCCESS = 'success',
 }
 
+/** @summary Log operation identifiers.
+ * @internal
+ */
 export enum LogOperation {
     CREATE = 'create',
     DELETE = 'delete',
@@ -52,6 +64,9 @@ export enum LogOperation {
     UPDATE = 'update',
 }
 
+/** @summary SQL-like operator tokens for filtering.
+ * @internal
+ */
 export enum Operator {
     EQUAL = '=',
     IN = 'IN',

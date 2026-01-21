@@ -3,7 +3,7 @@ import { TransactionRepository } from '../../../src/repositories/transactionRepo
 import { db } from '../../../src/db';
 import { transactions } from '../../../src/db/schema';
 import { Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
-import { makeTransaction } from '../../helpers/factories';
+import { makeDbTransaction } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
     const query: any = {
@@ -62,7 +62,7 @@ describe('TransactionRepository', () => {
 
     describe('findById', () => {
         it('returns transaction when found', async () => {
-            const transaction = makeTransaction({ id: 1 });
+            const transaction = makeDbTransaction({ id: 1 });
             const { select, from, query } = makeSelectChain([transaction]);
 
             const result = await repo.findById(1);
@@ -87,7 +87,7 @@ describe('TransactionRepository', () => {
 
     describe('findMany', () => {
         it('returns all transactions when no filters', async () => {
-            const list = [makeTransaction({ id: 1 }), makeTransaction({ id: 2 })];
+            const list = [makeDbTransaction({ id: 1 }), makeDbTransaction({ id: 2 })];
             const { select, from, query } = makeSelectChain(list);
 
             const result = await repo.findMany();
@@ -101,7 +101,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies accountId equal filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, accountId: 7 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, accountId: 7 })]);
 
             await repo.findMany({ accountId: { operator: Operator.EQUAL, value: 7 } });
 
@@ -110,7 +110,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies accountId in filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, accountId: 7 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, accountId: 7 })]);
 
             await repo.findMany({ accountId: { operator: Operator.IN, value: [7, 8] } });
 
@@ -119,7 +119,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies creditCardId equal filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, creditCardId: 5 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, creditCardId: 5 })]);
 
             await repo.findMany({ creditCardId: { operator: Operator.EQUAL, value: 5 } });
 
@@ -128,7 +128,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies creditCardId in filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, creditCardId: 5 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, creditCardId: 5 })]);
 
             await repo.findMany({ creditCardId: { operator: Operator.IN, value: [5, 6] } });
 
@@ -137,7 +137,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies categoryId equal filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, categoryId: 9 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, categoryId: 9 })]);
 
             await repo.findMany({ categoryId: { operator: Operator.EQUAL, value: 9 } });
 
@@ -146,7 +146,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies categoryId in filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, categoryId: 9 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, categoryId: 9 })]);
 
             await repo.findMany({ categoryId: { operator: Operator.IN, value: [9, 10] } });
 
@@ -155,7 +155,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies subcategoryId equal filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, subcategoryId: 11 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, subcategoryId: 11 })]);
 
             await repo.findMany({ subcategoryId: { operator: Operator.EQUAL, value: 11 } });
 
@@ -164,7 +164,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies subcategoryId in filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, subcategoryId: 11 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, subcategoryId: 11 })]);
 
             await repo.findMany({ subcategoryId: { operator: Operator.IN, value: [11, 12] } });
 
@@ -173,7 +173,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies active filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1, active: false })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, active: false })]);
 
             await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
 
@@ -182,7 +182,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies date between filter', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
             const start = new Date('2024-01-01T00:00:00Z');
             const end = new Date('2024-01-31T00:00:00Z');
 
@@ -193,7 +193,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies combined filters', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
             const start = new Date('2024-01-01T00:00:00Z');
             const end = new Date('2024-01-31T00:00:00Z');
 
@@ -216,7 +216,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies sorting asc', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'date', order: 'asc' });
 
@@ -225,7 +225,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies sorting desc', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'date', order: 'desc' });
 
@@ -234,7 +234,7 @@ describe('TransactionRepository', () => {
         });
 
         it('applies pagination', async () => {
-            const { select, from, query } = makeSelectChain([makeTransaction({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
 
             await repo.findMany(undefined, { limit: 5, offset: 10 });
 
@@ -387,7 +387,7 @@ describe('TransactionRepository', () => {
                 categoryId: 3,
                 active: true,
             };
-            const created = makeTransaction({ id: 10, accountId: 2, categoryId: 3 });
+            const created = makeDbTransaction({ id: 10, accountId: 2, categoryId: 3 });
             const { insert, values } = makeInsertChain(10);
             const { select, from, query } = makeSelectChain([created]);
 
@@ -427,7 +427,7 @@ describe('TransactionRepository', () => {
     describe('update', () => {
         it('updates and returns transaction', async () => {
             const updates = { observation: 'Updated' };
-            const updated = makeTransaction({ id: 7, observation: 'Updated' });
+            const updated = makeDbTransaction({ id: 7, observation: 'Updated' });
             const { update, set, where } = makeUpdateChain();
             const { select, from, query } = makeSelectChain([updated]);
 
@@ -470,3 +470,6 @@ describe('TransactionRepository', () => {
         });
     });
 });
+
+
+

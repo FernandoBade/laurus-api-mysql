@@ -26,7 +26,7 @@ describe('AccountController', () => {
   describe('createAccount', () => {
     it('returns 400 without calling service when validation fails', async () => {
       const createSpy = jest.spyOn(AccountService.prototype, 'createAccount');
-      const req = createMockRequest({ body: { name: '', institution: '', type: 'invalid', user_id: 0 } });
+      const req = createMockRequest({ body: { name: '', institution: '', type: 'invalid', userId: 0 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -54,7 +54,7 @@ describe('AccountController', () => {
           name: serviceInput.name,
           institution: serviceInput.institution,
           type: serviceInput.type,
-          user_id: serviceInput.userId,
+          userId: serviceInput.userId,
           observation: serviceInput.observation,
           active: serviceInput.active,
         },
@@ -93,7 +93,7 @@ describe('AccountController', () => {
           name: serviceInput.name,
           institution: serviceInput.institution,
           type: serviceInput.type,
-          user_id: serviceInput.userId,
+          userId: serviceInput.userId,
           observation: serviceInput.observation,
           active: serviceInput.active,
         },
@@ -139,7 +139,7 @@ describe('AccountController', () => {
           name: serviceInput.name,
           institution: serviceInput.institution,
           type: serviceInput.type,
-          user_id: serviceInput.userId,
+          userId: serviceInput.userId,
           observation: serviceInput.observation,
         },
       });
@@ -486,7 +486,7 @@ describe('AccountController', () => {
       const existing = makeAccount({ id: 8 });
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       const updateSpy = jest.spyOn(AccountService.prototype, 'updateAccount');
-      const req = createMockRequest({ params: { id: '8' }, body: { user_id: -1 } });
+      const req = createMockRequest({ params: { id: '8' }, body: { userId: -1 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -504,7 +504,7 @@ describe('AccountController', () => {
       const existing = makeAccount({ id: 9 });
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(AccountService.prototype, 'updateAccount').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '9' }, body: { user_id: 99 } });
+      const req = createMockRequest({ params: { id: '9' }, body: { userId: 99 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -523,7 +523,7 @@ describe('AccountController', () => {
       const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(AccountService.prototype, 'getAccountById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(AccountService.prototype, 'updateAccount').mockResolvedValue({ success: true, data: updated });
-      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', userId: existing.userId } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -666,3 +666,5 @@ describe('AccountController', () => {
     });
   });
 });
+
+

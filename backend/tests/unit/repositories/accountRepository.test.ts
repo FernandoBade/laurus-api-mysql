@@ -3,7 +3,7 @@ import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { db } from '../../../src/db';
 import { accounts } from '../../../src/db/schema';
 import { AccountType, Operator } from '../../../../shared/enums';
-import { makeAccount } from '../../helpers/factories';
+import { makeDbAccount } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
     const query: any = {
@@ -62,7 +62,7 @@ describe('AccountRepository', () => {
 
     describe('findById', () => {
         it('returns account when found', async () => {
-            const account = makeAccount({ id: 1 });
+            const account = makeDbAccount({ id: 1 });
             const { select, from, query } = makeSelectChain([account]);
 
             const result = await repo.findById(1);
@@ -87,7 +87,7 @@ describe('AccountRepository', () => {
 
     describe('findMany', () => {
         it('returns all accounts when no filters', async () => {
-            const accountsList = [makeAccount({ id: 1 }), makeAccount({ id: 2 })];
+            const accountsList = [makeDbAccount({ id: 1 }), makeDbAccount({ id: 2 })];
             const { select, from, query } = makeSelectChain(accountsList);
 
             const result = await repo.findMany();
@@ -101,7 +101,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies userId filter', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1, userId: 7 })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, userId: 7 })]);
 
             await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
 
@@ -110,7 +110,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies active filter', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1, active: false })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, active: false })]);
 
             await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
 
@@ -119,7 +119,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies combined filters', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1, userId: 3, active: true })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, userId: 3, active: true })]);
 
             await repo.findMany({
                 userId: { operator: Operator.EQUAL, value: 3 },
@@ -131,7 +131,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies sorting asc', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'name', order: 'asc' });
 
@@ -140,7 +140,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies sorting desc', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'name', order: 'desc' });
 
@@ -149,7 +149,7 @@ describe('AccountRepository', () => {
         });
 
         it('applies pagination', async () => {
-            const { select, from, query } = makeSelectChain([makeAccount({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1 })]);
 
             await repo.findMany(undefined, { limit: 5, offset: 10 });
 
@@ -213,7 +213,7 @@ describe('AccountRepository', () => {
                 userId: 4,
                 active: true,
             };
-            const created = makeAccount({ id: 10, userId: 4, name: data.name });
+            const created = makeDbAccount({ id: 10, userId: 4, name: data.name });
             const { insert, values } = makeInsertChain(10);
             const { select, from, query } = makeSelectChain([created]);
 
@@ -252,7 +252,7 @@ describe('AccountRepository', () => {
     describe('update', () => {
         it('updates and returns account', async () => {
             const updates = { name: 'Updated' };
-            const updated = makeAccount({ id: 7, name: 'Updated' });
+            const updated = makeDbAccount({ id: 7, name: 'Updated' });
             const { update, set, where } = makeUpdateChain();
             const { select, from, query } = makeSelectChain([updated]);
 
@@ -295,3 +295,6 @@ describe('AccountRepository', () => {
         });
     });
 });
+
+
+

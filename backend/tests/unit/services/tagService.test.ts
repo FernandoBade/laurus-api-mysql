@@ -3,14 +3,17 @@ import { TagRepository } from '../../../src/repositories/tagRepository';
 import { UserService } from '../../../src/service/userService';
 import { Operator } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
+import type { TagEntity } from '../../../../shared/domains/tag/tag.types';
 import { SelectTag } from '../../../src/db/schema';
-import { makeUser } from '../../helpers/factories';
+import { makeSanitizedUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
-const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
+const DEFAULT_ISO_DATE = new Date('2024-01-01T00:00:00Z').toISOString();
+
+const makeDbTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
     const now = new Date('2024-01-01T00:00:00Z');
     return {
         id: overrides.id ?? 1,
@@ -19,6 +22,17 @@ const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
         active: overrides.active ?? true,
         createdAt: overrides.createdAt ?? now,
         updatedAt: overrides.updatedAt ?? now,
+    };
+};
+
+const makeTag = (overrides: Partial<TagEntity> = {}): TagEntity => {
+    return {
+        id: overrides.id ?? 1,
+        userId: overrides.userId ?? 1,
+        name: overrides.name ?? 'Urgent',
+        active: overrides.active ?? true,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
     };
 };
 
@@ -52,9 +66,9 @@ describe('TagService', () => {
         });
 
         it('returns data already exists when tag name is duplicated', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 2 });
+            const sanitized = makeSanitizedUser({ id: 2 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
-            jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([makeTag({ id: 5, userId: 2, name: 'Urgent' })]);
+            jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([makeDbTag({ id: 5, userId: 2, name: 'Urgent' })]);
             const createSpy = jest.spyOn(TagRepository.prototype, 'create');
 
             const service = new TagService();
@@ -65,21 +79,22 @@ describe('TagService', () => {
         });
 
         it('creates tag when validations succeed', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 3 });
+            const sanitized = makeSanitizedUser({ id: 3 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([]);
-            const created = makeTag({ id: 7, userId: 3, name: 'Travel' });
+            const created = makeDbTag({ id: 7, userId: 3, name: 'Travel' });
+            const expected = makeTag({ id: 7, userId: 3, name: 'Travel' });
             const createSpy = jest.spyOn(TagRepository.prototype, 'create').mockResolvedValue(created);
 
             const service = new TagService();
             const result = await service.createTag({ name: 'Travel', userId: 3, active: true });
 
             expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'Travel', userId: 3, active: true }));
-            expect(result).toEqual({ success: true, data: created });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('returns internal server error when repository create fails', async () => {
-            const { password: _ignored, ...sanitized } = makeUser({ id: 4 });
+            const sanitized = makeSanitizedUser({ id: 4 });
             jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: sanitized });
             jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([]);
             jest.spyOn(TagRepository.prototype, 'create').mockRejectedValue(new Error(Resource.INTERNAL_SERVER_ERROR));
@@ -93,7 +108,8 @@ describe('TagService', () => {
 
     describe('getTags', () => {
         it('returns tags when repository succeeds', async () => {
-            const tags = [makeTag({ id: 1 }), makeTag({ id: 2 })];
+            const tags = [makeDbTag({ id: 1 }), makeDbTag({ id: 2 })];
+            const expected = [makeTag({ id: 1 }), makeTag({ id: 2 })];
             const findManySpy = jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue(tags);
 
             const service = new TagService();
@@ -105,7 +121,7 @@ describe('TagService', () => {
                 sort: 'name',
                 order: 'desc',
             });
-            expect(result).toEqual({ success: true, data: tags });
+            expect(result).toEqual({ success: true, data: expected });
         });
     });
 
@@ -120,13 +136,14 @@ describe('TagService', () => {
         });
 
         it('returns tag when repository returns a record', async () => {
-            const tag = makeTag({ id: 11 });
+            const tag = makeDbTag({ id: 11 });
+            const expected = makeTag({ id: 11 });
             jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(tag);
 
             const service = new TagService();
             const result = await service.getTagById(11);
 
-            expect(result).toEqual({ success: true, data: tag });
+            expect(result).toEqual({ success: true, data: expected });
         });
 
         it('throws when repository lookup rejects', async () => {
@@ -178,8 +195,8 @@ describe('TagService', () => {
         });
 
         it('returns data already exists when name is duplicated', async () => {
-            jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(makeTag({ id: 9, userId: 5, name: 'Home' }));
-            jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([makeTag({ id: 10, userId: 5, name: 'Travel' })]);
+            jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(makeDbTag({ id: 9, userId: 5, name: 'Home' }));
+            jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([makeDbTag({ id: 10, userId: 5, name: 'Travel' })]);
             const updateSpy = jest.spyOn(TagRepository.prototype, 'update');
 
             const service = new TagService();
@@ -190,16 +207,17 @@ describe('TagService', () => {
         });
 
         it('updates tag when validation succeeds', async () => {
-            jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(makeTag({ id: 11, userId: 6, name: 'Bills' }));
+            jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(makeDbTag({ id: 11, userId: 6, name: 'Bills' }));
             jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue([]);
-            const updated = makeTag({ id: 11, userId: 6, name: 'Updated' });
+            const updated = makeDbTag({ id: 11, userId: 6, name: 'Updated' });
+            const expected = makeTag({ id: 11, userId: 6, name: 'Updated' });
             const updateSpy = jest.spyOn(TagRepository.prototype, 'update').mockResolvedValue(updated);
 
             const service = new TagService();
             const result = await service.updateTag(11, { name: 'Updated' });
 
             expect(updateSpy).toHaveBeenCalledWith(11, expect.objectContaining({ name: 'Updated' }));
-            expect(result).toEqual({ success: true, data: updated });
+            expect(result).toEqual({ success: true, data: expected });
         });
     });
 
@@ -216,7 +234,7 @@ describe('TagService', () => {
         });
 
         it('deletes and returns id when tag exists', async () => {
-            const tag = makeTag({ id: 16 });
+            const tag = makeDbTag({ id: 16 });
             jest.spyOn(TagRepository.prototype, 'findById').mockResolvedValue(tag);
             const deleteSpy = jest.spyOn(TagRepository.prototype, 'delete').mockResolvedValue();
 
@@ -228,3 +246,5 @@ describe('TagService', () => {
         });
     });
 });
+
+

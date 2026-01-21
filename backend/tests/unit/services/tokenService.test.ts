@@ -8,7 +8,7 @@ import * as commons from '../../../src/utils/commons';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -523,3 +523,4 @@ describe('TokenService', () => {
         });
     });
 });
+

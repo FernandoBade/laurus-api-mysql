@@ -123,7 +123,7 @@ export default function AccountsPage() {
         type: accountType,
         observation: observation.trim() || undefined,
         balance: parsedBalance,
-        user_id: userId,
+        userId: userId,
         active,
       });
       resetForm();

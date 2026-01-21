@@ -4,7 +4,7 @@ import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-type AuthEmailType = 'email_verification' | 'password_reset';
+type AuthEmailType = 'emailVerification' | 'passwordReset';
 
 type AuthEmailPayload = {
     type: AuthEmailType;
@@ -35,7 +35,7 @@ const buildAuthLink = (path: string, token: string): string => {
 };
 
 const buildAuthEmailContent = (type: AuthEmailType): AuthEmailContent => {
-    if (type === 'email_verification') {
+    if (type === 'emailVerification') {
         return {
             subject: translateResource(Resource.EMAIL_VERIFICATION_SUBJECT),
             body: translateResource(Resource.EMAIL_VERIFICATION_BODY),
@@ -166,10 +166,11 @@ export const buildPasswordResetLink = (token: string): string => buildAuthLink('
 
 export async function sendEmailVerificationEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildEmailVerificationLink(token);
-    await sender({ type: 'email_verification', to, link, userId });
+    await sender({ type: 'emailVerification', to, link, userId });
 }
 
 export async function sendPasswordResetEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildPasswordResetLink(token);
-    await sender({ type: 'password_reset', to, link, userId });
+    await sender({ type: 'passwordReset', to, link, userId });
 }
+

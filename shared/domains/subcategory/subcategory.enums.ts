@@ -1,5 +1,6 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Subcategory-related error codes mapped to i18n resources. */
 export enum SubcategoryErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,
     InvalidSubcategoryId = ResourceKey.INVALID_SUBCATEGORY_ID,

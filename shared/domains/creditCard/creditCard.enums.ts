@@ -1,5 +1,6 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Supported credit card flags. */
 export enum CreditCardFlag {
     VISA = 'visa',
     MASTERCARD = 'mastercard',
@@ -10,6 +11,7 @@ export enum CreditCardFlag {
     DINERS = 'diners',
 }
 
+/** @summary Credit card-related error codes mapped to i18n resources. */
 export enum CreditCardErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,
     UserNotFound = ResourceKey.USER_NOT_FOUND,

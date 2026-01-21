@@ -1,6 +1,7 @@
 import CategoryController from '../../controller/categoryController';
 import SubcategoryController from '../../controller/subcategoryController';
-import { SelectCategory, SelectSubcategory } from '../../db/schema';
+import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
+import type { SubcategoryEntity } from '../../../../shared/domains/subcategory/subcategory.types';
 import { CategoryColor, CategoryType } from '../../../../shared/enums';
 import { CategoryTemplate } from '../seed.config';
 import { SeedContext, executeController } from '../seed.utils';
@@ -10,20 +11,20 @@ type CategoryRequestBody = {
     type: CategoryType;
     color?: CategoryColor;
     active?: boolean;
-    user_id: number;
+    userId: number;
 };
 
 type SubcategoryRequestBody = {
     name: string;
-    category_id: number;
-    user_id: number;
+    categoryId: number;
+    userId: number;
     active?: boolean;
 };
 
 export type CategorySeed = {
     template: CategoryTemplate;
-    category: SelectCategory;
-    subcategories: SelectSubcategory[];
+    category: CategoryEntity;
+    subcategories: SubcategoryEntity[];
 };
 
 /**
@@ -40,25 +41,25 @@ export async function createCategories(context: SeedContext, userId: number): Pr
             type: template.type,
             color: template.color,
             active: true,
-            user_id: userId,
+            userId,
         };
 
-        const category = await executeController<SelectCategory>(CategoryController.createCategory, {
+        const category = await executeController<CategoryEntity>(CategoryController.createCategory, {
             body: categoryBody,
             language: context.language,
             userId,
         });
 
-        const subcategories: SelectSubcategory[] = [];
+        const subcategories: SubcategoryEntity[] = [];
         for (const name of template.subcategories) {
             const subcategoryBody: SubcategoryRequestBody = {
                 name,
-                category_id: category.id,
-                user_id: userId,
+                categoryId: category.id,
+                userId,
                 active: true,
             };
 
-            const created = await executeController<SelectSubcategory>(SubcategoryController.createSubcategory, {
+            const created = await executeController<SubcategoryEntity>(SubcategoryController.createSubcategory, {
                 body: subcategoryBody,
                 language: context.language,
                 userId,

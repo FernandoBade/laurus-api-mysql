@@ -67,7 +67,7 @@ export class CreditCardRepository {
         }
 
         if (options?.limit) {
-            query = query.limit(options.limit) as typeof query  ;
+            query = query.limit(options.limit) as typeof query;
         }
 
         if (options?.offset) {
@@ -157,4 +157,6 @@ export class CreditCardRepository {
         await connection.delete(creditCards).where(eq(creditCards.id, creditCardId));
     }
 }
+
+
 

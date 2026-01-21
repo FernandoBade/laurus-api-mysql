@@ -4,22 +4,22 @@ import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
-import { SelectTag } from '../../../src/db/schema';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
+import type { TagEntity } from '../../../../shared/domains/tag/tag.types';
 
 const authUser = { id: 999 };
+const DEFAULT_ISO_DATE = '2024-01-01T00:00:00.000Z';
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
     createMockRequest({ user: authUser, ...overrides });
 
-const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
-    const now = new Date('2024-01-01T00:00:00Z');
+const makeTag = (overrides: Partial<TagEntity> = {}): TagEntity => {
     return {
         id: overrides.id ?? 1,
         userId: overrides.userId ?? 1,
         name: overrides.name ?? 'Urgent',
         active: overrides.active ?? true,
-        createdAt: overrides.createdAt ?? now,
-        updatedAt: overrides.updatedAt ?? now,
+        createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+        updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
     };
 };
 
@@ -38,7 +38,7 @@ describe('TagController', () => {
     describe('createTag', () => {
         it('returns 400 without calling service when validation fails', async () => {
             const createSpy = jest.spyOn(TagService.prototype, 'createTag');
-            const req = createMockRequest({ body: { name: '', user_id: 0 } });
+            const req = createMockRequest({ body: { name: '', userId: 0 } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -60,7 +60,7 @@ describe('TagController', () => {
             const createSpy = jest
                 .spyOn(TagService.prototype, 'createTag')
                 .mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-            const req = createMockRequest({ body: { name: 'Urgent', user_id: 5 } });
+            const req = createMockRequest({ body: { name: 'Urgent', userId: 5 } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -81,7 +81,7 @@ describe('TagController', () => {
         it('returns 201 and logs when tag is created', async () => {
             const created = makeTag({ id: 10, userId: 2 });
             const createSpy = jest.spyOn(TagService.prototype, 'createTag').mockResolvedValue({ success: true, data: created });
-            const req = createAuthRequest({ body: { name: 'Urgent', user_id: 2, active: true } });
+            const req = createAuthRequest({ body: { name: 'Urgent', userId: 2, active: true } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -110,7 +110,7 @@ describe('TagController', () => {
                 throw new Error('boom');
             });
 
-            const req = createMockRequest({ body: { name: 'Urgent', user_id: 2 } });
+            const req = createMockRequest({ body: { name: 'Urgent', userId: 2 } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -285,7 +285,7 @@ describe('TagController', () => {
     describe('updateTag', () => {
         it('returns 400 when existing tag is not found', async () => {
             jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: false, error: Resource.TAG_NOT_FOUND });
-            const req = createMockRequest({ params: { id: '9' }, body: { name: 'DoesNotMatter', user_id: 1 } });
+            const req = createMockRequest({ params: { id: '9' }, body: { name: 'DoesNotMatter', userId: 1 } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -304,7 +304,7 @@ describe('TagController', () => {
                 throw new Error('boom');
             });
 
-            const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Whatever', user_id: existing.userId } });
+            const req = createAuthRequest({ params: { id: '12' }, body: { name: 'Whatever', userId: existing.userId } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -332,7 +332,7 @@ describe('TagController', () => {
             const existing = makeTag({ id: 8 });
             jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
             const updateSpy = jest.spyOn(TagService.prototype, 'updateTag');
-            const req = createMockRequest({ params: { id: '8' }, body: { user_id: -1 } });
+            const req = createMockRequest({ params: { id: '8' }, body: { userId: -1 } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -352,7 +352,7 @@ describe('TagController', () => {
             const expectedDelta = { name: { from: existing.name, to: updated.name } };
             jest.spyOn(TagService.prototype, 'getTagById').mockResolvedValue({ success: true, data: existing });
             jest.spyOn(TagService.prototype, 'updateTag').mockResolvedValue({ success: true, data: updated });
-            const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+            const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', userId: existing.userId } });
             const res = createMockResponse();
             const next = createNext();
 
@@ -415,3 +415,5 @@ describe('TagController', () => {
         });
     });
 });
+
+

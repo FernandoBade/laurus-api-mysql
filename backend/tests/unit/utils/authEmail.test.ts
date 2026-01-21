@@ -88,7 +88,7 @@ describe('authEmail utils', () => {
         await module.sendEmailVerificationEmail('user@example.com', 'verify-token', 12, sender);
 
         expect(sender).toHaveBeenCalledWith({
-            type: 'email_verification',
+            type: 'emailVerification',
             to: 'user@example.com',
             link: 'https://app.example.com/verify-email?token=verify-token',
             userId: 12,
@@ -104,7 +104,7 @@ describe('authEmail utils', () => {
         await module.sendPasswordResetEmail('user@example.com', 'reset-token', 7, sender);
 
         expect(sender).toHaveBeenCalledWith({
-            type: 'password_reset',
+            type: 'passwordReset',
             to: 'user@example.com',
             link: 'https://app.example.com/reset-password?token=reset-token',
             userId: 7,
@@ -179,7 +179,7 @@ describe('authEmail utils', () => {
             expect.objectContaining({
                 event: 'AUTH_EMAIL_SEND_FAILED',
                 provider: 'resend',
-                type: 'password_reset',
+                type: 'passwordReset',
                 error: expect.objectContaining({ message: expect.stringContaining('token=[REDACTED]') }),
             }),
             7
@@ -190,3 +190,4 @@ describe('authEmail utils', () => {
         expect(JSON.stringify(detail)).not.toContain('user@example.com');
     });
 });
+

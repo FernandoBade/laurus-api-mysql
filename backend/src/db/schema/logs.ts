@@ -12,11 +12,12 @@ export const logs = mysqlTable('log', {
     operation: mysqlEnum('operation', Object.values(LogOperation) as [LogOperation, ...LogOperation[]]).default(LogOperation.CREATE).notNull(),
     category: mysqlEnum('category', Object.values(LogCategory) as [LogCategory, ...LogCategory[]]).default(LogCategory.LOG).notNull(),
     detail: text('detail'),
-    userId: int('user_id'),
+    userId: int('userId'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 });
 
 export type SelectLog = InferSelectModel<typeof logs>;
 export type InsertLog = InferInsertModel<typeof logs>;
+
 

@@ -17,7 +17,7 @@ export type CreateCategoryPayload = {
   type: CategoryType;
   color?: CategoryColor;
   active?: boolean;
-  user_id: number;
+  userId: number;
 };
 
 export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;

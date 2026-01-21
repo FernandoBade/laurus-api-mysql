@@ -3,7 +3,7 @@ import { UserRepository } from '../../../src/repositories/userRepository';
 import { db } from '../../../src/db';
 import { users } from '../../../src/db/schema';
 import { Operator } from '../../../../shared/enums';
-import { makeUser } from '../../helpers/factories';
+import { makeDbUser } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
     const query: any = {
@@ -62,7 +62,7 @@ describe('UserRepository', () => {
 
     describe('findById', () => {
         it('returns user when found', async () => {
-            const user = makeUser({ id: 1 });
+            const user = makeDbUser({ id: 1 });
             const { select, from, query } = makeSelectChain([user]);
 
             const result = await repo.findById(1);
@@ -87,7 +87,7 @@ describe('UserRepository', () => {
 
     describe('findMany', () => {
         it('returns all users when no filters', async () => {
-            const list = [makeUser({ id: 1 }), makeUser({ id: 2 })];
+            const list = [makeDbUser({ id: 1 }), makeDbUser({ id: 2 })];
             const { select, from, query } = makeSelectChain(list);
 
             const result = await repo.findMany();
@@ -101,7 +101,7 @@ describe('UserRepository', () => {
         });
 
         it('applies email equal filter', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
             await repo.findMany({ email: { operator: Operator.EQUAL, value: 'user@example.com' } });
 
@@ -110,7 +110,7 @@ describe('UserRepository', () => {
         });
 
         it('applies email like filter', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
             await repo.findMany({ email: { operator: Operator.LIKE, value: 'example' } });
 
@@ -119,7 +119,7 @@ describe('UserRepository', () => {
         });
 
         it('applies active filter', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1, active: false })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1, active: false })]);
 
             await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
 
@@ -128,7 +128,7 @@ describe('UserRepository', () => {
         });
 
         it('applies combined filters', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1, active: true })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1, active: true })]);
 
             await repo.findMany({
                 email: { operator: Operator.EQUAL, value: 'user@example.com' },
@@ -140,7 +140,7 @@ describe('UserRepository', () => {
         });
 
         it('applies sorting asc', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'email', order: 'asc' });
 
@@ -149,7 +149,7 @@ describe('UserRepository', () => {
         });
 
         it('applies sorting desc', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
             await repo.findMany(undefined, { sort: 'email', order: 'desc' });
 
@@ -158,7 +158,7 @@ describe('UserRepository', () => {
         });
 
         it('applies pagination', async () => {
-            const { select, from, query } = makeSelectChain([makeUser({ id: 1 })]);
+            const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
             await repo.findMany(undefined, { limit: 5, offset: 10 });
 
@@ -215,7 +215,7 @@ describe('UserRepository', () => {
     describe('create', () => {
         it('inserts and returns created user', async () => {
             const data = { email: 'new@example.com', password: 'secret' };
-            const created = makeUser({ id: 10, email: data.email });
+            const created = makeDbUser({ id: 10, email: data.email });
             const { insert, values } = makeInsertChain(10);
             const { select, from, query } = makeSelectChain([created]);
 
@@ -247,7 +247,7 @@ describe('UserRepository', () => {
     describe('update', () => {
         it('updates and returns user', async () => {
             const updates = { firstName: 'Updated' };
-            const updated = makeUser({ id: 7, firstName: 'Updated' });
+            const updated = makeDbUser({ id: 7, firstName: 'Updated' });
             const { update, set, where } = makeUpdateChain();
             const { select, from, query } = makeSelectChain([updated]);
 
@@ -290,3 +290,6 @@ describe('UserRepository', () => {
         });
     });
 });
+
+
+

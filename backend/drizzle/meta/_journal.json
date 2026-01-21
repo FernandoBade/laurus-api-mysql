@@ -8,6 +8,27 @@
       "when": 1768321410563,
       "tag": "0000_furry_sentry",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1768962945906,
+      "tag": "0001_token_type_camelcase",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769000395054,
+      "tag": "0002_camelcase_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1769014548313,
+      "tag": "0003_transactions__to__tags",
+      "breakpoints": true
     }
   ]
 }

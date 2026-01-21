@@ -7,6 +7,7 @@ import { createMockRequest, createMockResponse, createNext } from '../../helpers
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 999 };
+const DEFAULT_ISO_DATE = '2024-01-01T00:00:00.000Z';
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
   createMockRequest({ user: authUser, ...overrides });
 
@@ -16,13 +17,13 @@ const makeCreditCardInput = (
   name: overrides.name ?? 'Visa Card',
   flag: overrides.flag ?? CreditCardFlag.VISA,
   observation: overrides.observation,
-  user_id: overrides.userId ?? 1,
-  account_id: overrides.accountId,
+  userId: overrides.userId ?? 1,
+  accountId: overrides.accountId,
   active: overrides.active ?? true,
 });
 
 const makeCreditCard = (
-  overrides: Partial<{ id: number; name: string; flag: CreditCardFlag; observation?: string; balance?: string; limit?: string; userId: number; accountId?: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
+  overrides: Partial<{ id: number; name: string; flag: CreditCardFlag; observation?: string; balance?: string; limit?: string; userId: number; accountId?: number; active?: boolean; createdAt: string; updatedAt: string }> = {}
 ) => ({
   id: overrides.id ?? 1,
   name: overrides.name ?? 'Visa Card',
@@ -33,8 +34,8 @@ const makeCreditCard = (
   userId: overrides.userId ?? 1,
   accountId: overrides.accountId ?? null,
   active: overrides.active ?? true,
-  createdAt: overrides.createdAt ?? new Date('2024-01-01T00:00:00Z'),
-  updatedAt: overrides.updatedAt ?? new Date('2024-01-01T00:00:00Z'),
+  createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+  updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
 });
 
 describe('CreditCardController', () => {
@@ -52,7 +53,7 @@ describe('CreditCardController', () => {
   describe('createCreditCard', () => {
     it('returns 400 without calling service when validation fails', async () => {
       const createSpy = jest.spyOn(CreditCardService.prototype, 'createCreditCard');
-      const req = createMockRequest({ body: { name: '', flag: 'invalid', user_id: 0 } });
+      const req = createMockRequest({ body: { name: '', flag: 'invalid', userId: 0 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -96,8 +97,8 @@ describe('CreditCardController', () => {
           name: input.name,
           flag: input.flag,
           observation: input.observation,
-          userId: input.user_id,
-          accountId: input.account_id,
+          userId: input.userId,
+          accountId: input.accountId,
           active: input.active,
         })
       );
@@ -114,7 +115,7 @@ describe('CreditCardController', () => {
 
     it('returns 201 and logs when credit card is created', async () => {
       const input = makeCreditCardInput({ userId: 2 });
-      const created = makeCreditCard({ id: 10, userId: input.user_id });
+      const created = makeCreditCard({ id: 10, userId: input.userId });
       const createSpy = jest.spyOn(CreditCardService.prototype, 'createCreditCard').mockResolvedValue({ success: true, data: created });
       const req = createAuthRequest({ body: input });
       const res = createMockResponse();
@@ -128,8 +129,8 @@ describe('CreditCardController', () => {
           name: input.name,
           flag: input.flag,
           observation: input.observation,
-          userId: input.user_id,
-          accountId: input.account_id,
+          userId: input.userId,
+          accountId: input.accountId,
           active: input.active,
         })
       );
@@ -508,7 +509,7 @@ describe('CreditCardController', () => {
       const existing = makeCreditCard({ id: 9 });
       jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CreditCardService.prototype, 'updateCreditCard').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '9' }, body: { user_id: 99 } });
+      const req = createMockRequest({ params: { id: '9' }, body: { userId: 99 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -527,7 +528,7 @@ describe('CreditCardController', () => {
       const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(CreditCardService.prototype, 'getCreditCardById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CreditCardService.prototype, 'updateCreditCard').mockResolvedValue({ success: true, data: updated });
-      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', userId: existing.userId } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -671,3 +672,5 @@ describe('CreditCardController', () => {
     });
   });
 });
+
+

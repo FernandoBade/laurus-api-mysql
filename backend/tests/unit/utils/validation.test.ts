@@ -22,7 +22,8 @@ import {
     isNumber,
     isNumberArray,
     isBoolean,
-    isDate,
+    isISODateString,
+    isMonetaryString,
     isEnum,
     isValidEmail,
     hasMinLength,
@@ -77,11 +78,18 @@ describe('validation guards', () => {
         expect(isBoolean('true')).toBe(false);
     });
 
-    it('validates dates', () => {
-        expect(isDate(new Date('2024-01-01'))).toBe(true);
-        expect(isDate('2024-01-01')).toBe(true);
-        expect(isDate('invalid')).toBe(false);
-        expect(isDate(1)).toBe(false);
+    it('validates ISO date strings', () => {
+        expect(isISODateString('2024-01-01T00:00:00.000Z')).toBe(true);
+        expect(isISODateString('invalid')).toBe(false);
+        expect(isISODateString(new Date('2024-01-01'))).toBe(false);
+        expect(isISODateString(1)).toBe(false);
+    });
+
+    it('validates monetary strings', () => {
+        expect(isMonetaryString('100')).toBe(true);
+        expect(isMonetaryString('100.50')).toBe(true);
+        expect(isMonetaryString('100.567')).toBe(false);
+        expect(isMonetaryString(100)).toBe(false);
     });
 
     it('validates enum membership', () => {
@@ -123,7 +131,7 @@ describe('validateRequest', () => {
                     email: 'TEST@EXAMPLE.COM',
                     password: '123456',
                     phone: '123',
-                    birthDate: '1990-01-01',
+                    birthDate: '1990-01-01T00:00:00.000Z',
                     theme: Theme.DARK,
                     language: Language.EN_US,
                     currency: Currency.BRL,
@@ -138,7 +146,7 @@ describe('validateRequest', () => {
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.email).toBe('test@example.com');
-            expect(result.data.birthDate).toBeInstanceOf(Date);
+            expect(result.data.birthDate).toBe('1990-01-01T00:00:00.000Z');
             expect(result.data.theme).toBe(Theme.DARK);
             expect(result.data.hideValues).toBe(true);
             expect(result.data.active).toBe(true);
@@ -168,13 +176,13 @@ describe('validateRequest', () => {
     describe('validateCreateAccount', () => {
         it('returns errors for invalid input', () => {
             const result = validateCreateAccount(
-                { name: 'Main', institution: 'Bank', type: AccountType.CHECKING, user_id: 0 },
+                { name: 'Main', institution: 'Bank', type: AccountType.CHECKING, userId: 0 },
                 lang
             );
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('user_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('userId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
@@ -184,8 +192,8 @@ describe('validateRequest', () => {
                     institution: 'Bank',
                     type: AccountType.CHECKING,
                     observation: 'note',
-                    balance: 250.5,
-                    user_id: 2,
+                    balance: '250.50',
+                    userId: 2,
                     active: true,
                 },
                 lang
@@ -195,28 +203,28 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.userId).toBe(2);
             expect(result.data.observation).toBe('note');
-            expect(result.data.balance).toBe(250.5);
+            expect(result.data.balance).toBe('250.50');
             expect(result.data.active).toBe(true);
         });
     });
 
     describe('validateUpdateAccount', () => {
         it('returns errors for invalid input', () => {
-            const result = validateUpdateAccount({ user_id: 0 }, lang);
+            const result = validateUpdateAccount({ userId: 0 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('user_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('userId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateAccount({ name: 'New', observation: 'note', balance: 0, active: false }, lang);
+            const result = validateUpdateAccount({ name: 'New', observation: 'note', balance: '0.00', active: false }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.name).toBe('New');
             expect(result.data.observation).toBe('note');
-            expect(result.data.balance).toBe(0);
+            expect(result.data.balance).toBe('0.00');
             expect(result.data.active).toBe(false);
         });
     });
@@ -224,7 +232,7 @@ describe('validateRequest', () => {
     describe('validateCreateCategory', () => {
         it('returns errors for invalid input', () => {
             const result = validateCreateCategory(
-                { name: 'Food', type: 'invalid', user_id: 1 },
+                { name: 'Food', type: 'invalid', userId: 1 },
                 lang
             );
 
@@ -240,7 +248,7 @@ describe('validateRequest', () => {
                     name: 'Food',
                     type: CategoryType.EXPENSE,
                     color: CategoryColor.BLUE,
-                    user_id: 1,
+                    userId: 1,
                     active: true,
                 },
                 lang
@@ -256,11 +264,11 @@ describe('validateRequest', () => {
 
     describe('validateUpdateCategory', () => {
         it('returns errors for invalid input', () => {
-            const result = validateUpdateCategory({ user_id: -1 }, lang);
+            const result = validateUpdateCategory({ userId: -1 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('user_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('userId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
@@ -285,15 +293,15 @@ describe('validateRequest', () => {
 
     describe('validateCreateSubcategory', () => {
         it('returns errors for invalid input', () => {
-            const result = validateCreateSubcategory({ name: 'Sub', category_id: 0 }, lang);
+            const result = validateCreateSubcategory({ name: 'Sub', categoryId: 0 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('category_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('categoryId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateCreateSubcategory({ name: 'Sub', category_id: 2, active: true }, lang);
+            const result = validateCreateSubcategory({ name: 'Sub', categoryId: 2, active: true }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
@@ -308,11 +316,17 @@ describe('validateRequest', () => {
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('active', t(Resource.INVALID_TYPE))]);
+            expect(result.errors).toEqual([
+                createValidationError('active', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
+                    path: 'active',
+                    expected: 'boolean',
+                    received: 'yes'
+                }))
+            ]);
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateSubcategory({ name: 'New', category_id: 3 }, lang);
+            const result = validateUpdateSubcategory({ name: 'New', categoryId: 3 }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
@@ -323,7 +337,7 @@ describe('validateRequest', () => {
 
     describe('validateCreateCreditCard', () => {
         it('returns errors for invalid input', () => {
-            const result = validateCreateCreditCard({ name: 'Card', flag: 'invalid', user_id: 1 }, lang);
+            const result = validateCreateCreditCard({ name: 'Card', flag: 'invalid', userId: 1 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
@@ -337,10 +351,10 @@ describe('validateRequest', () => {
                     name: 'Card',
                     flag: CreditCardFlag.VISA,
                     observation: 'note',
-                    balance: 0,
-                    limit: 5000,
-                    user_id: 1,
-                    account_id: 5,
+                    balance: '0.00',
+                    limit: '5000.00',
+                    userId: 1,
+                    accountId: 5,
                     active: true,
                 },
                 lang
@@ -350,52 +364,51 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.userId).toBe(1);
             expect(result.data.accountId).toBe(5);
-            expect(result.data.balance).toBe(0);
-            expect(result.data.limit).toBe(5000);
+            expect(result.data.balance).toBe('0.00');
+            expect(result.data.limit).toBe('5000.00');
             expect(result.data.active).toBe(true);
         });
     });
 
     describe('validateUpdateCreditCard', () => {
         it('returns errors for invalid input', () => {
-            const result = validateUpdateCreditCard({ account_id: 0 }, lang);
+            const result = validateUpdateCreditCard({ accountId: 0 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('account_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('accountId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateUpdateCreditCard({ name: 'New', flag: CreditCardFlag.AMEX, limit: 8000, account_id: 2 }, lang);
+            const result = validateUpdateCreditCard({ name: 'New', flag: CreditCardFlag.AMEX, limit: '8000.00', accountId: 2 }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
             expect(result.data.name).toBe('New');
             expect(result.data.flag).toBe(CreditCardFlag.AMEX);
             expect(result.data.accountId).toBe(2);
-            expect(result.data.limit).toBe(8000);
+            expect(result.data.limit).toBe('8000.00');
         });
     });
 
     describe('validateCreateTag', () => {
         it('returns errors for invalid input', () => {
-            const result = validateCreateTag({ name: '', user_id: 0 }, lang);
+            const result = validateCreateTag({ name: '', userId: 0 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
             expect(result.errors).toEqual(
                 expect.arrayContaining([
-                    createValidationError('name', translateResourceWithParams(Resource.TOO_SMALL, lang, {
-                        path: 'name',
-                        min: 1
+                    createValidationError('name', translateResourceWithParams(Resource.FIELD_REQUIRED, lang, {
+                        field: 'name'
                     })),
-                    createValidationError('user_id', t(Resource.VALIDATION_ERROR)),
+                    createValidationError('userId', t(Resource.VALIDATION_ERROR)),
                 ])
             );
         });
 
         it('returns normalized data for valid input', () => {
-            const result = validateCreateTag({ name: 'Urgent', user_id: 5, active: true }, lang);
+            const result = validateCreateTag({ name: 'Urgent', userId: 5, active: true }, lang);
 
             expect(result.success).toBe(true);
             if (!result.success) return;
@@ -407,11 +420,11 @@ describe('validateRequest', () => {
 
     describe('validateUpdateTag', () => {
         it('returns errors for invalid input', () => {
-            const result = validateUpdateTag({ user_id: 0 }, lang);
+            const result = validateUpdateTag({ userId: 0 }, lang);
 
             expect(result.success).toBe(false);
             if (result.success) return;
-            expect(result.errors).toEqual([createValidationError('user_id', t(Resource.VALIDATION_ERROR))]);
+            expect(result.errors).toEqual([createValidationError('userId', t(Resource.VALIDATION_ERROR))]);
         });
 
         it('returns normalized data for valid input', () => {
@@ -428,13 +441,13 @@ describe('validateRequest', () => {
         it('returns errors when category and subcategory are missing', () => {
             const result = validateCreateTransaction(
                 {
-                    value: 10,
-                    date: new Date(),
+                    value: '10.00',
+                    date: '2024-01-01T00:00:00.000Z',
                     transactionType: TransactionType.EXPENSE,
                     transactionSource: TransactionSource.ACCOUNT,
                     isInstallment: false,
                     isRecurring: false,
-                    account_id: 1,
+                    accountId: 1,
                 },
                 lang
             );
@@ -443,8 +456,8 @@ describe('validateRequest', () => {
             if (result.success) return;
             expect(result.errors).toEqual(
                 expect.arrayContaining([
-                    createValidationError('category_id', t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED)),
-                    createValidationError('subcategory_id', t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED)),
+                    createValidationError('categoryId', t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED)),
+                    createValidationError('subcategoryId', t(Resource.CATEGORY_OR_SUBCATEGORY_REQUIRED)),
                 ])
             );
         });
@@ -452,14 +465,14 @@ describe('validateRequest', () => {
         it('returns errors when totalMonths is missing for installments', () => {
             const result = validateCreateTransaction(
                 {
-                    value: 10,
-                    date: new Date(),
-                    category_id: 1,
+                    value: '10.00',
+                    date: '2024-01-01T00:00:00.000Z',
+                    categoryId: 1,
                     transactionType: TransactionType.EXPENSE,
                     transactionSource: TransactionSource.ACCOUNT,
                     isInstallment: true,
                     isRecurring: false,
-                    account_id: 1,
+                    accountId: 1,
                 },
                 lang
             );
@@ -472,15 +485,15 @@ describe('validateRequest', () => {
         it('returns normalized data for valid input', () => {
             const result = validateCreateTransaction(
                 {
-                    value: 25,
-                    date: '2024-01-01',
-                    category_id: 2,
+                    value: '25.00',
+                    date: '2024-01-01T00:00:00.000Z',
+                    categoryId: 2,
                     observation: 'note',
                     transactionType: TransactionType.INCOME,
                     transactionSource: TransactionSource.ACCOUNT,
                     isInstallment: false,
                     isRecurring: false,
-                    account_id: 2,
+                    accountId: 2,
                     tags: [1, 2],
                     active: true,
                 },
@@ -489,11 +502,32 @@ describe('validateRequest', () => {
 
             expect(result.success).toBe(true);
             if (!result.success) return;
-            expect(result.data.date).toBeInstanceOf(Date);
+            expect(result.data.date).toBe('2024-01-01T00:00:00.000Z');
+            expect(result.data.value).toBe('25.00');
             expect(result.data.categoryId).toBe(2);
             expect(result.data.accountId).toBe(2);
             expect(result.data.tags).toEqual([1, 2]);
             expect(result.data.active).toBe(true);
+        });
+
+        it('normalizes monetary values with comma separators', () => {
+            const result = validateCreateTransaction(
+                {
+                    value: '111111,11',
+                    date: '2024-01-01T00:00:00.000Z',
+                    categoryId: 2,
+                    transactionType: TransactionType.EXPENSE,
+                    transactionSource: TransactionSource.ACCOUNT,
+                    isInstallment: false,
+                    isRecurring: false,
+                    accountId: 2,
+                },
+                lang
+            );
+
+            expect(result.success).toBe(true);
+            if (!result.success) return;
+            expect(result.data.value).toBe('111111.11');
         });
     });
 
@@ -510,8 +544,8 @@ describe('validateRequest', () => {
             const result = validateUpdateTransaction(
                 {
                     transactionSource: TransactionSource.CREDIT_CARD,
-                    creditCard_id: 5,
-                    date: '2024-01-01',
+                    creditCardId: 5,
+                    date: '2024-01-01T00:00:00.000Z',
                     tags: [3],
                     isInstallment: false,
                     isRecurring: false,
@@ -523,7 +557,7 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.transactionSource).toBe(TransactionSource.CREDIT_CARD);
             expect(result.data.creditCardId).toBe(5);
-            expect(result.data.date).toBeInstanceOf(Date);
+            expect(result.data.date).toBe('2024-01-01T00:00:00.000Z');
             expect(result.data.tags).toEqual([3]);
             expect(result.data.isInstallment).toBe(false);
             expect(result.data.isRecurring).toBe(false);
@@ -537,13 +571,11 @@ describe('validateRequest', () => {
             expect(result.success).toBe(false);
             if (result.success) return;
             expect(result.errors).toEqual([
-                createValidationError('title', translateResourceWithParams(Resource.TOO_SMALL, lang, {
-                    path: 'title',
-                    min: 1
+                createValidationError('title', translateResourceWithParams(Resource.FIELD_REQUIRED, lang, {
+                    field: 'title'
                 })),
-                createValidationError('message', translateResourceWithParams(Resource.TOO_SMALL, lang, {
-                    path: 'message',
-                    min: 1
+                createValidationError('message', translateResourceWithParams(Resource.FIELD_REQUIRED, lang, {
+                    field: 'message'
                 })),
             ]);
         });
@@ -558,3 +590,4 @@ describe('validateRequest', () => {
         });
     });
 });
+

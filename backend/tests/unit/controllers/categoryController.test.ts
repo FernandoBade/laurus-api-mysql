@@ -8,6 +8,7 @@ import { createMockRequest, createMockResponse, createNext } from '../../helpers
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const authUser = { id: 999 };
+const DEFAULT_ISO_DATE = '2024-01-01T00:00:00.000Z';
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
   createMockRequest({ user: authUser, ...overrides });
 
@@ -15,12 +16,12 @@ const makeCategoryInput = (overrides: Partial<{ name: string; type: CategoryType
   name: overrides.name ?? 'Food',
   type: overrides.type ?? CategoryType.EXPENSE,
   color: overrides.color ?? CategoryColor.RED,
-  user_id: overrides.userId ?? 1,
+  userId: overrides.userId ?? 1,
   active: overrides.active ?? true,
 });
 
 const makeCategory = (
-  overrides: Partial<{ id: number; name: string; type: CategoryType; color?: CategoryColor; userId: number; active?: boolean; createdAt: Date; updatedAt: Date }> = {}
+  overrides: Partial<{ id: number; name: string; type: CategoryType; color?: CategoryColor; userId: number; active?: boolean; createdAt: string; updatedAt: string }> = {}
 ) => ({
   id: overrides.id ?? 1,
   name: overrides.name ?? 'Food',
@@ -28,8 +29,8 @@ const makeCategory = (
   color: overrides.color ?? CategoryColor.RED,
   active: overrides.active ?? true,
   userId: overrides.userId ?? 1,
-  createdAt: overrides.createdAt ?? new Date('2024-01-01T00:00:00Z'),
-  updatedAt: overrides.updatedAt ?? new Date('2024-01-01T00:00:00Z'),
+  createdAt: overrides.createdAt ?? DEFAULT_ISO_DATE,
+  updatedAt: overrides.updatedAt ?? DEFAULT_ISO_DATE,
 });
 
 describe('CategoryController', () => {
@@ -47,7 +48,7 @@ describe('CategoryController', () => {
   describe('createCategory', () => {
     it('returns 400 without calling service when validation fails', async () => {
       const createSpy = jest.spyOn(CategoryService.prototype, 'createCategory');
-      const req = createMockRequest({ body: { name: '', type: 'invalid', user_id: 0 } });
+      const req = createMockRequest({ body: { name: '', type: 'invalid', userId: 0 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -82,7 +83,7 @@ describe('CategoryController', () => {
           name: input.name,
           type: input.type,
           color: input.color,
-          userId: input.user_id,
+          userId: input.userId,
           active: input.active,
         })
       );
@@ -99,7 +100,7 @@ describe('CategoryController', () => {
 
     it('returns 201 and logs when category is created', async () => {
       const input = makeCategoryInput({ userId: 4 });
-      const created = makeCategory({ id: 12, userId: input.user_id });
+      const created = makeCategory({ id: 12, userId: input.userId });
       const createSpy = jest.spyOn(CategoryService.prototype, 'createCategory').mockResolvedValue({ success: true, data: created });
       const req = createAuthRequest({ body: input });
       const res = createMockResponse();
@@ -113,7 +114,7 @@ describe('CategoryController', () => {
           name: input.name,
           type: input.type,
           color: input.color,
-          userId: input.user_id,
+          userId: input.userId,
           active: input.active,
         })
       );
@@ -492,7 +493,7 @@ describe('CategoryController', () => {
       const existing = makeCategory({ id: 9 });
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CategoryService.prototype, 'updateCategory').mockResolvedValue({ success: false, error: Resource.USER_NOT_FOUND });
-      const req = createMockRequest({ params: { id: '9' }, body: { user_id: 99 } });
+      const req = createMockRequest({ params: { id: '9' }, body: { userId: 99 } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -511,7 +512,7 @@ describe('CategoryController', () => {
       const expectedDelta = { name: { from: existing.name, to: updated.name } };
       jest.spyOn(CategoryService.prototype, 'getCategoryById').mockResolvedValue({ success: true, data: existing });
       jest.spyOn(CategoryService.prototype, 'updateCategory').mockResolvedValue({ success: true, data: updated });
-      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', user_id: existing.userId } });
+      const req = createAuthRequest({ params: { id: '11' }, body: { name: 'Updated', userId: existing.userId } });
       const res = createMockResponse();
       const next = createNext();
 
@@ -652,3 +653,5 @@ describe('CategoryController', () => {
     });
   });
 });
+
+

@@ -30,7 +30,7 @@ const hashMock = bcrypt.hash as jest.MockedFunction<HashFn>;
 const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
-const isResource = (value: string): value is Resource => value in Resource;
+const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 const SESSION_ID = '00000000-0000-4000-8000-000000000000';
 const sendEmailVerificationMock = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>;
 const sendPasswordResetMock = sendPasswordResetEmail as jest.MockedFunction<typeof sendPasswordResetEmail>;
@@ -864,3 +864,4 @@ describe('AuthService', () => {
         });
     });
 });
+

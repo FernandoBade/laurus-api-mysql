@@ -8,19 +8,19 @@ import { TokenType } from '../../../../shared/enums';
  */
 export const tokens = mysqlTable('token', {
     id: int('id').primaryKey().autoincrement(),
-    userId: int('user_id').notNull(),
+    userId: int('userId').notNull(),
     type: mysqlEnum('type', Object.values(TokenType) as [TokenType, ...TokenType[]]).notNull(),
-    tokenHash: varchar('token_hash', { length: 64 }).unique().notNull(),
-    sessionId: varchar('session_id', { length: 64 }),
-    sessionExpiresAt: timestamp('session_expires_at'),
-    revokedAt: timestamp('revoked_at'),
-    expiresAt: timestamp('expires_at').notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    tokenHash: varchar('tokenHash', { length: 64 }).unique().notNull(),
+    sessionId: varchar('sessionId', { length: 64 }),
+    sessionExpiresAt: timestamp('sessionExpiresAt'),
+    revokedAt: timestamp('revokedAt'),
+    expiresAt: timestamp('expiresAt').notNull(),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-    userIdIdx: index('token_user_id_idx').on(table.userId),
-    sessionIdIdx: index('token_session_id_idx').on(table.sessionId),
-    expiresAtIdx: index('token_expires_at_idx').on(table.expiresAt),
+    userIdIdx: index('token_userId_idx').on(table.userId),
+    sessionIdIdx: index('token_sessionId_idx').on(table.sessionId),
+    expiresAtIdx: index('token_expiresAt_idx').on(table.expiresAt),
 }));
 
 export type SelectToken = InferSelectModel<typeof tokens>;

@@ -41,3 +41,4 @@ export async function verifyToken(req: Request, res: Response, next: NextFunctio
         return;
     }
 }
+

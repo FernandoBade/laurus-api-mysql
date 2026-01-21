@@ -1,15 +1,18 @@
 import { ResourceKey } from '../../i18n/resource.keys';
 
+/** @summary Source of a transaction. */
 export enum TransactionSource {
     ACCOUNT = 'account',
     CREDIT_CARD = 'creditCard',
 }
 
+/** @summary Type of a transaction. */
 export enum TransactionType {
     INCOME = 'income',
     EXPENSE = 'expense',
 }
 
+/** @summary Transaction-related error codes mapped to i18n resources. */
 export enum TransactionErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,
     InvalidTransactionId = ResourceKey.INVALID_TRANSACTION_ID,
