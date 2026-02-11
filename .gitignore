@@ -1,52 +1,60 @@
 ################################
-# Dependências
+# Dependencies
 ################################
-backend/node_modules
-frontend_old/node_modules
+# Ignore node_modules at any project level
+node_modules/
+**/node_modules/
 
 ################################
 # Environment variables
 ################################
-.env
-backend/.env
-frontend_old/.env*
-.env*.local
+**/.env
+**/.env.*
 
 ################################
 # Builds / outputs
 ################################
-backend/coverage
-frontend_old/coverage
-frontend_old/.next
-frontend_old/out
-frontend_old/build
+# Backend & General
+**/dist/
+**/coverage/
+
+# Next.js / Frontend
+**/.next/
+**/out/
+**/build/
 
 ################################
 # IDE / OS
 ################################
-.idea
-.vscode
+.idea/
+.vscode/
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 ################################
 # Logs
 ################################
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 ################################
-# Next.js / TypeScript
+# Next.js / TypeScript / Tooling
 ################################
 *.tsbuildinfo
-frontend_old/next-env.d.ts
-
-################################
-# Vercel
-################################
-frontend_old/.vercel
+**/.next-env.d.ts
+**/.vercel
+**/.turbo
 
 ################################
 # Security
 ################################
 *.pem
+*.key
+*.cert
