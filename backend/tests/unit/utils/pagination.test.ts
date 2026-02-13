@@ -51,6 +51,45 @@ describe('pagination utils', () => {
                 order: Operator.ASC,
             });
         });
+
+        it('uses first string when query values are arrays', () => {
+            const result = parsePagination({
+                page: ['3'],
+                pageSize: ['4'],
+                limit: ['4'],
+                offset: ['8'],
+                sort: ['createdAt'],
+                order: ['desc'],
+            });
+
+            expect(result).toEqual({
+                page: 3,
+                pageSize: 4,
+                limit: 4,
+                offset: 8,
+                sort: 'createdAt',
+                order: Operator.DESC,
+            });
+        });
+
+        it('parses numeric query values', () => {
+            const result = parsePagination({
+                page: 2,
+                pageSize: 6,
+                limit: 6,
+                offset: 12,
+                order: 'asc',
+            });
+
+            expect(result).toEqual({
+                page: 2,
+                pageSize: 6,
+                limit: 6,
+                offset: 12,
+                sort: undefined,
+                order: Operator.ASC,
+            });
+        });
     });
 
     describe('buildMeta', () => {

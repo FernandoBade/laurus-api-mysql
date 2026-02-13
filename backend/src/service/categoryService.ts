@@ -46,7 +46,7 @@ export class CategoryService {
                 userId: data.userId,
             } as InsertCategory);
             return { success: true, data: this.toCategoryEntity(created) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -67,7 +67,7 @@ export class CategoryService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -82,7 +82,7 @@ export class CategoryService {
         try {
             const count = await this.categoryRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -120,7 +120,7 @@ export class CategoryService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -138,7 +138,7 @@ export class CategoryService {
                 userId: { operator: Operator.EQUAL, value: userId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -165,7 +165,7 @@ export class CategoryService {
         try {
             const updated = await this.categoryRepository.update(id, data);
             return { success: true, data: this.toCategoryEntity(updated) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -186,10 +186,11 @@ export class CategoryService {
         try {
             await this.categoryRepository.delete(id);
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

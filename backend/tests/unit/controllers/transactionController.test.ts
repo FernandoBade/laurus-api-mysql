@@ -740,6 +740,8 @@ describe('TransactionController', () => {
         it('returns 200 and logs when deletion succeeds', async () => {
             const snapshot = makeTransaction({ id: 21 });
             const { createdAt, updatedAt, ...expectedSnapshot } = snapshot;
+            void createdAt;
+            void updatedAt;
             jest.spyOn(TransactionService.prototype, 'getTransactionById').mockResolvedValue({ success: true, data: snapshot });
             jest.spyOn(TransactionService.prototype, 'deleteTransaction').mockResolvedValue({ success: true, data: { id: 21 } });
             const req = createAuthRequest({ params: { id: '21' } });

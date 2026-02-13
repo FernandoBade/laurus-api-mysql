@@ -27,7 +27,7 @@ class SubcategoryController {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, parseResult.errors, Resource.VALIDATION_ERROR);
             }
 
-            const created = await subcategoryService.createSubcategory(parseResult.data, (req.body as any).userId);
+            const created = await subcategoryService.createSubcategory(parseResult.data, (req.body as { userId?: number }).userId);
 
             if (!created.success) {
                 return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, created.error);

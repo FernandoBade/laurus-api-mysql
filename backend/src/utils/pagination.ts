@@ -1,19 +1,53 @@
 import { Operator } from '../../../shared/enums';
 
-export type QueryOptions<T = any> = {
+type QueryParamValue = string | string[] | number | undefined;
+type QueryParams = Record<string, unknown>;
+
+const getQueryValue = (query: QueryParams, key: string): QueryParamValue => {
+    const raw = query[key];
+    if (typeof raw === 'string' || typeof raw === 'number' || raw === undefined) {
+        return raw;
+    }
+    if (Array.isArray(raw)) {
+        const first = raw[0];
+        if (typeof first === 'string') {
+            return first;
+        }
+    }
+    return undefined;
+};
+
+const parseQueryInt = (value: QueryParamValue): number => {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (typeof value === 'string') {
+        return parseInt(value);
+    }
+    return NaN;
+};
+
+export type QueryOptions<T = Record<string, unknown>> = {
     limit?: number;
     offset?: number;
     sort?: keyof T | string;
     order?: Operator;
 };
 
-export function parsePagination(query: any) {
-    const page = Math.max(parseInt(query.page as string) || 1, 1);
-    const pageSize = Math.max(parseInt(query.pageSize as string) || parseInt(query.limit as string) || 10, 1);
-    const limit = query.limit ? parseInt(query.limit as string) : pageSize;
-    const offset = query.offset ? parseInt(query.offset as string) : (page - 1) * pageSize;
-    const sort = query.sort as string | undefined;
-    const orderParam = (query.order as string | undefined)?.toLowerCase();
+export function parsePagination(query: QueryParams) {
+    const pageValue = getQueryValue(query, 'page');
+    const pageSizeValue = getQueryValue(query, 'pageSize');
+    const limitValue = getQueryValue(query, 'limit');
+    const offsetValue = getQueryValue(query, 'offset');
+    const sortValue = getQueryValue(query, 'sort');
+    const orderValue = getQueryValue(query, 'order');
+
+    const page = Math.max(parseQueryInt(pageValue) || 1, 1);
+    const pageSize = Math.max(parseQueryInt(pageSizeValue) || parseQueryInt(limitValue) || 10, 1);
+    const limit = limitValue ? parseQueryInt(limitValue) : pageSize;
+    const offset = offsetValue ? parseQueryInt(offsetValue) : (page - 1) * pageSize;
+    const sort = typeof sortValue === 'string' ? sortValue : undefined;
+    const orderParam = typeof orderValue === 'string' ? orderValue.toLowerCase() : undefined;
     const order = orderParam === 'desc' ? Operator.DESC : Operator.ASC;
     return { page, pageSize, limit, offset, sort, order };
 }

@@ -6,7 +6,7 @@ import { AccountType, Operator } from '../../../../shared/enums';
 import { makeDbAccount } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
-    const query: any = {
+    const query = {
         where: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
@@ -20,26 +20,26 @@ const makeSelectQuery = <T,>(result: T) => {
 const makeSelectChain = <T,>(result: T) => {
     const query = makeSelectQuery(result);
     const from = jest.fn().mockReturnValue(query);
-    const select = jest.spyOn(db, 'select').mockReturnValue({ from } as any);
+    const select = jest.spyOn(db, 'select').mockReturnValue({ from } as unknown as ReturnType<typeof db.select>);
     return { select, from, query };
 };
 
 const makeInsertChain = (insertId: number) => {
     const values = jest.fn().mockResolvedValue([{ insertId }]);
-    const insert = jest.spyOn(db, 'insert').mockReturnValue({ values } as any);
+    const insert = jest.spyOn(db, 'insert').mockReturnValue({ values } as unknown as ReturnType<typeof db.insert>);
     return { insert, values };
 };
 
 const makeUpdateChain = () => {
     const where = jest.fn().mockResolvedValue(undefined);
     const set = jest.fn().mockReturnValue({ where });
-    const update = jest.spyOn(db, 'update').mockReturnValue({ set } as any);
+    const update = jest.spyOn(db, 'update').mockReturnValue({ set } as unknown as ReturnType<typeof db.update>);
     return { update, set, where };
 };
 
 const makeDeleteChain = () => {
     const where = jest.fn().mockResolvedValue(undefined);
-    const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as any);
+    const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as unknown as ReturnType<typeof db.delete>);
     return { deleteSpy, where };
 };
 
@@ -295,6 +295,7 @@ describe('AccountRepository', () => {
         });
     });
 });
+
 
 
 

@@ -195,7 +195,7 @@ export class AuthService {
                 );
                 return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
             }
-        } catch (error) {
+        } catch {
             await this.tokenService.deleteByTokenHash(newTokenHash);
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
@@ -376,4 +376,5 @@ export class AuthService {
         return { success: true, data: { reset: true } };
     }
 }
+
 

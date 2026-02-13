@@ -72,9 +72,9 @@ describe('CreditCardController', () => {
       const payload = (res.json as jest.Mock).mock.calls[0][0];
       expect(payload.error).toBeDefined();
       expect(Array.isArray(payload.error)).toBe(true);
-      const flagError = payload.error.find((e: any) => e.property === 'flag');
+      const flagError = (payload.error as Array<{ property?: string; error?: string }>).find((e) => e.property === 'flag');
       expect(flagError).toBeDefined();
-      expect(flagError.error).toContain('visa');
+      expect(flagError?.error).toContain('visa');
 
       expect(logSpy).not.toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();

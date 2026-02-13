@@ -66,7 +66,7 @@ export class TokenService {
         try {
             const created = await this.tokenRepository.create(data);
             return { success: true, data: created };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -95,7 +95,7 @@ export class TokenService {
             });
 
             return { success: true, data: { token, expiresAt } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -157,7 +157,7 @@ export class TokenService {
             });
 
             return { success: true, data: { token, expiresAt } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -318,9 +318,10 @@ export class TokenService {
             );
 
             return { success: true, data: { deleted: total } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 

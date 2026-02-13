@@ -1,6 +1,5 @@
 import type { IRoute } from 'express-serve-static-core';
 import { verifyToken } from '../../../src/utils/auth/verifyToken';
-import FeedbackController from '../../../src/controller/feedbackController';
 import router from '../../../src/routes/feedbackRoutes';
 
 jest.mock('../../../src/utils/auth/verifyToken', () => ({

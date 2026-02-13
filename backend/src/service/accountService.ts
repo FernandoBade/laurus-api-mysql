@@ -52,7 +52,7 @@ export class AccountService {
                 userId: data.userId,
             } as InsertAccount);
             return { success: true, data: this.toAccountEntity(created) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -73,7 +73,7 @@ export class AccountService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -88,7 +88,7 @@ export class AccountService {
         try {
             const count = await this.accountRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -126,7 +126,7 @@ export class AccountService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -144,7 +144,7 @@ export class AccountService {
                 userId: { operator: Operator.EQUAL, value: userId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -171,7 +171,7 @@ export class AccountService {
         try {
             const updated = await this.accountRepository.update(id, data as Partial<InsertAccount>);
             return { success: true, data: this.toAccountEntity(updated) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -192,10 +192,11 @@ export class AccountService {
         try {
             await this.accountRepository.delete(id);
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

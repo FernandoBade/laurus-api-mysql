@@ -25,7 +25,9 @@ describe('commons utils', () => {
         jest.resetModules();
         const winston = await import('winston');
         loggerMock = { log: jest.fn() };
-        jest.spyOn(winston, 'createLogger').mockReturnValue(loggerMock as any);
+        jest.spyOn(winston, 'createLogger').mockReturnValue(
+            loggerMock as unknown as ReturnType<typeof winston.createLogger>
+        );
         jest.spyOn(winston, 'addColors').mockImplementation(() => { });
         commons = await import('../../../src/utils/commons');
     };
@@ -43,7 +45,7 @@ describe('commons utils', () => {
             const logServiceModule = await import('../../../src/service/logService');
             const logServiceSpy = jest
                 .spyOn(logServiceModule.LogService.prototype, 'createLog')
-                .mockResolvedValue({ success: true } as any);
+                .mockResolvedValue({ success: true });
 
             await commons.createLog(LogType.SUCCESS, LogOperation.UPDATE, LogCategory.USER, {});
 
@@ -64,7 +66,7 @@ describe('commons utils', () => {
             const logServiceModule = await import('../../../src/service/logService');
             const logServiceSpy = jest
                 .spyOn(logServiceModule.LogService.prototype, 'createLog')
-                .mockResolvedValue({ success: true } as any);
+                .mockResolvedValue({ success: true });
 
             const detail = { ok: true };
             await commons.createLog(LogType.DEBUG, LogOperation.CREATE, LogCategory.AUTH, detail, 5);
@@ -86,7 +88,7 @@ describe('commons utils', () => {
             const logServiceModule = await import('../../../src/service/logService');
             const logServiceSpy = jest
                 .spyOn(logServiceModule.LogService.prototype, 'createLog')
-                .mockResolvedValue({ success: true } as any);
+                .mockResolvedValue({ success: true });
 
             await commons.createLog(LogType.ERROR, LogOperation.CREATE, LogCategory.USER, 'boom');
 
@@ -167,6 +169,29 @@ describe('commons utils', () => {
             expect(result).toBeUndefined();
             expect(res.status).not.toHaveBeenCalled();
             expect(res.json).not.toHaveBeenCalled();
+        });
+
+        it('returns success response with primitive data', () => {
+            const req = createMockRequest();
+            const res = createMockResponse();
+
+            commons.answerAPI(req, res, HTTPStatus.OK, 'ok');
+
+            const response = (res.json as jest.Mock).mock.calls[0][0];
+            expect(response.success).toBe(true);
+            expect(response.data).toBe('ok');
+        });
+    });
+
+    describe('buildLogDelta', () => {
+        it('treats equivalent Date values as unchanged', () => {
+            const now = new Date('2024-01-01T00:00:00.000Z');
+            const before = { lastSeen: now, name: 'User' };
+            const after = { lastSeen: new Date('2024-01-01T00:00:00.000Z'), name: 'User' };
+
+            const delta = commons.buildLogDelta(before, after);
+
+            expect(delta).toEqual({});
         });
     });
 

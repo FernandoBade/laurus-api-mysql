@@ -63,6 +63,16 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     return Boolean(value) && typeof value === 'object' && value?.constructor === Object;
 }
 
+function isPaginatedData(value: unknown): value is { data: unknown; meta: Record<string, unknown> } {
+    if (!isPlainObject(value)) {
+        return false;
+    }
+    if (!('data' in value) || !('meta' in value)) {
+        return false;
+    }
+    return isPlainObject(value.meta);
+}
+
 /**
  * Removes timestamp fields from a log detail payload.
  *
@@ -150,9 +160,9 @@ export async function createLog(
     LogType: LogType,
     operation: LogOperation,
     category: LogCategory,
-    detail: any,
+    detail: unknown,
     userId?: number,
-    next?: NextFunction
+    _next?: NextFunction
 ) {
     const normalizedDetail = isPlainObject(detail) ? sanitizeLogDetail(detail) : detail;
     const logMessage = typeof normalizedDetail === 'object' ? JSON.stringify(normalizedDetail) : String(normalizedDetail);
@@ -180,7 +190,7 @@ export function answerAPI(
     req: Request,
     res: Response,
     status: HTTPStatus,
-    data?: any,
+    data?: unknown,
     resource?: Resource
 ) {
     if (res.headersSent) return;
@@ -189,14 +199,14 @@ export function answerAPI(
     const language = req.language ?? 'en-US';
     const elapsedTime = getDurationMs(res);
 
-    const response: any = {
+    const response: Record<string, unknown> = {
         success,
         ...(resource && { message: translateResource(resource, language) })
     };
 
     if (data !== undefined) {
-        if (success && typeof data === 'object' && data !== null && 'data' in data && 'meta' in data) {
-            const { data: payload, meta } = data as { data: any; meta: Record<string, any> };
+        if (success && isPaginatedData(data)) {
+            const { data: payload, meta } = data;
             const { page, pageSize, pageCount, total, ...restMeta } = meta || {};
 
             response.data = payload;
@@ -280,7 +290,7 @@ export function sendErrorResponse(
     res: Response,
     status: HTTPStatus,
     resource: Resource,
-    error?: any
+    error?: unknown
 ) {
     const language = req.language ?? 'pt-BR';
     return res.status(status).json({

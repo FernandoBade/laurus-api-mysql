@@ -82,6 +82,7 @@ export function makeUser(overrides: Partial<UserEntity> = {}): UserEntity {
  */
 export function makeSanitizedUser(overrides: Partial<SanitizedUser> = {}): SanitizedUser {
     const { password: _ignored, ...user } = makeUser(overrides as Partial<UserEntity>);
+    void _ignored;
     return user as SanitizedUser;
 }
 
@@ -168,8 +169,8 @@ export function makeTransactionInput(
         categoryId?: number;
         subcategoryId?: number;
         observation?: string;
-        transactionType?: any;
-        transactionSource?: any;
+        transactionType?: TransactionType;
+        transactionSource?: TransactionSource;
         isInstallment?: boolean;
         totalMonths?: number;
         isRecurring?: boolean;
@@ -211,8 +212,8 @@ export function makeDbTransaction(
         categoryId?: number | null;
         subcategoryId?: number | null;
         observation?: string | null;
-        transactionType?: any;
-        transactionSource?: any;
+        transactionType?: TransactionType;
+        transactionSource?: TransactionSource;
         isInstallment?: boolean;
         totalMonths?: number | null;
         isRecurring?: boolean;

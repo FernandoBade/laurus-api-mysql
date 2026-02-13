@@ -23,10 +23,8 @@ jest.mock('../../../src/utils/email/authEmail', () => ({
     sendPasswordResetEmail: jest.fn(),
 }));
 
-type HashFn = (data: string | Buffer, saltOrRounds: string | number) => Promise<string>;
 type CompareFn = (data: string | Buffer, encrypted: string) => Promise<boolean>;
 
-const hashMock = bcrypt.hash as jest.MockedFunction<HashFn>;
 const compareMock = bcrypt.compare as jest.MockedFunction<CompareFn>;
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');

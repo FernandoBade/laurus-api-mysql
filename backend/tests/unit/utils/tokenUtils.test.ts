@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import type { JwtPayload } from 'jsonwebtoken';
 import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
 import { PERSISTED_TOKEN_EXPIRES_IN } from '../../../src/utils/auth/tokenConfig';
 
@@ -54,8 +55,8 @@ const loadTokenUtils = async (accessSecret: string, refreshSecret: string, issue
     const createLogSpy = jest.spyOn(commons, 'createLog').mockResolvedValue(undefined);
 
     const jwt = await import('jsonwebtoken');
-    const signSpy = jest.spyOn(jwt, 'sign').mockReturnValue('token' as any);
-    const verifySpy = jest.spyOn(jwt, 'verify').mockReturnValue({ id: 1 } as any);
+    const signSpy = jest.spyOn(jwt, 'sign').mockImplementation(() => 'token');
+    const verifySpy = jest.spyOn(jwt, 'verify').mockImplementation(() => ({ id: 1 } as JwtPayload));
 
     const { TokenUtils } = await import('../../../src/utils/auth/tokenUtils');
 

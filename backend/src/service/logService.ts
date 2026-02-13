@@ -54,7 +54,7 @@ export class LogService {
                 userId: validUserId,
             } as InsertLog);
             return { success: true, data: { id: created.id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -105,7 +105,7 @@ export class LogService {
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     return Object.keys(parsed).length === 0;
                 }
-            } catch (error) {
+            } catch {
                 return false;
             }
         }
@@ -153,7 +153,7 @@ export class LogService {
             );
 
             return { success: true, data: { deleted: total } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -176,10 +176,11 @@ export class LogService {
                 userId: { operator: Operator.EQUAL, value: userId }
             });
             return { success: true, data: logList };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

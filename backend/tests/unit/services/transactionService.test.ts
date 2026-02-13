@@ -10,7 +10,7 @@ import { SubcategoryService } from '../../../src/service/subcategoryService';
 import { CategoryColor, CategoryType, CreditCardFlag, Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCreditCard, transactionTags } from '../../../src/db/schema';
-import { makeAccount, makeDbAccount, makeDbTransaction, makeTransaction, makeTransactionInput } from '../../helpers/factories';
+import { makeAccount, makeDbAccount, makeDbTransaction, makeTransaction } from '../../helpers/factories';
 import * as database from '../../../src/db';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 import type { CategoryEntity } from '../../../../shared/domains/category/category.types';

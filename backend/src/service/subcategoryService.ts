@@ -52,7 +52,7 @@ export class SubcategoryService {
                 categoryId: data.categoryId,
             } as InsertSubcategory);
             return { success: true, data: this.toSubcategoryEntity(created) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -73,7 +73,7 @@ export class SubcategoryService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -88,7 +88,7 @@ export class SubcategoryService {
         try {
             const count = await this.subcategoryRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -111,7 +111,7 @@ export class SubcategoryService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -129,7 +129,7 @@ export class SubcategoryService {
                 categoryId: { operator: Operator.EQUAL, value: categoryId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -175,6 +175,7 @@ export class SubcategoryService {
                 sort: options?.sort as keyof SelectSubcategory,
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
+            void subcategories;
 
             const allSubcategories = await this.subcategoryRepository.findMany({
                 categoryId: { operator: Operator.IN, value: categoryIds }
@@ -186,7 +187,7 @@ export class SubcategoryService {
             });
 
             return { success: true, data: allSubcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -213,7 +214,7 @@ export class SubcategoryService {
                 categoryId: { operator: Operator.IN, value: categoryIds }
             });
             return { success: true, data: total };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -245,7 +246,7 @@ export class SubcategoryService {
         try {
             const updated = await this.subcategoryRepository.update(id, data);
             return { success: true, data: this.toSubcategoryEntity(updated) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -266,10 +267,11 @@ export class SubcategoryService {
         try {
             await this.subcategoryRepository.delete(id);
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

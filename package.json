@@ -1,13 +1,38 @@
 {
-    "name": "laurus-monorepo",
-    "private": true,
-    "scripts": {
-        "dev:backend": "npm --prefix backend run dev",
-        "dev:frontend": "npm --prefix frontend_old run dev",
-        "db:migrate": "npm --prefix backend run db:migrate",
-        "dev:full": "npm run db:migrate && concurrently -n api,frontend -c green,blue \"npm run dev:backend\" \"npm run dev:frontend\""
-    },
-    "devDependencies": {
-        "concurrently": "^9.2.1"
-    }
+  "name": "laurus-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:full",
+
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:frontend:old": "npm --prefix frontend_old run dev",
+
+    "db:migrate": "npm --prefix backend run db:migrate",
+    "db:sync": "npm --prefix backend run db:sync",
+    "seed": "npm --prefix backend run seed",
+    "seed:10": "npm --prefix backend run seed:10",
+    "seed:100": "npm --prefix backend run seed:100",
+    "seed:1000": "npm --prefix backend run seed:1000",
+
+    "dev:full": "npm run db:migrate && concurrently -n api,web -c green,blue \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:full:old": "npm run db:migrate && concurrently -n api,web_old -c green,yellow \"npm run dev:backend\" \"npm run dev:frontend:old\"",
+
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:frontend:old": "npm --prefix frontend_old run build",
+
+    "build": "npm run lint && npm run build:backend && npm run build:frontend",
+
+    "test:backend": "npm --prefix backend run test",
+    "test:frontend": "echo \"No frontend tests configured yet\"",
+    "test": "npm run test:backend",
+
+    "lint:backend": "npm --prefix backend run lint",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint": "npm run lint:backend && npm run lint:frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }

@@ -1,4 +1,4 @@
-import { CreditCardFlag, Operator } from '../../../shared/enums';
+import { Operator } from '../../../shared/enums';
 import { CreditCardRepository } from '../repositories/creditCardRepository';
 import { UserService } from './userService';
 import { AccountService } from './accountService';
@@ -69,7 +69,7 @@ export class CreditCardService {
                 limit: data.limit,
             } as InsertCreditCard);
             return { success: true, data: this.toCreditCardEntity(created) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -90,7 +90,7 @@ export class CreditCardService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -105,7 +105,7 @@ export class CreditCardService {
         try {
             const count = await this.creditCardRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -143,7 +143,7 @@ export class CreditCardService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -161,7 +161,7 @@ export class CreditCardService {
                 userId: { operator: Operator.EQUAL, value: userId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -211,7 +211,7 @@ export class CreditCardService {
             };
             const updated = await this.creditCardRepository.update(id, dbData);
             return { success: true, data: this.toCreditCardEntity(updated) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -232,10 +232,11 @@ export class CreditCardService {
         try {
             await this.creditCardRepository.delete(id);
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

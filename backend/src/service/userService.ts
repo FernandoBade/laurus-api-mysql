@@ -61,6 +61,7 @@ export class UserService {
 
     private sanitizeUser(data: SelectUser): SanitizedUser {
         const { password, ...safeUser } = this.toUserEntity(data);
+        void password;
         return safeUser;
     }
 
@@ -141,7 +142,7 @@ export class UserService {
                 success: true,
                 data: users.map(u => this.sanitizeUser(u))
             };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -156,7 +157,7 @@ export class UserService {
         try {
             const count = await this.userRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -200,7 +201,7 @@ export class UserService {
                 success: true,
                 data: result.map(u => this.sanitizeUser(u))
             };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -227,7 +228,7 @@ export class UserService {
                 success: true,
                 data: result.map(u => this.sanitizeUser(u))
             };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -271,7 +272,7 @@ export class UserService {
                 email: { operator: Operator.LIKE, value: emailTerm }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -432,12 +433,13 @@ export class UserService {
             await ftpClient.uploadFrom(Readable.from(file.buffer), fileName);
             await this.userRepository.update(userId, { avatarUrl: publicUrl });
             return { success: true, data: { url: publicUrl } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         } finally {
             ftpClient.close();
         }
     }
 }
+
 
 

@@ -21,7 +21,7 @@ const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
 };
 
 const makeSelectQuery = <T,>(result: T) => {
-    const query: any = {
+    const query = {
         where: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
@@ -35,26 +35,26 @@ const makeSelectQuery = <T,>(result: T) => {
 const makeSelectChain = <T,>(result: T) => {
     const query = makeSelectQuery(result);
     const from = jest.fn().mockReturnValue(query);
-    const select = jest.spyOn(db, 'select').mockReturnValue({ from } as any);
+    const select = jest.spyOn(db, 'select').mockReturnValue({ from } as unknown as ReturnType<typeof db.select>);
     return { select, from, query };
 };
 
 const makeInsertChain = (insertId: number) => {
     const values = jest.fn().mockResolvedValue([{ insertId }]);
-    const insert = jest.spyOn(db, 'insert').mockReturnValue({ values } as any);
+    const insert = jest.spyOn(db, 'insert').mockReturnValue({ values } as unknown as ReturnType<typeof db.insert>);
     return { insert, values };
 };
 
 const makeDeleteChain = (affectedRows = 1) => {
     const where = jest.fn().mockResolvedValue([{ affectedRows }]);
-    const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as any);
+    const deleteSpy = jest.spyOn(db, 'delete').mockReturnValue({ where } as unknown as ReturnType<typeof db.delete>);
     return { deleteSpy, where };
 };
 
 const makeUpdateChain = (affectedRows = 1) => {
     const where = jest.fn().mockResolvedValue([{ affectedRows }]);
     const set = jest.fn().mockReturnValue({ where });
-    const updateSpy = jest.spyOn(db, 'update').mockReturnValue({ set } as any);
+    const updateSpy = jest.spyOn(db, 'update').mockReturnValue({ set } as unknown as ReturnType<typeof db.update>);
     return { updateSpy, set, where };
 };
 
@@ -364,5 +364,6 @@ describe('TokenRepository', () => {
         });
     });
 });
+
 
 

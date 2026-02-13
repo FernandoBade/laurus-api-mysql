@@ -5,27 +5,13 @@ import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums'
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
 import type { SubcategoryEntity } from '../../../../shared/domains/subcategory/subcategory.types';
-import { SelectCategory, SelectSubcategory } from '../../../src/db/schema';
+import { SelectSubcategory } from '../../../src/db/schema';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
 const translate = (resource: Resource) => translateResource(resource, 'en-US');
 const isResource = (value: string): value is Resource => Object.values(Resource).includes(value as Resource);
 
 const DEFAULT_ISO_DATE = new Date('2024-01-01T00:00:00Z').toISOString();
-
-const makeDbCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
-    const now = new Date('2024-01-01T00:00:00Z');
-    return {
-        id: overrides.id ?? 1,
-        name: overrides.name ?? 'Category',
-        type: overrides.type ?? CategoryType.EXPENSE,
-        color: overrides.color ?? CategoryColor.BLUE,
-        active: overrides.active ?? true,
-        userId: overrides.userId ?? 1,
-        createdAt: overrides.createdAt ?? now,
-        updatedAt: overrides.updatedAt ?? now,
-    };
-};
 
 const makeCategory = (overrides: Partial<CategoryEntity> = {}): CategoryEntity => {
     return {

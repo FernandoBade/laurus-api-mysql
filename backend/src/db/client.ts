@@ -45,8 +45,8 @@ export async function withTransaction<T>(
     // If your code relies on db.$client or anything else not present on tx,
     // you'll need to provide a more advanced adapter here.
     // For now, we cast tx to type 'typeof db' to suppress type errors.
-    return await db.transaction(async (tx: any) => {
-        return await callback(tx as typeof db);
+    return await db.transaction(async (tx) => {
+        return await callback(tx as unknown as typeof db);
     });
 }
 

@@ -97,13 +97,13 @@ describe('AuthController', () => {
 
         it('returns 200 and logs on successful login', async () => {
             const data = { token: 'token123', refreshToken: 'refresh', user: makeUser({ id: 7 }) };
-            const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: true, data } as any);
+            const loginSpy = jest.spyOn(AuthService.prototype, 'login').mockResolvedValue({ success: true, data });
             const resetSpy = jest.spyOn(rateLimiter, 'resetLoginRateLimit');
             const req = createMockRequest({
                 body: { email: 'a@b.com', password: 'secret' },
                 cookies: {},
                 ip: '127.0.0.1',
-                headers: { 'user-agent': 'jest' } as any
+                headers: { 'user-agent': 'jest' }
             });
             const res = createMockResponse();
             const next = createNext();
@@ -130,7 +130,7 @@ describe('AuthController', () => {
             const req = createMockRequest({
                 body: { email: 'a@b.com', password: 'secret' },
                 ip: '127.0.0.1',
-                headers: { 'user-agent': 'jest' } as any
+                headers: { 'user-agent': 'jest' }
             });
             const res = createMockResponse();
             const next = createNext();

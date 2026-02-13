@@ -2,15 +2,12 @@ import { verifyToken } from '../../../src/utils/auth/verifyToken';
 import { HTTPStatus } from '../../../../shared/enums';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
-import { Request } from 'express';
 import { UserService } from '../../../src/service/userService';
 import { makeUser } from '../../helpers/factories';
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: { id: number };
-        }
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: { id: number };
     }
 }
 

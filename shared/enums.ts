@@ -4,6 +4,15 @@ export { CreditCardFlag } from './domains/creditCard/creditCard.enums';
 export { TokenType } from './domains/auth/auth.enums';
 export { TransactionSource, TransactionType } from './domains/transaction/transaction.enums';
 export { Currency, DateFormat, Language, Profile, Theme } from './domains/user/user.enums';
+export {
+    ServerEnvKey,
+    ServerRequestHeader,
+    ServerResponseHeader,
+    ServerHeaderValue,
+    ServerHttpMethod,
+    ServerRoutePath,
+    ServerToken,
+} from './enums/server.enums';
 
 /** @summary HTTP status codes used by the API.
  * @internal

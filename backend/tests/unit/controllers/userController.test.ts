@@ -477,6 +477,8 @@ describe('UserController', () => {
     it('returns 200 when deletion succeeds', async () => {
       const snapshot = makeSanitizedUser({ id: 1 });
       const { createdAt, updatedAt, ...expectedSnapshot } = snapshot;
+      void createdAt;
+      void updatedAt;
       jest.spyOn(UserService.prototype, 'getUserById').mockResolvedValue({ success: true, data: snapshot });
       jest.spyOn(UserService.prototype, 'deleteUser').mockResolvedValue({ success: true, data: { id: 1 } });
       const req = createMockRequest({ params: { id: '1' } });

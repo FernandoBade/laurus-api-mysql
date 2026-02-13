@@ -280,7 +280,7 @@ export class TransactionService {
                 return this.toTransactionWithTags(created, tagIds ?? []);
             });
             return { success: true, data: created };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -305,7 +305,7 @@ export class TransactionService {
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -320,7 +320,7 @@ export class TransactionService {
         try {
             const count = await this.transactionRepository.count(filters);
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -360,7 +360,7 @@ export class TransactionService {
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -378,7 +378,7 @@ export class TransactionService {
                 accountId: { operator: Operator.EQUAL, value: accountId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -417,7 +417,7 @@ export class TransactionService {
             }));
 
             return { success: true, data: grouped };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -444,7 +444,7 @@ export class TransactionService {
                 accountId: { operator: Operator.IN, value: accountIds }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -544,7 +544,7 @@ export class TransactionService {
             });
             const [withTags] = await this.attachTags([updated]);
             return { success: true, data: withTags };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -570,10 +570,11 @@ export class TransactionService {
                 await this.applyBalanceDelta(connection, existing, delta);
             });
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 

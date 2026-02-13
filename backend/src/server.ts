@@ -15,46 +15,53 @@ import tagRoutes from './routes/tagRoutes';
 import feedbackRoutes from './routes/feedbackRoutes';
 
 import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
-import { LogCategory, LogOperation, LogType } from '../../shared/enums';
+import {
+    HTTPStatus,
+    Language,
+    LogCategory,
+    LogOperation,
+    LogType,
+    ServerEnvKey,
+    ServerHeaderValue,
+    ServerHttpMethod,
+    ServerRequestHeader,
+    ServerResponseHeader,
+    ServerRoutePath,
+    ServerToken,
+} from '../../shared/enums';
 import { LanguageCode } from '../../shared/i18n/resourceTypes';
 import { ResourceKey as Resource } from '../../shared/i18n/resource.keys';
 
 // #endregion Imports
 
 const app = express();
-const port = process.env.PORT || 5050;
+const port = process.env[ServerEnvKey.PORT] || 5050;
 
-const envOrigins = (process.env.CORS_ORIGINS || '')
-    .split(',')
+const envOrigins = (process.env[ServerEnvKey.CORS_ORIGINS] ?? ServerToken.EMPTY)
+    .split(ServerToken.CSV_SEPARATOR)
     .map((origin) => origin.trim())
     .filter(Boolean);
-const allowedOrigins = envOrigins.length > 0
-    ? envOrigins
-    : [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'https://laurus.bade.digital',
-    ];
 
+// Middleware to handle CORS
 app.use((req: Request, res: Response, next: NextFunction) => {
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Vary', 'Origin');
+    const origin = req.headers[ServerRequestHeader.ORIGIN];
+    if (origin && envOrigins.includes(origin)) {
+        res.setHeader(ServerResponseHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+        res.setHeader(ServerResponseHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, ServerHeaderValue.TRUE);
+        res.setHeader(ServerResponseHeader.VARY, ServerHeaderValue.ORIGIN);
     }
 
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    const requestHeaders = req.headers['access-control-request-headers'];
+    res.setHeader(ServerResponseHeader.ACCESS_CONTROL_ALLOW_METHODS, ServerHeaderValue.ALLOW_METHODS);
+    const requestHeaders = req.headers[ServerRequestHeader.ACCESS_CONTROL_REQUEST_HEADERS];
     res.setHeader(
-        'Access-Control-Allow-Headers',
+        ServerResponseHeader.ACCESS_CONTROL_ALLOW_HEADERS,
         typeof requestHeaders === 'string'
             ? requestHeaders
-            : 'Content-Type, Authorization, Accept-Language'
+            : ServerHeaderValue.ALLOW_HEADERS_DEFAULT
     );
 
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
+    if (req.method === ServerHttpMethod.OPTIONS) {
+        return res.sendStatus(HTTPStatus.NO_CONTENT);
     }
 
     return next();
@@ -70,22 +77,22 @@ app.use(cookieParser());
 
 // Middleware to resolve language from Accept-Language header
 app.use((req: Request, res: Response, next: NextFunction) => {
-    const acceptedLanguages: LanguageCode[] = ['en-US', 'pt-BR', 'es-ES'];
-    const lang = req.headers['accept-language'] as LanguageCode;
-    req.language = acceptedLanguages.includes(lang) ? lang : 'en-US';
+    const acceptedLanguages: LanguageCode[] = [Language.EN_US, Language.PT_BR, Language.ES_ES];
+    const lang = req.headers[ServerRequestHeader.ACCEPT_LANGUAGE] as LanguageCode;
+    req.language = acceptedLanguages.includes(lang) ? lang : Language.EN_US;
     next();
 });
 
 // Register application routes
-app.use('/auth', authRoutes);
-app.use("/accounts", accountRoutes);
-app.use("/creditCards", creditCardRoutes);
-app.use("/categories", categoryRoutes);
-app.use("/subcategories", subcategoryRoutes);
-app.use("/tags", tagRoutes);
-app.use("/transactions", transactionRoutes);
-app.use("/users", userRoutes);
-app.use("/feedback", feedbackRoutes);
+app.use(ServerRoutePath.AUTH, authRoutes);
+app.use(ServerRoutePath.ACCOUNTS, accountRoutes);
+app.use(ServerRoutePath.CREDIT_CARDS, creditCardRoutes);
+app.use(ServerRoutePath.CATEGORIES, categoryRoutes);
+app.use(ServerRoutePath.SUBCATEGORIES, subcategoryRoutes);
+app.use(ServerRoutePath.TAGS, tagRoutes);
+app.use(ServerRoutePath.TRANSACTIONS, transactionRoutes);
+app.use(ServerRoutePath.USERS, userRoutes);
+app.use(ServerRoutePath.FEEDBACK, feedbackRoutes);
 
 
 /**
@@ -96,14 +103,14 @@ app.use("/feedback", feedbackRoutes);
  * @param res - Express response object.
  * @param next - Next middleware function.
  */
-function errorHandler(error: any, req: Request, res: Response, next: NextFunction) {
-    const isSyntaxError = error instanceof SyntaxError && 'body' in error;
+function errorHandler(error: unknown, req: Request, res: Response, _next: NextFunction) {
+    const isSyntaxError = error instanceof SyntaxError && ServerToken.ERROR_BODY_PROPERTY in error;
 
     const resource = isSyntaxError
         ? Resource.INVALID_JSON
         : Resource.INTERNAL_SERVER_ERROR;
 
-    const status = isSyntaxError ? 400 : 500;
+    const status = isSyntaxError ? HTTPStatus.BAD_REQUEST : HTTPStatus.INTERNAL_SERVER_ERROR;
 
     return sendErrorResponse(req, res, status, resource, error);
 }
@@ -120,10 +127,11 @@ function startServer() {
             LogType.DEBUG,
             LogOperation.CREATE,
             LogCategory.LOG,
-            `🚀 Server running on port ${port}`
+            `${ServerToken.STARTUP_LOG_PREFIX}${port}`
         );
     });
 }
 
 startServer();
+
 

@@ -7,7 +7,7 @@ import { createValidationError, ValidationError } from '../utils/validation/erro
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
-import { translateResource, translateResourceWithParams } from '../../../shared/i18n/resource.utils';
+import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 const ALLOWED_AVATAR_MIME_TYPES = new Set([

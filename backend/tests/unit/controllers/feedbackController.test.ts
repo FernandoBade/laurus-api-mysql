@@ -7,6 +7,7 @@ import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { makeUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
+import type { Request } from 'express';
 
 const authUser = { id: 42 };
 const createAuthRequest = (overrides: Parameters<typeof createMockRequest>[0] = {}) =>
@@ -22,7 +23,7 @@ const makeFile = (overrides: Partial<Express.Multer.File> = {}): Express.Multer.
     destination: overrides.destination ?? '',
     filename: overrides.filename ?? 'file.png',
     path: overrides.path ?? '',
-    stream: overrides.stream as any,
+    stream: overrides.stream ?? process.stdin,
 });
 
 describe('FeedbackController', () => {
@@ -60,7 +61,7 @@ describe('FeedbackController', () => {
         const sendSpy = jest.spyOn(FeedbackService.prototype, 'sendFeedback');
         const req = createAuthRequest({
             body: { title: 'Title', message: 'Message' },
-            files: { image: [makeFile({ mimetype: 'text/plain' })] } as any,
+            files: { image: [makeFile({ mimetype: 'text/plain' })] } as unknown as Request['files'],
         });
         const res = createMockResponse();
         const next = createNext();

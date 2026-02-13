@@ -430,5 +430,36 @@ function bufferToString(value: unknown): string {
  * @summary Strips color codes for reliable pattern matching.
  */
 function stripAnsi(value: string): string {
-    return value.replace(/\u001b\[[0-9;]*m/g, '');
+    let output = '';
+    let index = 0;
+
+    while (index < value.length) {
+        const escapeIndex = value.indexOf('\u001b[', index);
+        if (escapeIndex === -1) {
+            output += value.slice(index);
+            break;
+        }
+
+        output += value.slice(index, escapeIndex);
+
+        let cursor = escapeIndex + 2;
+        while (cursor < value.length) {
+            const char = value[cursor];
+            const isDigit = char >= '0' && char <= '9';
+            if (!isDigit && char !== ';') {
+                break;
+            }
+            cursor++;
+        }
+
+        if (cursor < value.length && value[cursor] === 'm') {
+            index = cursor + 1;
+            continue;
+        }
+
+        output += value[escapeIndex];
+        index = escapeIndex + 1;
+    }
+
+    return output;
 }

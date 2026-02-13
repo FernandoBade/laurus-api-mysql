@@ -56,7 +56,7 @@ export class TagService {
                 userId: data.userId,
             } as InsertTag);
             return { success: true, data: this.toTagEntity(created) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -77,7 +77,7 @@ export class TagService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -92,7 +92,7 @@ export class TagService {
         try {
             const count = await this.tagRepository.count();
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -130,7 +130,7 @@ export class TagService {
                 order: options?.order === Operator.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -148,7 +148,7 @@ export class TagService {
                 userId: { operator: Operator.EQUAL, value: userId }
             });
             return { success: true, data: count };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -195,7 +195,7 @@ export class TagService {
         try {
             const updated = await this.tagRepository.update(id, data);
             return { success: true, data: this.toTagEntity(updated) };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
@@ -216,10 +216,11 @@ export class TagService {
         try {
             await this.tagRepository.delete(id);
             return { success: true, data: { id } };
-        } catch (error) {
+        } catch {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
     }
 }
+
 
 
