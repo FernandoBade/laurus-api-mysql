@@ -6,6 +6,8 @@
         "dev": "vite",
         "build": "tsc --noEmit -p tsconfig.app.json && vite build",
         "preview": "vite preview",
+        "test": "echo \"Frontend tests not configured yet\"",
+        "test:coverage": "echo \"Frontend coverage not configured yet\"",
         "lint": "eslint ."
     },
     "dependencies": {

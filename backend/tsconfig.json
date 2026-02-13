@@ -9,7 +9,7 @@
         "outDir": "./dist",
         "rootDir": "..",
         "rootDirs": [ "./src", "../shared" ],
-        "typeRoots": [ "./node_modules/@types", "src/@types" ],
+        "typeRoots": [ "../node_modules/@types", "./node_modules/@types", "src/@types" ],
         "allowSyntheticDefaultImports": true
     },
     "include": [ "src/**/*", "src/@types", "../shared/**/*" ],

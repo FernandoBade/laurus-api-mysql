@@ -1,38 +1,40 @@
 {
-  "name": "laurus-monorepo",
-  "private": true,
-  "scripts": {
-    "dev": "npm run dev:full",
+    "name": "laurus",
+    "private": true,
+    "workspaces": [
+        "backend",
+        "frontend"
+    ],
+    "scripts": {
+        "dev": "npm run dev:full",
 
-    "dev:backend": "npm --prefix backend run dev",
-    "dev:frontend": "npm --prefix frontend run dev",
-    "dev:frontend:old": "npm --prefix frontend_old run dev",
+        "dev:backend": "npm run dev -w backend",
+        "dev:frontend": "npm run dev -w frontend",
+        "dev:frontend:old": "npm --prefix frontend_old run dev",
 
-    "db:migrate": "npm --prefix backend run db:migrate",
-    "db:sync": "npm --prefix backend run db:sync",
-    "seed": "npm --prefix backend run seed",
-    "seed:10": "npm --prefix backend run seed:10",
-    "seed:100": "npm --prefix backend run seed:100",
-    "seed:1000": "npm --prefix backend run seed:1000",
+        "dev:full": "npm run db:migrate && concurrently -n api,web -c green,blue \"npm run dev:backend\" \"npm run dev:frontend\"",
+        "dev:full:old": "npm run db:migrate && concurrently -n api,web_old -c green,yellow \"npm run dev:backend\" \"npm run dev:frontend:old\"",
 
-    "dev:full": "npm run db:migrate && concurrently -n api,web -c green,blue \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:full:old": "npm run db:migrate && concurrently -n api,web_old -c green,yellow \"npm run dev:backend\" \"npm run dev:frontend:old\"",
+        "db:migrate": "npm run db:migrate -w backend",
+        "db:sync": "npm run db:sync -w backend",
 
-    "build:backend": "npm --prefix backend run build",
-    "build:frontend": "npm --prefix frontend run build",
-    "build:frontend:old": "npm --prefix frontend_old run build",
+        "seed": "npm run seed -w backend",
+        "seed:10": "npm run seed:10 -w backend",
+        "seed:100": "npm run seed:100 -w backend",
+        "seed:1000": "npm run seed:1000 -w backend",
 
-    "build": "npm run lint && npm run build:backend && npm run build:frontend",
+        "lint": "npm run lint -ws",
 
-    "test:backend": "npm --prefix backend run test",
-    "test:frontend": "echo \"No frontend tests configured yet\"",
-    "test": "npm run test:backend",
+        "build": "npm run lint && npm run build -ws",
 
-    "lint:backend": "npm --prefix backend run lint",
-    "lint:frontend": "npm --prefix frontend run lint",
-    "lint": "npm run lint:backend && npm run lint:frontend"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  }
+        "build:backend": "npm run build -w backend",
+        "build:frontend": "npm run build -w frontend",
+
+        "test:": "node -e \"const { spawnSync } = require('node:child_process'); const result = spawnSync('npm run test:coverage', { stdio: 'inherit', shell: true }); if (result.error) throw result.error; process.exit(result.status ?? 1);\"",
+        "test": "npm run test -ws",
+        "test:coverage": "npm run test:coverage -ws"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
 }
