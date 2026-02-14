@@ -1,17 +1,12 @@
 import { ResourceKey } from '../../i18n/resource.keys';
+import { ThemeMode } from '../../enums/theme.enums';
+import { Language } from '../../enums/language.enums';
 
 /** @summary Theme preferences for user UI. */
-export enum Theme {
-    DARK = 'dark',
-    LIGHT = 'light',
-}
+export { ThemeMode as Theme };
 
 /** @summary Supported language codes for the user. */
-export enum Language {
-    EN_US = 'en-US',
-    ES_ES = 'es-ES',
-    PT_BR = 'pt-BR',
-}
+export { Language };
 
 /** @summary Supported currency codes for monetary values. */
 export enum Currency {

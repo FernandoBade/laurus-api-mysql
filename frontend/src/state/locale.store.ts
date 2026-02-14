@@ -1,4 +1,4 @@
-import { Language } from "@shared/domains/user/user.enums";
+import { Language } from "@shared/enums/language.enums";
 
 const SUPPORTED_LOCALES: readonly Language[] = [Language.EN_US, Language.ES_ES, Language.PT_BR];
 

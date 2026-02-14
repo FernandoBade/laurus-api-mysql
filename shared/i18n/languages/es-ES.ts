@@ -1,6 +1,7 @@
 import { LanguageResource } from '../resourceTypes';
 
 const esES: LanguageResource = {
+    appName: "Laurus",
     accountNotFound: "Cuenta no encontrada",
     categoryNotFound: "Categoría no encontrada",
     categoryNotFoundOrInactive: "Categoría no encontrada o inactiva",

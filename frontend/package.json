@@ -11,6 +11,8 @@
         "lint": "eslint ."
     },
     "dependencies": {
+        "@phosphor-icons/react": "^2.1.10",
+        "laurus": "file:..",
         "preact": "^10.27.2",
         "wouter-preact": "^3.9.0"
     },

@@ -1,5 +1,6 @@
 /** @summary Canonical i18n resource keys. */
 export enum ResourceKey {
+    APP_NAME = 'appName',
     ACCOUNT_NOT_FOUND = 'accountNotFound',
     CATEGORY_NOT_FOUND = 'categoryNotFound',
     CATEGORY_NOT_FOUND_OR_INACTIVE = 'categoryNotFoundOrInactive',

@@ -1,36 +1,54 @@
+import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 import { AppRoutePath } from "@shared/enums/routes.enums";
 import { ThemeMode } from "@shared/enums/theme.enums";
-import { UI } from "@shared/enums/ui.enums";
+import { ResourceKey } from "@shared/i18n/resource.keys";
+import { IconName } from "@shared/enums/icon.enums";
+import { ButtonVariant } from "@shared/enums/ui.enums";
 import { Button } from "@/components/button/button";
+import { Card } from "@/components/card/card";
 import { PageContainer } from "@/components/page-container/page-container";
 import { navigate } from "@/routes/navigation";
-import { createDashboardController } from "./dashboard.controller";
+import { createDashboardController } from "@/pages/dashboard/dashboard.controller";
 
-export function DashboardPage() {
-  const controller = createDashboardController();
-  const [theme, setTheme] = useState<ThemeMode>(controller.getCurrentTheme());
+const DASHBOARD_TITLE = ResourceKey.FIELD_LABEL_THEME;
+const TOGGLE_THEME_LABEL = ResourceKey.FIELD_LABEL_THEME;
+const LOGIN_ROUTE_LABEL = ResourceKey.FIELD_LABEL_USER_ID;
 
-  const handleToggleTheme = (): void => {
-    setTheme(controller.onToggleTheme());
-  };
+export function DashboardPage(): JSX.Element {
+    const controller = createDashboardController();
+    const [theme, setTheme] = useState<ThemeMode>(controller.getCurrentTheme());
 
-  return (
-    <PageContainer>
-      <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-semibold leading-tight">Dashboard</h1>
-        <p class="text-sm text-slate-600">
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <Button variant={UI.ButtonVariant.SECONDARY} onClick={handleToggleTheme}>
-            Toggle Theme
-          </Button>
-          <Button variant={UI.ButtonVariant.GHOST} onClick={() => navigate(AppRoutePath.LOGIN)}>
-            Go to Login
-          </Button>
-        </div>
-      </div>
-    </PageContainer>
-  );
+    const handleToggleTheme = (): void => {
+        setTheme(controller.onToggleTheme());
+    };
+
+    return (
+        <PageContainer>
+            <Card title={DASHBOARD_TITLE} compact>
+                <div class="flex flex-wrap gap-2">
+                    <Button
+                        variant={ButtonVariant.SECONDARY}
+                        label={TOGGLE_THEME_LABEL}
+                        iconLeft={theme === ThemeMode.LIGHT ? IconName.STAR : IconName.INFO}
+                        onClick={handleToggleTheme}
+                    />
+                    <Button
+                        variant={ButtonVariant.ACCENT}
+                        iconLeft={IconName.ADD}
+                        onClick={controller.onNavigateSandbox}
+                    >
+                        Sandbox
+                    </Button>
+                    <Button
+                        variant={ButtonVariant.GHOST}
+                        label={LOGIN_ROUTE_LABEL}
+                        iconLeft={IconName.CHEVRON_LEFT}
+                        onClick={() => navigate(AppRoutePath.LOGIN)}
+                    />
+                </div>
+            </Card>
+        </PageContainer>
+    );
 }
+

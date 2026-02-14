@@ -2,6 +2,7 @@ import { AuthEvent } from "@shared/enums/auth.enums";
 import { ApiRoutePath, AppRoutePath } from "@shared/enums/routes.enums";
 import { RequestCredentials} from "@shared/enums/http.enums";
 import { StorageKey } from "@shared/enums/storage.enums";
+import { ResourceKey } from "@shared/i18n/resource.keys";
 import { APP_ENV } from "@/config/env";
 import { storage } from "@/platform/storage/storage";
 import { replace } from "@/routes/navigation";
@@ -31,9 +32,9 @@ const AUTH_REFRESH_BLOCKLIST = new Set<string>([
 const MAX_GET_ATTEMPTS = 3;
 const BASE_RETRY_DELAY_MS = 300;
 
-const ERROR_MESSAGE = {
-    NETWORK: "Network request failed",
-    REQUEST_FAILED: "Request failed",
+const ERROR_MESSAGE_KEY = {
+    NETWORK: ResourceKey.UNEXPECTED_ERROR,
+    REQUEST_FAILED: ResourceKey.UNEXPECTED_ERROR,
 } as const;
 
 interface RequestExecutionContext {
@@ -121,7 +122,7 @@ function normalizeResponse<T>(response: Response, payload: unknown): ApiResponse
 
     return {
         success: false,
-        message: response.statusText || ERROR_MESSAGE.REQUEST_FAILED,
+        message: ERROR_MESSAGE_KEY.REQUEST_FAILED,
         error: payload,
     };
 }
@@ -129,7 +130,7 @@ function normalizeResponse<T>(response: Response, payload: unknown): ApiResponse
 function normalizeNetworkError<T>(error: unknown): ApiResponse<T> {
     return {
         success: false,
-        message: ERROR_MESSAGE.NETWORK,
+        message: ERROR_MESSAGE_KEY.NETWORK,
         error,
     };
 }

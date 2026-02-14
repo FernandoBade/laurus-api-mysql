@@ -1,5 +1,8 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import { fileURLToPath } from "node:url";
+
+const __dirname = fileURLToPath(new globalThis.URL(".", import.meta.url));
 
 export default [
     js.configs.recommended,
@@ -9,11 +12,11 @@ export default [
     // Frontend source rules
     // ================================
     {
-        files: ["src/**/*.{ts,tsx}"],
+        files: ["src/**/*.{ts,tsx}", "frontend/src/**/*.{ts,tsx}"],
         languageOptions: {
             parserOptions: {
                 project: ["./tsconfig.app.json"],
-                tsconfigRootDir: import.meta.dirname,
+                tsconfigRootDir: __dirname,
             },
         },
         rules: {
@@ -36,7 +39,12 @@ export default [
     // Node config files (Tailwind, Vite, etc.)
     // ================================
     {
-        files: ["*.config.{js,cjs,mjs}", "tailwind.config.cjs"],
+        files: [
+            "*.config.{js,cjs,mjs}",
+            "tailwind.config.cjs",
+            "frontend/*.config.{js,cjs,mjs}",
+            "frontend/tailwind.config.cjs"
+        ],
         languageOptions: {
             globals: {
                 module: "readonly",
@@ -50,6 +58,6 @@ export default [
     },
 
     {
-        ignores: ["dist/**", "node_modules/**"]
+        ignores: ["**/dist/**", "**/node_modules/**"]
     }
 ];

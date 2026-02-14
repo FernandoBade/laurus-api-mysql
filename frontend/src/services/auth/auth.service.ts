@@ -1,12 +1,23 @@
 import { AuthEvent } from "@shared/enums/auth.enums";
+import { ResourceKey } from "@shared/i18n/resource.keys";
 import * as authApi from "@/api/auth/auth.api";
 import { setAuthRefreshHandler } from "@/api/http/httpClient";
 import { emitAuthEvent, setAuthenticated, setRefreshing, setUnauthenticated } from "@/state/auth.store";
 
+const resourceKeySet = new Set<ResourceKey>(Object.values(ResourceKey));
+
+function toResourceKey(value?: string): ResourceKey | undefined {
+    if (!value) {
+        return undefined;
+    }
+
+    return resourceKeySet.has(value as ResourceKey) ? (value as ResourceKey) : undefined;
+}
+
 export interface AuthLoginResult {
-  success: boolean;
-  message?: string;
-  error?: unknown;
+    success: boolean;
+    messageKey?: ResourceKey;
+    error?: unknown;
 }
 
 /**
@@ -16,24 +27,25 @@ export interface AuthLoginResult {
  * @returns Login operation result with normalized success and error fields.
  */
 export async function login(email: string, password: string): Promise<AuthLoginResult> {
-  const response = await authApi.login(email, password);
-  const token = response.data?.token;
+    const response = await authApi.login(email, password);
+    const token = response.data?.token;
+    const messageKey = toResourceKey(response.message);
 
-  if (response.success && typeof token === "string" && token.length > 0) {
-    setAuthenticated(token);
-    emitAuthEvent(AuthEvent.LOGIN_SUCCESS);
+    if (response.success && typeof token === "string" && token.length > 0) {
+        setAuthenticated(token);
+        emitAuthEvent(AuthEvent.LOGIN_SUCCESS);
+        return {
+            success: true,
+            messageKey,
+        };
+    }
+
+    setUnauthenticated();
     return {
-      success: true,
-      message: response.message,
+        success: false,
+        messageKey,
+        error: response.error,
     };
-  }
-
-  setUnauthenticated();
-  return {
-    success: false,
-    message: response.message,
-    error: response.error,
-  };
 }
 
 /**
@@ -41,18 +53,18 @@ export async function login(email: string, password: string): Promise<AuthLoginR
  * @returns True when refresh succeeds and token is updated, otherwise false.
  */
 export async function refresh(): Promise<boolean> {
-  setRefreshing();
+    setRefreshing();
 
-  const response = await authApi.refresh();
-  const token = response.data?.token;
+    const response = await authApi.refresh();
+    const token = response.data?.token;
 
-  if (response.success && typeof token === "string" && token.length > 0) {
-    setAuthenticated(token);
-    return true;
-  }
+    if (response.success && typeof token === "string" && token.length > 0) {
+        setAuthenticated(token);
+        return true;
+    }
 
-  setUnauthenticated();
-  return false;
+    setUnauthenticated();
+    return false;
 }
 
 /**
@@ -60,10 +72,16 @@ export async function refresh(): Promise<boolean> {
  * @returns True when backend logout succeeds, otherwise false.
  */
 export async function logout(): Promise<boolean> {
-  const response = await authApi.logout();
-  setUnauthenticated();
-  emitAuthEvent(AuthEvent.LOGOUT);
-  return response.success;
+    const response = await authApi.logout();
+    setUnauthenticated();
+    emitAuthEvent(AuthEvent.LOGOUT);
+    return response.success;
 }
 
-setAuthRefreshHandler(refresh);
+/**
+ * @summary Registers auth service runtime hooks required by the HTTP layer.
+ * @returns No return value.
+ */
+export function initializeAuthService(): void {
+    setAuthRefreshHandler(refresh);
+}

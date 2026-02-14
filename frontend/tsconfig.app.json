@@ -14,7 +14,7 @@
         "skipLibCheck": true,
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
-        "verbatimModuleSyntax": true,
+        "verbatimModuleSyntax": false,
         "moduleDetection": "force",
         "jsx": "react-jsx",
         "jsxImportSource": "preact",
