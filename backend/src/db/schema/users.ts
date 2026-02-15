@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, date, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { Theme, Language, DateFormat, Currency, Profile } from '../../../../shared/enums';
+import { Theme, Language, DateFormat, Currency, Profile } from '../../../../shared/enums/user.enums';
 
 /**
  * Users table schema.
@@ -15,10 +15,10 @@ export const users = mysqlTable('user', {
     birthDate: date('birthDate'),
     phone: varchar('phone', { length: 255 }),
     avatarUrl: varchar('avatarUrl', { length: 512 }),
-    theme: mysqlEnum('theme', Object.values(Theme) as [Theme, ...Theme[]]).default(Theme.DARK).notNull(),
+    theme: mysqlEnum('theme', Object.values(Theme) as [Theme, ...Theme[]]).default(Theme.LIGHT).notNull(),
     language: mysqlEnum('language', Object.values(Language) as [Language, ...Language[]]).default(Language.EN_US).notNull(),
     dateFormat: mysqlEnum('dateFormat', Object.values(DateFormat) as [DateFormat, ...DateFormat[]]).default(DateFormat.DD_MM_YYYY).notNull(),
-    currency: mysqlEnum('currency', Object.values(Currency) as [Currency, ...Currency[]]).default(Currency.BRL).notNull(),
+    currency: mysqlEnum('currency', Object.values(Currency) as [Currency, ...Currency[]]).default(Currency.USD).notNull(),
     profile: mysqlEnum('profile', Object.values(Profile) as [Profile, ...Profile[]]).default(Profile.STARTER).notNull(),
     hideValues: boolean('hideValues').default(false).notNull(),
     active: boolean('active').default(true).notNull(),

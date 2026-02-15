@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import path from 'path';
 import { Readable } from 'stream';
 import { Client as FtpClient } from 'basic-ftp';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { UserRepository } from '../repositories/userRepository';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectUser, InsertUser } from '../db/schema';
@@ -77,7 +77,7 @@ export class UserService {
         data.email = data.email.trim().toLowerCase();
 
         const existingUsers = await this.userRepository.findMany({
-            email: { operator: Operator.EQUAL, value: data.email }
+            email: { operator: FilterOperator.EQ, value: data.email }
         });
 
         if (existingUsers.length > 0) {
@@ -136,7 +136,7 @@ export class UserService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === Operator.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? "desc" : "asc",
             });
             return {
                 success: true,
@@ -190,12 +190,12 @@ export class UserService {
     async getUsersByEmail(emailTerm: string, options?: QueryOptions<SelectUser>): Promise<{ success: true; data: SanitizedUser[] } | { success: false; error: Resource }> {
         try {
             const result = await this.userRepository.findMany({
-                email: { operator: Operator.LIKE, value: emailTerm }
+                email: { operator: FilterOperator.LIKE, value: emailTerm }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === Operator.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? "desc" : "asc",
             });
             return {
                 success: true,
@@ -217,12 +217,12 @@ export class UserService {
         try {
             const normalized = email.trim().toLowerCase();
             const result = await this.userRepository.findMany({
-                email: { operator: Operator.EQUAL, value: normalized }
+                email: { operator: FilterOperator.EQ, value: normalized }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === Operator.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? "desc" : "asc",
             });
             return {
                 success: true,
@@ -243,7 +243,7 @@ export class UserService {
     async findUserByEmailExact(email: string): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         const normalized = email.trim().toLowerCase();
         const result = await this.userRepository.findMany({
-            email: { operator: Operator.EQUAL, value: normalized }
+            email: { operator: FilterOperator.EQ, value: normalized }
         }, {
             limit: 2,
         });
@@ -269,7 +269,7 @@ export class UserService {
     async countUsersByEmail(emailTerm: string): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.userRepository.count({
-                email: { operator: Operator.LIKE, value: emailTerm }
+                email: { operator: FilterOperator.LIKE, value: emailTerm }
             });
             return { success: true, data: count };
         } catch {

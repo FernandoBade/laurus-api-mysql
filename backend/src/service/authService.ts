@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { LogCategory, LogType, LogOperation, TokenType } from '../../../shared/enums';
+import { TokenType } from '../../../shared/enums/auth.enums';
+import { LogCategory, LogType, LogOperation } from '../../../shared/enums/log.enums';
 import { TokenUtils } from '../utils/auth/tokenUtils';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { TokenService } from './tokenService';

@@ -1,6 +1,8 @@
 import AccountController from '../../../src/controller/accountController';
 import { AccountService } from '../../../src/service/accountService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
@@ -184,7 +186,7 @@ describe('AccountController', () => {
         limit: 1,
         offset: 0,
         sort: 'name',
-        order: Operator.DESC,
+        order: SortOrder.DESC,
       });
       expect(AccountService.prototype.countAccounts).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
@@ -385,7 +387,7 @@ describe('AccountController', () => {
         limit: 2,
         offset: 0,
         sort: undefined,
-        order: Operator.ASC,
+        order: SortOrder.ASC,
       });
       expect(AccountService.prototype.countAccountsByUser).toHaveBeenCalledWith(3);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);

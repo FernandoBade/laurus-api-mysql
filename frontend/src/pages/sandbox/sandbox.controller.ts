@@ -1,7 +1,7 @@
 import { FilterFieldType } from "@shared/enums/filter.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
-import { ThemeMode } from "@shared/enums/theme.enums";
+import { Theme } from "@shared/enums/theme.enums";
 import { ModalPosition, ModalScrollMode, ModalSize, ToastVariant } from "@shared/enums/ui.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import type { FieldConfig } from "@/components/filter-bar/filter-bar.types";
@@ -121,8 +121,8 @@ export interface SandboxModalState {
 }
 
 export interface SandboxController {
-    readonly getCurrentTheme: () => ThemeMode;
-    readonly applyTheme: (theme: ThemeMode) => ThemeMode;
+    readonly getCurrentTheme: () => Theme;
+    readonly applyTheme: (theme: Theme) => Theme;
     readonly getDefaultFilters: () => SandboxFilters;
     readonly mergeFilters: (values: Partial<SandboxFilters>) => SandboxFilters;
     readonly getFilterFields: () => readonly FieldConfig<SandboxFilters>[];
@@ -150,9 +150,9 @@ function resolveUserStatus(userId: string): SandboxStatusValue {
  * @returns Sandbox page controller.
  */
 export function createSandboxController(): SandboxController {
-    const getCurrentTheme = (): ThemeMode => getTheme();
+    const getCurrentTheme = (): Theme => getTheme();
 
-    const applyTheme = (theme: ThemeMode): ThemeMode => {
+    const applyTheme = (theme: Theme): Theme => {
         setTheme(theme);
         return getTheme();
     };

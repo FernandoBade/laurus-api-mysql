@@ -1,7 +1,7 @@
 import { eq, like, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { users, SelectUser, InsertUser } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for user database operations.
@@ -30,8 +30,8 @@ export class UserRepository {
      */
     async findMany(
         filters?: {
-            email?: { operator: Operator.EQUAL | Operator.LIKE; value: string };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            email?: { operator: FilterOperator.EQ | FilterOperator.LIKE; value: string };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -44,9 +44,9 @@ export class UserRepository {
 
         const conditions: SQL[] = [];
         if (filters?.email) {
-            if (filters.email.operator === Operator.EQUAL) {
+            if (filters.email.operator === FilterOperator.EQ) {
                 conditions.push(eq(users.email, filters.email.value));
-            } else if (filters.email.operator === Operator.LIKE) {
+            } else if (filters.email.operator === FilterOperator.LIKE) {
                 conditions.push(like(users.email, `%${filters.email.value}%`));
             }
         }
@@ -85,17 +85,17 @@ export class UserRepository {
      */
     async count(
         filters?: {
-            email?: { operator: Operator.EQUAL | Operator.LIKE; value: string };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            email?: { operator: FilterOperator.EQ | FilterOperator.LIKE; value: string };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         }
     ): Promise<number> {
         let query = db.select({ count: users.id }).from(users);
 
         const conditions: SQL[] = [];
         if (filters?.email) {
-            if (filters.email.operator === Operator.EQUAL) {
+            if (filters.email.operator === FilterOperator.EQ) {
                 conditions.push(eq(users.email, filters.email.value));
-            } else if (filters.email.operator === Operator.LIKE) {
+            } else if (filters.email.operator === FilterOperator.LIKE) {
                 conditions.push(like(users.email, `%${filters.email.value}%`));
             }
         }

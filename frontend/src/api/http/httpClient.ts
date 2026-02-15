@@ -1,6 +1,6 @@
 import { AuthEvent } from "@shared/enums/auth.enums";
 import { ApiRoutePath, AppRoutePath } from "@shared/enums/routes.enums";
-import { RequestCredentials} from "@shared/enums/http.enums";
+import { AuthScheme, FetchCredentialsMode } from "@shared/enums/http.enums";
 import { StorageKey } from "@shared/enums/storage.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import { APP_ENV } from "@/config/env";
@@ -20,7 +20,7 @@ const HEADER_NAME = {
 } as const;
 
 const AUTHORIZATION_SCHEME = {
-    BEARER: RequestCredentials.BEARER,
+    BEARER: AuthScheme.BEARER,
 } as const;
 
 const AUTH_REFRESH_BLOCKLIST = new Set<string>([
@@ -197,7 +197,7 @@ async function executeRequest<T>(
         ...init,
         method,
         headers,
-        credentials: RequestCredentials.INCLUDE,
+        credentials: FetchCredentialsMode.INCLUDE,
     };
 
     try {

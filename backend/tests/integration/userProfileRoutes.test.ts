@@ -4,6 +4,7 @@ import userRoutes from '../../src/routes/userRoutes';
 import { UserService } from '../../src/service/userService';
 import * as commons from '../../src/utils/commons';
 import { makeSanitizedUser, makeUser } from '../helpers/factories';
+import { Language } from '../../../shared/enums/language.enums';
 
 jest.mock('../../src/utils/auth/verifyToken', () => ({
     verifyToken: (req: express.Request, _res: express.Response, next: express.NextFunction) => {
@@ -16,7 +17,7 @@ const buildApp = () => {
     const app = express();
     app.use(express.json());
     app.use((req, _res, next) => {
-        req.language = 'en-US';
+        req.language = Language.EN_US;
         next();
     });
     app.use('/users', userRoutes);

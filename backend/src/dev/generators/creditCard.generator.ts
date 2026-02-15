@@ -1,7 +1,7 @@
 import CreditCardController from '../../controller/creditCardController';
 import type { AccountEntity } from '../../../../shared/domains/account/account.types';
 import type { CreditCardEntity } from '../../../../shared/domains/creditCard/creditCard.types';
-import { CreditCardFlag } from '../../../../shared/enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
 import { SeedContext, executeController, roundCurrency } from '../seed.utils';
 
 type CreditCardRequestBody = {

@@ -1,7 +1,7 @@
 import { eq, and, inArray, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { tags, SelectTag, InsertTag } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for tag database operations.
@@ -30,10 +30,10 @@ export class TagRepository {
      */
     async findMany(
         filters?: {
-            id?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-            userId?: { operator: Operator.EQUAL; value: number };
-            name?: { operator: Operator.EQUAL; value: string };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            id?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            name?: { operator: FilterOperator.EQ; value: string };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -47,7 +47,7 @@ export class TagRepository {
 
         const conditions: SQL[] = [];
         if (filters?.id) {
-            if (filters.id.operator === Operator.EQUAL) {
+            if (filters.id.operator === FilterOperator.EQ) {
                 conditions.push(eq(tags.id, filters.id.value as number));
             } else if (Array.isArray(filters.id.value)) {
                 conditions.push(inArray(tags.id, filters.id.value));
@@ -94,8 +94,8 @@ export class TagRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         connection: typeof db = db
     ): Promise<number> {

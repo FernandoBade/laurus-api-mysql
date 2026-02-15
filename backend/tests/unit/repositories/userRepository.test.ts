@@ -2,7 +2,7 @@ import { and, asc, desc, eq, like } from 'drizzle-orm';
 import { UserRepository } from '../../../src/repositories/userRepository';
 import { db } from '../../../src/db';
 import { users } from '../../../src/db/schema';
-import { Operator } from '../../../../shared/enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 import { makeDbUser } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
@@ -103,7 +103,7 @@ describe('UserRepository', () => {
         it('applies email equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
-            await repo.findMany({ email: { operator: Operator.EQUAL, value: 'user@example.com' } });
+            await repo.findMany({ email: { operator: FilterOperator.EQ, value: 'user@example.com' } });
 
             expectSelectChain(select, from, users);
             expect(query.where).toHaveBeenCalledWith(and(eq(users.email, 'user@example.com')));
@@ -112,7 +112,7 @@ describe('UserRepository', () => {
         it('applies email like filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
-            await repo.findMany({ email: { operator: Operator.LIKE, value: 'example' } });
+            await repo.findMany({ email: { operator: FilterOperator.LIKE, value: 'example' } });
 
             expectSelectChain(select, from, users);
             expect(query.where).toHaveBeenCalledWith(and(like(users.email, '%example%')));
@@ -121,7 +121,7 @@ describe('UserRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, users);
             expect(query.where).toHaveBeenCalledWith(and(eq(users.active, false)));
@@ -131,8 +131,8 @@ describe('UserRepository', () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1, active: true })]);
 
             await repo.findMany({
-                email: { operator: Operator.EQUAL, value: 'user@example.com' },
-                active: { operator: Operator.EQUAL, value: true },
+                email: { operator: FilterOperator.EQ, value: 'user@example.com' },
+                active: { operator: FilterOperator.EQ, value: true },
             });
 
             expectSelectChain(select, from, users);
@@ -193,7 +193,7 @@ describe('UserRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ email: { operator: Operator.LIKE, value: 'example' } });
+            const result = await repo.count({ email: { operator: FilterOperator.LIKE, value: 'example' } });
 
             expectSelectChain(select, from, users);
             expect(select).toHaveBeenCalledWith({ count: users.id });

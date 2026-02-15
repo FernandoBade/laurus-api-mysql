@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean, decimal } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { AccountType } from '../../../../shared/enums';
+import { AccountType } from '../../../../shared/enums/account.enums';
 
 /**
  * Accounts table schema.

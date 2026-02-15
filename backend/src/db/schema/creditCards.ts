@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, text, timestamp, mysqlEnum, boolean, decimal } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { CreditCardFlag } from '../../../../shared/enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
 
 /**
  * Credit cards table schema.

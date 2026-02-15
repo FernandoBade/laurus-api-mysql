@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { accounts, SelectAccount, InsertAccount } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for account database operations.
@@ -30,8 +30,8 @@ export class AccountRepository {
      */
     async findMany(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -82,8 +82,8 @@ export class AccountRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         connection: typeof db = db
     ): Promise<number> {

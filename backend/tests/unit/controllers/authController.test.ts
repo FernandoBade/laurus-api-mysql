@@ -1,7 +1,8 @@
 import AuthController from '../../../src/controller/authController';
 import { makeUser } from '../../helpers/factories';
 import { AuthService } from '../../../src/service/authService';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { TokenCookie } from '../../../src/utils/auth/cookieConfig';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';

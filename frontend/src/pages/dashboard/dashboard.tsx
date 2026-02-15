@@ -1,7 +1,7 @@
 import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 import { AppRoutePath } from "@shared/enums/routes.enums";
-import { ThemeMode } from "@shared/enums/theme.enums";
+import { Theme } from "@shared/enums/theme.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import { IconName } from "@shared/enums/icon.enums";
 import { ButtonVariant } from "@shared/enums/ui.enums";
@@ -17,7 +17,7 @@ const LOGIN_ROUTE_LABEL = ResourceKey.FIELD_LABEL_USER_ID;
 
 export function DashboardPage(): JSX.Element {
     const controller = createDashboardController();
-    const [theme, setTheme] = useState<ThemeMode>(controller.getCurrentTheme());
+    const [theme, setTheme] = useState<Theme>(controller.getCurrentTheme());
 
     const handleToggleTheme = (): void => {
         setTheme(controller.onToggleTheme());
@@ -30,7 +30,7 @@ export function DashboardPage(): JSX.Element {
                     <Button
                         variant={ButtonVariant.SECONDARY}
                         label={TOGGLE_THEME_LABEL}
-                        iconLeft={theme === ThemeMode.LIGHT ? IconName.STAR : IconName.INFO}
+                        iconLeft={theme === Theme.LIGHT ? IconName.STAR : IconName.INFO}
                         onClick={handleToggleTheme}
                     />
                     <Button

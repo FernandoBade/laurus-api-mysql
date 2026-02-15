@@ -1,7 +1,8 @@
 import { SubcategoryService } from '../../../src/service/subcategoryService';
 import { SubcategoryRepository } from '../../../src/repositories/subcategoryRepository';
 import { CategoryService } from '../../../src/service/categoryService';
-import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
 import type { SubcategoryEntity } from '../../../../shared/domains/subcategory/subcategory.types';
@@ -144,7 +145,7 @@ describe('SubcategoryService', () => {
             const findManySpy = jest.spyOn(SubcategoryRepository.prototype, 'findMany').mockResolvedValue(subcategories);
 
             const service = new SubcategoryService();
-            const result = await service.getSubcategories({ limit: 2, offset: 2, sort: 'name', order: Operator.DESC });
+            const result = await service.getSubcategories({ limit: 2, offset: 2, sort: 'name', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -203,10 +204,10 @@ describe('SubcategoryService', () => {
             const findManySpy = jest.spyOn(SubcategoryRepository.prototype, 'findMany').mockResolvedValue(subcategories);
 
             const service = new SubcategoryService();
-            const result = await service.getSubcategoriesByCategory(7, { limit: 2, offset: 0, sort: 'name', order: Operator.ASC });
+            const result = await service.getSubcategoriesByCategory(7, { limit: 2, offset: 0, sort: 'name', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { categoryId: { operator: Operator.EQUAL, value: 7 } },
+                { categoryId: { operator: FilterOperator.EQ, value: 7 } },
                 { limit: 2, offset: 0, sort: 'name', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -234,7 +235,7 @@ describe('SubcategoryService', () => {
             const service = new SubcategoryService();
             const result = await service.countSubcategoriesByCategory(7);
 
-            expect(countSpy).toHaveBeenCalledWith({ categoryId: { operator: Operator.EQUAL, value: 7 } });
+            expect(countSpy).toHaveBeenCalledWith({ categoryId: { operator: FilterOperator.EQ, value: 7 } });
             expect(result).toEqual({ success: true, data: 2 });
         });
 
@@ -342,16 +343,16 @@ describe('SubcategoryService', () => {
                 .mockResolvedValueOnce(allBatch);
 
             const service = new SubcategoryService();
-            const result = await service.getSubcategoriesByUser(5, { limit: 5, offset: 0, sort: 'name', order: Operator.ASC });
+            const result = await service.getSubcategoriesByUser(5, { limit: 5, offset: 0, sort: 'name', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenNthCalledWith(
                 1,
-                { categoryId: { operator: Operator.EQUAL, value: 1 } },
+                { categoryId: { operator: FilterOperator.EQ, value: 1 } },
                 { limit: 5, offset: 0, sort: 'name', order: 'asc' }
             );
             expect(findManySpy).toHaveBeenNthCalledWith(
                 2,
-                { categoryId: { operator: Operator.IN, value: [1, 2] } },
+                { categoryId: { operator: FilterOperator.IN, value: [1, 2] } },
                 { limit: 5, offset: 0, sort: 'name', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -406,7 +407,7 @@ describe('SubcategoryService', () => {
             const service = new SubcategoryService();
             const result = await service.countSubcategoriesByUser(6);
 
-            expect(countSpy).toHaveBeenCalledWith({ categoryId: { operator: Operator.IN, value: [3, 4] } });
+            expect(countSpy).toHaveBeenCalledWith({ categoryId: { operator: FilterOperator.IN, value: [3, 4] } });
             expect(result).toEqual({ success: true, data: 5 });
         });
 

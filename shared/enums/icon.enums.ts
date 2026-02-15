@@ -1,3 +1,4 @@
+/** @summary Canonical icon identifiers consumed by UI icon components. */
 export enum IconName {
     SEARCH = "search",
     USER = "user",

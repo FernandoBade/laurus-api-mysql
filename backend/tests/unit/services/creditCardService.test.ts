@@ -2,7 +2,8 @@ import { CreditCardService } from '../../../src/service/creditCardService';
 import { CreditCardRepository } from '../../../src/repositories/creditCardRepository';
 import { AccountService } from '../../../src/service/accountService';
 import { UserService } from '../../../src/service/userService';
-import { CreditCardFlag, Operator } from '../../../../shared/enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import type { CreditCardEntity } from '../../../../shared/domains/creditCard/creditCard.types';
 import { SelectCreditCard } from '../../../src/db/schema';
@@ -128,7 +129,7 @@ describe('CreditCardService', () => {
                 accountId: 12,
             });
 
-            expect(findManySpy).toHaveBeenCalledWith({ accountId: { operator: Operator.EQUAL, value: 12 } });
+            expect(findManySpy).toHaveBeenCalledWith({ accountId: { operator: FilterOperator.EQ, value: 12 } });
             expect(createSpy).not.toHaveBeenCalled();
             expect(result).toEqual({ success: false, error: Resource.DATA_ALREADY_EXISTS });
             expect(result.success).toBe(false);
@@ -225,7 +226,7 @@ describe('CreditCardService', () => {
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue(cards);
 
             const service = new CreditCardService();
-            const result = await service.getCreditCards({ limit: 2, offset: 2, sort: 'name', order: Operator.DESC });
+            const result = await service.getCreditCards({ limit: 2, offset: 2, sort: 'name', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -333,10 +334,10 @@ describe('CreditCardService', () => {
             const findManySpy = jest.spyOn(CreditCardRepository.prototype, 'findMany').mockResolvedValue(cards);
 
             const service = new CreditCardService();
-            const result = await service.getCreditCardsByUser(7, { limit: 5, offset: 0, sort: 'name', order: Operator.ASC });
+            const result = await service.getCreditCardsByUser(7, { limit: 5, offset: 0, sort: 'name', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { userId: { operator: Operator.EQUAL, value: 7 } },
+                { userId: { operator: FilterOperator.EQ, value: 7 } },
                 { limit: 5, offset: 0, sort: 'name', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -364,7 +365,7 @@ describe('CreditCardService', () => {
             const service = new CreditCardService();
             const result = await service.countCreditCardsByUser(7);
 
-            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 7 } });
+            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: FilterOperator.EQ, value: 7 } });
             expect(result).toEqual({ success: true, data: 2 });
         });
 

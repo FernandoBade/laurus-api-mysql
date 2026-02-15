@@ -1,0 +1,2 @@
+ALTER TABLE `user` MODIFY COLUMN `theme` enum('light','dark') NOT NULL DEFAULT 'light';--> statement-breakpoint
+ALTER TABLE `user` MODIFY COLUMN `currency` enum('ARS','COP','BRL','EUR','USD') NOT NULL DEFAULT 'USD';

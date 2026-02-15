@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { logs, SelectLog, InsertLog } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for log database operations.
@@ -30,7 +30,7 @@ export class LogRepository {
      */
     async findMany(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
+            userId?: { operator: FilterOperator.EQ; value: number };
         },
         options?: {
             limit?: number;
@@ -77,7 +77,7 @@ export class LogRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
+            userId?: { operator: FilterOperator.EQ; value: number };
         }
     ): Promise<number> {
         let query = db.select({ count: logs.id }).from(logs);

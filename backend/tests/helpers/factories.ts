@@ -1,5 +1,7 @@
 import { SelectUser, SelectAccount, SelectTransaction } from '../../src/db/schema';
-import { AccountType, Currency, DateFormat, Language, Profile, Theme, TransactionType, TransactionSource } from '../../../shared/enums';
+import { AccountType } from '../../../shared/enums/account.enums';
+import { TransactionType, TransactionSource } from '../../../shared/enums/transaction.enums';
+import { Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums/user.enums';
 import type { AccountEntity } from '../../../shared/domains/account/account.types';
 import type { TransactionWithTags } from '../../../shared/domains/transaction/transaction.types';
 import type { SanitizedUser, UserEntity } from '../../../shared/domains/user/user.types';

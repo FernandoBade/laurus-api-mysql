@@ -1,7 +1,10 @@
 import 'jest';
 import CategoryController from '../../../src/controller/categoryController';
 import { CategoryService } from '../../../src/service/categoryService';
-import { CategoryColor, CategoryType, HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
@@ -173,7 +176,7 @@ describe('CategoryController', () => {
         limit: 1,
         offset: 0,
         sort: 'name',
-        order: Operator.ASC,
+        order: SortOrder.ASC,
       });
       expect(CategoryService.prototype.countCategories).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
@@ -374,7 +377,7 @@ describe('CategoryController', () => {
         limit: 2,
         offset: 0,
         sort: undefined,
-        order: Operator.ASC,
+        order: SortOrder.ASC,
       });
       expect(CategoryService.prototype.countCategoriesByUser).toHaveBeenCalledWith(3);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);

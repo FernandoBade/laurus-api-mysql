@@ -29,21 +29,13 @@ import {
     hasMinLength,
 } from '../../../src/utils/validation/guards';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
-import {
-    AccountType,
-    CategoryColor,
-    CategoryType,
-    CreditCardFlag,
-    Currency,
-    DateFormat,
-    Language,
-    Profile,
-    Theme,
-    TransactionSource,
-    TransactionType,
-} from '../../../../shared/enums';
+import { AccountType } from '../../../../shared/enums/account.enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
+import { Currency, DateFormat, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
 
-const lang = 'en-US' as const;
+const lang = Language.EN_US;
 const t = (resource: Resource) => translateResource(resource, lang);
 
 describe('validation errors', () => {

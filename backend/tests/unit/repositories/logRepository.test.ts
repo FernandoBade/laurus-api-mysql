@@ -2,7 +2,8 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { LogRepository } from '../../../src/repositories/logRepository';
 import { db } from '../../../src/db';
 import { logs, SelectLog } from '../../../src/db/schema';
-import { LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -103,7 +104,7 @@ describe('LogRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeLog({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, logs);
             expect(query.where).toHaveBeenCalledWith(and(eq(logs.userId, 7)));
@@ -163,7 +164,7 @@ describe('LogRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, logs);
             expect(select).toHaveBeenCalledWith({ count: logs.id });

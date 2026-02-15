@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
-import { ThemeMode } from "@shared/enums/theme.enums";
+import { Theme } from "@shared/enums/theme.enums";
 import {
     AlertDirection,
     AlertStyle,
@@ -61,7 +61,7 @@ const SECTION_CLASS = "rounded-2xl border border-base-300 bg-base-200 p-4 shadow
 const PALETTE_PANEL_CLASS = "overflow-hidden rounded-xl border border-base-300";
 const DEMO_PANEL_CLASS = "rounded-xl border border-base-300 bg-base-100 p-3 shadow-sm";
 
-const THEME_OPTIONS: readonly ThemeMode[] = [ThemeMode.LIGHT, ThemeMode.DARK];
+const THEME_OPTIONS: readonly Theme[] = [Theme.LIGHT, Theme.DARK];
 const MODAL_SIZES: readonly ModalSize[] = [ModalSize.SM, ModalSize.MD, ModalSize.LG, ModalSize.XL];
 const MODAL_POSITIONS: readonly ModalPosition[] = [ModalPosition.CENTER, ModalPosition.TOP, ModalPosition.BOTTOM];
 const MODAL_SCROLL_MODES: readonly ModalScrollMode[] = [ModalScrollMode.INSIDE, ModalScrollMode.BODY];
@@ -136,7 +136,7 @@ const MODAL_PARAGRAPHS: readonly string[] = [
 export function SandboxPage(): JSX.Element {
     const controller = useMemo(() => createSandboxController(), []);
 
-    const [theme, setTheme] = useState<ThemeMode>(controller.getCurrentTheme());
+    const [theme, setTheme] = useState<Theme>(controller.getCurrentTheme());
     const [modalState, setModalState] = useState<SandboxModalState>(controller.getDefaultModalState());
     const [filters, setFilters] = useState<SandboxFilters>(controller.getDefaultFilters());
     const [dataTableMode, setDataTableMode] = useState<SandboxDataTableMode>(SANDBOX_DATA_TABLE_MODE.READY);
@@ -196,7 +196,7 @@ export function SandboxPage(): JSX.Element {
         return subscribeToasts((nextToasts) => setToasts(nextToasts));
     }, []);
 
-    const handleThemeChange = (nextTheme: ThemeMode): void => setTheme(controller.applyTheme(nextTheme));
+    const handleThemeChange = (nextTheme: Theme): void => setTheme(controller.applyTheme(nextTheme));
     const handleFilterChange = (nextValues: Partial<SandboxFilters>): void => {
         setFilters(controller.mergeFilters(nextValues));
         setCurrentPage(1);
@@ -252,7 +252,7 @@ export function SandboxPage(): JSX.Element {
                         <div class="flex flex-wrap gap-2">
                             {THEME_OPTIONS.map((themeOption) => (
                                 <Button key={themeOption} variant={theme === themeOption ? ButtonVariant.PRIMARY : ButtonVariant.OUTLINE} onClick={() => handleThemeChange(themeOption)}>
-                                    {themeOption === ThemeMode.LIGHT ? "Light" : "Dark"}
+                                    {themeOption === Theme.LIGHT ? "Light" : "Dark"}
                                 </Button>
                             ))}
                         </div>

@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { CreditCardRepository } from '../repositories/creditCardRepository';
 import { UserService } from './userService';
 import { AccountService } from './accountService';
@@ -50,7 +50,7 @@ export class CreditCardService {
             }
 
             const existing = await this.creditCardRepository.findMany({
-                accountId: { operator: Operator.EQUAL, value: data.accountId }
+                accountId: { operator: FilterOperator.EQ, value: data.accountId }
             });
             if (existing.length > 0) {
                 return { success: false, error: Resource.DATA_ALREADY_EXISTS };
@@ -87,7 +87,7 @@ export class CreditCardService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCreditCard,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch {
@@ -135,12 +135,12 @@ export class CreditCardService {
     async getCreditCardsByUser(userId: number, options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: CreditCardEntity[] } | { success: false; error: Resource }> {
         try {
             const creditCards = await this.creditCardRepository.findMany({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCreditCard,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch {
@@ -158,7 +158,7 @@ export class CreditCardService {
     async countCreditCardsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.creditCardRepository.count({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             });
             return { success: true, data: count };
         } catch {
@@ -196,7 +196,7 @@ export class CreditCardService {
                 }
 
                 const existing = await this.creditCardRepository.findMany({
-                    accountId: { operator: Operator.EQUAL, value: safeData.accountId }
+                    accountId: { operator: FilterOperator.EQ, value: safeData.accountId }
                 });
                 if (existing.length > 0 && existing[0].id !== id) {
                     return { success: false, error: Resource.DATA_ALREADY_EXISTS };

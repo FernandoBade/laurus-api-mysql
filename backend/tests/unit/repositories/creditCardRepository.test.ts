@@ -2,7 +2,8 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { CreditCardRepository } from '../../../src/repositories/creditCardRepository';
 import { db } from '../../../src/db';
 import { creditCards, SelectCreditCard } from '../../../src/db/schema';
-import { CreditCardFlag, Operator } from '../../../../shared/enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCreditCard => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -119,7 +120,7 @@ describe('CreditCardRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, creditCards);
             expect(query.where).toHaveBeenCalledWith(and(eq(creditCards.userId, 7)));
@@ -128,7 +129,7 @@ describe('CreditCardRepository', () => {
         it('applies accountId filter', async () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1, accountId: 3 })]);
 
-            await repo.findMany({ accountId: { operator: Operator.EQUAL, value: 3 } });
+            await repo.findMany({ accountId: { operator: FilterOperator.EQ, value: 3 } });
 
             expectSelectChain(select, from, creditCards);
             expect(query.where).toHaveBeenCalledWith(and(eq(creditCards.accountId, 3)));
@@ -137,7 +138,7 @@ describe('CreditCardRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, creditCards);
             expect(query.where).toHaveBeenCalledWith(and(eq(creditCards.active, false)));
@@ -147,9 +148,9 @@ describe('CreditCardRepository', () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1, userId: 3, accountId: 4, active: true })]);
 
             await repo.findMany({
-                userId: { operator: Operator.EQUAL, value: 3 },
-                accountId: { operator: Operator.EQUAL, value: 4 },
-                active: { operator: Operator.EQUAL, value: true },
+                userId: { operator: FilterOperator.EQ, value: 3 },
+                accountId: { operator: FilterOperator.EQ, value: 4 },
+                active: { operator: FilterOperator.EQ, value: true },
             });
 
             expectSelectChain(select, from, creditCards);
@@ -212,7 +213,7 @@ describe('CreditCardRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, creditCards);
             expect(select).toHaveBeenCalledWith({ count: creditCards.id });

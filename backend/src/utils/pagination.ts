@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { SortOrder } from '../../../shared/enums/operator.enums';
 
 type QueryParamValue = string | string[] | number | undefined;
 type QueryParams = Record<string, unknown>;
@@ -31,7 +31,7 @@ export type QueryOptions<T = Record<string, unknown>> = {
     limit?: number;
     offset?: number;
     sort?: keyof T | string;
-    order?: Operator;
+    order?: SortOrder;
 };
 
 export function parsePagination(query: QueryParams) {
@@ -48,7 +48,7 @@ export function parsePagination(query: QueryParams) {
     const offset = offsetValue ? parseQueryInt(offsetValue) : (page - 1) * pageSize;
     const sort = typeof sortValue === 'string' ? sortValue : undefined;
     const orderParam = typeof orderValue === 'string' ? orderValue.toLowerCase() : undefined;
-    const order = orderParam === 'desc' ? Operator.DESC : Operator.ASC;
+    const order = orderParam === 'desc' ? SortOrder.DESC : SortOrder.ASC;
     return { page, pageSize, limit, offset, sort, order };
 }
 

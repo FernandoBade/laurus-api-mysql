@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { createLog } from '../commons';
-import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 

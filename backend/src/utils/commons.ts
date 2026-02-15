@@ -1,6 +1,8 @@
 import { translateResource } from '../../../shared/i18n/resource.utils';
 // #region Imports
-import { HTTPStatus, LogType, LogOperation, LogCategory } from '../../../shared/enums';
+import { HTTPStatus } from '../../../shared/enums/http-status.enums';
+import { LogType, LogOperation, LogCategory } from '../../../shared/enums/log.enums';
+import { Language } from '../../../shared/enums/language.enums';
 import { createLogger, format, transports, addColors } from 'winston';
 import { NextFunction, Response, Request } from 'express';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -196,7 +198,7 @@ export function answerAPI(
     if (res.headersSent) return;
 
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
-    const language = req.language ?? 'en-US';
+    const language = req.language ?? Language.EN_US;
     const elapsedTime = getDurationMs(res);
 
     const response: Record<string, unknown> = {
@@ -292,7 +294,7 @@ export function sendErrorResponse(
     resource: Resource,
     error?: unknown
 ) {
-    const language = req.language ?? 'pt-BR';
+    const language = req.language ?? Language.PT_BR;
     return res.status(status).json({
         success: false,
         message: translateResource(resource, language),

@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { AccountRepository } from '../repositories/accountRepository';
 import { UserService } from './userService';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -70,7 +70,7 @@ export class AccountService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectAccount,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch {
@@ -118,12 +118,12 @@ export class AccountService {
     async getAccountsByUser(userId: number, options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: AccountEntity[] } | { success: false; error: Resource }> {
         try {
             const accounts = await this.accountRepository.findMany({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectAccount,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch {
@@ -141,7 +141,7 @@ export class AccountService {
     async countAccountsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.accountRepository.count({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             });
             return { success: true, data: count };
         } catch {

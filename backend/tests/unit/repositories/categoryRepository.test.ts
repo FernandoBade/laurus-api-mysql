@@ -2,7 +2,8 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { CategoryRepository } from '../../../src/repositories/categoryRepository';
 import { db } from '../../../src/db';
 import { categories, SelectCategory } from '../../../src/db/schema';
-import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -116,7 +117,7 @@ describe('CategoryRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeCategory({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, categories);
             expect(query.where).toHaveBeenCalledWith(and(eq(categories.userId, 7)));
@@ -125,7 +126,7 @@ describe('CategoryRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeCategory({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, categories);
             expect(query.where).toHaveBeenCalledWith(and(eq(categories.active, false)));
@@ -135,8 +136,8 @@ describe('CategoryRepository', () => {
             const { select, from, query } = makeSelectChain([makeCategory({ id: 1, userId: 3, active: true })]);
 
             await repo.findMany({
-                userId: { operator: Operator.EQUAL, value: 3 },
-                active: { operator: Operator.EQUAL, value: true },
+                userId: { operator: FilterOperator.EQ, value: 3 },
+                active: { operator: FilterOperator.EQ, value: true },
             });
 
             expectSelectChain(select, from, categories);
@@ -197,7 +198,7 @@ describe('CategoryRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, categories);
             expect(select).toHaveBeenCalledWith({ count: categories.id });

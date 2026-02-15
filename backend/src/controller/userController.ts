@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/userService';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
-import { LogCategory, HTTPStatus, LogOperation, LogType } from '../../../shared/enums';
+import { HTTPStatus } from '../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../shared/enums/log.enums';
 import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
 import { createValidationError, ValidationError } from '../utils/validation/errors';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';

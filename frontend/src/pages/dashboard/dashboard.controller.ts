@@ -1,17 +1,17 @@
-import { ThemeMode } from "@shared/enums/theme.enums";
+import { Theme } from "@shared/enums/theme.enums";
 import { navigate, SANDBOX_ROUTE_PATH } from "@/routes/navigation";
 import { getTheme, toggleTheme } from "@/state/theme.store";
 
 export interface DashboardController {
-  readonly getCurrentTheme: () => ThemeMode;
-  readonly onToggleTheme: () => ThemeMode;
+  readonly getCurrentTheme: () => Theme;
+  readonly onToggleTheme: () => Theme;
   readonly onNavigateSandbox: () => void;
 }
 
 export function createDashboardController(): DashboardController {
-  const getCurrentTheme = (): ThemeMode => getTheme();
+  const getCurrentTheme = (): Theme => getTheme();
 
-  const onToggleTheme = (): ThemeMode => {
+  const onToggleTheme = (): Theme => {
     toggleTheme();
     return getTheme();
   };

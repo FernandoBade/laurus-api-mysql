@@ -1,6 +1,5 @@
 import { translateResource } from "@shared/i18n/resource.utils";
 import type { ResourceKey } from "@shared/i18n/resource.keys";
-import type { LanguageCode } from "@shared/i18n/resource.messages";
 import { getLocale } from "@/state/locale.store";
 
 /**
@@ -10,7 +9,7 @@ import { getLocale } from "@/state/locale.store";
  * @returns Localized string for the active locale.
  */
 export function t(key: ResourceKey): string {
-    return translateResource(key, getLocale() as LanguageCode);
+    return translateResource(key, getLocale());
 }
 
 /**

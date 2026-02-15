@@ -1,6 +1,6 @@
 import { mysqlTable, int, decimal, date, text, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { TransactionType, TransactionSource } from '../../../../shared/enums';
+import { TransactionType, TransactionSource } from '../../../../shared/enums/transaction.enums';
 
 /**
  * Transactions table schema.

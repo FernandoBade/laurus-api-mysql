@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, mysqlEnum, index } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { TokenType } from '../../../../shared/enums';
+import { TokenType } from '../../../../shared/enums/auth.enums';
 
 /**
  * Tokens table schema.

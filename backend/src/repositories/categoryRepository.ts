@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { categories, SelectCategory, InsertCategory } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for category database operations.
@@ -30,8 +30,8 @@ export class CategoryRepository {
      */
     async findMany(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -81,8 +81,8 @@ export class CategoryRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         }
     ): Promise<number> {
         let query = db.select({ count: categories.id }).from(categories);

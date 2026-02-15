@@ -1,6 +1,9 @@
 import CreditCardController from '../../../src/controller/creditCardController';
 import { CreditCardService } from '../../../src/service/creditCardService';
-import { CreditCardFlag, HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
@@ -189,7 +192,7 @@ describe('CreditCardController', () => {
         limit: 1,
         offset: 0,
         sort: 'name',
-        order: Operator.ASC,
+        order: SortOrder.ASC,
       });
       expect(CreditCardService.prototype.countCreditCards).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
@@ -390,7 +393,7 @@ describe('CreditCardController', () => {
         limit: 2,
         offset: 0,
         sort: undefined,
-        order: Operator.ASC,
+        order: SortOrder.ASC,
       });
       expect(CreditCardService.prototype.countCreditCardsByUser).toHaveBeenCalledWith(2);
       expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);

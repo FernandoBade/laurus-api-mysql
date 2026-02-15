@@ -1,6 +1,9 @@
 import TransactionController from '../../../src/controller/transactionController';
 import { TransactionService } from '../../../src/service/transactionService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
+import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
@@ -160,7 +163,7 @@ describe('TransactionController', () => {
                 limit: 2,
                 offset: 0,
                 sort: 'date',
-                order: Operator.DESC,
+                order: SortOrder.DESC,
             });
             expect(TransactionService.prototype.countTransactions).toHaveBeenCalledTimes(1);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
@@ -361,7 +364,7 @@ describe('TransactionController', () => {
                 limit: 5,
                 offset: 5,
                 sort: 'date',
-                order: Operator.DESC,
+                order: SortOrder.DESC,
             });
             expect(TransactionService.prototype.countTransactionsByAccount).toHaveBeenCalledWith(3);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);
@@ -482,7 +485,7 @@ describe('TransactionController', () => {
                 limit: 2,
                 offset: 0,
                 sort: undefined,
-                order: Operator.ASC,
+                order: SortOrder.ASC,
             });
             expect(TransactionService.prototype.countTransactionsByUser).toHaveBeenCalledWith(3);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);

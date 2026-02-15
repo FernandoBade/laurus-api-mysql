@@ -1,5 +1,5 @@
 import { buildMeta, parsePagination } from '../../../src/utils/pagination';
-import { Operator } from '../../../../shared/enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 
 describe('pagination utils', () => {
     describe('parsePagination', () => {
@@ -17,7 +17,7 @@ describe('pagination utils', () => {
                 limit: 5,
                 offset: 5,
                 sort: 'name',
-                order: Operator.DESC,
+                order: SortOrder.DESC,
             });
         });
 
@@ -35,7 +35,7 @@ describe('pagination utils', () => {
                 limit: 15,
                 offset: 30,
                 sort: undefined,
-                order: Operator.ASC,
+                order: SortOrder.ASC,
             });
         });
 
@@ -48,7 +48,7 @@ describe('pagination utils', () => {
                 limit: 10,
                 offset: 0,
                 sort: undefined,
-                order: Operator.ASC,
+                order: SortOrder.ASC,
             });
         });
 
@@ -68,7 +68,7 @@ describe('pagination utils', () => {
                 limit: 4,
                 offset: 8,
                 sort: 'createdAt',
-                order: Operator.DESC,
+                order: SortOrder.DESC,
             });
         });
 
@@ -87,7 +87,7 @@ describe('pagination utils', () => {
                 limit: 6,
                 offset: 12,
                 sort: undefined,
-                order: Operator.ASC,
+                order: SortOrder.ASC,
             });
         });
     });

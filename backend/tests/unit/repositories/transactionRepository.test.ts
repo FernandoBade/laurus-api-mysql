@@ -2,7 +2,8 @@ import { and, asc, between, desc, eq, inArray } from 'drizzle-orm';
 import { TransactionRepository } from '../../../src/repositories/transactionRepository';
 import { db } from '../../../src/db';
 import { transactions } from '../../../src/db/schema';
-import { Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
 import { makeDbTransaction } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
@@ -103,7 +104,7 @@ describe('TransactionRepository', () => {
         it('applies accountId equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, accountId: 7 })]);
 
-            await repo.findMany({ accountId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ accountId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(eq(transactions.accountId, 7)));
@@ -112,7 +113,7 @@ describe('TransactionRepository', () => {
         it('applies accountId in filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, accountId: 7 })]);
 
-            await repo.findMany({ accountId: { operator: Operator.IN, value: [7, 8] } });
+            await repo.findMany({ accountId: { operator: FilterOperator.IN, value: [7, 8] } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(inArray(transactions.accountId, [7, 8])));
@@ -121,7 +122,7 @@ describe('TransactionRepository', () => {
         it('applies creditCardId equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, creditCardId: 5 })]);
 
-            await repo.findMany({ creditCardId: { operator: Operator.EQUAL, value: 5 } });
+            await repo.findMany({ creditCardId: { operator: FilterOperator.EQ, value: 5 } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(eq(transactions.creditCardId, 5)));
@@ -130,7 +131,7 @@ describe('TransactionRepository', () => {
         it('applies creditCardId in filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, creditCardId: 5 })]);
 
-            await repo.findMany({ creditCardId: { operator: Operator.IN, value: [5, 6] } });
+            await repo.findMany({ creditCardId: { operator: FilterOperator.IN, value: [5, 6] } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(inArray(transactions.creditCardId, [5, 6])));
@@ -139,7 +140,7 @@ describe('TransactionRepository', () => {
         it('applies categoryId equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, categoryId: 9 })]);
 
-            await repo.findMany({ categoryId: { operator: Operator.EQUAL, value: 9 } });
+            await repo.findMany({ categoryId: { operator: FilterOperator.EQ, value: 9 } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(eq(transactions.categoryId, 9)));
@@ -148,7 +149,7 @@ describe('TransactionRepository', () => {
         it('applies categoryId in filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, categoryId: 9 })]);
 
-            await repo.findMany({ categoryId: { operator: Operator.IN, value: [9, 10] } });
+            await repo.findMany({ categoryId: { operator: FilterOperator.IN, value: [9, 10] } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(inArray(transactions.categoryId, [9, 10])));
@@ -157,7 +158,7 @@ describe('TransactionRepository', () => {
         it('applies subcategoryId equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, subcategoryId: 11 })]);
 
-            await repo.findMany({ subcategoryId: { operator: Operator.EQUAL, value: 11 } });
+            await repo.findMany({ subcategoryId: { operator: FilterOperator.EQ, value: 11 } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(eq(transactions.subcategoryId, 11)));
@@ -166,7 +167,7 @@ describe('TransactionRepository', () => {
         it('applies subcategoryId in filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, subcategoryId: 11 })]);
 
-            await repo.findMany({ subcategoryId: { operator: Operator.IN, value: [11, 12] } });
+            await repo.findMany({ subcategoryId: { operator: FilterOperator.IN, value: [11, 12] } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(inArray(transactions.subcategoryId, [11, 12])));
@@ -175,7 +176,7 @@ describe('TransactionRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(eq(transactions.active, false)));
@@ -186,7 +187,7 @@ describe('TransactionRepository', () => {
             const start = new Date('2024-01-01T00:00:00Z');
             const end = new Date('2024-01-31T00:00:00Z');
 
-            await repo.findMany({ date: { operator: Operator.BETWEEN, value: [start, end] } });
+            await repo.findMany({ date: { operator: FilterOperator.BETWEEN, value: [start, end] } });
 
             expectSelectChain(select, from, transactions);
             expect(query.where).toHaveBeenCalledWith(and(between(transactions.date, start, end)));
@@ -198,10 +199,10 @@ describe('TransactionRepository', () => {
             const end = new Date('2024-01-31T00:00:00Z');
 
             await repo.findMany({
-                accountId: { operator: Operator.EQUAL, value: 2 },
-                categoryId: { operator: Operator.IN, value: [3, 4] },
-                active: { operator: Operator.EQUAL, value: true },
-                date: { operator: Operator.BETWEEN, value: [start, end] },
+                accountId: { operator: FilterOperator.EQ, value: 2 },
+                categoryId: { operator: FilterOperator.IN, value: [3, 4] },
+                active: { operator: FilterOperator.EQ, value: true },
+                date: { operator: FilterOperator.BETWEEN, value: [start, end] },
             });
 
             expectSelectChain(select, from, transactions);
@@ -269,7 +270,7 @@ describe('TransactionRepository', () => {
         it('applies accountId equal filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ accountId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ accountId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -280,7 +281,7 @@ describe('TransactionRepository', () => {
         it('applies accountId in filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}, {}]);
 
-            const result = await repo.count({ accountId: { operator: Operator.IN, value: [2, 3, 4] } });
+            const result = await repo.count({ accountId: { operator: FilterOperator.IN, value: [2, 3, 4] } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -291,7 +292,7 @@ describe('TransactionRepository', () => {
         it('applies creditCardId equal filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}]);
 
-            const result = await repo.count({ creditCardId: { operator: Operator.EQUAL, value: 5 } });
+            const result = await repo.count({ creditCardId: { operator: FilterOperator.EQ, value: 5 } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -302,7 +303,7 @@ describe('TransactionRepository', () => {
         it('applies creditCardId in filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ creditCardId: { operator: Operator.IN, value: [5, 6] } });
+            const result = await repo.count({ creditCardId: { operator: FilterOperator.IN, value: [5, 6] } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -313,7 +314,7 @@ describe('TransactionRepository', () => {
         it('applies categoryId equal filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}, {}]);
 
-            const result = await repo.count({ categoryId: { operator: Operator.EQUAL, value: 9 } });
+            const result = await repo.count({ categoryId: { operator: FilterOperator.EQ, value: 9 } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -324,7 +325,7 @@ describe('TransactionRepository', () => {
         it('applies categoryId in filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}, {}]);
 
-            const result = await repo.count({ categoryId: { operator: Operator.IN, value: [9, 10, 11] } });
+            const result = await repo.count({ categoryId: { operator: FilterOperator.IN, value: [9, 10, 11] } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -335,7 +336,7 @@ describe('TransactionRepository', () => {
         it('applies subcategoryId equal filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}]);
 
-            const result = await repo.count({ subcategoryId: { operator: Operator.EQUAL, value: 12 } });
+            const result = await repo.count({ subcategoryId: { operator: FilterOperator.EQ, value: 12 } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -346,7 +347,7 @@ describe('TransactionRepository', () => {
         it('applies subcategoryId in filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ subcategoryId: { operator: Operator.IN, value: [12, 13] } });
+            const result = await repo.count({ subcategoryId: { operator: FilterOperator.IN, value: [12, 13] } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });
@@ -357,7 +358,7 @@ describe('TransactionRepository', () => {
         it('applies active filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}]);
 
-            const result = await repo.count({ active: { operator: Operator.EQUAL, value: false } });
+            const result = await repo.count({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, transactions);
             expect(select).toHaveBeenCalledWith({ count: transactions.id });

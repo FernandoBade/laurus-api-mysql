@@ -1,4 +1,4 @@
-import type { AccountType } from './account.enums';
+import type { AccountType } from '../../enums/account.enums';
 import type { UserId } from '../user/user.types';
 import type { ISODateString, MonetaryString } from '../../types/format.types';
 import type { PaginationInput, PaginatedResult } from '../../types/pagination.types';

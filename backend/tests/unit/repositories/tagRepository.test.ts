@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { TagRepository } from '../../../src/repositories/tagRepository';
 import { db } from '../../../src/db';
 import { tags, SelectTag } from '../../../src/db/schema';
-import { Operator } from '../../../../shared/enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -114,7 +114,7 @@ describe('TagRepository', () => {
         it('applies id filter with IN', async () => {
             const { select, from, query } = makeSelectChain([makeTag({ id: 2 })]);
 
-            await repo.findMany({ id: { operator: Operator.IN, value: [1, 2] } });
+            await repo.findMany({ id: { operator: FilterOperator.IN, value: [1, 2] } });
 
             expectSelectChain(select, from, tags);
             expect(query.where).toHaveBeenCalledWith(and(inArray(tags.id, [1, 2])));
@@ -123,7 +123,7 @@ describe('TagRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeTag({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, tags);
             expect(query.where).toHaveBeenCalledWith(and(eq(tags.userId, 7)));
@@ -132,7 +132,7 @@ describe('TagRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeTag({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, tags);
             expect(query.where).toHaveBeenCalledWith(and(eq(tags.active, false)));
@@ -182,7 +182,7 @@ describe('TagRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, tags);
             expect(select).toHaveBeenCalledWith({ count: tags.id });

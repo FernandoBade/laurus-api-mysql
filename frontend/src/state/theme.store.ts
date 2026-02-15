@@ -1,21 +1,21 @@
 import { StorageKey } from "@shared/enums/storage.enums";
-import { ThemeMode } from "@shared/enums/theme.enums";
+import { Theme } from "@shared/enums/theme.enums";
 import { storage } from "@/platform/storage/storage";
 
-let currentTheme: ThemeMode = ThemeMode.LIGHT;
+let currentTheme: Theme = Theme.LIGHT;
 let initialized = false;
 
-function isThemeMode(value: string | null): value is ThemeMode {
-    return value === ThemeMode.LIGHT || value === ThemeMode.DARK;
+function isTheme(value: string | null): value is Theme {
+    return value === Theme.LIGHT || value === Theme.DARK;
 }
 
-function applyTheme(theme: ThemeMode): void {
+function applyTheme(theme: Theme): void {
     document.documentElement.setAttribute("data-theme", theme);
 }
 
-function loadPersistedTheme(): ThemeMode {
+function loadPersistedTheme(): Theme {
     const value = storage.get<string>(StorageKey.THEME);
-    return isThemeMode(value) ? value : ThemeMode.LIGHT;
+    return isTheme(value) ? value : Theme.LIGHT;
 }
 
 /**
@@ -36,7 +36,7 @@ export function initializeThemeStore(): void {
  * @summary Reads the currently active application theme.
  * @returns Active theme mode.
  */
-export function getTheme(): ThemeMode {
+export function getTheme(): Theme {
     return currentTheme;
 }
 
@@ -45,7 +45,7 @@ export function getTheme(): ThemeMode {
  * @param theme Target theme mode.
  * @returns No return value.
  */
-export function setTheme(theme: ThemeMode): void {
+export function setTheme(theme: Theme): void {
     currentTheme = theme;
     applyTheme(theme);
     storage.set<string>(StorageKey.THEME, theme);
@@ -56,6 +56,6 @@ export function setTheme(theme: ThemeMode): void {
  * @returns No return value.
  */
 export function toggleTheme(): void {
-    const nextTheme = currentTheme === ThemeMode.LIGHT ? ThemeMode.DARK : ThemeMode.LIGHT;
+    const nextTheme = currentTheme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT;
     setTheme(nextTheme);
 }

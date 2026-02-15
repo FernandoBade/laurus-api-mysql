@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TokenUtils } from './tokenUtils';
 import { answerAPI } from '../commons';
-import { HTTPStatus } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { UserService } from '../../service/userService';
 

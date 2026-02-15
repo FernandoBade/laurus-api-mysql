@@ -1,6 +1,10 @@
 import { isString, isNumber, isNumberArray, isBoolean, isISODateString, isMonetaryString, isEnum, isValidEmail, hasMinLength } from './guards';
 import { createValidationError, ValidationError } from './errors';
-import { Theme, Language, Currency, DateFormat, Profile, AccountType, CategoryType, CategoryColor, CreditCardFlag, TransactionType, TransactionSource } from '../../../../shared/enums';
+import { AccountType } from '../../../../shared/enums/account.enums';
+import { CategoryType, CategoryColor } from '../../../../shared/enums/category.enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { TransactionType, TransactionSource } from '../../../../shared/enums/transaction.enums';
+import { Theme, Language, Currency, DateFormat, Profile } from '../../../../shared/enums/user.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../../shared/i18n/resourceTypes';
 import type { CreateAccountInput, UpdateAccountInput } from '../../../../shared/domains/account/account.types';

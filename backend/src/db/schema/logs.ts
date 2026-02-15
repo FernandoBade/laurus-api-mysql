@@ -1,6 +1,6 @@
 import { mysqlTable, int, text, timestamp, mysqlEnum } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { LogType, LogOperation, LogCategory } from '../../../../shared/enums';
+import { LogType, LogOperation, LogCategory } from '../../../../shared/enums/log.enums';
 
 /**
  * Logs table schema.

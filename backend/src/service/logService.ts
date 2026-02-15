@@ -1,4 +1,5 @@
-import { LogType, LogOperation, LogCategory, Operator } from '../../../shared/enums';
+import { LogType, LogOperation, LogCategory } from '../../../shared/enums/log.enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 import { LogRepository } from '../repositories/logRepository';
 import { UserRepository } from '../repositories/userRepository';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -173,7 +174,7 @@ export class LogService {
 
         try {
             const logList = await this.logRepository.findMany({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             });
             return { success: true, data: logList };
         } catch {

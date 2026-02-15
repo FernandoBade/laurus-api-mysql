@@ -1,7 +1,8 @@
 import { LogService } from '../../../src/service/logService';
 import { LogRepository } from '../../../src/repositories/logRepository';
 import { UserRepository } from '../../../src/repositories/userRepository';
-import { LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectLog } from '../../../src/db/schema';
 import { db } from '../../../src/db';
@@ -218,7 +219,7 @@ describe('LogService', () => {
             const service = new LogService();
             const result = await service.getLogsByUser(2);
 
-            expect(findManySpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 2 } });
+            expect(findManySpy).toHaveBeenCalledWith({ userId: { operator: FilterOperator.EQ, value: 2 } });
             expect(result).toEqual({ success: true, data: logList });
         });
 

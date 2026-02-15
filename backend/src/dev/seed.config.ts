@@ -1,4 +1,7 @@
-import { AccountType, CategoryColor, CategoryType, CreditCardFlag, Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums';
+import { AccountType } from '../../../shared/enums/account.enums';
+import { CategoryColor, CategoryType } from '../../../shared/enums/category.enums';
+import { CreditCardFlag } from '../../../shared/enums/creditCard.enums';
+import { Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums/user.enums';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
 export type AccountTemplate = {
@@ -83,7 +86,7 @@ export type SeedConfig = {
  * @summary Defines seed defaults, templates, and distributions for dev seeding.
  */
 export const seedConfig: SeedConfig = {
-    language: 'en-US',
+    language: Language.EN_US,
     defaultPassword: 'DevSeed123!',
     emailDomain: 'example.com',
     userOptions: {

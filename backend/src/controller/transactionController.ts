@@ -3,7 +3,10 @@ import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../service/transactionService';
 import { validateCreateTransaction, validateUpdateTransaction } from '../utils/validation/validateRequest';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator, TransactionSource, TransactionType } from '../../../shared/enums';
+import { HTTPStatus } from '../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../shared/enums/log.enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { TransactionSource, TransactionType } from '../../../shared/enums/transaction.enums';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
@@ -114,28 +117,28 @@ class TransactionController {
             const endDate = parseDateParam(req.query.endDate);
             const filters: NonNullable<Parameters<InstanceType<typeof TransactionService>['countTransactions']>[0]> = {
                 ...(accountIds.length
-                    ? { accountId: { operator: Operator.IN as Operator.IN, value: accountIds } }
+                    ? { accountId: { operator: FilterOperator.IN as FilterOperator.IN, value: accountIds } }
                     : {}),
                 ...(creditCardIds.length
-                    ? { creditCardId: { operator: Operator.IN as Operator.IN, value: creditCardIds } }
+                    ? { creditCardId: { operator: FilterOperator.IN as FilterOperator.IN, value: creditCardIds } }
                     : {}),
                 ...(transactionType
-                    ? { transactionType: { operator: Operator.EQUAL as Operator.EQUAL, value: transactionType } }
+                    ? { transactionType: { operator: FilterOperator.EQ as FilterOperator.EQ, value: transactionType } }
                     : {}),
                 ...(transactionSource
-                    ? { transactionSource: { operator: Operator.EQUAL as Operator.EQUAL, value: transactionSource } }
+                    ? { transactionSource: { operator: FilterOperator.EQ as FilterOperator.EQ, value: transactionSource } }
                     : {}),
                 ...(categoryIds.length
-                    ? { categoryId: { operator: Operator.IN as Operator.IN, value: categoryIds } }
+                    ? { categoryId: { operator: FilterOperator.IN as FilterOperator.IN, value: categoryIds } }
                     : {}),
                 ...(subcategoryIds.length
-                    ? { subcategoryId: { operator: Operator.IN as Operator.IN, value: subcategoryIds } }
+                    ? { subcategoryId: { operator: FilterOperator.IN as FilterOperator.IN, value: subcategoryIds } }
                     : {}),
                 ...(tagIds.length
-                    ? { tagIds: { operator: Operator.IN as Operator.IN, value: tagIds } }
+                    ? { tagIds: { operator: FilterOperator.IN as FilterOperator.IN, value: tagIds } }
                     : {}),
                 ...((startDate || endDate)
-                    ? { date: { operator: Operator.BETWEEN as Operator.BETWEEN, value: [startDate, endDate] } }
+                    ? { date: { operator: FilterOperator.BETWEEN as FilterOperator.BETWEEN, value: [startDate, endDate] } }
                     : {}),
             };
             const [rows, total] = await Promise.all([

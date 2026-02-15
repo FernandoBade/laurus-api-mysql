@@ -2,7 +2,7 @@ import CategoryController from '../../controller/categoryController';
 import SubcategoryController from '../../controller/subcategoryController';
 import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
 import type { SubcategoryEntity } from '../../../../shared/domains/subcategory/subcategory.types';
-import { CategoryColor, CategoryType } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
 import { CategoryTemplate } from '../seed.config';
 import { SeedContext, executeController } from '../seed.utils';
 

@@ -1,6 +1,7 @@
 import { TokenService } from '../../../src/service/tokenService';
 import { TokenRepository } from '../../../src/repositories/tokenRepository';
-import { LogCategory, LogOperation, LogType, TokenType } from '../../../../shared/enums';
+import { TokenType } from '../../../../shared/enums/auth.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectToken, tokens } from '../../../src/db/schema';
 import { db } from '../../../src/db';

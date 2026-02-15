@@ -12,7 +12,7 @@ import type {
     UpdateAccountRequest,
     UpdateAccountOutput,
 } from './account.types';
-import { AccountErrorCode } from './account.enums';
+import { AccountErrorCode } from '../../enums/account.enums';
 
 /** @summary Resource definition for creating an account. */
 export const createAccountResource = {

@@ -1,3 +1,4 @@
+/** @summary HTML input type values supported by shared input components. */
 export enum InputType {
     BUTTON = "button",
     CHECKBOX = "checkbox",

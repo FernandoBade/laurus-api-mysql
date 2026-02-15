@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { SubcategoryRepository } from '../repositories/subcategoryRepository';
 import { CategoryService } from './categoryService';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -70,7 +70,7 @@ export class SubcategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch {
@@ -103,12 +103,12 @@ export class SubcategoryService {
     async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const subcategories = await this.subcategoryRepository.findMany({
-                categoryId: { operator: Operator.EQUAL, value: categoryId }
+                categoryId: { operator: FilterOperator.EQ, value: categoryId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch {
@@ -126,7 +126,7 @@ export class SubcategoryService {
     async countSubcategoriesByCategory(categoryId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.subcategoryRepository.count({
-                categoryId: { operator: Operator.EQUAL, value: categoryId }
+                categoryId: { operator: FilterOperator.EQ, value: categoryId }
             });
             return { success: true, data: count };
         } catch {
@@ -168,22 +168,22 @@ export class SubcategoryService {
 
         try {
             const subcategories = await this.subcategoryRepository.findMany({
-                categoryId: { operator: Operator.EQUAL, value: categoryIds[0] }
+                categoryId: { operator: FilterOperator.EQ, value: categoryIds[0] }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             void subcategories;
 
             const allSubcategories = await this.subcategoryRepository.findMany({
-                categoryId: { operator: Operator.IN, value: categoryIds }
+                categoryId: { operator: FilterOperator.IN, value: categoryIds }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
 
             return { success: true, data: allSubcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
@@ -211,7 +211,7 @@ export class SubcategoryService {
 
         try {
             const total = await this.subcategoryRepository.count({
-                categoryId: { operator: Operator.IN, value: categoryIds }
+                categoryId: { operator: FilterOperator.IN, value: categoryIds }
             });
             return { success: true, data: total };
         } catch {

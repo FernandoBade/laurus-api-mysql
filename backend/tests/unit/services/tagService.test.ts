@@ -1,7 +1,7 @@
 import { TagService } from '../../../src/service/tagService';
 import { TagRepository } from '../../../src/repositories/tagRepository';
 import { UserService } from '../../../src/service/userService';
-import { Operator } from '../../../../shared/enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import type { TagEntity } from '../../../../shared/domains/tag/tag.types';
 import { SelectTag } from '../../../src/db/schema';
@@ -113,7 +113,7 @@ describe('TagService', () => {
             const findManySpy = jest.spyOn(TagRepository.prototype, 'findMany').mockResolvedValue(tags);
 
             const service = new TagService();
-            const result = await service.getTags({ limit: 2, offset: 0, sort: 'name', order: Operator.DESC });
+            const result = await service.getTags({ limit: 2, offset: 0, sort: 'name', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,

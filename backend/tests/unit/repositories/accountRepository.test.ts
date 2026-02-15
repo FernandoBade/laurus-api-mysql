@@ -2,7 +2,8 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { db } from '../../../src/db';
 import { accounts } from '../../../src/db/schema';
-import { AccountType, Operator } from '../../../../shared/enums';
+import { AccountType } from '../../../../shared/enums/account.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 import { makeDbAccount } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
@@ -103,7 +104,7 @@ describe('AccountRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, accounts);
             expect(query.where).toHaveBeenCalledWith(and(eq(accounts.userId, 7)));
@@ -112,7 +113,7 @@ describe('AccountRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, accounts);
             expect(query.where).toHaveBeenCalledWith(and(eq(accounts.active, false)));
@@ -122,8 +123,8 @@ describe('AccountRepository', () => {
             const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1, userId: 3, active: true })]);
 
             await repo.findMany({
-                userId: { operator: Operator.EQUAL, value: 3 },
-                active: { operator: Operator.EQUAL, value: true },
+                userId: { operator: FilterOperator.EQ, value: 3 },
+                active: { operator: FilterOperator.EQ, value: true },
             });
 
             expectSelectChain(select, from, accounts);
@@ -184,7 +185,7 @@ describe('AccountRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, accounts);
             expect(select).toHaveBeenCalledWith({ count: accounts.id });

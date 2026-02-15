@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { creditCards, SelectCreditCard, InsertCreditCard } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for credit card database operations.
@@ -30,9 +30,9 @@ export class CreditCardRepository {
      */
     async findMany(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            accountId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            accountId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -86,9 +86,9 @@ export class CreditCardRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
-            accountId?: { operator: Operator.EQUAL; value: number };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            userId?: { operator: FilterOperator.EQ; value: number };
+            accountId?: { operator: FilterOperator.EQ; value: number };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         connection: typeof db = db
     ): Promise<number> {

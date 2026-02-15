@@ -1,7 +1,7 @@
 import { eq, and, inArray, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { subcategories, SelectSubcategory, InsertSubcategory } from '../db/schema';
-import { Operator } from '../../../shared/enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for subcategory database operations.
@@ -30,8 +30,8 @@ export class SubcategoryRepository {
      */
     async findMany(
         filters?: {
-            categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         },
         options?: {
             limit?: number;
@@ -44,10 +44,10 @@ export class SubcategoryRepository {
 
         const conditions: SQL[] = [];
         if (filters?.categoryId) {
-            if (filters.categoryId.operator === Operator.EQUAL) {
+            if (filters.categoryId.operator === FilterOperator.EQ) {
                 conditions.push(eq(subcategories.categoryId, filters.categoryId.value as number));
             } else if (
-                filters.categoryId.operator === Operator.IN &&
+                filters.categoryId.operator === FilterOperator.IN &&
                 Array.isArray(filters.categoryId.value)
             ) {
                 conditions.push(inArray(subcategories.categoryId, filters.categoryId.value));
@@ -88,15 +88,15 @@ export class SubcategoryRepository {
      */
     async count(
         filters?: {
-            categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-            active?: { operator: Operator.EQUAL; value: boolean };
+            categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            active?: { operator: FilterOperator.EQ; value: boolean };
         }
     ): Promise<number> {
         let query = db.select({ count: subcategories.id }).from(subcategories);
 
         const conditions: SQL[] = [];
         if (filters?.categoryId) {
-            if (filters.categoryId.operator === Operator.EQUAL) {
+            if (filters.categoryId.operator === FilterOperator.EQ) {
                 conditions.push(eq(subcategories.categoryId, filters.categoryId.value as number));
             } else if (Array.isArray(filters.categoryId.value)) {
                 conditions.push(inArray(subcategories.categoryId, filters.categoryId.value));

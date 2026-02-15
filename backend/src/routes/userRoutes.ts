@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import { LogType, LogOperation, LogCategory, HTTPStatus } from '../../../shared/enums';
+import { HTTPStatus } from '../../../shared/enums/http-status.enums';
+import { LogType, LogOperation, LogCategory } from '../../../shared/enums/log.enums';
 import { answerAPI, createLog, formatError } from '../utils/commons';
 import { verifyToken } from '../utils/auth/verifyToken';
 import UserController from '../controller/userController';

@@ -1,7 +1,8 @@
 import FeedbackController from '../../../src/controller/feedbackController';
 import { FeedbackService } from '../../../src/service/feedbackService';
 import { UserService } from '../../../src/service/userService';
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';

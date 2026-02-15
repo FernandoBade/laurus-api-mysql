@@ -3,7 +3,8 @@ import type { AccountEntity } from '../../../../shared/domains/account/account.t
 import type { CreditCardEntity } from '../../../../shared/domains/creditCard/creditCard.types';
 import type { TagEntity } from '../../../../shared/domains/tag/tag.types';
 import type { TransactionWithTags } from '../../../../shared/domains/transaction/transaction.types';
-import { CategoryType, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { CategoryType } from '../../../../shared/enums/category.enums';
+import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
 import { CategorySeed } from './category.generator';
 import {
     SeedContext,

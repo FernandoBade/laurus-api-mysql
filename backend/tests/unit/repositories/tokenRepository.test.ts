@@ -2,7 +2,8 @@ import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { TokenRepository } from '../../../src/repositories/tokenRepository';
 import { db } from '../../../src/db';
 import { tokens, SelectToken } from '../../../src/db/schema';
-import { Operator, TokenType } from '../../../../shared/enums';
+import { TokenType } from '../../../../shared/enums/auth.enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -168,7 +169,7 @@ describe('TokenRepository', () => {
         it('applies userId filter', async () => {
             const { select, from, query } = makeSelectChain([makeToken({ id: 1, userId: 7 })]);
 
-            await repo.findMany({ userId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ userId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, tokens);
             expect(query.where).toHaveBeenCalledWith(and(eq(tokens.type, TokenType.REFRESH), eq(tokens.userId, 7)));
@@ -228,7 +229,7 @@ describe('TokenRepository', () => {
         it('applies filters to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ userId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ userId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, tokens);
             expect(select).toHaveBeenCalledWith({ count: tokens.id });

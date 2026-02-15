@@ -1,6 +1,7 @@
-import { LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
+import { Language } from '../../../../shared/enums/language.enums';
 const originalEnv = { ...process.env };
 
 const setEnv = (overrides: Record<string, string | undefined>) => {
@@ -70,7 +71,7 @@ describe('feedbackEmail utils', () => {
             userEmail: 'user@example.com',
             title: 'Title',
             message: 'Message',
-            language: 'en-US',
+            language: Language.EN_US,
             attachments: [
                 {
                     filename: 'test.png',
@@ -86,7 +87,7 @@ describe('feedbackEmail utils', () => {
         expect(payload).toEqual(expect.objectContaining({
             from: 'no-reply@example.com',
             to: 'fer@bade.digital',
-            subject: translateResource(Resource.FEEDBACK_EMAIL_SUBJECT, 'en-US'),
+            subject: translateResource(Resource.FEEDBACK_EMAIL_SUBJECT, Language.EN_US),
         }));
         expect(payload.attachments).toEqual([
             expect.objectContaining({
@@ -97,7 +98,7 @@ describe('feedbackEmail utils', () => {
         ]);
 
         const html = payload.html as string;
-        expect(html).toContain(translateResource(Resource.FEEDBACK_EMAIL_INTRO, 'en-US'));
+        expect(html).toContain(translateResource(Resource.FEEDBACK_EMAIL_INTRO, Language.EN_US));
         expect(html).toContain('Title');
         expect(html).toContain('Message');
     });

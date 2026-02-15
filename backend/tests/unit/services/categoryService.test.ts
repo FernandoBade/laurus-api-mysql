@@ -1,7 +1,8 @@
 import { CategoryService } from '../../../src/service/categoryService';
 import { CategoryRepository } from '../../../src/repositories/categoryRepository';
 import { UserService } from '../../../src/service/userService';
-import { CategoryColor, CategoryType, Operator } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCategory } from '../../../src/db/schema';
 import type { CategoryEntity } from '../../../../shared/domains/category/category.types';
@@ -132,7 +133,7 @@ describe('CategoryService', () => {
             const findManySpy = jest.spyOn(CategoryRepository.prototype, 'findMany').mockResolvedValue(dbCategories);
 
             const service = new CategoryService();
-            const result = await service.getCategories({ limit: 2, offset: 2, sort: 'name', order: Operator.DESC });
+            const result = await service.getCategories({ limit: 2, offset: 2, sort: 'name', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -240,10 +241,10 @@ describe('CategoryService', () => {
             const findManySpy = jest.spyOn(CategoryRepository.prototype, 'findMany').mockResolvedValue(categories);
 
             const service = new CategoryService();
-            const result = await service.getCategoriesByUser(2, { limit: 3, offset: 3, sort: 'name', order: Operator.ASC });
+            const result = await service.getCategoriesByUser(2, { limit: 3, offset: 3, sort: 'name', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { userId: { operator: Operator.EQUAL, value: 2 } },
+                { userId: { operator: FilterOperator.EQ, value: 2 } },
                 { limit: 3, offset: 3, sort: 'name', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -271,7 +272,7 @@ describe('CategoryService', () => {
             const service = new CategoryService();
             const result = await service.countCategoriesByUser(2);
 
-            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 2 } });
+            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: FilterOperator.EQ, value: 2 } });
             expect(result).toEqual({ success: true, data: 3 });
         });
 

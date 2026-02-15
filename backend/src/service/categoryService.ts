@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { CategoryRepository } from '../repositories/categoryRepository';
 import { UserService } from './userService';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -64,7 +64,7 @@ export class CategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch {
@@ -112,12 +112,12 @@ export class CategoryService {
     async getCategoriesByUser(userId: number, options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: CategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const categories = await this.categoryRepository.findMany({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCategory,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch {
@@ -135,7 +135,7 @@ export class CategoryService {
     async countCategoriesByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.categoryRepository.count({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             });
             return { success: true, data: count };
         } catch {

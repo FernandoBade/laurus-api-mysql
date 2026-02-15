@@ -1,5 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
-import { TransactionSource, Operator, TransactionType } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
+import { TransactionSource, TransactionType } from '../../../shared/enums/transaction.enums';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { AccountRepository } from '../repositories/accountRepository';
 import { CreditCardRepository } from '../repositories/creditCardRepository';
@@ -15,15 +16,15 @@ import { withTransaction, db } from '../db';
 import type { AccountTransactions, CreateTransactionInput, TransactionWithTags, UpdateTransactionInput } from '../../../shared/domains/transaction/transaction.types';
 
 type TransactionFilters = {
-    accountId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-    creditCardId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-    categoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-    subcategoryId?: { operator: Operator.EQUAL | Operator.IN; value: number | number[] };
-    tagIds?: { operator: Operator.IN; value: number[] };
-    transactionType?: { operator: Operator.EQUAL | Operator.IN; value: TransactionType | TransactionType[] };
-    transactionSource?: { operator: Operator.EQUAL | Operator.IN; value: TransactionSource | TransactionSource[] };
-    active?: { operator: Operator.EQUAL; value: boolean };
-    date?: { operator: Operator.BETWEEN; value: [Date | null, Date | null] };
+    accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+    creditCardId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+    categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+    subcategoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+    tagIds?: { operator: FilterOperator.IN; value: number[] };
+    transactionType?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionType | TransactionType[] };
+    transactionSource?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionSource | TransactionSource[] };
+    active?: { operator: FilterOperator.EQ; value: boolean };
+    date?: { operator: FilterOperator.BETWEEN; value: [Date | null, Date | null] };
 };
 type TransactionCountFilters = TransactionFilters;
 
@@ -147,9 +148,9 @@ export class TransactionService {
         if (tagIds.length === 0) return true;
 
         const existing = await this.tagRepository.findMany({
-            id: { operator: Operator.IN, value: tagIds },
-            userId: { operator: Operator.EQUAL, value: userId },
-            active: { operator: Operator.EQUAL, value: true },
+            id: { operator: FilterOperator.IN, value: tagIds },
+            userId: { operator: FilterOperator.EQ, value: userId },
+            active: { operator: FilterOperator.EQ, value: true },
         });
 
         return existing.length === tagIds.length;
@@ -301,7 +302,7 @@ export class TransactionService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
@@ -351,12 +352,12 @@ export class TransactionService {
     async getTransactionsByAccount(accountId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
             const transactions = await this.transactionRepository.findMany({
-                accountId: { operator: Operator.EQUAL, value: accountId }
+                accountId: { operator: FilterOperator.EQ, value: accountId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
@@ -375,7 +376,7 @@ export class TransactionService {
     async countTransactionsByAccount(accountId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.transactionRepository.count({
-                accountId: { operator: Operator.EQUAL, value: accountId }
+                accountId: { operator: FilterOperator.EQ, value: accountId }
             });
             return { success: true, data: count };
         } catch {
@@ -402,12 +403,12 @@ export class TransactionService {
 
         try {
             const allTransactions = await this.transactionRepository.findMany({
-                accountId: { operator: Operator.IN, value: accountIds }
+                accountId: { operator: FilterOperator.IN, value: accountIds }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
 
             const transactionsWithTags = await this.attachTags(allTransactions);
@@ -441,7 +442,7 @@ export class TransactionService {
 
         try {
             const count = await this.transactionRepository.count({
-                accountId: { operator: Operator.IN, value: accountIds }
+                accountId: { operator: FilterOperator.IN, value: accountIds }
             });
             return { success: true, data: count };
         } catch {

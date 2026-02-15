@@ -1,4 +1,4 @@
-import { HTTPStatus } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 import {

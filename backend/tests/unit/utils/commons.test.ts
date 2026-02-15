@@ -1,7 +1,9 @@
-import { HTTPStatus, LogCategory, LogOperation, LogType } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
+import { Language } from '../../../../shared/enums/language.enums';
 
 jest.mock('winston', () => ({
     createLogger: jest.fn(),
@@ -121,7 +123,7 @@ describe('commons utils', () => {
         });
 
         it('returns error response with resource', () => {
-            const req = createMockRequest({ language: 'pt-BR' });
+            const req = createMockRequest({ language: Language.PT_BR });
             const res = createMockResponse();
 
             commons.answerAPI(req, res, HTTPStatus.BAD_REQUEST, { reason: 'x' }, Resource.INVALID_TYPE);
@@ -129,7 +131,7 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
-            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, 'pt-BR'));
+            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, Language.PT_BR));
             expect(response.error).toEqual({ reason: 'x' });
             expect(typeof response.elapsedTime).toBe('number');
         });
@@ -233,7 +235,7 @@ describe('commons utils', () => {
 
     describe('sendErrorResponse', () => {
         it('sends translated error response with payload', () => {
-            const req = createMockRequest({ language: 'en-US' });
+            const req = createMockRequest({ language: Language.EN_US });
             const res = createMockResponse();
 
             commons.sendErrorResponse(req, res, HTTPStatus.BAD_REQUEST, Resource.INVALID_TYPE, new Error('boom'));
@@ -241,13 +243,13 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
-            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, 'en-US'));
+            expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, Language.EN_US));
             expect(response.error).toEqual(expect.objectContaining({ message: 'boom', name: 'Error' }));
             expect(typeof response.elapsedTime).toBe('number');
         });
 
         it('omits error payload when not provided', () => {
-            const req = createMockRequest({ language: 'en-US' });
+            const req = createMockRequest({ language: Language.EN_US });
             const res = createMockResponse();
 
             commons.sendErrorResponse(req, res, HTTPStatus.BAD_REQUEST, Resource.INVALID_TYPE);

@@ -1,4 +1,4 @@
-import { Operator } from '../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { TagRepository } from '../repositories/tagRepository';
 import { UserService } from './userService';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -41,8 +41,8 @@ export class TagService {
         }
 
         const existing = await this.tagRepository.findMany({
-            userId: { operator: Operator.EQUAL, value: data.userId },
-            name: { operator: Operator.EQUAL, value: data.name }
+            userId: { operator: FilterOperator.EQ, value: data.userId },
+            name: { operator: FilterOperator.EQ, value: data.name }
         });
 
         if (existing.length > 0) {
@@ -74,7 +74,7 @@ export class TagService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectTag,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch {
@@ -122,12 +122,12 @@ export class TagService {
     async getTagsByUser(userId: number, options?: QueryOptions<SelectTag>): Promise<{ success: true; data: TagEntity[] } | { success: false; error: Resource }> {
         try {
             const tags = await this.tagRepository.findMany({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectTag,
-                order: options?.order === Operator.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch {
@@ -145,7 +145,7 @@ export class TagService {
     async countTagsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.tagRepository.count({
-                userId: { operator: Operator.EQUAL, value: userId }
+                userId: { operator: FilterOperator.EQ, value: userId }
             });
             return { success: true, data: count };
         } catch {
@@ -183,8 +183,8 @@ export class TagService {
 
             if (effectiveName) {
                 const existing = await this.tagRepository.findMany({
-                    userId: { operator: Operator.EQUAL, value: effectiveUserId },
-                    name: { operator: Operator.EQUAL, value: effectiveName }
+                    userId: { operator: FilterOperator.EQ, value: effectiveUserId },
+                    name: { operator: FilterOperator.EQ, value: effectiveName }
                 });
                 if (existing.length > 0 && existing[0].id !== id) {
                     return { success: false, error: Resource.DATA_ALREADY_EXISTS };

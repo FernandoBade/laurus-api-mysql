@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { CategoryType, CategoryColor } from '../../../../shared/enums';
+import { CategoryType, CategoryColor } from '../../../../shared/enums/category.enums';
 
 /**
  * Categories table schema.

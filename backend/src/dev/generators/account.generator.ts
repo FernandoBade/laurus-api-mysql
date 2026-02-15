@@ -1,6 +1,6 @@
 import AccountController from '../../controller/accountController';
 import type { AccountEntity } from '../../../../shared/domains/account/account.types';
-import { AccountType } from '../../../../shared/enums';
+import { AccountType } from '../../../../shared/enums/account.enums';
 import { SeedContext, executeController } from '../seed.utils';
 
 type AccountRequestBody = {

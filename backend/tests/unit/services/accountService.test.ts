@@ -1,7 +1,7 @@
 import { AccountService } from '../../../src/service/accountService';
 import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { UserService } from '../../../src/service/userService';
-import { Operator } from '../../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { makeAccount, makeAccountInput, makeDbAccount, makeSanitizedUser } from '../../helpers/factories';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
@@ -89,7 +89,7 @@ describe('AccountService', () => {
             const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(dbAccounts);
 
             const service = new AccountService();
-            const result = await service.getAccounts({ limit: 2, offset: 0, sort: 'name', order: Operator.DESC });
+            const result = await service.getAccounts({ limit: 2, offset: 0, sort: 'name', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -197,10 +197,10 @@ describe('AccountService', () => {
             const findManySpy = jest.spyOn(AccountRepository.prototype, 'findMany').mockResolvedValue(dbAccounts);
 
             const service = new AccountService();
-            const result = await service.getAccountsByUser(4, { limit: 3, offset: 6, sort: 'name', order: Operator.ASC });
+            const result = await service.getAccountsByUser(4, { limit: 3, offset: 6, sort: 'name', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { userId: { operator: Operator.EQUAL, value: 4 } },
+                { userId: { operator: FilterOperator.EQ, value: 4 } },
                 { limit: 3, offset: 6, sort: 'name', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -228,7 +228,7 @@ describe('AccountService', () => {
             const service = new AccountService();
             const result = await service.countAccountsByUser(5);
 
-            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: Operator.EQUAL, value: 5 } });
+            expect(countSpy).toHaveBeenCalledWith({ userId: { operator: FilterOperator.EQ, value: 5 } });
             expect(result).toEqual({ success: true, data: 2 });
         });
 

@@ -1,6 +1,6 @@
 import UserController from '../../controller/userController';
 import type { SanitizedUser } from '../../../../shared/domains/user/user.types';
-import { Currency, DateFormat, Language, Profile, Theme } from '../../../../shared/enums';
+import { Currency, DateFormat, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
 import { SeedContext, SeedRegistry, executeController, randomDateBetween, slugify } from '../seed.utils';
 
 type UserRequestBody = {

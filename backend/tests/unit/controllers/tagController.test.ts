@@ -1,6 +1,8 @@
 import TagController from '../../../src/controller/tagController';
 import { TagService } from '../../../src/service/tagService';
-import { HTTPStatus, LogCategory, LogOperation, LogType, Operator } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import * as commons from '../../../src/utils/commons';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
@@ -137,7 +139,7 @@ describe('TagController', () => {
                 limit: 1,
                 offset: 0,
                 sort: 'name',
-                order: Operator.DESC,
+                order: SortOrder.DESC,
             });
             expect(TagService.prototype.countTags).toHaveBeenCalledTimes(1);
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.OK);

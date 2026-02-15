@@ -15,20 +15,10 @@ import tagRoutes from './routes/tagRoutes';
 import feedbackRoutes from './routes/feedbackRoutes';
 
 import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
-import {
-    HTTPStatus,
-    Language,
-    LogCategory,
-    LogOperation,
-    LogType,
-    ServerEnvKey,
-    ServerHeaderValue,
-    ServerHttpMethod,
-    ServerRequestHeader,
-    ServerResponseHeader,
-    ServerRoutePath,
-    ServerToken,
-} from '../../shared/enums';
+import { HTTPStatus } from '../../shared/enums/http-status.enums';
+import { LogCategory, LogOperation, LogType } from '../../shared/enums/log.enums';
+import { ServerEnvKey, ServerHeaderValue, ServerHttpMethod, ServerRequestHeader, ServerResponseHeader, ServerRoutePath, ServerToken } from '../../shared/enums/server.enums';
+import { Language } from '../../shared/enums/user.enums';
 import { LanguageCode } from '../../shared/i18n/resourceTypes';
 import { ResourceKey as Resource } from '../../shared/i18n/resource.keys';
 

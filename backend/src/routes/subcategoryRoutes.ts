@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { LogType, LogOperation, LogCategory } from '../../../shared/enums';
+import { LogType, LogOperation, LogCategory } from '../../../shared/enums/log.enums';
 import { createLog, formatError } from '../utils/commons';
 import { verifyToken } from '../utils/auth/verifyToken';
 import SubcategoryController from '../controller/subcategoryController';

@@ -1,7 +1,8 @@
 import { eq, and, desc, asc, SQL, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { tokens, SelectToken, InsertToken } from '../db/schema';
-import { Operator, TokenType } from '../../../shared/enums';
+import { TokenType } from '../../../shared/enums/auth.enums';
+import { FilterOperator } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for token database operations.
@@ -78,7 +79,7 @@ export class TokenRepository {
      */
     async findMany(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
+            userId?: { operator: FilterOperator.EQ; value: number };
         },
         options?: {
             limit?: number;
@@ -126,7 +127,7 @@ export class TokenRepository {
      */
     async count(
         filters?: {
-            userId?: { operator: Operator.EQUAL; value: number };
+            userId?: { operator: FilterOperator.EQ; value: number };
         }
     ): Promise<number> {
         let query = db.select({ count: tokens.id }).from(tokens);

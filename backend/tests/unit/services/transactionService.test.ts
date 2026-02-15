@@ -7,7 +7,10 @@ import { AccountService } from '../../../src/service/accountService';
 import { CreditCardService } from '../../../src/service/creditCardService';
 import { CategoryService } from '../../../src/service/categoryService';
 import { SubcategoryService } from '../../../src/service/subcategoryService';
-import { CategoryColor, CategoryType, CreditCardFlag, Operator, TransactionSource, TransactionType } from '../../../../shared/enums';
+import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
+import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
+import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { SelectCreditCard, transactionTags } from '../../../src/db/schema';
 import { makeAccount, makeDbAccount, makeDbTransaction, makeTransaction } from '../../helpers/factories';
@@ -341,9 +344,9 @@ describe('TransactionService', () => {
             });
 
             expect(tagSpy).toHaveBeenCalledWith({
-                id: { operator: Operator.IN, value: [1, 2] },
-                userId: { operator: Operator.EQUAL, value: account.userId },
-                active: { operator: Operator.EQUAL, value: true },
+                id: { operator: FilterOperator.IN, value: [1, 2] },
+                userId: { operator: FilterOperator.EQ, value: account.userId },
+                active: { operator: FilterOperator.EQ, value: true },
             });
             expect(connection.delete).toHaveBeenCalledWith(transactionTags);
             expect(connection.insert).toHaveBeenCalledWith(transactionTags);
@@ -435,7 +438,7 @@ describe('TransactionService', () => {
             const findManySpy = jest.spyOn(TransactionRepository.prototype, 'findMany').mockResolvedValue(transactions);
 
             const service = new TransactionService();
-            const result = await service.getTransactions(undefined, { limit: 2, offset: 2, sort: 'date', order: Operator.DESC });
+            const result = await service.getTransactions(undefined, { limit: 2, offset: 2, sort: 'date', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -543,10 +546,10 @@ describe('TransactionService', () => {
             const findManySpy = jest.spyOn(TransactionRepository.prototype, 'findMany').mockResolvedValue(transactions);
 
             const service = new TransactionService();
-            const result = await service.getTransactionsByAccount(3, { limit: 3, offset: 3, sort: 'date', order: Operator.ASC });
+            const result = await service.getTransactionsByAccount(3, { limit: 3, offset: 3, sort: 'date', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { accountId: { operator: Operator.EQUAL, value: 3 } },
+                { accountId: { operator: FilterOperator.EQ, value: 3 } },
                 { limit: 3, offset: 3, sort: 'date', order: 'asc' }
             );
             expect(result).toEqual({ success: true, data: expected });
@@ -574,7 +577,7 @@ describe('TransactionService', () => {
             const service = new TransactionService();
             const result = await service.countTransactionsByAccount(3);
 
-            expect(countSpy).toHaveBeenCalledWith({ accountId: { operator: Operator.EQUAL, value: 3 } });
+            expect(countSpy).toHaveBeenCalledWith({ accountId: { operator: FilterOperator.EQ, value: 3 } });
             expect(result).toEqual({ success: true, data: 4 });
         });
 
@@ -630,10 +633,10 @@ describe('TransactionService', () => {
             const findManySpy = jest.spyOn(TransactionRepository.prototype, 'findMany').mockResolvedValue(transactions);
 
             const service = new TransactionService();
-            const result = await service.getTransactionsByUser(8, { limit: 5, offset: 0, sort: 'date', order: Operator.ASC });
+            const result = await service.getTransactionsByUser(8, { limit: 5, offset: 0, sort: 'date', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { accountId: { operator: Operator.IN, value: [1, 2] } },
+                { accountId: { operator: FilterOperator.IN, value: [1, 2] } },
                 { limit: 5, offset: 0, sort: 'date', order: 'asc' }
             );
             expect(result).toEqual({
@@ -694,7 +697,7 @@ describe('TransactionService', () => {
             const service = new TransactionService();
             const result = await service.countTransactionsByUser(9);
 
-            expect(countSpy).toHaveBeenCalledWith({ accountId: { operator: Operator.IN, value: [3, 4] } });
+            expect(countSpy).toHaveBeenCalledWith({ accountId: { operator: FilterOperator.IN, value: [3, 4] } });
             expect(result).toEqual({ success: true, data: 6 });
         });
 

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { answerAPI } from '../commons';
-import { HTTPStatus } from '../../../../shared/enums';
+import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5;

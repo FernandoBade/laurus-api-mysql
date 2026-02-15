@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { AuthController } from '../controller/authController';
 import { createLog, formatError } from '../utils/commons';
-import { LogType, LogCategory, LogOperation } from '../../../shared/enums';
+import { LogType, LogCategory, LogOperation } from '../../../shared/enums/log.enums';
 import { rateLimitLogin, rateLimitRefresh } from '../utils/auth/rateLimiter';
 
 const router = Router();

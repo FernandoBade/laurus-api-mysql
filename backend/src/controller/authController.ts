@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../service/authService';
 import { answerAPI, formatError, createLog } from '../utils/commons';
-import { LogType, LogCategory, LogOperation, HTTPStatus } from '../../../shared/enums';
+import { HTTPStatus } from '../../../shared/enums/http-status.enums';
+import { LogType, LogCategory, LogOperation } from '../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { TokenCookie, ClearCookieOptions } from '../utils/auth/cookieConfig';
 import { recordLoginFailure, recordRefreshFailure, resetLoginRateLimit, resetRefreshRateLimit } from '../utils/auth/rateLimiter';

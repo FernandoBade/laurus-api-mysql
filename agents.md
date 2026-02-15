@@ -63,7 +63,7 @@ This project will use **TailwindCSS + DaisyUI** as the **visual styling layer**.
 We support **exactly two themes**:
 
 - **Light** (default)
-- **Dark** (Dracula)
+- **Dark**
 
 **Implementation requirements:**
 - Theme state must live in `src/state/theme.store.ts`
@@ -610,7 +610,7 @@ NECESSARY DIFFERENCE
 - [ ] No duplicated enums/types exist in frontend
 - [ ] No hardcoded repeated strings for variants/keys/routes/events (must use enums or typed consts)
 - [ ] Theme is controlled via `state/theme.store.ts` and applied through `data-theme`
-- [ ] Only two themes exist: light (default) and dark (dracula)
+- [ ] Only two themes exist: light (default) and dark
 - [ ] No DaisyUI class names appear directly inside `src/pages/**` (except inside `<page>Assets/`)
 - [ ] No `fetch()` exists outside `src/api/`
 - [ ] No `window.location` exists

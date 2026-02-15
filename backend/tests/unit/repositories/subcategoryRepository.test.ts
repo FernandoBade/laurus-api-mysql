@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { SubcategoryRepository } from '../../../src/repositories/subcategoryRepository';
 import { db } from '../../../src/db';
 import { subcategories, SelectSubcategory } from '../../../src/db/schema';
-import { Operator } from '../../../../shared/enums';
+import { FilterOperator } from '../../../../shared/enums/operator.enums';
 
 const makeSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubcategory => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -114,7 +114,7 @@ describe('SubcategoryRepository', () => {
         it('applies categoryId equal filter', async () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1, categoryId: 7 })]);
 
-            await repo.findMany({ categoryId: { operator: Operator.EQUAL, value: 7 } });
+            await repo.findMany({ categoryId: { operator: FilterOperator.EQ, value: 7 } });
 
             expectSelectChain(select, from, subcategories);
             expect(query.where).toHaveBeenCalledWith(and(eq(subcategories.categoryId, 7)));
@@ -123,7 +123,7 @@ describe('SubcategoryRepository', () => {
         it('applies categoryId in filter', async () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1, categoryId: 7 })]);
 
-            await repo.findMany({ categoryId: { operator: Operator.IN, value: [7, 8] } });
+            await repo.findMany({ categoryId: { operator: FilterOperator.IN, value: [7, 8] } });
 
             expectSelectChain(select, from, subcategories);
             expect(query.where).toHaveBeenCalledWith(and(inArray(subcategories.categoryId, [7, 8])));
@@ -132,7 +132,7 @@ describe('SubcategoryRepository', () => {
         it('applies active filter', async () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1, active: false })]);
 
-            await repo.findMany({ active: { operator: Operator.EQUAL, value: false } });
+            await repo.findMany({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, subcategories);
             expect(query.where).toHaveBeenCalledWith(and(eq(subcategories.active, false)));
@@ -142,8 +142,8 @@ describe('SubcategoryRepository', () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1, categoryId: 3, active: true })]);
 
             await repo.findMany({
-                categoryId: { operator: Operator.EQUAL, value: 3 },
-                active: { operator: Operator.EQUAL, value: true },
+                categoryId: { operator: FilterOperator.EQ, value: 3 },
+                active: { operator: FilterOperator.EQ, value: true },
             });
 
             expectSelectChain(select, from, subcategories);
@@ -204,7 +204,7 @@ describe('SubcategoryRepository', () => {
         it('applies categoryId equal filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}]);
 
-            const result = await repo.count({ categoryId: { operator: Operator.EQUAL, value: 2 } });
+            const result = await repo.count({ categoryId: { operator: FilterOperator.EQ, value: 2 } });
 
             expectSelectChain(select, from, subcategories);
             expect(select).toHaveBeenCalledWith({ count: subcategories.id });
@@ -215,7 +215,7 @@ describe('SubcategoryRepository', () => {
         it('applies categoryId in filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}, {}, {}]);
 
-            const result = await repo.count({ categoryId: { operator: Operator.IN, value: [2, 3, 4] } });
+            const result = await repo.count({ categoryId: { operator: FilterOperator.IN, value: [2, 3, 4] } });
 
             expectSelectChain(select, from, subcategories);
             expect(select).toHaveBeenCalledWith({ count: subcategories.id });
@@ -226,7 +226,7 @@ describe('SubcategoryRepository', () => {
         it('applies active filter to count', async () => {
             const { select, from, query } = makeSelectChain([{}]);
 
-            const result = await repo.count({ active: { operator: Operator.EQUAL, value: false } });
+            const result = await repo.count({ active: { operator: FilterOperator.EQ, value: false } });
 
             expectSelectChain(select, from, subcategories);
             expect(select).toHaveBeenCalledWith({ count: subcategories.id });

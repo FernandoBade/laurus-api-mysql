@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { UserService } from '../../../src/service/userService';
 import { UserRepository } from '../../../src/repositories/userRepository';
 import { TokenService } from '../../../src/service/tokenService';
-import { Operator } from '../../../../shared/enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { makeCreateUserInput, makeDbUser, makeUser } from '../../helpers/factories';
 import { sendEmailVerificationEmail } from '../../../src/utils/email/authEmail';
@@ -63,7 +63,7 @@ describe('UserService', () => {
 
             expect(findManySpy).toHaveBeenCalledTimes(1);
             expect(findManySpy).toHaveBeenCalledWith({
-                email: { operator: Operator.EQUAL, value: 'test@example.com' },
+                email: { operator: FilterOperator.EQ, value: 'test@example.com' },
             });
             expect(createSpy).not.toHaveBeenCalled();
             expect(hashMock).not.toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('UserService', () => {
 
             expect(findManySpy).toHaveBeenCalledTimes(1);
             expect(findManySpy).toHaveBeenCalledWith({
-                email: { operator: Operator.EQUAL, value: 'test@example.com' },
+                email: { operator: FilterOperator.EQ, value: 'test@example.com' },
             });
             expect(createSpy).not.toHaveBeenCalled();
             expect(hashMock).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('UserService', () => {
             const result = await service.createUser(payload);
 
             expect(findManySpy).toHaveBeenCalledWith({
-                email: { operator: Operator.EQUAL, value: 'jane.doe@example.com' },
+                email: { operator: FilterOperator.EQ, value: 'jane.doe@example.com' },
             });
             expect(hashMock).toHaveBeenCalledWith(originalPassword, 10);
             expect(createSpy).toHaveBeenCalledWith(
@@ -195,7 +195,7 @@ describe('UserService', () => {
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
-            const result = await service.getUsers({ limit: 2, offset: 4, sort: 'email', order: Operator.DESC });
+            const result = await service.getUsers({ limit: 2, offset: 4, sort: 'email', order: SortOrder.DESC });
 
             expect(findManySpy).toHaveBeenCalledWith(undefined, {
                 limit: 2,
@@ -322,10 +322,10 @@ describe('UserService', () => {
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
-            const result = await service.getUsersByEmail('example', { limit: 5, offset: 10, sort: 'email', order: Operator.ASC });
+            const result = await service.getUsersByEmail('example', { limit: 5, offset: 10, sort: 'email', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { email: { operator: Operator.LIKE, value: 'example' } },
+                { email: { operator: FilterOperator.LIKE, value: 'example' } },
                 { limit: 5, offset: 10, sort: 'email', order: 'asc' }
             );
             expect(result).toEqual(
@@ -362,10 +362,10 @@ describe('UserService', () => {
             const findManySpy = jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
-            const result = await service.getUserByEmailExact('  Test@Example.com ', { limit: 5, offset: 10, sort: 'email', order: Operator.ASC });
+            const result = await service.getUserByEmailExact('  Test@Example.com ', { limit: 5, offset: 10, sort: 'email', order: SortOrder.ASC });
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { email: { operator: Operator.EQUAL, value: 'test@example.com' } },
+                { email: { operator: FilterOperator.EQ, value: 'test@example.com' } },
                 { limit: 5, offset: 10, sort: 'email', order: 'asc' }
             );
             expect(result).toEqual(
@@ -404,7 +404,7 @@ describe('UserService', () => {
             const result = await service.findUserByEmailExact('  Test@Example.com ');
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { email: { operator: Operator.EQUAL, value: 'test@example.com' } },
+                { email: { operator: FilterOperator.EQ, value: 'test@example.com' } },
                 { limit: 2 }
             );
             expect(result).toEqual({ success: false, error: Resource.USER_NOT_FOUND });
@@ -423,7 +423,7 @@ describe('UserService', () => {
             const result = await service.findUserByEmailExact('USER@example.com');
 
             expect(findManySpy).toHaveBeenCalledWith(
-                { email: { operator: Operator.EQUAL, value: 'user@example.com' } },
+                { email: { operator: FilterOperator.EQ, value: 'user@example.com' } },
                 { limit: 2 }
             );
             expect(result).toEqual(
@@ -468,7 +468,7 @@ describe('UserService', () => {
             const service = new UserService();
             const result = await service.countUsersByEmail('tester');
 
-            expect(countSpy).toHaveBeenCalledWith({ email: { operator: Operator.LIKE, value: 'tester' } });
+            expect(countSpy).toHaveBeenCalledWith({ email: { operator: FilterOperator.LIKE, value: 'tester' } });
             expect(result).toEqual({ success: true, data: 3 });
         });
 
