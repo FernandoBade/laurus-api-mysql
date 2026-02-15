@@ -8,6 +8,7 @@ export interface TableColumn<TRow> {
     readonly key: string;
     readonly header: ResourceKey;
     readonly render: (row: TRow, rowIndex: number) => ComponentChildren;
+    readonly isNumeric?: boolean;
 }
 
 /**

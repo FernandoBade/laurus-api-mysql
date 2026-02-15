@@ -718,3 +718,72 @@ Any code generation must:
 - Avoid hard strings by using enums or typed constants
 
 If something is missing, create a placeholder file with a clear TODO comment describing what is missing and why. Prefer adding shared enums/constants to the monorepo `shared/` folder rather than duplicating them in frontend.
+
+---
+
+## Typography and Color Foundation (Strict Addendum)
+
+This addendum is mandatory for all new frontend work.
+
+### Font Source and Loading
+
+- Fonts must be self-hosted in `shared/assets/fonts/`
+- Allowed families:
+  - Primary UI font: Plus Jakarta Sans (400, 500, 600, 700)
+  - Data/Numeric font: IBM Plex Mono (400, 500, 600)
+- Font loading must be centralized only in `frontend/src/styles/global.css` using `@font-face` and `font-display: swap`
+- Do not load fonts in components or pages
+
+### Semantic Typography Tokens
+
+Typography classes must be semantic and centralized in `global.css`:
+
+- `text-page-title`
+- `text-section-title`
+- `text-card-title`
+- `text-body`
+- `text-caption`
+- `text-label`
+- `text-kpi`
+- `text-money`
+- `text-table-number`
+- `font-ui`
+- `font-data`
+
+Rules:
+
+- Pages and components must use semantic tokens, not raw text-size utilities
+- Do not use direct size utilities like `text-sm`, `text-lg`, `text-2xl` in page/component markup
+- Numeric/financial content must use `font-data` or the numeric semantic classes
+- `font-data` must always apply `font-variant-numeric: tabular-nums`
+
+### Color Rules (Semantic-Only)
+
+Colors must be theme-semantic and Daisy/Tailwind token-driven.
+
+Allowed examples:
+
+- `bg-base-100`, `bg-base-200`, `bg-base-300`
+- `text-base-content`, `text-base-content/70`
+- `bg-primary`, `text-primary-content`
+- `bg-success`, `text-success-content`
+
+Forbidden examples:
+
+- Raw Tailwind palette scales: `text-red-500`, `bg-blue-100`, `border-gray-300`
+- Absolute colors: `text-black`, `bg-white`
+- Hardcoded color literals: `text-[#222]`, `bg-[rgb(...)]`, `text-[hsl(...)]`
+
+### Enforcement
+
+- Keep enforcement simple: follow these rules in implementation and code review
+- No extra audit/codemod pipeline is required
+- Base lint remains in `frontend/eslint.config.mjs`
+- Typography conventions are documented in `frontend/docs/typography-architecture.md`
+
+### PR Checklist Additions (Mandatory)
+
+- [ ] Typography uses semantic tokens only (no raw text-size utilities in page/component markup)
+- [ ] Numeric and financial content uses `font-data`/numeric semantic classes
+- [ ] No hardcoded palette/absolute color utilities in class strings
+- [ ] Typography behavior is identical across light and dark themes (color-only changes)

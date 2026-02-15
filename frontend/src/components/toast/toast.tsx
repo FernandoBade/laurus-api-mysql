@@ -3,7 +3,7 @@ import { IconName } from "@shared/enums/icon.enums";
 import { ButtonSize, ButtonVariant } from "@shared/enums/ui.enums";
 import { Button } from "@/components/button/button";
 import { Icon } from "@/components/icon/icon";
-import { getStatusVariantClass, getStatusVariantIcon } from "@/components/status/status-variant";
+import { getStatusVariantClass } from "@/components/status/status-variant";
 import type { ToastContainerProps, ToastProps } from "@/components/toast/toast.types";
 import { classNames } from "@/utils/classNames";
 import { t } from "@/utils/i18n/translate";
@@ -15,13 +15,20 @@ import { t } from "@/utils/i18n/translate";
  */
 export function Toast({ variant, message, icon, onClose }: ToastProps): JSX.Element {
     return (
-        <div class={classNames("alert w-full max-w-full shadow-lg sm:min-w-72 sm:max-w-md", getStatusVariantClass(variant))}>
-            <span class="shrink-0">
-                <Icon name={icon ?? getStatusVariantIcon(variant)} size={18} />
-            </span>
-            <span class="min-w-0 break-words">{t(message)}</span>
+        <div
+            class={classNames(
+                "alert relative w-full max-w-full items-start pr-12 font-ui shadow-lg sm:min-w-72 sm:max-w-md",
+                getStatusVariantClass(variant)
+            )}
+        >
+            {icon ? (
+                <span class="mt-0.5 shrink-0">
+                    <Icon name={icon} />
+                </span>
+            ) : null}
+            <span class="min-w-0 break-words pr-1 text-body">{t(message)}</span>
             {onClose ? (
-                <span class="shrink-0">
+                <span class="absolute right-2 top-2 shrink-0">
                     <Button
                         variant={ButtonVariant.GHOST}
                         size={ButtonSize.SM}

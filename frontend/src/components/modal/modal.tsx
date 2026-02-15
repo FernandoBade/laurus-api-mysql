@@ -140,10 +140,10 @@ export function Modal({
                     </div>
                 ) : null}
 
-                {title ? <h3 class="text-lg font-semibold">{t(title)}</h3> : null}
+                {title ? <h3 class="text-section-title">{t(title)}</h3> : null}
                 <div class={title ? "mt-4" : undefined}>{children}</div>
                 {footer ? (
-                    <div class="modal-action mt-6 flex-col-reverse gap-2 sm:flex-row [&>button]:w-full sm:[&>button]:w-auto [&>div]:w-full sm:[&>div]:w-auto">
+                    <div class="modal-action mt-6 flex-col-reverse items-stretch justify-start gap-2 sm:flex-row sm:items-center sm:justify-end [&>:not([hidden])~:not([hidden])]:ml-0 [&>*]:w-full sm:[&>*]:w-auto">
                         {footer}
                     </div>
                 ) : null}

@@ -14,7 +14,7 @@ export function Bullets({ items, ordered = false }: BulletsProps): JSX.Element |
 
     if (ordered) {
         return (
-            <ol class="list-decimal space-y-1 pl-5 text-sm">
+            <ol class="list-decimal space-y-1 pl-5 text-body font-ui">
                 {items.map((item) => (
                     <li key={item}>{t(item)}</li>
                 ))}
@@ -23,7 +23,7 @@ export function Bullets({ items, ordered = false }: BulletsProps): JSX.Element |
     }
 
     return (
-        <ul class="list-disc space-y-1 pl-5 text-sm">
+        <ul class="list-disc space-y-1 pl-5 text-body font-ui">
             {items.map((item) => (
                 <li key={item}>{t(item)}</li>
             ))}

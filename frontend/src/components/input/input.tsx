@@ -46,6 +46,8 @@ export function Input({
     onChange,
     onBlur,
 }: InputProps): JSX.Element {
+    const usesNumericTypography = type === InputType.NUMBER;
+
     const handleInput: JSX.GenericEventHandler<HTMLInputElement> = (event): void => {
         onChange?.(event.currentTarget.value);
     };
@@ -54,19 +56,22 @@ export function Input({
         <div class="form-control w-full">
             {label ? (
                 <label class="label" for={id}>
-                    <span class="label-text">{t(label)}</span>
+                    <span class="label-text text-label font-ui">{t(label)}</span>
                 </label>
             ) : null}
 
             <div class="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
-                {prefixText ? <span class="badge badge-neutral self-start sm:self-auto">{t(prefixText)}</span> : null}
+                {prefixText ? <span class="badge badge-neutral self-start text-caption sm:self-auto">{t(prefixText)}</span> : null}
 
                 <label class={classNames("input input-bordered flex w-full min-w-0 items-center gap-2", error ? "input-error" : undefined)}>
                     {leftSlot}
-                    {icon && iconPosition === IconPosition.LEFT ? <Icon name={icon} weight="fill" size={20} /> : null}
+                    {icon && iconPosition === IconPosition.LEFT ? <Icon name={icon} /> : null}
                     <input
                         id={id}
-                        class="min-w-0 grow bg-transparent outline-none"
+                        class={classNames(
+                            "min-w-0 grow bg-transparent text-body outline-none",
+                            usesNumericTypography ? "font-data" : "font-ui"
+                        )}
                         name={name}
                         type={inputTypeMap[type] ?? InputType.TEXT}
                         value={value}
@@ -81,20 +86,20 @@ export function Input({
                         onInput={handleInput}
                         onBlur={onBlur}
                     />
-                    {icon && iconPosition === IconPosition.RIGHT ? <Icon name={icon} size={16} /> : null}
+                    {icon && iconPosition === IconPosition.RIGHT ? <Icon name={icon} /> : null}
                     {rightSlot}
                 </label>
 
-                {suffixText ? <span class="badge badge-neutral self-start sm:self-auto">{t(suffixText)}</span> : null}
+                {suffixText ? <span class="badge badge-neutral self-start text-caption sm:self-auto">{t(suffixText)}</span> : null}
             </div>
 
             {error ? (
                 <label class="label">
-                    <span class="label-text-alt text-error">{t(error)}</span>
+                    <span class="label-text-alt text-caption text-error">{t(error)}</span>
                 </label>
             ) : hint ? (
                 <label class="label">
-                    <span class="label-text-alt">{t(hint)}</span>
+                    <span class="label-text-alt text-caption">{t(hint)}</span>
                 </label>
             ) : null}
         </div>

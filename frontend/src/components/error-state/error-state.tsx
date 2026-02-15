@@ -23,8 +23,8 @@ export function ErrorState({
         <Card>
             <div class="flex flex-col items-center gap-3 py-4 text-center">
                 <Icon name={icon} size={28} />
-                <h3 class="text-lg font-semibold">{t(title)}</h3>
-                {description ? <p class="text-sm text-base-content/70">{t(description)}</p> : null}
+                <h3 class="text-section-title">{t(title)}</h3>
+                {description ? <p class="text-body text-base-content/70">{t(description)}</p> : null}
                 {actionLabel && onAction ? (
                     <div class="w-full sm:w-auto [&>button]:w-full sm:[&>button]:w-auto">
                         <Button variant={ButtonVariant.OUTLINE} label={actionLabel} onClick={onAction} />

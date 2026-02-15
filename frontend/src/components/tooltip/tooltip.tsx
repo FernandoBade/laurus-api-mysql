@@ -18,7 +18,7 @@ const positionMap: Record<TooltipPosition, string> = {
  */
 export function Tooltip({ content, position = TooltipPosition.TOP, children }: TooltipProps): JSX.Element {
     return (
-        <div class={classNames("tooltip", positionMap[position])} data-tip={t(content)}>
+        <div class={classNames("tooltip font-ui text-tooltip", positionMap[position])} data-tip={t(content)}>
             {children}
         </div>
     );

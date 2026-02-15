@@ -15,7 +15,7 @@ import {
     TrashIcon,
     UserCircleIcon,
     WarningCircleIcon,
-    XIcon,
+    XCircleIcon,
     XSquareIcon,
 } from "@phosphor-icons/react";
 import type { IconProps as PhosphorIconProps } from "@phosphor-icons/react";
@@ -29,7 +29,7 @@ const phosphorMap: Partial<Record<IconName, PhosphorIconComponent>> = {
     [IconName.USER]: (props) => <UserCircleIcon {...props} />,
     [IconName.EMAIL]: (props) => <EnvelopeSimpleIcon {...props} />,
     [IconName.LOCK]: (props) => <LockIcon {...props} />,
-    [IconName.CLOSE]: (props) => <XIcon {...props} />,
+    [IconName.CLOSE]: (props) => <XCircleIcon {...props} />,
     [IconName.ERROR]: (props) => <XSquareIcon {...props} />,
     [IconName.CHECK]: (props) => <CheckCircleIcon {...props} />,
     [IconName.WARNING]: (props) => <WarningCircleIcon {...props} />,
@@ -59,6 +59,8 @@ export function Icon({ name, size = 20, weight = "duotone", mirrored = false }: 
             size={size}
             weight={weight}
             mirrored={mirrored}
+            className="icon-phosphor"
+            data-icon-weight={weight}
             aria-hidden="true"
         />
     );

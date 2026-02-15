@@ -2,11 +2,12 @@
 module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx}"],
     theme: {
-        extend: {
-            fontFamily: {
-                sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
-            },
+        fontFamily: {
+            ui: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+            data: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "monospace"],
+            sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
         },
+        extend: {},
     },
     plugins: [require("daisyui")],
     daisyui: {

@@ -20,15 +20,23 @@ export function Table<TRow>({
 
     return (
         <div class="overflow-x-auto rounded-box border border-base-300">
-            <table class="table table-zebra w-full min-w-[42rem] text-sm sm:text-base">
+            <table class="table table-zebra w-full min-w-[42rem] font-ui text-body">
                 <thead>
                     <tr>
                         {columns.map((column) => (
-                            <th key={column.key} class="whitespace-nowrap text-xs font-semibold text-base-content/70 sm:text-sm">
+                            <th
+                                key={column.key}
+                                class={classNames(
+                                    "whitespace-nowrap text-caption font-semibold text-base-content/70",
+                                    column.isNumeric ? "text-right" : undefined
+                                )}
+                            >
                                 {t(column.header)}
                             </th>
                         ))}
-                        {hasActionsColumn && actionsLabel ? <th class="whitespace-nowrap text-xs font-semibold text-base-content/70 sm:text-sm">{t(actionsLabel)}</th> : null}
+                        {hasActionsColumn && actionsLabel ? (
+                            <th class="whitespace-nowrap text-caption font-semibold text-base-content/70">{t(actionsLabel)}</th>
+                        ) : null}
                         {hasActionsColumn && !actionsLabel ? <th /> : null}
                     </tr>
                 </thead>
@@ -40,7 +48,13 @@ export function Table<TRow>({
                             onClick={onRowClick ? () => onRowClick(row) : undefined}
                         >
                             {columns.map((column) => (
-                                <td key={column.key} class="align-top whitespace-normal break-words">
+                                <td
+                                    key={column.key}
+                                    class={classNames(
+                                        "align-top whitespace-normal break-words text-body",
+                                        column.isNumeric ? "text-right text-table-number" : undefined
+                                    )}
+                                >
                                     {column.render(row, rowIndex)}
                                 </td>
                             ))}

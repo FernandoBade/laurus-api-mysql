@@ -46,7 +46,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
     const items = getPaginationItems(currentPage, totalPages);
 
     return (
-        <nav class="flex w-full flex-wrap items-center justify-start gap-2 sm:justify-center">
+        <nav class="flex w-full flex-wrap items-center justify-start gap-2 font-ui sm:justify-center">
             <Button
                 variant={ButtonVariant.GHOST}
                 size={ButtonSize.SM}
@@ -58,7 +58,11 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             {items.map((item, index) => {
                 if (typeof item !== "number") {
                     return (
-                        <span key={`${item}-${index}`} class="btn btn-disabled btn-ghost btn-sm pointer-events-none" aria-hidden="true">
+                        <span
+                            key={`${item}-${index}`}
+                            class="btn btn-disabled btn-ghost btn-sm pointer-events-none text-table-number"
+                            aria-hidden="true"
+                        >
                             ...
                         </span>
                     );
@@ -71,7 +75,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
                         size={ButtonSize.SM}
                         onClick={() => onPageChange(item)}
                     >
-                        {item}
+                        <span class="text-table-number">{item}</span>
                     </Button>
                 );
             })}

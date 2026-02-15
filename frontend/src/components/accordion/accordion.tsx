@@ -39,8 +39,8 @@ export function Accordion({ items, allowMultiple = true }: AccordionProps): JSX.
                             setOpenItemId(details.open ? item.id : null);
                         }}
                     >
-                        <summary class="collapse-title text-sm font-semibold">{t(item.title)}</summary>
-                        <div class="collapse-content">{item.content}</div>
+                        <summary class="collapse-title text-label font-semibold">{t(item.title)}</summary>
+                        <div class="collapse-content text-body">{item.content}</div>
                     </details>
                 );
             })}

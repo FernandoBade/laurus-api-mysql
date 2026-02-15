@@ -6,8 +6,8 @@ import { classNames } from "@/utils/classNames";
 import { t, tOptional } from "@/utils/i18n/translate";
 
 const iconPaddingMap: Record<IconPosition, string> = {
-    [IconPosition.LEFT]: "pl-9",
-    [IconPosition.RIGHT]: "pr-9",
+    [IconPosition.LEFT]: "pl-10",
+    [IconPosition.RIGHT]: "pr-10",
 };
 
 const iconPlacementMap: Record<IconPosition, string> = {
@@ -41,20 +41,20 @@ export function Select({
         <div class="form-control w-full">
             {label ? (
                 <label class="label">
-                    <span class="label-text">{t(label)}</span>
+                    <span class="label-text text-label font-ui">{t(label)}</span>
                 </label>
             ) : null}
 
             <div class="relative w-full">
                 {icon ? (
                     <span class={classNames("pointer-events-none absolute inset-y-0 z-10 flex items-center", iconPlacementMap[iconPosition])}>
-                        <Icon name={icon} size={16} />
+                        <Icon name={icon} />
                     </span>
                 ) : null}
 
                 <select
                     class={classNames(
-                        "select select-bordered w-full",
+                        "select select-bordered w-full font-ui text-body",
                         icon ? iconPaddingMap[iconPosition] : undefined,
                         error ? "select-error" : undefined
                     )}
@@ -74,11 +74,11 @@ export function Select({
 
             {error ? (
                 <label class="label">
-                    <span class="label-text-alt text-error">{t(error)}</span>
+                    <span class="label-text-alt text-caption text-error">{t(error)}</span>
                 </label>
             ) : hint ? (
                 <label class="label">
-                    <span class="label-text-alt">{tOptional(hint)}</span>
+                    <span class="label-text-alt text-caption">{tOptional(hint)}</span>
                 </label>
             ) : null}
         </div>

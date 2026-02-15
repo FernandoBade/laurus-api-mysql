@@ -2,15 +2,238 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#app {
-    min-height: 100%;
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-400-normal.woff2")
+        format("woff2");
 }
 
-body {
-    margin: 0;
-    font-family: theme("fontFamily.sans");
-    background: oklch(var(--b1));
-    color: oklch(var(--bc));
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-500-normal.woff2")
+        format("woff2");
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-600-normal.woff2")
+        format("woff2");
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/plus-jakarta-sans/plus-jakarta-sans-latin-700-normal.woff2")
+        format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/ibm-plex-mono/ibm-plex-mono-latin-400-normal.woff2")
+        format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/ibm-plex-mono/ibm-plex-mono-latin-500-normal.woff2")
+        format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../../../shared/assets/fonts/ibm-plex-mono/ibm-plex-mono-latin-600-normal.woff2")
+        format("woff2");
+}
+
+@layer base {
+    html,
+    body,
+    #app {
+        min-height: 100%;
+    }
+
+    body {
+        margin: 0;
+        @apply text-sm leading-6 sm:text-base;
+        font-family: theme("fontFamily.ui");
+        background: oklch(var(--b1));
+        color: oklch(var(--bc));
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: theme("fontFamily.ui");
+    }
+}
+
+@layer components {
+    .font-ui {
+        font-family: theme("fontFamily.ui");
+    }
+
+    .font-data {
+        font-family: theme("fontFamily.data");
+        font-variant-numeric: tabular-nums;
+    }
+
+    .text-page-title {
+        @apply text-3xl font-semibold leading-tight sm:text-4xl;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-section-title {
+        @apply text-xl font-semibold leading-snug sm:text-2xl;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-card-title {
+        @apply text-lg font-semibold leading-snug;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-body {
+        @apply text-sm leading-6 sm:text-base;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-caption {
+        @apply text-xs leading-5 sm:text-sm;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-label {
+        @apply text-sm font-medium leading-5;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-button-sm {
+        @apply text-xs font-medium leading-4;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-button-md {
+        @apply text-sm font-medium leading-5;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-button-lg {
+        @apply text-base font-medium leading-6;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .text-tooltip {
+        @apply text-sm leading-3;
+        font-family: theme("fontFamily.ui");
+    }
+
+    .tooltip.text-tooltip::before {
+        font-size: .75rem;
+        line-height: 0.75rem;
+        font-family: theme("fontFamily.ui");
+        padding: 0.5rem 0.5rem;
+    }
+
+    .text-kpi {
+        @apply text-3xl font-semibold leading-none sm:text-4xl;
+        font-family: theme("fontFamily.data");
+        font-variant-numeric: tabular-nums;
+    }
+
+    .text-money {
+        @apply text-xl font-semibold leading-tight sm:text-2xl;
+        font-family: theme("fontFamily.data");
+        font-variant-numeric: tabular-nums;
+    }
+
+    .text-table-number {
+        @apply text-sm leading-6 sm:text-base;
+        font-family: theme("fontFamily.data");
+        font-variant-numeric: tabular-nums;
+    }
+
+    .icon-phosphor[data-icon-weight="duotone"] path[opacity] {
+        opacity: 0.15;
+    }
+
+    .btn-ripple {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        transition: background-color 180ms ease;
+    }
+
+    @media (hover: hover) {
+        @supports (color: color-mix(in oklab, black, white)) {
+            .btn.btn-primary:not(.btn-disabled):not([disabled]):hover,
+            .btn.btn-secondary:not(.btn-disabled):not([disabled]):hover,
+            .btn.btn-accent:not(.btn-disabled):not([disabled]):hover {
+                background-color: color-mix(
+                    in oklab,
+                    oklch(var(--btn-color, var(--b2)) / var(--tw-bg-opacity, 1)) 92%,
+                    white
+                );
+                border-color: oklch(var(--btn-color, var(--b2)) / var(--tw-border-opacity, 1));
+            }
+        }
+    }
+
+    .btn-ripple::after {
+        content: "";
+        position: absolute;
+        left: var(--btn-ripple-x, 50%);
+        top: var(--btn-ripple-y, 50%);
+        width: var(--btn-ripple-size, 0px);
+        height: var(--btn-ripple-size, 0px);
+        border-radius: 9999px;
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        background: color-mix(in oklch, currentColor 22%, transparent);
+        z-index: 0;
+    }
+
+    .btn-ripple.is-rippling::after {
+        animation: btn-ripple-expand 1500ms ease-out;
+    }
+
+    .btn-ripple > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    @keyframes btn-ripple-expand {
+        0% {
+            opacity: 0.24;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
 }

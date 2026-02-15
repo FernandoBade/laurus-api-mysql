@@ -33,6 +33,13 @@ const TOAST_MESSAGE_BY_VARIANT: Record<ToastVariant, ResourceKey> = {
     [ToastVariant.ERROR]: ResourceKey.UNEXPECTED_ERROR,
 };
 
+const TOAST_ICON_BY_VARIANT: Record<ToastVariant, IconName> = {
+    [ToastVariant.INFO]: IconName.INFO,
+    [ToastVariant.SUCCESS]: IconName.CHECK,
+    [ToastVariant.WARNING]: IconName.WARNING,
+    [ToastVariant.ERROR]: IconName.ERROR,
+};
+
 const DEFAULT_MODAL_STATE: SandboxModalState = {
     open: false,
     size: ModalSize.MD,
@@ -45,13 +52,20 @@ const DEFAULT_FILTERS: SandboxFilters = {
     status: SANDBOX_STATUS_VALUE.ALL,
 };
 
+const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
 const SANDBOX_USERS: readonly SandboxUser[] = [
-    { id: "usr_01", name: "Ada Lovelace", email: "ada@laurus.dev" },
-    { id: "usr_02", name: "Grace Hopper", email: "grace@laurus.dev" },
-    { id: "usr_03", name: "Linus Torvalds", email: "linus@laurus.dev" },
-    { id: "usr_04", name: "Margaret Hamilton", email: "margaret@laurus.dev" },
-    { id: "usr_05", name: "Alan Turing", email: "alan@laurus.dev" },
-    { id: "usr_06", name: "Katherine Johnson", email: "katherine@laurus.dev" },
+    { id: "usr_01", name: "Ada Lovelace", email: "ada@laurus.dev", totalMonths: 12, balance: 4820.42 },
+    { id: "usr_02", name: "Grace Hopper", email: "grace@laurus.dev", totalMonths: 8, balance: 1570.0 },
+    { id: "usr_03", name: "Linus Torvalds", email: "linus@laurus.dev", totalMonths: 24, balance: 9875.12 },
+    { id: "usr_04", name: "Margaret Hamilton", email: "margaret@laurus.dev", totalMonths: 18, balance: 3240.75 },
+    { id: "usr_05", name: "Alan Turing", email: "alan@laurus.dev", totalMonths: 6, balance: 640.5 },
+    { id: "usr_06", name: "Katherine Johnson", email: "katherine@laurus.dev", totalMonths: 36, balance: 12040.88 },
 ];
 
 const SANDBOX_FILTER_FIELDS: readonly FieldConfig<SandboxFilters>[] = [
@@ -91,6 +105,18 @@ const SANDBOX_USER_COLUMNS: readonly TableColumn<SandboxUser>[] = [
         header: ResourceKey.FIELD_LABEL_EMAIL,
         render: (row) => row.email,
     },
+    {
+        key: "totalMonths",
+        header: ResourceKey.FIELD_LABEL_TOTAL_MONTHS,
+        render: (row) => String(row.totalMonths),
+        isNumeric: true,
+    },
+    {
+        key: "balance",
+        header: ResourceKey.FIELD_LABEL_BALANCE,
+        render: (row) => CURRENCY_FORMATTER.format(row.balance),
+        isNumeric: true,
+    },
 ];
 
 export const SANDBOX_DATA_TABLE_MODE = {
@@ -111,6 +137,8 @@ export interface SandboxUser {
     readonly id: string;
     readonly name: string;
     readonly email: string;
+    readonly totalMonths: number;
+    readonly balance: number;
 }
 
 export interface SandboxModalState {
@@ -135,6 +163,7 @@ export interface SandboxController {
     readonly openModal: (state: SandboxModalState, patch: Partial<SandboxModalState>) => SandboxModalState;
     readonly closeModal: (state: SandboxModalState) => SandboxModalState;
     readonly triggerToast: (variant: ToastVariant) => void;
+    readonly triggerToastWithIcon: (variant: ToastVariant) => void;
     readonly triggerPersistentToast: (variant: ToastVariant) => void;
     readonly triggerToastBurst: () => void;
     readonly clearAllToasts: () => void;
@@ -230,6 +259,14 @@ export function createSandboxController(): SandboxController {
         });
     };
 
+    const triggerToastWithIcon = (variant: ToastVariant): void => {
+        pushToast({
+            variant,
+            message: TOAST_MESSAGE_BY_VARIANT[variant],
+            icon: TOAST_ICON_BY_VARIANT[variant],
+        });
+    };
+
     const triggerPersistentToast = (variant: ToastVariant): void => {
         pushToast({
             variant,
@@ -280,6 +317,7 @@ export function createSandboxController(): SandboxController {
         openModal,
         closeModal,
         triggerToast,
+        triggerToastWithIcon,
         triggerPersistentToast,
         triggerToastBurst,
         clearAllToasts,

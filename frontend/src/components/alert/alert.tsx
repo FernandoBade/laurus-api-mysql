@@ -132,23 +132,25 @@ export function Alert({
     const resolvedIcon = icon ?? (variant ? getStatusVariantIcon(variant) : undefined);
     const shouldRenderIcon = !hideIcon && Boolean(resolvedIcon);
     const usesStructuredContent = Boolean(resolvedTitle || resolvedDescription);
+    const hasPrimitiveChildren = typeof children === "string" || typeof children === "number";
+    const normalizedChildren = hasPrimitiveChildren ? <span class="text-body font-ui">{children}</span> : children;
 
-    const content = children ?? (
+    const content = normalizedChildren ?? (
         usesStructuredContent ? (
-            <div class="space-y-1">
-                {resolvedTitle ? <p class="font-semibold leading-tight">{resolvedTitle}</p> : null}
-                {resolvedDescription ? <p class="text-sm opacity-80">{resolvedDescription}</p> : null}
-                {resolvedMessage && resolvedMessage !== resolvedDescription ? <p class="text-sm opacity-80">{resolvedMessage}</p> : null}
+            <div class="space-y-1 font-ui">
+                {resolvedTitle ? <p class="text-label font-semibold leading-tight">{resolvedTitle}</p> : null}
+                {resolvedDescription ? <p class="text-body opacity-80">{resolvedDescription}</p> : null}
+                {resolvedMessage && resolvedMessage !== resolvedDescription ? <p class="text-body opacity-80">{resolvedMessage}</p> : null}
             </div>
         ) : (
-            resolvedMessage ? <span>{resolvedMessage}</span> : null
+            resolvedMessage ? <span class="text-body font-ui">{resolvedMessage}</span> : null
         )
     );
 
     return (
         <div
             class={classNames(
-                "alert",
+                "alert font-ui text-body",
                 resolvedVariantClass,
                 ALERT_STYLE_CLASS_MAP[style],
                 resolvedStyleFallbackClass,
@@ -159,7 +161,7 @@ export function Alert({
             role="alert"
             ref={alertRef}
         >
-            {shouldRenderIcon && resolvedIcon ? <Icon name={resolvedIcon} size={20} /> : null}
+            {shouldRenderIcon && resolvedIcon ? <Icon name={resolvedIcon} /> : null}
             {content ? <div class={classNames(actions ? "flex-1" : undefined, isVerticalLayout ? "w-full" : undefined)}>{content}</div> : null}
             {actions ? (
                 <div
@@ -179,4 +181,3 @@ export function Alert({
         </div>
     );
 }
-
