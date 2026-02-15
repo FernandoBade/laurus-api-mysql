@@ -2,29 +2,73 @@ import { FilterFieldType } from "@shared/enums/filter.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
 import { Theme } from "@shared/enums/theme.enums";
-import { ModalPosition, ModalScrollMode, ModalSize, ToastVariant } from "@shared/enums/ui.enums";
+import {
+    ModalPosition,
+    ModalScrollMode,
+    ModalSize,
+    ToastVariant,
+} from "@shared/enums/ui.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import type { FieldConfig } from "@/components/filter-bar/filter-bar.types";
+import type { SelectOption } from "@/components/select/select.types";
 import type { TableColumn } from "@/components/table/table.types";
-import { getTheme, setTheme } from "@/state/theme.store";
 import { clearToasts, pushToast } from "@/state/toast.store";
+import { getTheme, setTheme } from "@/state/theme.store";
 
-const SANDBOX_STATUS_VALUE = {
+const SANDBOX_STATUS_FILTER = {
     ALL: "all",
     ACTIVE: "active",
     INACTIVE: "inactive",
 } as const;
 
-type SandboxStatusValue = (typeof SANDBOX_STATUS_VALUE)[keyof typeof SANDBOX_STATUS_VALUE];
+type SandboxStatusFilter = (typeof SANDBOX_STATUS_FILTER)[keyof typeof SANDBOX_STATUS_FILTER];
 
-const USER_STATUS_BY_ID: Record<string, SandboxStatusValue> = {
-    usr_01: SANDBOX_STATUS_VALUE.ACTIVE,
-    usr_02: SANDBOX_STATUS_VALUE.INACTIVE,
-    usr_03: SANDBOX_STATUS_VALUE.ACTIVE,
-    usr_04: SANDBOX_STATUS_VALUE.ACTIVE,
-    usr_05: SANDBOX_STATUS_VALUE.INACTIVE,
-    usr_06: SANDBOX_STATUS_VALUE.ACTIVE,
+const SANDBOX_DATA_TABLE_MODE = {
+    READY: "ready",
+    LOADING: "loading",
+    EMPTY: "empty",
+    ERROR: "error",
+} as const;
+
+const STATUS_LABEL: Record<SandboxStatusFilter, string> = {
+    [SANDBOX_STATUS_FILTER.ALL]: "All",
+    [SANDBOX_STATUS_FILTER.ACTIVE]: "Active",
+    [SANDBOX_STATUS_FILTER.INACTIVE]: "Inactive",
 };
+
+const STATUS_FILTER_OPTIONS: readonly SelectOption[] = [
+    { value: SANDBOX_STATUS_FILTER.ALL, label: ResourceKey.FIELD_LABEL_TAGS },
+    { value: SANDBOX_STATUS_FILTER.ACTIVE, label: ResourceKey.FIELD_LABEL_ACTIVE },
+    { value: SANDBOX_STATUS_FILTER.INACTIVE, label: ResourceKey.FIELD_LABEL_HIDE_VALUES },
+];
+
+const SANDBOX_FILTER_FIELDS: readonly FieldConfig<SandboxFilters>[] = [
+    {
+        type: FilterFieldType.TEXT,
+        name: "query",
+        label: ResourceKey.FIELD_LABEL_NAME,
+        placeholder: ResourceKey.FIELD_LABEL_NAME,
+        icon: IconName.SEARCH,
+        inputType: InputType.SEARCH,
+        parse: (rawValue) => rawValue,
+        serialize: (value) => value ?? "",
+    },
+    {
+        type: FilterFieldType.SELECT,
+        name: "status",
+        label: ResourceKey.FIELD_LABEL_ACTIVE,
+        placeholder: ResourceKey.FIELD_LABEL_TYPE,
+        options: STATUS_FILTER_OPTIONS,
+        parse: (rawValue) => {
+            if (rawValue === SANDBOX_STATUS_FILTER.ACTIVE || rawValue === SANDBOX_STATUS_FILTER.INACTIVE) {
+                return rawValue;
+            }
+
+            return SANDBOX_STATUS_FILTER.ALL;
+        },
+        serialize: (value) => value ?? SANDBOX_STATUS_FILTER.ALL,
+    },
+];
 
 const TOAST_MESSAGE_BY_VARIANT: Record<ToastVariant, ResourceKey> = {
     [ToastVariant.INFO]: ResourceKey.FIELD_LABEL_MESSAGE,
@@ -40,17 +84,28 @@ const TOAST_ICON_BY_VARIANT: Record<ToastVariant, IconName> = {
     [ToastVariant.ERROR]: IconName.ERROR,
 };
 
+const DEFAULT_FILTERS: SandboxFilters = {
+    query: "",
+    status: SANDBOX_STATUS_FILTER.ALL,
+};
+
 const DEFAULT_MODAL_STATE: SandboxModalState = {
     open: false,
     size: ModalSize.MD,
     position: ModalPosition.CENTER,
     scrollMode: ModalScrollMode.INSIDE,
+    showFooter: true,
 };
 
-const DEFAULT_FILTERS: SandboxFilters = {
-    search: "",
-    status: SANDBOX_STATUS_VALUE.ALL,
-};
+const MODAL_PARAGRAPHS: readonly string[] = [
+    "This modal uses static content so behavior stays deterministic in documentation mode.",
+    "Use the controls in the section to change size, viewport position, and scroll ownership.",
+    "Press Escape, click the backdrop, or use the close icon to validate close behavior.",
+    "The page intentionally avoids business workflows and external API requests.",
+    "This long content block helps verify both inside-scroll and body-scroll rendering.",
+    "Theme colors and spacing should remain stable in both Light and Dark (Dracula) modes.",
+    "All samples are designed for responsive testing in narrow viewport widths.",
+];
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -59,42 +114,82 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 2,
 });
 
-const SANDBOX_USERS: readonly SandboxUser[] = [
-    { id: "usr_01", name: "Ada Lovelace", email: "ada@laurus.dev", totalMonths: 12, balance: 4820.42 },
-    { id: "usr_02", name: "Grace Hopper", email: "grace@laurus.dev", totalMonths: 8, balance: 1570.0 },
-    { id: "usr_03", name: "Linus Torvalds", email: "linus@laurus.dev", totalMonths: 24, balance: 9875.12 },
-    { id: "usr_04", name: "Margaret Hamilton", email: "margaret@laurus.dev", totalMonths: 18, balance: 3240.75 },
-    { id: "usr_05", name: "Alan Turing", email: "alan@laurus.dev", totalMonths: 6, balance: 640.5 },
-    { id: "usr_06", name: "Katherine Johnson", email: "katherine@laurus.dev", totalMonths: 36, balance: 12040.88 },
-];
-
-const SANDBOX_FILTER_FIELDS: readonly FieldConfig<SandboxFilters>[] = [
+const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
-        type: FilterFieldType.TEXT,
-        name: "search",
-        label: ResourceKey.FIELD_LABEL_NAME,
-        placeholder: ResourceKey.FIELD_LABEL_NAME,
-        icon: IconName.SEARCH,
-        inputType: InputType.SEARCH,
-        parse: (rawValue) => rawValue,
-        serialize: (value) => value ?? "",
+        id: "usr_001",
+        name: "Ada Lovelace",
+        email: "ada@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.ACTIVE,
+        monthlyBudget: 1250.0,
+        balance: 8920.54,
+        note: "Handles strategic planning and reviews long-term goals with the finance committee.",
     },
     {
-        type: FilterFieldType.SELECT,
-        name: "status",
-        label: ResourceKey.FIELD_LABEL_ACTIVE,
-        placeholder: ResourceKey.FIELD_LABEL_TYPE,
-        options: [
-            { value: SANDBOX_STATUS_VALUE.ALL, label: ResourceKey.FIELD_LABEL_TAGS },
-            { value: SANDBOX_STATUS_VALUE.ACTIVE, label: ResourceKey.FIELD_LABEL_ACTIVE },
-            { value: SANDBOX_STATUS_VALUE.INACTIVE, label: ResourceKey.FIELD_LABEL_HIDE_VALUES },
-        ],
-        parse: (rawValue) => rawValue,
-        serialize: (value) => value ?? SANDBOX_STATUS_VALUE.ALL,
+        id: "usr_002",
+        name: "Grace Hopper",
+        email: "grace@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.INACTIVE,
+        monthlyBudget: 980.75,
+        balance: 2140.13,
+        note: "Pending profile review for a multi-department onboarding process with extended approvals.",
+    },
+    {
+        id: "usr_003",
+        name: "Margaret Hamilton",
+        email: "margaret@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.ACTIVE,
+        monthlyBudget: 1730.25,
+        balance: 10440.9,
+        note: "Owns release readiness reviews and coordinates operational checklists every quarter.",
+    },
+    {
+        id: "usr_004",
+        name: "Katherine Johnson",
+        email: "katherine@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.ACTIVE,
+        monthlyBudget: 2200.0,
+        balance: 15620.42,
+        note: "Maintains forecasting models with tabular numeric reports for monthly planning cycles.",
+    },
+    {
+        id: "usr_005",
+        name: "Alan Turing",
+        email: "alan@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.INACTIVE,
+        monthlyBudget: 640.5,
+        balance: 880.21,
+        note: "Temporary access suspension while role permissions are reviewed by the operations team.",
+    },
+    {
+        id: "usr_006",
+        name: "Linus Torvalds",
+        email: "linus@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.ACTIVE,
+        monthlyBudget: 3050.0,
+        balance: 17320.75,
+        note: "Collaborates on technical standards and validates large text content overflow in tables.",
+    },
+    {
+        id: "usr_007",
+        name: "Hedy Lamarr",
+        email: "hedy@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.ACTIVE,
+        monthlyBudget: 1899.99,
+        balance: 9420.6,
+        note: "Reviews communication guidelines and confirms alert messaging clarity across states.",
+    },
+    {
+        id: "usr_008",
+        name: "Dorothy Vaughan",
+        email: "dorothy@laurus.dev",
+        status: SANDBOX_STATUS_FILTER.INACTIVE,
+        monthlyBudget: 730.0,
+        balance: 1304.55,
+        note: "Scheduled for profile migration and staged reactivation after data validation completes.",
     },
 ];
 
-const SANDBOX_USER_COLUMNS: readonly TableColumn<SandboxUser>[] = [
+const SANDBOX_TABLE_COLUMNS: readonly TableColumn<SandboxRecord>[] = [
     {
         key: "name",
         header: ResourceKey.FIELD_LABEL_NAME,
@@ -106,9 +201,19 @@ const SANDBOX_USER_COLUMNS: readonly TableColumn<SandboxUser>[] = [
         render: (row) => row.email,
     },
     {
-        key: "totalMonths",
-        header: ResourceKey.FIELD_LABEL_TOTAL_MONTHS,
-        render: (row) => String(row.totalMonths),
+        key: "status",
+        header: ResourceKey.FIELD_LABEL_ACTIVE,
+        render: (row) => STATUS_LABEL[row.status],
+    },
+    {
+        key: "note",
+        header: ResourceKey.FIELD_LABEL_OBSERVATION,
+        render: (row) => row.note,
+    },
+    {
+        key: "monthlyBudget",
+        header: ResourceKey.FIELD_LABEL_VALUE,
+        render: (row) => CURRENCY_FORMATTER.format(row.monthlyBudget),
         isNumeric: true,
     },
     {
@@ -119,26 +224,23 @@ const SANDBOX_USER_COLUMNS: readonly TableColumn<SandboxUser>[] = [
     },
 ];
 
-export const SANDBOX_DATA_TABLE_MODE = {
-    READY: "ready",
-    LOADING: "loading",
-    EMPTY: "empty",
-    ERROR: "error",
-} as const;
+export { SANDBOX_DATA_TABLE_MODE, SANDBOX_STATUS_FILTER };
 
 export type SandboxDataTableMode = (typeof SANDBOX_DATA_TABLE_MODE)[keyof typeof SANDBOX_DATA_TABLE_MODE];
 
 export type SandboxFilters = Record<string, string> & {
-    readonly search: string;
-    readonly status: string;
+    readonly query: string;
+    readonly status: SandboxStatusFilter;
 };
 
-export interface SandboxUser {
+export interface SandboxRecord {
     readonly id: string;
     readonly name: string;
     readonly email: string;
-    readonly totalMonths: number;
+    readonly status: SandboxStatusFilter;
+    readonly monthlyBudget: number;
     readonly balance: number;
+    readonly note: string;
 }
 
 export interface SandboxModalState {
@@ -146,37 +248,47 @@ export interface SandboxModalState {
     readonly size: ModalSize;
     readonly position: ModalPosition;
     readonly scrollMode: ModalScrollMode;
+    readonly showFooter: boolean;
 }
 
 export interface SandboxController {
     readonly getCurrentTheme: () => Theme;
     readonly applyTheme: (theme: Theme) => Theme;
+    readonly getRecords: () => readonly SandboxRecord[];
+    readonly getTableColumns: () => readonly TableColumn<SandboxRecord>[];
     readonly getDefaultFilters: () => SandboxFilters;
     readonly mergeFilters: (values: Partial<SandboxFilters>) => SandboxFilters;
     readonly getFilterFields: () => readonly FieldConfig<SandboxFilters>[];
-    readonly getUsers: () => readonly SandboxUser[];
-    readonly getUserColumns: () => readonly TableColumn<SandboxUser>[];
-    readonly filterUsers: (values: SandboxFilters) => readonly SandboxUser[];
+    readonly getFilterOptions: () => readonly SelectOption[];
+    readonly filterRecords: (values: SandboxFilters) => readonly SandboxRecord[];
     readonly getTotalPages: (totalRows: number, pageSize: number) => number;
-    readonly paginateUsers: (users: readonly SandboxUser[], page: number, pageSize: number) => readonly SandboxUser[];
+    readonly paginateRecords: (
+        rows: readonly SandboxRecord[],
+        page: number,
+        pageSize: number
+    ) => readonly SandboxRecord[];
+    readonly resolveDataTableRows: (
+        rows: readonly SandboxRecord[],
+        mode: SandboxDataTableMode
+    ) => readonly SandboxRecord[];
     readonly getDefaultModalState: () => SandboxModalState;
-    readonly openModal: (state: SandboxModalState, patch: Partial<SandboxModalState>) => SandboxModalState;
+    readonly openModal: (
+        state: SandboxModalState,
+        patch: Partial<SandboxModalState>
+    ) => SandboxModalState;
     readonly closeModal: (state: SandboxModalState) => SandboxModalState;
+    readonly getModalParagraphs: () => readonly string[];
+    readonly formatCurrency: (amount: number) => string;
     readonly triggerToast: (variant: ToastVariant) => void;
     readonly triggerToastWithIcon: (variant: ToastVariant) => void;
     readonly triggerPersistentToast: (variant: ToastVariant) => void;
     readonly triggerToastBurst: () => void;
     readonly clearAllToasts: () => void;
-    readonly resolveDataTableRows: (users: readonly SandboxUser[], mode: SandboxDataTableMode) => readonly SandboxUser[];
-}
-
-function resolveUserStatus(userId: string): SandboxStatusValue {
-    return USER_STATUS_BY_ID[userId] ?? SANDBOX_STATUS_VALUE.ACTIVE;
 }
 
 /**
- * @summary Creates sandbox-only controller actions for local UI validation state.
- * @returns Sandbox page controller.
+ * @summary Creates the sandbox controller used by the design-system showcase page.
+ * @returns Typed controller actions and showcase datasets.
  */
 export function createSandboxController(): SandboxController {
     const getCurrentTheme = (): Theme => getTheme();
@@ -186,38 +298,40 @@ export function createSandboxController(): SandboxController {
         return getTheme();
     };
 
+    const getRecords = (): readonly SandboxRecord[] => SANDBOX_RECORDS;
+
+    const getTableColumns = (): readonly TableColumn<SandboxRecord>[] => SANDBOX_TABLE_COLUMNS;
+
     const getDefaultFilters = (): SandboxFilters => ({ ...DEFAULT_FILTERS });
 
     const mergeFilters = (values: Partial<SandboxFilters>): SandboxFilters => ({
-        search: values.search ?? DEFAULT_FILTERS.search,
+        query: values.query ?? DEFAULT_FILTERS.query,
         status: values.status ?? DEFAULT_FILTERS.status,
     });
 
     const getFilterFields = (): readonly FieldConfig<SandboxFilters>[] => SANDBOX_FILTER_FIELDS;
 
-    const getUsers = (): readonly SandboxUser[] => SANDBOX_USERS;
+    const getFilterOptions = (): readonly SelectOption[] => STATUS_FILTER_OPTIONS;
 
-    const getUserColumns = (): readonly TableColumn<SandboxUser>[] => SANDBOX_USER_COLUMNS;
+    const filterRecords = (values: SandboxFilters): readonly SandboxRecord[] => {
+        const query = values.query.trim().toLowerCase();
 
-    const filterUsers = (values: SandboxFilters): readonly SandboxUser[] => {
-        const searchTerm = values.search.trim().toLowerCase();
-        const status = values.status;
+        return SANDBOX_RECORDS.filter((record) => {
+            const matchesQuery =
+                query.length === 0
+                || record.name.toLowerCase().includes(query)
+                || record.email.toLowerCase().includes(query)
+                || record.note.toLowerCase().includes(query);
 
-        return SANDBOX_USERS.filter((user) => {
-            const matchesSearch =
-                searchTerm.length === 0
-                || user.name.toLowerCase().includes(searchTerm)
-                || user.email.toLowerCase().includes(searchTerm);
-
-            if (!matchesSearch) {
+            if (!matchesQuery) {
                 return false;
             }
 
-            if (status === SANDBOX_STATUS_VALUE.ALL) {
+            if (values.status === SANDBOX_STATUS_FILTER.ALL) {
                 return true;
             }
 
-            return resolveUserStatus(user.id) === status;
+            return record.status === values.status;
         });
     };
 
@@ -229,19 +343,37 @@ export function createSandboxController(): SandboxController {
         return Math.max(1, Math.ceil(totalRows / pageSize));
     };
 
-    const paginateUsers = (users: readonly SandboxUser[], page: number, pageSize: number): readonly SandboxUser[] => {
+    const paginateRecords = (
+        rows: readonly SandboxRecord[],
+        page: number,
+        pageSize: number
+    ): readonly SandboxRecord[] => {
         if (pageSize <= 0) {
-            return users;
+            return rows;
         }
 
         const safePage = Math.max(1, page);
         const start = (safePage - 1) * pageSize;
-        return users.slice(start, start + pageSize);
+        return rows.slice(start, start + pageSize);
+    };
+
+    const resolveDataTableRows = (
+        rows: readonly SandboxRecord[],
+        mode: SandboxDataTableMode
+    ): readonly SandboxRecord[] => {
+        if (mode === SANDBOX_DATA_TABLE_MODE.EMPTY) {
+            return [];
+        }
+
+        return rows;
     };
 
     const getDefaultModalState = (): SandboxModalState => ({ ...DEFAULT_MODAL_STATE });
 
-    const openModal = (state: SandboxModalState, patch: Partial<SandboxModalState>): SandboxModalState => ({
+    const openModal = (
+        state: SandboxModalState,
+        patch: Partial<SandboxModalState>
+    ): SandboxModalState => ({
         ...state,
         ...patch,
         open: true,
@@ -251,6 +383,10 @@ export function createSandboxController(): SandboxController {
         ...state,
         open: false,
     });
+
+    const getModalParagraphs = (): readonly string[] => MODAL_PARAGRAPHS;
+
+    const formatCurrency = (amount: number): string => CURRENCY_FORMATTER.format(amount);
 
     const triggerToast = (variant: ToastVariant): void => {
         pushToast({
@@ -271,6 +407,7 @@ export function createSandboxController(): SandboxController {
         pushToast({
             variant,
             message: TOAST_MESSAGE_BY_VARIANT[variant],
+            icon: TOAST_ICON_BY_VARIANT[variant],
             durationMs: 0,
         });
     };
@@ -279,14 +416,17 @@ export function createSandboxController(): SandboxController {
         pushToast({
             variant: ToastVariant.INFO,
             message: TOAST_MESSAGE_BY_VARIANT[ToastVariant.INFO],
+            icon: TOAST_ICON_BY_VARIANT[ToastVariant.INFO],
         });
         pushToast({
             variant: ToastVariant.SUCCESS,
             message: TOAST_MESSAGE_BY_VARIANT[ToastVariant.SUCCESS],
+            icon: TOAST_ICON_BY_VARIANT[ToastVariant.SUCCESS],
         });
         pushToast({
             variant: ToastVariant.WARNING,
             message: TOAST_MESSAGE_BY_VARIANT[ToastVariant.WARNING],
+            icon: TOAST_ICON_BY_VARIANT[ToastVariant.WARNING],
         });
     };
 
@@ -294,33 +434,28 @@ export function createSandboxController(): SandboxController {
         clearToasts();
     };
 
-    const resolveDataTableRows = (users: readonly SandboxUser[], mode: SandboxDataTableMode): readonly SandboxUser[] => {
-        if (mode === SANDBOX_DATA_TABLE_MODE.EMPTY) {
-            return [];
-        }
-
-        return users;
-    };
-
     return {
         getCurrentTheme,
         applyTheme,
+        getRecords,
+        getTableColumns,
         getDefaultFilters,
         mergeFilters,
         getFilterFields,
-        getUsers,
-        getUserColumns,
-        filterUsers,
+        getFilterOptions,
+        filterRecords,
         getTotalPages,
-        paginateUsers,
+        paginateRecords,
+        resolveDataTableRows,
         getDefaultModalState,
         openModal,
         closeModal,
+        getModalParagraphs,
+        formatCurrency,
         triggerToast,
         triggerToastWithIcon,
         triggerPersistentToast,
         triggerToastBurst,
         clearAllToasts,
-        resolveDataTableRows,
     };
 }

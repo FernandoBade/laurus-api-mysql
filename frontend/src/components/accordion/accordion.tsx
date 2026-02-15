@@ -1,11 +1,16 @@
 import type { JSX } from "preact";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { AccordionItem, AccordionProps } from "@/components/accordion/accordion.types";
+import { Collapse } from "@/components/collapse/collapse";
 import { t } from "@/utils/i18n/translate";
 
 function resolveDefaultOpenItem(items: readonly AccordionItem[]): string | null {
     const firstOpen = items.find((item) => item.openByDefault);
     return firstOpen ? firstOpen.id : null;
+}
+
+function resolveDefaultOpenItems(items: readonly AccordionItem[]): readonly string[] {
+    return items.filter((item) => item.openByDefault).map((item) => item.id);
 }
 
 /**
@@ -15,33 +20,51 @@ function resolveDefaultOpenItem(items: readonly AccordionItem[]): string | null 
  */
 export function Accordion({ items, allowMultiple = true }: AccordionProps): JSX.Element | null {
     const [openItemId, setOpenItemId] = useState<string | null>(resolveDefaultOpenItem(items));
+    const [openItemIds, setOpenItemIds] = useState<readonly string[]>(resolveDefaultOpenItems(items));
+
+    useEffect(() => {
+        setOpenItemId(resolveDefaultOpenItem(items));
+        setOpenItemIds(resolveDefaultOpenItems(items));
+    }, [items, allowMultiple]);
 
     if (items.length === 0) {
         return null;
     }
 
+    const toggleItem = (itemId: string): void => {
+        if (allowMultiple) {
+            setOpenItemIds((current) => {
+                if (current.includes(itemId)) {
+                    return current.filter((id) => id !== itemId);
+                }
+
+                return [...current, itemId];
+            });
+            return;
+        }
+
+        setOpenItemId((current) => (current === itemId ? null : itemId));
+    };
+
     return (
         <div class="space-y-2">
             {items.map((item) => {
-                const isOpen = allowMultiple ? item.openByDefault : openItemId === item.id;
+                const isOpen = allowMultiple
+                    ? openItemIds.includes(item.id)
+                    : openItemId === item.id;
 
                 return (
-                    <details
+                    <Collapse
                         key={item.id}
-                        class="collapse collapse-arrow border border-base-300 bg-base-100"
-                        open={Boolean(isOpen)}
-                        onToggle={(event) => {
-                            if (allowMultiple) {
-                                return;
-                            }
-
-                            const details = event.currentTarget;
-                            setOpenItemId(details.open ? item.id : null);
-                        }}
+                        id={`accordion-${item.id}`}
+                        open={isOpen}
+                        onToggle={() => toggleItem(item.id)}
+                        title={t(item.title)}
+                        titleClassName="text-label font-semibold"
+                        contentClassName="px-4 pb-4 text-body"
                     >
-                        <summary class="collapse-title text-label font-semibold">{t(item.title)}</summary>
-                        <div class="collapse-content text-body">{item.content}</div>
-                    </details>
+                        {item.content}
+                    </Collapse>
                 );
             })}
         </div>

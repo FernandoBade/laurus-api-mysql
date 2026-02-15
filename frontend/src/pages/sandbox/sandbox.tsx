@@ -1,8 +1,8 @@
 /**
- * @summary Sandbox page used for UI Core Kit validation. Not a business feature.
+ * @summary Living documentation page for the Laurus Core UI Kit.
  */
 
-import type { JSX } from "preact";
+import type { ComponentChildren, JSX } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
@@ -29,8 +29,8 @@ import { Alert } from "@/components/alert/alert";
 import { Bullets } from "@/components/bullets/bullets";
 import { Button } from "@/components/button/button";
 import { Card } from "@/components/card/card";
+import { Collapse } from "@/components/collapse/collapse";
 import { DataTable } from "@/components/data-table/data-table";
-import { EmptyState } from "@/components/empty-state/empty-state";
 import { ErrorState } from "@/components/error-state/error-state";
 import { Fieldset } from "@/components/fieldset/fieldset";
 import { FilterBar } from "@/components/filter-bar/filter-bar";
@@ -38,19 +38,20 @@ import { Form } from "@/components/form/form";
 import { FormGrid } from "@/components/form-grid/form-grid";
 import { Icon } from "@/components/icon/icon";
 import { Input } from "@/components/input/input";
+import { AppLayout } from "@/components/layout/app-layout";
 import { Loader } from "@/components/loader/loader";
 import { Modal } from "@/components/modal/modal";
 import { PageContainer } from "@/components/page-container/page-container";
 import { Pagination } from "@/components/pagination/pagination";
 import { Select } from "@/components/select/select";
-import type { SelectOption } from "@/components/select/select.types";
 import { Table } from "@/components/table/table";
-import type { TableColumn } from "@/components/table/table.types";
 import { ToastContainer } from "@/components/toast/toast";
 import { Tooltip } from "@/components/tooltip/tooltip";
+import { getStatusVariantIcon } from "@/components/status/status-variant";
 import {
     createSandboxController,
     SANDBOX_DATA_TABLE_MODE,
+    SANDBOX_STATUS_FILTER,
     type SandboxDataTableMode,
     type SandboxFilters,
     type SandboxModalState,
@@ -58,42 +59,38 @@ import {
 import { getLocale, setLocale } from "@/state/locale.store";
 import { getToasts, removeToast, subscribeToasts } from "@/state/toast.store";
 
-const PAGE_SIZE = 3;
-const CANVAS_CLASS = "rounded-3xl border border-base-300 bg-base-300/40 p-4 sm:p-6";
-const SECTION_CLASS = "rounded-2xl border border-base-300 bg-base-200 p-4 shadow-sm sm:p-5";
-const PALETTE_PANEL_CLASS = "overflow-hidden rounded-xl border border-base-300";
-const DEMO_PANEL_CLASS = "rounded-xl border border-base-300 bg-base-100 p-3 shadow-sm";
+const PAGE_SIZE = 4;
+const CANVAS_CLASS = "space-y-6 rounded-3xl border border-base-300 bg-base-200/30 p-4 sm:p-6";
+const SECTION_SURFACE_CLASS = "overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm";
+const DEMO_CARD_CLASS = "space-y-3 rounded-xl border border-base-300 bg-base-200/40 p-4";
 
-const THEME_OPTIONS: readonly Theme[] = [Theme.LIGHT, Theme.DARK];
-const MODAL_SIZES: readonly ModalSize[] = [ModalSize.SM, ModalSize.MD, ModalSize.LG, ModalSize.XL];
-const MODAL_POSITIONS: readonly ModalPosition[] = [ModalPosition.CENTER, ModalPosition.TOP, ModalPosition.BOTTOM];
-const MODAL_SCROLL_MODES: readonly ModalScrollMode[] = [ModalScrollMode.INSIDE, ModalScrollMode.BODY];
-const TOAST_VARIANTS: readonly ToastVariant[] = [ToastVariant.INFO, ToastVariant.SUCCESS, ToastVariant.WARNING, ToastVariant.ERROR];
-const ICONS: readonly IconName[] = [IconName.SEARCH, IconName.USER, IconName.EMAIL, IconName.LOCK, IconName.INFO, IconName.WARNING, IconName.ADD, IconName.EDIT, IconName.SAVE, IconName.DELETE];
-const BUTTON_ICON_EXAMPLES: readonly { readonly icon: IconName; readonly variant: ButtonVariant }[] = [
-    { icon: IconName.ADD, variant: ButtonVariant.PRIMARY },
-    { icon: IconName.EDIT, variant: ButtonVariant.SECONDARY },
-    { icon: IconName.SAVE, variant: ButtonVariant.ACCENT },
-    { icon: IconName.DELETE, variant: ButtonVariant.OUTLINE },
-];
-
-const SELECT_OPTIONS: readonly SelectOption[] = [
-    { value: "active", label: ResourceKey.FIELD_LABEL_ACTIVE },
-    { value: "inactive", label: ResourceKey.FIELD_LABEL_HIDE_VALUES },
-];
-
-const TOAST_BUTTON_VARIANT: Record<ToastVariant, ButtonVariant> = {
-    [ToastVariant.INFO]: ButtonVariant.SECONDARY,
-    [ToastVariant.SUCCESS]: ButtonVariant.PRIMARY,
-    [ToastVariant.WARNING]: ButtonVariant.ACCENT,
-    [ToastVariant.ERROR]: ButtonVariant.OUTLINE,
+const BUTTON_VARIANT_LABEL: Record<ButtonVariant, string> = {
+    [ButtonVariant.PRIMARY]: "Primary",
+    [ButtonVariant.SECONDARY]: "Secondary",
+    [ButtonVariant.ACCENT]: "Accent",
+    [ButtonVariant.OUTLINE]: "Outline",
+    [ButtonVariant.GHOST]: "Ghost",
+    [ButtonVariant.LINK]: "Link",
 };
 
-const TOAST_LABEL: Record<ToastVariant, string> = {
-    [ToastVariant.INFO]: "Info",
-    [ToastVariant.SUCCESS]: "Success",
-    [ToastVariant.WARNING]: "Warning",
-    [ToastVariant.ERROR]: "Error",
+const BUTTON_SIZE_LABEL: Record<ButtonSize, string> = {
+    [ButtonSize.SM]: "Small",
+    [ButtonSize.MD]: "Medium",
+    [ButtonSize.LG]: "Large",
+};
+
+const ALERT_LABEL: Record<AlertVariant, string> = {
+    [AlertVariant.INFO]: "Info",
+    [AlertVariant.SUCCESS]: "Success",
+    [AlertVariant.WARNING]: "Warning",
+    [AlertVariant.ERROR]: "Error",
+};
+
+const MODAL_SIZE_LABEL: Record<ModalSize, string> = {
+    [ModalSize.SM]: "SM",
+    [ModalSize.MD]: "MD",
+    [ModalSize.LG]: "LG",
+    [ModalSize.XL]: "XL",
 };
 
 const MODAL_POSITION_LABEL: Record<ModalPosition, string> = {
@@ -114,268 +111,260 @@ const DATA_TABLE_MODE_LABEL: Record<SandboxDataTableMode, string> = {
     [SANDBOX_DATA_TABLE_MODE.ERROR]: "Error",
 };
 
-const TOOLTIP_ITEMS: readonly { readonly label: string; readonly position: TooltipPosition; readonly content: ResourceKey }[] = [
-    { label: "Top", position: TooltipPosition.TOP, content: ResourceKey.FIELD_LABEL_TITLE },
-    { label: "Right", position: TooltipPosition.RIGHT, content: ResourceKey.FIELD_LABEL_MESSAGE },
-    { label: "Bottom", position: TooltipPosition.BOTTOM, content: ResourceKey.FIELD_LABEL_DATE },
-    { label: "Left", position: TooltipPosition.LEFT, content: ResourceKey.FIELD_LABEL_NAME },
+const TOAST_LABEL: Record<ToastVariant, string> = {
+    [ToastVariant.INFO]: "Info Toast",
+    [ToastVariant.SUCCESS]: "Success Toast",
+    [ToastVariant.WARNING]: "Warning Toast",
+    [ToastVariant.ERROR]: "Error Toast",
+};
+
+const BUTTON_VARIANTS: readonly ButtonVariant[] = [
+    ButtonVariant.PRIMARY,
+    ButtonVariant.SECONDARY,
+    ButtonVariant.ACCENT,
+    ButtonVariant.OUTLINE,
+    ButtonVariant.GHOST,
+    ButtonVariant.LINK,
 ];
 
-const MODAL_PARAGRAPHS: readonly string[] = [
-    "This modal content is intentionally long for scroll-mode validation.",
-    "Use the controls to open with each size, position and scroll mode.",
-    "Close using backdrop, close icon, Cancel, or Confirm actions.",
-    "This page is debug-only and does not call API clients.",
-    "Resize viewport to validate mobile-first responsiveness.",
-    "Switch theme to inspect color-only differences between modes.",
-    "All examples are static and deterministic.",
-    "No business workflow depends on this sandbox page.",
+const BUTTON_SIZES: readonly ButtonSize[] = [ButtonSize.SM, ButtonSize.MD, ButtonSize.LG];
+
+const ALERT_VARIANTS: readonly AlertVariant[] = [
+    AlertVariant.INFO,
+    AlertVariant.SUCCESS,
+    AlertVariant.WARNING,
+    AlertVariant.ERROR,
 ];
 
-interface NumericOverviewRow {
-    readonly transactionId: string;
-    readonly totalMonths: number;
-    readonly amount: number;
-    readonly balance: number;
-}
+const TOAST_VARIANTS: readonly ToastVariant[] = [
+    ToastVariant.INFO,
+    ToastVariant.SUCCESS,
+    ToastVariant.WARNING,
+    ToastVariant.ERROR,
+];
 
-interface TypographyTokenSample {
+const MODAL_SIZES: readonly ModalSize[] = [ModalSize.SM, ModalSize.MD, ModalSize.LG, ModalSize.XL];
+
+const MODAL_POSITIONS: readonly ModalPosition[] = [
+    ModalPosition.CENTER,
+    ModalPosition.TOP,
+    ModalPosition.BOTTOM,
+];
+
+const MODAL_SCROLL_MODES: readonly ModalScrollMode[] = [
+    ModalScrollMode.INSIDE,
+    ModalScrollMode.BODY,
+];
+
+const TOOLTIP_ITEMS: readonly {
     readonly id: string;
-    readonly name: string;
-    readonly classes: string;
-    readonly preview: string;
+    readonly label: string;
+    readonly content: ResourceKey;
+    readonly position: TooltipPosition;
+}[] = [
+    {
+        id: "tooltip-top",
+        label: "Top",
+        content: ResourceKey.FIELD_LABEL_TITLE,
+        position: TooltipPosition.TOP,
+    },
+    {
+        id: "tooltip-right",
+        label: "Right",
+        content: ResourceKey.FIELD_LABEL_MESSAGE,
+        position: TooltipPosition.RIGHT,
+    },
+    {
+        id: "tooltip-bottom",
+        label: "Bottom",
+        content: ResourceKey.FIELD_LABEL_DATE,
+        position: TooltipPosition.BOTTOM,
+    },
+    {
+        id: "tooltip-left",
+        label: "Left",
+        content: ResourceKey.FIELD_LABEL_NAME,
+        position: TooltipPosition.LEFT,
+    },
+];
+
+const SHOWCASE_SECTION = {
+    TYPOGRAPHY: "typography",
+    BUTTONS: "buttons",
+    INPUTS_FORMS: "inputs-forms",
+    ALERTS_STATUS: "alerts-status",
+    MODAL: "modal",
+    TABLES_DATA: "tables-data",
+    FILTER_BAR: "filter-bar",
+    CARD_LAYOUT: "card-layout",
+    TOOLTIP_TOAST: "tooltip-toast",
+    ACCORDION_BULLETS: "accordion-bullets",
+} as const;
+
+type ShowcaseSectionId = (typeof SHOWCASE_SECTION)[keyof typeof SHOWCASE_SECTION];
+
+interface ShowcaseSectionDefinition {
+    readonly id: ShowcaseSectionId;
+    readonly title: string;
     readonly description: string;
 }
 
-interface TypographyWeightSample {
-    readonly id: string;
-    readonly label: string;
-    readonly classes: string;
-    readonly preview: string;
+const SECTION_DEFINITIONS: readonly ShowcaseSectionDefinition[] = [
+    {
+        id: SHOWCASE_SECTION.TYPOGRAPHY,
+        title: "Typography System",
+        description: "Semantic typography tokens and explicit human vs. data layer usage.",
+    },
+    {
+        id: SHOWCASE_SECTION.BUTTONS,
+        title: "Buttons",
+        description: "Variants, sizes, icon placement, loading, disabled, form usage, and full-width behavior.",
+    },
+    {
+        id: SHOWCASE_SECTION.INPUTS_FORMS,
+        title: "Inputs & Form Elements",
+        description: "Input states, Select, Fieldset, Form wrapper, and FormGrid responsiveness.",
+    },
+    {
+        id: SHOWCASE_SECTION.ALERTS_STATUS,
+        title: "Alerts & Status",
+        description: "Alert variants, compact mode, status mapping, ErrorState, and Loader sizes.",
+    },
+    {
+        id: SHOWCASE_SECTION.MODAL,
+        title: "Modal",
+        description: "Interactive modal showcase for size, position, scroll mode, and footer states.",
+    },
+    {
+        id: SHOWCASE_SECTION.TABLES_DATA,
+        title: "Tables & Data",
+        description: "Unified Table/DataTable showcase with actions, loading, empty, error, and pagination.",
+    },
+    {
+        id: SHOWCASE_SECTION.FILTER_BAR,
+        title: "Filter Bar",
+        description: "Typed text/select filters with emitted-value preview and mobile collapse behavior.",
+    },
+    {
+        id: SHOWCASE_SECTION.CARD_LAYOUT,
+        title: "Card & Layout",
+        description: "Card composition, nested cards, PageContainer, and AppLayout examples.",
+    },
+    {
+        id: SHOWCASE_SECTION.TOOLTIP_TOAST,
+        title: "Tooltip & Toast",
+        description: "Tooltip positions and interactive toast triggering with stack behavior.",
+    },
+    {
+        id: SHOWCASE_SECTION.ACCORDION_BULLETS,
+        title: "Accordion & Bullets",
+        description: "Nested Accordion usage and Bullets component variations.",
+    },
+];
+
+type SectionVisibility = Record<ShowcaseSectionId, boolean>;
+
+function createSectionVisibility(open: boolean): SectionVisibility {
+    return {
+        [SHOWCASE_SECTION.TYPOGRAPHY]: open,
+        [SHOWCASE_SECTION.BUTTONS]: open,
+        [SHOWCASE_SECTION.INPUTS_FORMS]: open,
+        [SHOWCASE_SECTION.ALERTS_STATUS]: open,
+        [SHOWCASE_SECTION.MODAL]: open,
+        [SHOWCASE_SECTION.TABLES_DATA]: open,
+        [SHOWCASE_SECTION.FILTER_BAR]: open,
+        [SHOWCASE_SECTION.CARD_LAYOUT]: open,
+        [SHOWCASE_SECTION.TOOLTIP_TOAST]: open,
+        [SHOWCASE_SECTION.ACCORDION_BULLETS]: open,
+    };
 }
 
-const NUMERIC_FORMATTER = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-});
+interface ShowcaseSectionProps {
+    readonly id: ShowcaseSectionId;
+    readonly title: string;
+    readonly description: string;
+    readonly open: boolean;
+    readonly onToggle: (sectionId: ShowcaseSectionId, open: boolean) => void;
+    readonly children: ComponentChildren;
+}
 
-const NUMERIC_OVERVIEW_ROWS: readonly NumericOverviewRow[] = [
-    { transactionId: "tx_2026_00041", totalMonths: 12, amount: 245.89, balance: 3920.11 },
-    { transactionId: "tx_2026_00042", totalMonths: 6, amount: 1150.0, balance: 2770.11 },
-    { transactionId: "tx_2026_00043", totalMonths: 24, amount: 79.5, balance: 2690.61 },
-];
-
-const NUMERIC_OVERVIEW_COLUMNS: readonly TableColumn<NumericOverviewRow>[] = [
-    {
-        key: "transactionId",
-        header: ResourceKey.FIELD_LABEL_USER_ID,
-        render: (row) => <span class="font-data">{row.transactionId}</span>,
-    },
-    {
-        key: "totalMonths",
-        header: ResourceKey.FIELD_LABEL_TOTAL_MONTHS,
-        render: (row) => String(row.totalMonths),
-        isNumeric: true,
-    },
-    {
-        key: "amount",
-        header: ResourceKey.FIELD_LABEL_VALUE,
-        render: (row) => NUMERIC_FORMATTER.format(row.amount),
-        isNumeric: true,
-    },
-    {
-        key: "balance",
-        header: ResourceKey.FIELD_LABEL_BALANCE,
-        render: (row) => NUMERIC_FORMATTER.format(row.balance),
-        isNumeric: true,
-    },
-];
-
-const TYPOGRAPHY_TOKEN_SAMPLES: readonly TypographyTokenSample[] = [
-    {
-        id: "page-title",
-        name: "Page Title",
-        classes: "text-page-title",
-        preview: "Executive Dashboard",
-        description: "Primary heading for page-level entry points.",
-    },
-    {
-        id: "section-title",
-        name: "Section Title",
-        classes: "text-section-title",
-        preview: "Portfolio Performance",
-        description: "Section grouping and major content separators.",
-    },
-    {
-        id: "card-title",
-        name: "Card Title",
-        classes: "text-card-title",
-        preview: "Revenue Summary",
-        description: "Title style used inside cards and compact panels.",
-    },
-    {
-        id: "body",
-        name: "Body",
-        classes: "text-body",
-        preview: "Body copy for descriptions, details, and long-form UI text.",
-        description: "Default copy style for standard content.",
-    },
-    {
-        id: "label",
-        name: "Label",
-        classes: "text-label",
-        preview: "Account Status",
-        description: "Control labels and short emphasized metadata.",
-    },
-    {
-        id: "caption",
-        name: "Caption",
-        classes: "text-caption",
-        preview: "Last synced 2 minutes ago",
-        description: "Secondary helper text and compact annotations.",
-    },
-    {
-        id: "tooltip",
-        name: "Tooltip Text",
-        classes: "text-tooltip",
-        preview: "Hover to view field help",
-        description: "Microcopy used by tooltips and dense helper hints.",
-    },
-    {
-        id: "button-sm",
-        name: "Button Text Small",
-        classes: "text-button-sm",
-        preview: "Small Action",
-        description: "Text size token for small buttons.",
-    },
-    {
-        id: "button-md",
-        name: "Button Text Medium",
-        classes: "text-button-md",
-        preview: "Medium Action",
-        description: "Default text size token for medium buttons.",
-    },
-    {
-        id: "button-lg",
-        name: "Button Text Large",
-        classes: "text-button-lg",
-        preview: "Large Action",
-        description: "Text size token for large buttons.",
-    },
-];
-
-const UI_FONT_WEIGHT_SAMPLES: readonly TypographyWeightSample[] = [
-    {
-        id: "ui-regular",
-        label: "Regular 400",
-        classes: "font-ui text-body font-normal",
-        preview: "Plus Jakarta Sans regular sample",
-    },
-    {
-        id: "ui-medium",
-        label: "Medium 500",
-        classes: "font-ui text-body font-medium",
-        preview: "Plus Jakarta Sans medium sample",
-    },
-    {
-        id: "ui-semibold",
-        label: "Semibold 600",
-        classes: "font-ui text-body font-semibold",
-        preview: "Plus Jakarta Sans semibold sample",
-    },
-    {
-        id: "ui-bold",
-        label: "Bold 700",
-        classes: "font-ui text-body font-bold",
-        preview: "Plus Jakarta Sans bold sample",
-    },
-];
-
-const DATA_FONT_WEIGHT_SAMPLES: readonly TypographyWeightSample[] = [
-    {
-        id: "data-regular",
-        label: "Regular 400",
-        classes: "font-data text-table-number font-normal",
-        preview: "12840.55 / tx_2026_00043",
-    },
-    {
-        id: "data-medium",
-        label: "Medium 500",
-        classes: "font-data text-table-number font-medium",
-        preview: "12840.55 / tx_2026_00043",
-    },
-    {
-        id: "data-semibold",
-        label: "Semibold 600",
-        classes: "font-data text-table-number font-semibold",
-        preview: "12840.55 / tx_2026_00043",
-    },
-];
-
-const NUMERIC_TYPOGRAPHY_SAMPLES: readonly TypographyTokenSample[] = [
-    {
-        id: "kpi",
-        name: "KPI",
-        classes: "text-kpi",
-        preview: "98,760",
-        description: "Large primary metric.",
-    },
-    {
-        id: "money",
-        name: "Money",
-        classes: "text-money",
-        preview: "$12,840.55",
-        description: "Monetary highlight with tabular digits.",
-    },
-    {
-        id: "table-number",
-        name: "Table Number",
-        classes: "text-table-number",
-        preview: "2,770.11",
-        description: "Default number style for table cells.",
-    },
-    {
-        id: "data-id",
-        name: "Data Identifier",
-        classes: "font-data text-body",
-        preview: "tx_2026_00043",
-        description: "Monospaced identifier formatting.",
-    },
-];
+function ShowcaseSection({
+    id,
+    title,
+    description,
+    open,
+    onToggle,
+    children,
+}: ShowcaseSectionProps): JSX.Element {
+    return (
+        <Collapse
+            id={`sandbox-showcase-${id}`}
+            open={open}
+            onToggle={(nextOpen) => onToggle(id, nextOpen)}
+            title={title}
+            description={description}
+            className="rounded-2xl shadow-sm"
+            headerClassName="items-start gap-4 p-4 sm:p-5"
+            titleClassName="text-section-title"
+            descriptionClassName="text-body text-base-content/70"
+            iconClassName="mt-1"
+            contentClassName="px-4 pb-5 pt-4 sm:px-5"
+        >
+            {children}
+        </Collapse>
+    );
+}
 
 /**
- * @summary Renders the UI Core Kit sandbox page for visual validation.
+ * @summary Renders the living Design System showcase page for all core UI components.
  * @returns Sandbox page component.
  */
 export function SandboxPage(): JSX.Element {
     const controller = useMemo(() => createSandboxController(), []);
 
     const [theme, setTheme] = useState<Theme>(controller.getCurrentTheme());
-    const [modalState, setModalState] = useState<SandboxModalState>(controller.getDefaultModalState());
+    const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>(() =>
+        createSectionVisibility(true)
+    );
+    const [modalState, setModalState] = useState<SandboxModalState>(
+        controller.getDefaultModalState()
+    );
     const [filters, setFilters] = useState<SandboxFilters>(controller.getDefaultFilters());
-    const [dataTableMode, setDataTableMode] = useState<SandboxDataTableMode>(SANDBOX_DATA_TABLE_MODE.READY);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [dataTableMode, setDataTableMode] = useState<SandboxDataTableMode>(
+        SANDBOX_DATA_TABLE_MODE.READY
+    );
     const [toasts, setToasts] = useState(getToasts());
 
-    const [textInputValue, setTextInputValue] = useState<string>("Sandbox text");
+    const [textInputValue, setTextInputValue] = useState<string>("Design system baseline");
     const [emailInputValue, setEmailInputValue] = useState<string>("sandbox@laurus.dev");
-    const [passwordInputValue, setPasswordInputValue] = useState<string>("12345678");
+    const [passwordInputValue, setPasswordInputValue] = useState<string>("safe-password");
     const [searchInputValue, setSearchInputValue] = useState<string>("");
-    const [prefixedInputValue, setPrefixedInputValue] = useState<string>("150");
-    const [hintInputValue, setHintInputValue] = useState<string>("Hint text");
-    const [errorInputValue, setErrorInputValue] = useState<string>("not-an-email");
-    const [numericInputValue, setNumericInputValue] = useState<string>("12840.55");
-
-    const [selectWithPlaceholderValue, setSelectWithPlaceholderValue] = useState<string>("");
-    const [selectValue, setSelectValue] = useState<string>("active");
+    const [numberInputValue, setNumberInputValue] = useState<string>("12840.55");
+    const [telInputValue, setTelInputValue] = useState<string>("+1 212 555 0142");
+    const [urlInputValue, setUrlInputValue] = useState<string>("https://laurus.dev");
+    const [hintInputValue, setHintInputValue] = useState<string>("Automated nightly snapshot");
+    const [errorInputValue, setErrorInputValue] = useState<string>("broken-email-format");
+    const [prefixedInputValue, setPrefixedInputValue] = useState<string>("250");
+    const [suffixInputValue, setSuffixInputValue] = useState<string>("24");
+    const [disabledInputValue] = useState<string>("Read-only showcase");
+    const [requiredInputValue, setRequiredInputValue] = useState<string>("");
+    const [selectValue, setSelectValue] = useState<string>(SANDBOX_STATUS_FILTER.ACTIVE);
     const [selectErrorValue, setSelectErrorValue] = useState<string>("");
 
-    const tableColumns = controller.getUserColumns();
+    const tableColumns = controller.getTableColumns();
     const filterFields = controller.getFilterFields();
-    const filteredUsers = useMemo(() => controller.filterUsers(filters), [controller, filters]);
-    const totalPages = useMemo(() => controller.getTotalPages(filteredUsers.length, PAGE_SIZE), [controller, filteredUsers.length]);
+    const filterOptions = controller.getFilterOptions();
+    const records = controller.getRecords();
+
+    const filteredRecords = useMemo(
+        () => controller.filterRecords(filters),
+        [controller, filters]
+    );
+    const totalPages = useMemo(
+        () => controller.getTotalPages(filteredRecords.length, PAGE_SIZE),
+        [controller, filteredRecords.length]
+    );
 
     useEffect(() => {
         if (currentPage > totalPages) {
@@ -383,574 +372,894 @@ export function SandboxPage(): JSX.Element {
         }
     }, [currentPage, totalPages]);
 
-    const paginatedUsers = useMemo(
-        () => controller.paginateUsers(filteredUsers, currentPage, PAGE_SIZE),
-        [controller, filteredUsers, currentPage]
+    const paginatedRecords = useMemo(
+        () => controller.paginateRecords(filteredRecords, currentPage, PAGE_SIZE),
+        [controller, filteredRecords, currentPage]
     );
+
     const dataTableRows = useMemo(
-        () => controller.resolveDataTableRows(paginatedUsers, dataTableMode),
-        [controller, paginatedUsers, dataTableMode]
+        () => controller.resolveDataTableRows(paginatedRecords, dataTableMode),
+        [controller, paginatedRecords, dataTableMode]
+    );
+
+    const nestedAccordionItems: readonly AccordionItem[] = useMemo(
+        () => [
+            {
+                id: "sandbox-nested-accordion-1",
+                title: ResourceKey.FIELD_LABEL_DATE,
+                content: "Nested section for secondary details.",
+                openByDefault: true,
+            },
+            {
+                id: "sandbox-nested-accordion-2",
+                title: ResourceKey.FIELD_LABEL_OBSERVATION,
+                content: "Nested section for supporting notes.",
+            },
+        ],
+        []
     );
 
     const accordionItems: readonly AccordionItem[] = useMemo(
         () => [
             {
                 id: "sandbox-accordion-1",
-                title: ResourceKey.FIELD_LABEL_MESSAGE,
-                content: "Accordion content block for UI contract validation.",
+                title: ResourceKey.FIELD_LABEL_TITLE,
+                content: (
+                    <div class="space-y-3">
+                        <p class="text-body">
+                            This parent panel contains a nested accordion to demonstrate stacked usage.
+                        </p>
+                        <Accordion items={nestedAccordionItems} allowMultiple={false} />
+                    </div>
+                ),
                 openByDefault: true,
             },
             {
                 id: "sandbox-accordion-2",
-                title: ResourceKey.FIELD_LABEL_OBSERVATION,
-                content: "Second accordion panel to validate collapse behavior.",
+                title: ResourceKey.FIELD_LABEL_MESSAGE,
+                content:
+                    "Second parent panel for validating independent open and close behavior.",
             },
         ],
-        []
+        [nestedAccordionItems]
     );
 
-    useEffect(() => {
-        return subscribeToasts((nextToasts) => setToasts(nextToasts));
-    }, []);
+    useEffect(() => subscribeToasts((nextToasts) => setToasts(nextToasts)), []);
 
     useEffect(() => {
         const previousLocale = getLocale();
         setLocale(Language.EN_US);
 
-        return () => {
+        return (): void => {
             setLocale(previousLocale);
         };
     }, []);
 
-    const handleThemeChange = (nextTheme: Theme): void => setTheme(controller.applyTheme(nextTheme));
+    const areAllExpanded = SECTION_DEFINITIONS.every(
+        (section) => sectionVisibility[section.id]
+    );
+    const areAllCollapsed = SECTION_DEFINITIONS.every(
+        (section) => !sectionVisibility[section.id]
+    );
+
+    const toggleTheme = (): void => {
+        const nextTheme = theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT;
+        setTheme(controller.applyTheme(nextTheme));
+    };
+
+    const setAllSections = (open: boolean): void => {
+        setSectionVisibility(createSectionVisibility(open));
+    };
+
+    const handleSectionToggle = (sectionId: ShowcaseSectionId, open: boolean): void => {
+        setSectionVisibility((current) => ({
+            ...current,
+            [sectionId]: open,
+        }));
+    };
+
     const handleFilterChange = (nextValues: Partial<SandboxFilters>): void => {
         setFilters(controller.mergeFilters(nextValues));
         setCurrentPage(1);
     };
+
     const handleOpenModal = (patch: Partial<SandboxModalState>): void => {
         setModalState((current) => controller.openModal(current, patch));
     };
-    const handleCloseModal = (): void => setModalState((current) => controller.closeModal(current));
+
+    const handleCloseModal = (): void => {
+        setModalState((current) => controller.closeModal(current));
+    };
+
+    const handleClearFilters = (): void => {
+        setFilters(controller.getDefaultFilters());
+        setCurrentPage(1);
+    };
 
     return (
         <PageContainer>
             <div class={CANVAS_CLASS}>
-                <div class="space-y-6">
-                <section class={SECTION_CLASS}>
-                    <h1 class="text-page-title">UI Sandbox</h1>
-                    <p class="text-body">Development-only page for validating UI Core Kit behavior with local typed data.</p>
-                </section>
-
-                <section class={SECTION_CLASS}>
-                    <div class="space-y-5">
+                <section class={SECTION_SURFACE_CLASS}>
+                    <div class="space-y-4 p-4 sm:p-5">
                         <div class="space-y-2">
-                            <h2 class="text-section-title">Typography Foundation</h2>
-                            <p class="text-body">
-                                Complete reference for semantic typography tokens, font families, and supported font
-                                weights.
+                            <h1 class="text-page-title">Laurus UI Design System</h1>
+                            <p class="text-body text-base-content/80">
+                                Living documentation and visual validation surface for the Core UI
+                                Kit. Each section is interactive, collapsible, and optimized for
+                                responsive inspection.
                             </p>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Semantic Text Tokens</h3>
-                                <p class="text-caption text-base-content/70">
-                                    Each row renders the style preview and the exact class used.
+                        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Theme</p>
+                                <p class="text-body text-base-content/70">
+                                    Current:{" "}
+                                    <span class="font-data">
+                                        {theme === Theme.DARK ? "Dark (Dracula)" : "Light"}
+                                    </span>
                                 </p>
-                                <div class="space-y-3">
-                                    {TYPOGRAPHY_TOKEN_SAMPLES.map((sample) => (
-                                        <div key={sample.id} class="rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                            <div class="space-y-2">
-                                                <p class="text-label">{sample.name}</p>
-                                                <p class={sample.classes}>{sample.preview}</p>
-                                                <p class="text-caption text-base-content/70">{sample.description}</p>
-                                                <code class="inline-flex rounded-md border border-base-300 bg-base-100 px-2 py-1 font-data text-tooltip">
-                                                    {sample.classes}
-                                                </code>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div class="w-full sm:w-auto [&>button]:w-full sm:[&>button]:w-auto">
+                                    <Button
+                                        variant={
+                                            theme === Theme.DARK
+                                                ? ButtonVariant.SECONDARY
+                                                : ButtonVariant.PRIMARY
+                                        }
+                                        iconLeft={IconName.STAR}
+                                        onClick={toggleTheme}
+                                    >
+                                        {theme === Theme.DARK
+                                            ? "Switch to Light Mode"
+                                            : "Switch to Dark Mode"}
+                                    </Button>
                                 </div>
                             </div>
 
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Font Families and Weights</h3>
-                                <p class="text-caption text-base-content/70">
-                                    Use only loaded weights to keep rendering stable across web and mobile builds.
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Section Controls</p>
+                                <p class="text-body text-base-content/70">
+                                    Expand or collapse every documentation block with one action.
                                 </p>
-                                <div class="space-y-3">
-                                    <div class="space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                        <p class="text-label">UI Font: Plus Jakarta Sans (`font-ui`)</p>
-                                        <div class="space-y-2">
-                                            {UI_FONT_WEIGHT_SAMPLES.map((sample) => (
-                                                <div key={sample.id} class="space-y-1 rounded-md border border-base-300 bg-base-100 p-2">
-                                                    <p class="text-caption text-base-content/70">{sample.label}</p>
-                                                    <p class={sample.classes}>{sample.preview}</p>
-                                                    <code class="inline-flex rounded border border-base-300 bg-base-200 px-2 py-1 font-data text-tooltip">
-                                                        {sample.classes}
-                                                    </code>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                        <p class="text-label">Data Font: IBM Plex Mono (`font-data`)</p>
-                                        <div class="space-y-2">
-                                            {DATA_FONT_WEIGHT_SAMPLES.map((sample) => (
-                                                <div key={sample.id} class="space-y-1 rounded-md border border-base-300 bg-base-100 p-2">
-                                                    <p class="text-caption text-base-content/70">{sample.label}</p>
-                                                    <p class={sample.classes}>{sample.preview}</p>
-                                                    <code class="inline-flex rounded border border-base-300 bg-base-200 px-2 py-1 font-data text-tooltip">
-                                                        {sample.classes}
-                                                    </code>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button
+                                        variant={ButtonVariant.OUTLINE}
+                                        iconLeft={IconName.ADD}
+                                        disabled={areAllExpanded}
+                                        onClick={() => setAllSections(true)}
+                                    >
+                                        Expand All
+                                    </Button>
+                                    <Button
+                                        variant={ButtonVariant.GHOST}
+                                        iconLeft={IconName.CLOSE}
+                                        disabled={areAllCollapsed}
+                                        onClick={() => setAllSections(false)}
+                                    >
+                                        Collapse All
+                                    </Button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section class={SECTION_CLASS}>
-                    <div class="space-y-5">
-                        <div class="space-y-2">
-                            <h2 class="text-section-title">Numeric Typography</h2>
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.TYPOGRAPHY}
+                    title="Typography System"
+                    description="Jakarta = human layer. Plex Mono = data layer."
+                    open={sectionVisibility[SHOWCASE_SECTION.TYPOGRAPHY]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Plus Jakarta Sans (Human Layer)</p>
+                            <h1 class="text-page-title">H1 - Executive Insights</h1>
+                            <h2 class="text-section-title">H2 - Monthly Review</h2>
+                            <h3 class="text-card-title">H3 - Account Overview</h3>
                             <p class="text-body">
-                                Dedicated data typography with tabular digits for KPIs, monetary values, identifiers,
-                                forms, and tables.
+                                Paragraph sample for descriptive interface content and long-form
+                                guidance text.
                             </p>
+                            <p class="text-label">Label sample: Account Status</p>
+                            <div class="flex flex-wrap gap-2">
+                                <Button size={ButtonSize.SM} variant={ButtonVariant.OUTLINE}>
+                                    Button Text SM
+                                </Button>
+                                <Button size={ButtonSize.MD} variant={ButtonVariant.SECONDARY}>
+                                    Button Text MD
+                                </Button>
+                                <Button size={ButtonSize.LG} variant={ButtonVariant.PRIMARY}>
+                                    Button Text LG
+                                </Button>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Numeric Tokens</h3>
-                                <div class="space-y-3">
-                                    {NUMERIC_TYPOGRAPHY_SAMPLES.map((sample) => (
-                                        <div key={sample.id} class="rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                            <div class="space-y-2">
-                                                <p class="text-label">{sample.name}</p>
-                                                <p class={sample.classes}>{sample.preview}</p>
-                                                <p class="text-caption text-base-content/70">{sample.description}</p>
-                                                <code class="inline-flex rounded-md border border-base-300 bg-base-100 px-2 py-1 font-data text-tooltip">
-                                                    {sample.classes}
-                                                </code>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Inputs and Table Integration</h3>
-                                <div class="space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                    <p class="text-label">Inputs with numeric values</p>
-                                    <Input
-                                        label={ResourceKey.FIELD_LABEL_BALANCE}
-                                        type={InputType.NUMBER}
-                                        value={numericInputValue}
-                                        onChange={setNumericInputValue}
-                                    />
-                                    <Input
-                                        label={ResourceKey.FIELD_LABEL_TOTAL_MONTHS}
-                                        type={InputType.NUMBER}
-                                        value="12"
-                                        readOnly
-                                    />
-                                    <code class="inline-flex rounded-md border border-base-300 bg-base-100 px-2 py-1 font-data text-tooltip">
-                                        Input(type=NUMBER) + font-data
-                                    </code>
-                                </div>
-
-                                <div class="space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
-                                    <p class="text-label">Numeric table columns</p>
-                                    <Table
-                                        columns={NUMERIC_OVERVIEW_COLUMNS}
-                                        rows={NUMERIC_OVERVIEW_ROWS}
-                                        getRowKey={(row) => row.transactionId}
-                                    />
-                                    <code class="inline-flex rounded-md border border-base-300 bg-base-100 px-2 py-1 font-data text-tooltip">
-                                        TableColumn.isNumeric = true + text-table-number
-                                    </code>
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">IBM Plex Mono (Data Layer)</p>
+                            <p class="text-kpi text-right">98,760</p>
+                            <p class="text-money text-right">
+                                {controller.formatCurrency(12840.55)}
+                            </p>
+                            <p class="text-table-number text-right">2,770.11</p>
+                            <Input
+                                label={ResourceKey.FIELD_LABEL_VALUE}
+                                type={InputType.NUMBER}
+                                value={numberInputValue}
+                                suffixText={ResourceKey.FIELD_LABEL_CURRENCY}
+                                onChange={setNumberInputValue}
+                            />
+                            <div class="rounded-lg border border-base-300 bg-base-100 p-3">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="space-y-1">
+                                        <p class="text-label">Transaction Line Example</p>
+                                        <p class="text-body text-base-content/70">
+                                            Corporate travel reimbursement - January cycle
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-money">
+                                            {controller.formatCurrency(2840.55)}
+                                        </p>
+                                        <p class="font-data text-table-number">txn_2026_0042</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
+                </ShowcaseSection>
 
-                <section class={SECTION_CLASS}>
-                    <h2 class="text-section-title">Color Palette Preview</h2>
-                    <p class="text-body">Visual validation of depth, contrast and emphasis using the current theme tokens.</p>
-                    <div class="space-y-3">
-                        <div class={PALETTE_PANEL_CLASS}>
-                            <div class="grid grid-cols-1 sm:grid-cols-4">
-                                <div class="bg-base-100 p-4 text-body">Base 100</div>
-                                <div class="bg-base-200 p-4 text-body">Base 200</div>
-                                <div class="bg-base-300 p-4 text-body">Base 300</div>
-                                <div class="bg-neutral p-4 text-body text-neutral-content">Neutral</div>
-                            </div>
-                        </div>
-                        <div class={PALETTE_PANEL_CLASS}>
-                            <div class="grid grid-cols-2 sm:grid-cols-4">
-                                <div class="bg-primary p-4 text-body text-primary-content">Primary</div>
-                                <div class="bg-secondary p-4 text-body text-secondary-content">Secondary</div>
-                                <div class="bg-accent p-4 text-body text-accent-content">Accent</div>
-                                <div class="bg-info p-4 text-body text-info-content">Info</div>
-                            </div>
-                        </div>
-                        <div class={PALETTE_PANEL_CLASS}>
-                            <div class="grid grid-cols-3">
-                                <div class="bg-success p-4 text-body text-success-content">Success</div>
-                                <div class="bg-warning p-4 text-body text-warning-content">Warning</div>
-                                <div class="bg-error p-4 text-body text-error-content">Error</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Theme Testing Section</h2>
-                        <p class="text-body">Switch Daisy themes and confirm typography stays identical while only colors change.</p>
-                        <div class="flex flex-wrap gap-2">
-                            {THEME_OPTIONS.map((themeOption) => (
-                                <Button key={themeOption} variant={theme === themeOption ? ButtonVariant.PRIMARY : ButtonVariant.OUTLINE} onClick={() => handleThemeChange(themeOption)}>
-                                    {themeOption === Theme.LIGHT ? "Light" : "Dark"}
-                                </Button>
-                            ))}
-                        </div>
-                        <div class="rounded-xl border border-base-300 bg-base-100 p-3">
-                            <p class="text-label">Current Theme: {theme}</p>
-                            <p class="text-body">UI typography sample remains unchanged across themes.</p>
-                            <p class="text-money">$12,840.55</p>
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Buttons</h2>
-                        <div class="flex flex-wrap gap-2">
-                            {(Object.values(ButtonVariant) as readonly ButtonVariant[]).map((variant) => (
-                                <Button key={variant} variant={variant}>{variant}</Button>
-                            ))}
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <Button size={ButtonSize.SM}>Small</Button>
-                            <Button size={ButtonSize.MD}>Medium</Button>
-                            <Button size={ButtonSize.LG}>Large</Button>
-                            <Button disabled>Disabled</Button>
-                            <Button loading>Loading</Button>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            {BUTTON_ICON_EXAMPLES.map((example) => (
-                                <Button key={example.icon} variant={example.variant} iconLeft={example.icon}>
-                                    {example.icon}
-                                </Button>
-                            ))}
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Inputs</h2>
-                        <FormGrid columns={2}>
-                            <Input label={ResourceKey.FIELD_LABEL_NAME} type={InputType.TEXT} value={textInputValue} onChange={setTextInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_EMAIL} type={InputType.EMAIL} icon={IconName.EMAIL} iconPosition={IconPosition.LEFT} value={emailInputValue} onChange={setEmailInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_PASSWORD} type={InputType.PASSWORD} icon={IconName.LOCK} iconPosition={IconPosition.LEFT} value={passwordInputValue} onChange={setPasswordInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_NAME} type={InputType.SEARCH} icon={IconName.SEARCH} iconPosition={IconPosition.LEFT} value={searchInputValue} onChange={setSearchInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_VALUE} value={prefixedInputValue} prefixText={ResourceKey.FIELD_LABEL_CURRENCY} suffixText={ResourceKey.FIELD_LABEL_TOTAL_MONTHS} onChange={setPrefixedInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_OBSERVATION} value={hintInputValue} hint={ResourceKey.SEARCH_TERM_TOO_SHORT} onChange={setHintInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_EMAIL} value={errorInputValue} error={ResourceKey.EMAIL_INVALID} onChange={setErrorInputValue} />
-                            <Input label={ResourceKey.FIELD_LABEL_PROFILE} value="Disabled input" disabled onChange={() => undefined} />
-                        </FormGrid>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Selects</h2>
-                        <FormGrid columns={2}>
-                            <Select label={ResourceKey.FIELD_LABEL_TYPE} placeholder={ResourceKey.FIELD_LABEL_TYPE} options={SELECT_OPTIONS} value={selectWithPlaceholderValue} onChange={setSelectWithPlaceholderValue} />
-                            <Select label={ResourceKey.FIELD_LABEL_ACTIVE} options={SELECT_OPTIONS} value={selectValue} onChange={setSelectValue} />
-                            <Select label={ResourceKey.FIELD_LABEL_TAGS} placeholder={ResourceKey.FIELD_LABEL_TAGS} options={SELECT_OPTIONS} value={selectErrorValue} error={ResourceKey.FIELD_REQUIRED} onChange={setSelectErrorValue} />
-                        </FormGrid>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Fieldset</h2>
-                        <h3 class="text-card-title">FormGrid</h3>
-                        <Form onSubmit={() => controller.triggerToast(ToastVariant.SUCCESS)}>
-                            <Fieldset legend={ResourceKey.FIELD_LABEL_PROFILE} description={ResourceKey.FIELD_LABEL_OBSERVATION}>
-                                <FormGrid columns={2}>
-                                    <Input label={ResourceKey.FIELD_LABEL_FIRST_NAME} value={textInputValue} onChange={setTextInputValue} />
-                                    <Select label={ResourceKey.FIELD_LABEL_LANGUAGE} options={SELECT_OPTIONS} value={selectValue} onChange={setSelectValue} />
-                                </FormGrid>
-                                <div class="pt-2">
-                                    <Button type="submit" iconLeft={IconName.SAVE}>Submit</Button>
-                                </div>
-                            </Fieldset>
-                        </Form>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Modal</h2>
-                        <div class="space-y-3">
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.BUTTONS}
+                    title="Buttons"
+                    description="Variants, sizing, icon placement, state handling, and form usage."
+                    open={sectionVisibility[SHOWCASE_SECTION.BUTTONS]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">All Variants</p>
                             <div class="flex flex-wrap gap-2">
-                                {MODAL_SIZES.map((size) => <Button key={size} variant={ButtonVariant.OUTLINE} onClick={() => handleOpenModal({ size })}>{size.toUpperCase()}</Button>)}
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                {MODAL_POSITIONS.map((position) => <Button key={position} variant={ButtonVariant.OUTLINE} onClick={() => handleOpenModal({ position })}>{MODAL_POSITION_LABEL[position]}</Button>)}
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                {MODAL_SCROLL_MODES.map((scrollMode) => <Button key={scrollMode} variant={ButtonVariant.OUTLINE} onClick={() => handleOpenModal({ scrollMode })}>{MODAL_SCROLL_LABEL[scrollMode]}</Button>)}
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <Button
-                                    variant={ButtonVariant.SECONDARY}
-                                    onClick={() =>
-                                        handleOpenModal({
-                                            size: ModalSize.XL,
-                                            position: ModalPosition.CENTER,
-                                            scrollMode: ModalScrollMode.BODY,
-                                        })
-                                    }
-                                >
-                                    Open Full Scenario
-                                </Button>
-                            </div>
-                            <p class="text-body">
-                                Active config: {modalState.size.toUpperCase()} / {MODAL_POSITION_LABEL[modalState.position]} /{" "}
-                                {MODAL_SCROLL_LABEL[modalState.scrollMode]}
-                            </p>
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Tooltip</h2>
-                        <div class="flex flex-wrap gap-3">
-                            {TOOLTIP_ITEMS.map((item) => (
-                                <Tooltip key={item.position} content={item.content} position={item.position}>
-                                    <Button variant={ButtonVariant.OUTLINE}>{item.label}</Button>
-                                </Tooltip>
-                            ))}
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Toast</h2>
-                        <p class="text-body">Toasts now support both modes: without icon (minimal) and with icon (status-enhanced).</p>
-                        <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                            <p class="text-label">Without Icon</p>
-                            <div class="flex flex-wrap gap-2">
-                                {TOAST_VARIANTS.map((variant) => (
-                                    <Button key={`no-icon-${variant}`} variant={TOAST_BUTTON_VARIANT[variant]} onClick={() => controller.triggerToast(variant)}>
-                                        {TOAST_LABEL[variant]}
+                                {BUTTON_VARIANTS.map((variant) => (
+                                    <Button key={variant} variant={variant}>
+                                        {BUTTON_VARIANT_LABEL[variant]}
                                     </Button>
                                 ))}
                             </div>
                         </div>
-                        <div class={`mt-3 space-y-3 ${DEMO_PANEL_CLASS}`}>
-                            <p class="text-label">With Icon</p>
-                            <div class="flex flex-wrap gap-2">
-                                {TOAST_VARIANTS.map((variant) => (
-                                    <Button key={`with-icon-${variant}`} variant={TOAST_BUTTON_VARIANT[variant]} onClick={() => controller.triggerToastWithIcon(variant)}>
-                                        {TOAST_LABEL[variant]}
+
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">All Sizes + Icons</p>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    {BUTTON_SIZES.map((size) => (
+                                        <Button
+                                            key={size}
+                                            size={size}
+                                            variant={ButtonVariant.PRIMARY}
+                                            iconLeft={IconName.ADD}
+                                        >
+                                            {BUTTON_SIZE_LABEL[size]}
+                                        </Button>
+                                    ))}
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button
+                                        variant={ButtonVariant.SECONDARY}
+                                        iconLeft={IconName.EDIT}
+                                    >
+                                        Left Icon
                                     </Button>
-                                ))}
-                            </div>
-                        </div>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <Button
-                                variant={ButtonVariant.OUTLINE}
-                                iconLeft={IconName.WARNING}
-                                onClick={() => controller.triggerPersistentToast(ToastVariant.WARNING)}
-                            >
-                                Persistent Warning
-                            </Button>
-                            <Button
-                                variant={ButtonVariant.SECONDARY}
-                                iconLeft={IconName.ADD}
-                                onClick={controller.triggerToastBurst}
-                            >
-                                Burst (3)
-                            </Button>
-                            <Button
-                                variant={ButtonVariant.GHOST}
-                                iconLeft={IconName.CLOSE}
-                                onClick={controller.clearAllToasts}
-                            >
-                                Clear Toasts
-                            </Button>
-                        </div>
-                        <p class="mt-2 text-body">
-                            Active notifications: <span class="font-data">{toasts.length}</span>
-                        </p>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Alerts</h2>
-                        <p class="text-body">Recommended approach: `soft` for default feedback and `dash` for higher emphasis without looking like CTA buttons.</p>
-                        <div class={`mb-3 space-y-3 ${DEMO_PANEL_CLASS}`}>
-                            <h3 class="text-card-title">Recommended Surface (Less Button-like)</h3>
-                            <p class="text-caption text-base-content/70">
-                                Soft keeps alerts informative and calm. Dash adds urgency with stronger borders while staying distinct from action buttons.
-                            </p>
-                            <div class="space-y-2">
-                                <Alert variant={AlertVariant.INFO} style={AlertStyle.SOFT} icon={IconName.INFO}>
-                                    Informational updates should use soft styling by default.
-                                </Alert>
-                                <Alert variant={AlertVariant.SUCCESS} style={AlertStyle.SOFT} icon={IconName.CHECK}>
-                                    Success confirmations remain clear without competing with primary buttons.
-                                </Alert>
-                                <Alert variant={AlertVariant.WARNING} style={AlertStyle.DASH} icon={IconName.WARNING}>
-                                    Warning states can use dash to add stronger visual emphasis.
-                                </Alert>
-                                <Alert variant={AlertVariant.ERROR} style={AlertStyle.DASH} icon={IconName.ERROR}>
-                                    Error states should stand out with border emphasis and icon support.
-                                </Alert>
-                            </div>
-                        </div>
-                        <p class="text-body">Full gallery with all DaisyUI alert patterns mapped to typed Alert props.</p>
-                        <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-                            <div class={`space-y-2 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Default (Solid)</h3>
-                                <Alert variant={AlertVariant.INFO} hideIcon compact>12 unread messages. Tap to see.</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} hideIcon compact>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.WARNING} hideIcon compact>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} hideIcon compact>Error! Task failed successfully.</Alert>
+                                    <Button
+                                        variant={ButtonVariant.OUTLINE}
+                                        iconRight={IconName.CHEVRON_RIGHT}
+                                    >
+                                        Right Icon
+                                    </Button>
+                                </div>
                             </div>
 
-                            <div class={`space-y-2 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Outline</h3>
-                                <Alert variant={AlertVariant.INFO} style={AlertStyle.OUTLINE} hideIcon compact>12 unread messages. Tap to see.</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} style={AlertStyle.OUTLINE} hideIcon compact>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.WARNING} style={AlertStyle.OUTLINE} hideIcon compact>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} style={AlertStyle.OUTLINE} hideIcon compact>Error! Task failed successfully.</Alert>
-                            </div>
-
-                            <div class={`space-y-2 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Soft</h3>
-                                <Alert variant={AlertVariant.INFO} style={AlertStyle.SOFT} hideIcon compact>12 unread messages. Tap to see.</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} style={AlertStyle.SOFT} hideIcon compact>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.WARNING} style={AlertStyle.SOFT} hideIcon compact>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} style={AlertStyle.SOFT} hideIcon compact>Error! Task failed successfully.</Alert>
-                            </div>
-
-                            <div class={`space-y-2 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Dash</h3>
-                                <Alert variant={AlertVariant.INFO} style={AlertStyle.DASH} hideIcon compact>12 unread messages. Tap to see.</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} style={AlertStyle.DASH} hideIcon compact>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.WARNING} style={AlertStyle.DASH} hideIcon compact>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} style={AlertStyle.DASH} hideIcon compact>Error! Task failed successfully.</Alert>
-                            </div>
-
-                            <div class={`space-y-2 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">With Icon</h3>
-                                <Alert icon={IconName.INFO}>12 unread messages. Tap to see.</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} icon={IconName.CHECK}>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.SUCCESS} icon={IconName.CHECK}>Your purchase has been confirmed!</Alert>
-                                <Alert variant={AlertVariant.WARNING} icon={IconName.WARNING}>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} icon={IconName.ERROR}>Error! Task failed successfully.</Alert>
-                            </div>
-
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Actions/Responsive</h3>
-                                <Alert
-                                    icon={IconName.INFO}
-                                    direction={AlertDirection.RESPONSIVE}
-                                    actions={
-                                        <>
-                                            <Button size={ButtonSize.SM} variant={ButtonVariant.OUTLINE}>Deny</Button>
-                                            <Button size={ButtonSize.SM} variant={ButtonVariant.PRIMARY}>Accept</Button>
-                                        </>
-                                    }
-                                >
-                                    we use cookies for no reason.
-                                </Alert>
-                                <Alert
-                                    icon={IconName.INFO}
-                                    direction={AlertDirection.RESPONSIVE}
-                                    actions={<Button size={ButtonSize.SM} variant={ButtonVariant.OUTLINE}>See</Button>}
-                                >
-                                    <div>
-                                        <h4 class="text-label font-semibold">New message!</h4>
-                                        <p class="text-caption">You have 1 unread message</p>
-                                    </div>
-                                </Alert>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Loader</h2>
-                        <div class="flex items-center gap-4">
-                            <Loader size={LoaderSize.SM} /><Loader size={LoaderSize.MD} /><Loader size={LoaderSize.LG} />
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Card</h2>
-                        <Card title={ResourceKey.FIELD_LABEL_TITLE} description={ResourceKey.FIELD_LABEL_MESSAGE}>
-                            <p class="text-body">Card content block for spacing and theme validation.</p>
-                        </Card>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Examples</h2>
-                        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <Card title={ResourceKey.FIELD_LABEL_PROFILE} compact>
-                                <p class="text-body">Quick action example with a semantic icon button.</p>
-                                <div class="pt-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Loading + Disabled + Full Width</p>
+                                <div class="flex flex-wrap gap-2">
                                     <Button
                                         variant={ButtonVariant.PRIMARY}
-                                        iconLeft={IconName.SAVE}
-                                        onClick={() => controller.triggerToast(ToastVariant.SUCCESS)}
+                                        loading
                                     >
-                                        Save Draft
+                                        Loading
+                                    </Button>
+                                    <Button
+                                        variant={ButtonVariant.OUTLINE}
+                                        disabled
+                                    >
+                                        Disabled
                                     </Button>
                                 </div>
-                            </Card>
-                            <Card title={ResourceKey.FIELD_LABEL_TAGS} compact>
-                                <p class="text-body">Preview card combining visual and notification feedback.</p>
-                                <div class="pt-2">
+                                <div class="w-full [&>button]:w-full">
+                                    <Button
+                                        variant={ButtonVariant.ACCENT}
+                                        iconLeft={IconName.SAVE}
+                                    >
+                                        Full Width Primary Action
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Button Inside Form</p>
+                            <Form
+                                onSubmit={() =>
+                                    controller.triggerToastWithIcon(ToastVariant.SUCCESS)
+                                }
+                            >
+                                <FormGrid columns={2}>
+                                    <Input
+                                        label={ResourceKey.FIELD_LABEL_NAME}
+                                        value={textInputValue}
+                                        onChange={setTextInputValue}
+                                        required
+                                    />
+                                    <Input
+                                        label={ResourceKey.FIELD_LABEL_EMAIL}
+                                        type={InputType.EMAIL}
+                                        value={emailInputValue}
+                                        onChange={setEmailInputValue}
+                                        required
+                                    />
+                                </FormGrid>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button
+                                        type="submit"
+                                        variant={ButtonVariant.PRIMARY}
+                                        iconLeft={IconName.CHECK}
+                                    >
+                                        Submit Form
+                                    </Button>
+                                    <Button variant={ButtonVariant.GHOST}>
+                                        Secondary Action
+                                    </Button>
+                                </div>
+                            </Form>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.INPUTS_FORMS}
+                    title="Inputs & Form Elements"
+                    description="Typed input controls, select states, field grouping, and responsive grids."
+                    open={sectionVisibility[SHOWCASE_SECTION.INPUTS_FORMS]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Input Types</p>
+                            <FormGrid columns={3}>
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_NAME}
+                                    type={InputType.TEXT}
+                                    value={textInputValue}
+                                    onChange={setTextInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_EMAIL}
+                                    type={InputType.EMAIL}
+                                    value={emailInputValue}
+                                    onChange={setEmailInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_PASSWORD}
+                                    type={InputType.PASSWORD}
+                                    value={passwordInputValue}
+                                    onChange={setPasswordInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_TITLE}
+                                    type={InputType.SEARCH}
+                                    value={searchInputValue}
+                                    icon={IconName.SEARCH}
+                                    onChange={setSearchInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_VALUE}
+                                    type={InputType.NUMBER}
+                                    value={numberInputValue}
+                                    onChange={setNumberInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_PHONE}
+                                    type={InputType.TEL}
+                                    value={telInputValue}
+                                    onChange={setTelInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_PROFILE}
+                                    type={InputType.URL}
+                                    value={urlInputValue}
+                                    onChange={setUrlInputValue}
+                                />
+                            </FormGrid>
+                        </div>
+
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">States, Prefix/Suffix, and Icons</p>
+                            <FormGrid columns={2}>
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_OBSERVATION}
+                                    hint={ResourceKey.FIELD_LABEL_MESSAGE}
+                                    value={hintInputValue}
+                                    onChange={setHintInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_EMAIL}
+                                    error={ResourceKey.EMAIL_INVALID}
+                                    value={errorInputValue}
+                                    onChange={setErrorInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_VALUE}
+                                    prefixText={ResourceKey.FIELD_LABEL_CURRENCY}
+                                    value={prefixedInputValue}
+                                    onChange={setPrefixedInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_TOTAL_MONTHS}
+                                    suffixText={ResourceKey.FIELD_LABEL_TYPE}
+                                    value={suffixInputValue}
+                                    onChange={setSuffixInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_PROFILE}
+                                    icon={IconName.USER}
+                                    iconPosition={IconPosition.LEFT}
+                                    value={textInputValue}
+                                    onChange={setTextInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_MESSAGE}
+                                    icon={IconName.INFO}
+                                    iconPosition={IconPosition.RIGHT}
+                                    value={hintInputValue}
+                                    onChange={setHintInputValue}
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_TITLE}
+                                    value={disabledInputValue}
+                                    disabled
+                                />
+                                <Input
+                                    label={ResourceKey.FIELD_LABEL_NAME}
+                                    value={requiredInputValue}
+                                    onChange={setRequiredInputValue}
+                                    required
+                                    hint={ResourceKey.FIELD_REQUIRED}
+                                />
+                            </FormGrid>
+                        </div>
+
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Select, Fieldset, Form Wrapper, and FormGrid 1/2/3</p>
+                            <p class="text-body text-base-content/70">
+                                FormGrid collapses to a single column on narrow viewports.
+                            </p>
+
+                            <Fieldset
+                                legend={ResourceKey.FIELD_LABEL_PROFILE}
+                                description={ResourceKey.FIELD_LABEL_MESSAGE}
+                            >
+                                <Form
+                                    onSubmit={() =>
+                                        controller.triggerToastWithIcon(ToastVariant.SUCCESS)
+                                    }
+                                >
+                                    <FormGrid columns={1}>
+                                        <Select
+                                            label={ResourceKey.FIELD_LABEL_TYPE}
+                                            placeholder={ResourceKey.FIELD_LABEL_TYPE}
+                                            options={filterOptions}
+                                            value={selectValue}
+                                            onChange={setSelectValue}
+                                        />
+                                    </FormGrid>
+
+                                    <FormGrid columns={2}>
+                                        <Select
+                                            label={ResourceKey.FIELD_LABEL_ACTIVE}
+                                            placeholder={ResourceKey.FIELD_LABEL_ACTIVE}
+                                            options={filterOptions}
+                                            value={selectValue}
+                                            icon={IconName.CHEVRON_DOWN}
+                                            onChange={setSelectValue}
+                                        />
+                                        <Select
+                                            label={ResourceKey.FIELD_LABEL_MESSAGE}
+                                            placeholder={ResourceKey.FIELD_LABEL_MESSAGE}
+                                            options={filterOptions}
+                                            value={selectErrorValue}
+                                            error={ResourceKey.FIELD_REQUIRED}
+                                            onChange={setSelectErrorValue}
+                                        />
+                                    </FormGrid>
+
+                                    <FormGrid columns={3}>
+                                        <Input
+                                            label={ResourceKey.FIELD_LABEL_NAME}
+                                            value={textInputValue}
+                                            onChange={setTextInputValue}
+                                        />
+                                        <Input
+                                            label={ResourceKey.FIELD_LABEL_EMAIL}
+                                            value={emailInputValue}
+                                            onChange={setEmailInputValue}
+                                        />
+                                        <Input
+                                            label={ResourceKey.FIELD_LABEL_PHONE}
+                                            value={telInputValue}
+                                            onChange={setTelInputValue}
+                                        />
+                                    </FormGrid>
+
+                                    <div class="flex flex-wrap gap-2">
+                                        <Button
+                                            type="submit"
+                                            variant={ButtonVariant.PRIMARY}
+                                            iconLeft={IconName.CHECK}
+                                        >
+                                            Submit Showcase Form
+                                        </Button>
+                                        <Button
+                                            variant={ButtonVariant.OUTLINE}
+                                            iconLeft={IconName.CLOSE}
+                                            onClick={() => {
+                                                setRequiredInputValue("");
+                                                setSelectErrorValue("");
+                                            }}
+                                        >
+                                            Reset Values
+                                        </Button>
+                                    </div>
+                                </Form>
+                            </Fieldset>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.ALERTS_STATUS}
+                    title="Alerts & Status"
+                    description="Alert variants, compact mode, status mapping, ErrorState, and Loader states."
+                    open={sectionVisibility[SHOWCASE_SECTION.ALERTS_STATUS]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Alert Variants (Soft)</p>
+                            <div class="space-y-2">
+                                {ALERT_VARIANTS.map((variant) => (
+                                    <Alert
+                                        key={variant}
+                                        variant={variant}
+                                        style={AlertStyle.SOFT}
+                                        icon={getStatusVariantIcon(variant)}
+                                    >
+                                        {ALERT_LABEL[variant]} feedback for live UI state
+                                        validation.
+                                    </Alert>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Compact + Responsive Actions</p>
+                                <div class="space-y-2">
+                                    <Alert
+                                        variant={AlertVariant.INFO}
+                                        compact
+                                        icon={IconName.INFO}
+                                    >
+                                        Compact informational status.
+                                    </Alert>
+                                    <Alert
+                                        variant={AlertVariant.WARNING}
+                                        style={AlertStyle.DASH}
+                                        direction={AlertDirection.RESPONSIVE}
+                                        icon={IconName.WARNING}
+                                        actions={
+                                            <>
+                                                <Button
+                                                    size={ButtonSize.SM}
+                                                    variant={ButtonVariant.OUTLINE}
+                                                >
+                                                    Review
+                                                </Button>
+                                                <Button
+                                                    size={ButtonSize.SM}
+                                                    variant={ButtonVariant.PRIMARY}
+                                                >
+                                                    Resolve
+                                                </Button>
+                                            </>
+                                        }
+                                    >
+                                        Responsive alert action layout for mobile and desktop.
+                                    </Alert>
+                                </div>
+                            </div>
+
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Status Mapping Snapshot</p>
+                                <div class="space-y-2">
+                                    {ALERT_VARIANTS.map((variant) => (
+                                        <div
+                                            key={variant}
+                                            class="rounded-lg border border-base-300 bg-base-100 p-3"
+                                        >
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div class="flex items-center gap-2">
+                                                    <Icon
+                                                        name={getStatusVariantIcon(variant)}
+                                                    />
+                                                    <p class="text-body">
+                                                        {ALERT_LABEL[variant]} Status
+                                                    </p>
+                                                </div>
+                                                <p class="text-right text-table-number">
+                                                    {variant === AlertVariant.ERROR
+                                                        ? "02"
+                                                        : variant === AlertVariant.WARNING
+                                                            ? "05"
+                                                            : variant === AlertVariant.SUCCESS
+                                                                ? "18"
+                                                                : "09"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">ErrorState</p>
+                                <ErrorState
+                                    title={ResourceKey.UNEXPECTED_ERROR}
+                                    description={ResourceKey.INTERNAL_SERVER_ERROR}
+                                    actionLabel={ResourceKey.FIELD_LABEL_PROFILE}
+                                    onAction={() =>
+                                        controller.triggerToastWithIcon(ToastVariant.ERROR)
+                                    }
+                                />
+                            </div>
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Loader Sizes</p>
+                                <div class="flex items-center gap-4">
+                                    <Loader size={LoaderSize.SM} />
+                                    <Loader size={LoaderSize.MD} />
+                                    <Loader size={LoaderSize.LG} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.MODAL}
+                    title="Modal"
+                    description="Interactive controls for size, position, scroll ownership, and footer variants."
+                    open={sectionVisibility[SHOWCASE_SECTION.MODAL]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Size</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {MODAL_SIZES.map((size) => (
+                                        <Button
+                                            key={size}
+                                            variant={
+                                                modalState.size === size
+                                                    ? ButtonVariant.PRIMARY
+                                                    : ButtonVariant.OUTLINE
+                                            }
+                                            onClick={() =>
+                                                setModalState((current) => ({
+                                                    ...current,
+                                                    size,
+                                                }))
+                                            }
+                                        >
+                                            {MODAL_SIZE_LABEL[size]}
+                                        </Button>
+                                    ))}
+                                </div>
+
+                                <p class="text-label">Position</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {MODAL_POSITIONS.map((position) => (
+                                        <Button
+                                            key={position}
+                                            variant={
+                                                modalState.position === position
+                                                    ? ButtonVariant.PRIMARY
+                                                    : ButtonVariant.OUTLINE
+                                            }
+                                            onClick={() =>
+                                                setModalState((current) => ({
+                                                    ...current,
+                                                    position,
+                                                }))
+                                            }
+                                        >
+                                            {MODAL_POSITION_LABEL[position]}
+                                        </Button>
+                                    ))}
+                                </div>
+
+                                <p class="text-label">Scroll Mode</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {MODAL_SCROLL_MODES.map((scrollMode) => (
+                                        <Button
+                                            key={scrollMode}
+                                            variant={
+                                                modalState.scrollMode === scrollMode
+                                                    ? ButtonVariant.PRIMARY
+                                                    : ButtonVariant.OUTLINE
+                                            }
+                                            onClick={() =>
+                                                setModalState((current) => ({
+                                                    ...current,
+                                                    scrollMode,
+                                                }))
+                                            }
+                                        >
+                                            {MODAL_SCROLL_LABEL[scrollMode]}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Open Modal</p>
+                                <p class="text-body text-base-content/70">
+                                    Press Esc to validate keyboard close behavior.
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button
+                                        variant={ButtonVariant.PRIMARY}
+                                        iconLeft={IconName.ADD}
+                                        onClick={() =>
+                                            handleOpenModal({
+                                                showFooter: true,
+                                            })
+                                        }
+                                    >
+                                        Open With Footer
+                                    </Button>
                                     <Button
                                         variant={ButtonVariant.OUTLINE}
                                         iconLeft={IconName.INFO}
-                                        onClick={() => controller.triggerToast(ToastVariant.INFO)}
+                                        onClick={() =>
+                                            handleOpenModal({
+                                                showFooter: false,
+                                            })
+                                        }
                                     >
-                                        Show Info
+                                        Open Without Footer
                                     </Button>
                                 </div>
-                            </Card>
-                        </div>
-                    </section>
 
-                    <section class={`${SECTION_CLASS} xl:col-span-2`}>
-                        <h2 class="text-section-title">Table Suite</h2>
-                        <p class="text-body">Basic table rendering, DataTable states, filters and pagination in one unified validation block.</p>
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3">
+                                    <p class="text-label">Current Config</p>
+                                    <p class="text-body">
+                                        Size:{" "}
+                                        <span class="font-data">
+                                            {MODAL_SIZE_LABEL[modalState.size]}
+                                        </span>
+                                    </p>
+                                    <p class="text-body">
+                                        Position:{" "}
+                                        <span class="font-data">
+                                            {MODAL_POSITION_LABEL[modalState.position]}
+                                        </span>
+                                    </p>
+                                    <p class="text-body">
+                                        Scroll:{" "}
+                                        <span class="font-data">
+                                            {MODAL_SCROLL_LABEL[modalState.scrollMode]}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.TABLES_DATA}
+                    title="Tables & Data"
+                    description="Simple Table + DataTable in one unified interactive data showcase."
+                    open={sectionVisibility[SHOWCASE_SECTION.TABLES_DATA]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Dataset Summary</p>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3">
+                                    <p class="text-caption text-base-content/70">Total Records</p>
+                                    <p class="text-kpi text-right">{records.length}</p>
+                                </div>
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3">
+                                    <p class="text-caption text-base-content/70">
+                                        Filtered Records
+                                    </p>
+                                    <p class="text-kpi text-right">{filteredRecords.length}</p>
+                                </div>
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3">
+                                    <p class="text-caption text-base-content/70">Current Page</p>
+                                    <p class="text-kpi text-right">{currentPage}</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Table</h3>
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Simple Table</p>
                                 <Table
                                     columns={tableColumns}
-                                    rows={paginatedUsers}
+                                    rows={paginatedRecords}
                                     getRowKey={(row) => row.id}
                                     actionsLabel={ResourceKey.FIELD_LABEL_TYPE}
-                                    onRowClick={() => controller.triggerToast(ToastVariant.INFO)}
+                                    onRowClick={() =>
+                                        controller.triggerToastWithIcon(ToastVariant.INFO)
+                                    }
                                     renderRowActions={() => (
-                                        <Button
-                                            size={ButtonSize.SM}
-                                            variant={ButtonVariant.GHOST}
-                                            iconLeft={IconName.EDIT}
-                                            onClick={() => controller.triggerToast(ToastVariant.INFO)}
-                                        />
+                                        <>
+                                            <Button
+                                                size={ButtonSize.SM}
+                                                variant={ButtonVariant.GHOST}
+                                                iconLeft={IconName.EDIT}
+                                                onClick={() =>
+                                                    controller.triggerToastWithIcon(
+                                                        ToastVariant.INFO
+                                                    )
+                                                }
+                                            />
+                                            <Button
+                                                size={ButtonSize.SM}
+                                                variant={ButtonVariant.LINK}
+                                                onClick={() =>
+                                                    controller.triggerToastWithIcon(
+                                                        ToastVariant.SUCCESS
+                                                    )
+                                                }
+                                            >
+                                                View
+                                            </Button>
+                                        </>
                                     )}
                                 />
                             </div>
 
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">DataTable</h3>
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">DataTable States</p>
                                 <div class="flex flex-wrap gap-2">
-                                    {(Object.values(SANDBOX_DATA_TABLE_MODE) as readonly SandboxDataTableMode[]).map((mode) => (
-                                        <Button key={mode} variant={dataTableMode === mode ? ButtonVariant.PRIMARY : ButtonVariant.OUTLINE} onClick={() => setDataTableMode(mode)}>
+                                    {(Object.values(
+                                        SANDBOX_DATA_TABLE_MODE
+                                    ) as readonly SandboxDataTableMode[]).map((mode) => (
+                                        <Button
+                                            key={mode}
+                                            variant={
+                                                dataTableMode === mode
+                                                    ? ButtonVariant.PRIMARY
+                                                    : ButtonVariant.OUTLINE
+                                            }
+                                            onClick={() => setDataTableMode(mode)}
+                                        >
                                             {DATA_TABLE_MODE_LABEL[mode]}
                                         </Button>
                                     ))}
@@ -959,84 +1268,307 @@ export function SandboxPage(): JSX.Element {
                                     columns={tableColumns}
                                     rows={dataTableRows}
                                     loading={dataTableMode === SANDBOX_DATA_TABLE_MODE.LOADING}
-                                    errorTitle={dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR ? ResourceKey.UNEXPECTED_ERROR : undefined}
-                                    errorDescription={dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR ? ResourceKey.INTERNAL_SERVER_ERROR : undefined}
-                                    errorActionLabel={dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR ? ResourceKey.FIELD_LABEL_PROFILE : undefined}
-                                    onErrorAction={() => setDataTableMode(SANDBOX_DATA_TABLE_MODE.READY)}
+                                    errorTitle={
+                                        dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR
+                                            ? ResourceKey.UNEXPECTED_ERROR
+                                            : undefined
+                                    }
+                                    errorDescription={
+                                        dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR
+                                            ? ResourceKey.INTERNAL_SERVER_ERROR
+                                            : undefined
+                                    }
+                                    errorActionLabel={
+                                        dataTableMode === SANDBOX_DATA_TABLE_MODE.ERROR
+                                            ? ResourceKey.FIELD_LABEL_PROFILE
+                                            : undefined
+                                    }
+                                    onErrorAction={() =>
+                                        setDataTableMode(SANDBOX_DATA_TABLE_MODE.READY)
+                                    }
                                     emptyStateTitle={ResourceKey.NO_RECORDS_FOUND}
                                     emptyStateDescription={ResourceKey.FIELD_LABEL_MESSAGE}
                                     getRowKey={(row) => row.id}
                                     actionsLabel={ResourceKey.FIELD_LABEL_TYPE}
-                                    renderRowActions={() => <Button size={ButtonSize.SM} variant={ButtonVariant.LINK}>View</Button>}
+                                    renderRowActions={() => (
+                                        <Button
+                                            size={ButtonSize.SM}
+                                            variant={ButtonVariant.LINK}
+                                        >
+                                            Open
+                                        </Button>
+                                    )}
                                 />
                             </div>
+                        </div>
 
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">FilterBar</h3>
-                                <FilterBar<SandboxFilters>
-                                    fields={filterFields}
-                                    values={filters}
-                                    onChange={handleFilterChange}
-                                    columns={2}
-                                    onSubmit={() => controller.triggerToast(ToastVariant.INFO)}
-                                    onClear={() => {
-                                        setFilters(controller.getDefaultFilters());
-                                        setCurrentPage(1);
-                                    }}
-                                />
-                                <p class="text-body">
-                                    Filters: search="{filters.search || "-"}", status="{filters.status}". Matches:{" "}
-                                    <span class="font-data">{filteredUsers.length}</span>
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Pagination</p>
+                            <p class="text-body">
+                                Page <span class="font-data">{currentPage}</span> of{" "}
+                                <span class="font-data">{totalPages}</span>
+                            </p>
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.FILTER_BAR}
+                    title="Filter Bar"
+                    description="Typed filter controls, emitted values preview, and responsive grid collapse."
+                    open={sectionVisibility[SHOWCASE_SECTION.FILTER_BAR]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <FilterBar<SandboxFilters>
+                                fields={filterFields}
+                                values={filters}
+                                columns={3}
+                                onChange={handleFilterChange}
+                                onSubmit={() =>
+                                    controller.triggerToastWithIcon(ToastVariant.INFO)
+                                }
+                                onClear={handleClearFilters}
+                            />
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Emitted Query</p>
+                                <p class="text-body">{filters.query || "No query applied"}</p>
+                            </div>
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Emitted Status</p>
+                                <p class="font-data text-table-number text-right">
+                                    {filters.status}
                                 </p>
                             </div>
-
-                            <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>
-                                <h3 class="text-card-title">Pagination</h3>
-                                <p class="text-body">
-                                    Page <span class="font-data">{currentPage}</span> of{" "}
-                                    <span class="font-data">{totalPages}</span>
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Result Count</p>
+                                <p class="font-data text-money text-right">
+                                    {filteredRecords.length}
                                 </p>
-                                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </ShowcaseSection>
 
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">EmptyState</h2>
-                        <EmptyState title={ResourceKey.NO_RECORDS_FOUND} description={ResourceKey.FIELD_LABEL_MESSAGE} actionLabel={ResourceKey.FIELD_LABEL_PROFILE} onAction={() => controller.triggerToast(ToastVariant.INFO)} />
-                    </section>
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.CARD_LAYOUT}
+                    title="Card & Layout"
+                    description="Card composition patterns and shell-level layout wrappers."
+                    open={sectionVisibility[SHOWCASE_SECTION.CARD_LAYOUT]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <Card
+                                title={ResourceKey.FIELD_LABEL_TITLE}
+                                description={ResourceKey.FIELD_LABEL_MESSAGE}
+                            >
+                                <p class="text-body">
+                                    Card with heading and content body for primary context blocks.
+                                </p>
+                            </Card>
 
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Accordion</h2>
-                        <Accordion items={accordionItems} allowMultiple={false} />
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Bullets</h2>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <Bullets items={[ResourceKey.FIELD_LABEL_NAME, ResourceKey.FIELD_LABEL_EMAIL, ResourceKey.FIELD_LABEL_PASSWORD]} />
-                            <Bullets ordered items={[ResourceKey.FIELD_LABEL_TITLE, ResourceKey.FIELD_LABEL_MESSAGE, ResourceKey.FIELD_LABEL_DATE]} />
-                        </div>
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">ErrorState</h2>
-                        <ErrorState title={ResourceKey.UNEXPECTED_ERROR} description={ResourceKey.INTERNAL_SERVER_ERROR} actionLabel={ResourceKey.FIELD_LABEL_PROFILE} onAction={() => controller.triggerToast(ToastVariant.ERROR)} />
-                    </section>
-
-                    <section class={SECTION_CLASS}>
-                        <h2 class="text-section-title">Icons</h2>
-                        <div class="grid grid-cols-3 gap-3 sm:grid-cols-5">
-                            {ICONS.map((iconName) => (
-                                <div key={iconName} class="flex flex-col items-center gap-1 rounded border border-base-300 p-2 text-caption">
-                                    <Icon name={iconName} />
-                                    <span>{iconName}</span>
+                            <Card title={ResourceKey.FIELD_LABEL_PROFILE}>
+                                <p class="text-body">
+                                    Card with action row to showcase primary and secondary controls.
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button
+                                        variant={ButtonVariant.PRIMARY}
+                                        iconLeft={IconName.SAVE}
+                                        onClick={() =>
+                                            controller.triggerToastWithIcon(ToastVariant.SUCCESS)
+                                        }
+                                    >
+                                        Save
+                                    </Button>
+                                    <Button
+                                        variant={ButtonVariant.OUTLINE}
+                                        iconLeft={IconName.EDIT}
+                                        onClick={() =>
+                                            controller.triggerToastWithIcon(ToastVariant.INFO)
+                                        }
+                                    >
+                                        Edit
+                                    </Button>
                                 </div>
-                            ))}
+                            </Card>
                         </div>
-                    </section>
-                </div>
-            </div>
+
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Nested Cards</p>
+                            <Card title={ResourceKey.FIELD_LABEL_TAGS}>
+                                <p class="text-body">Parent card container.</p>
+                                <Card compact title={ResourceKey.FIELD_LABEL_OBSERVATION}>
+                                    <p class="text-body">
+                                        Nested card for compact grouped context.
+                                    </p>
+                                </Card>
+                            </Card>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">PageContainer Example</p>
+                                <div class="rounded-xl border border-base-300 bg-base-100">
+                                    <PageContainer>
+                                        <Card compact title={ResourceKey.FIELD_LABEL_TITLE}>
+                                            <p class="text-body">
+                                                This block demonstrates PageContainer spacing and
+                                                max width behavior.
+                                            </p>
+                                        </Card>
+                                    </PageContainer>
+                                </div>
+                            </div>
+
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Layout Example</p>
+                                <div class="h-[24rem] overflow-auto rounded-xl border border-base-300">
+                                    <AppLayout
+                                        header={
+                                            <div class="px-4 py-3">
+                                                <p class="text-label">Header Slot</p>
+                                            </div>
+                                        }
+                                        footer={
+                                            <div class="px-4 py-3">
+                                                <p class="text-caption">
+                                                    Footer Slot
+                                                </p>
+                                            </div>
+                                        }
+                                    >
+                                        <PageContainer>
+                                            <Card compact title={ResourceKey.FIELD_LABEL_MESSAGE}>
+                                                <p class="text-body">
+                                                    AppLayout shell preview with header and footer
+                                                    boundaries.
+                                                </p>
+                                            </Card>
+                                        </PageContainer>
+                                    </AppLayout>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.TOOLTIP_TOAST}
+                    title="Tooltip & Toast"
+                    description="Tooltip positioning and toast trigger behaviors with stacked notifications."
+                    open={sectionVisibility[SHOWCASE_SECTION.TOOLTIP_TOAST]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Tooltip Positions</p>
+                            <div class="flex flex-wrap gap-3">
+                                {TOOLTIP_ITEMS.map((item) => (
+                                    <Tooltip
+                                        key={item.id}
+                                        content={item.content}
+                                        position={item.position}
+                                    >
+                                        <Button
+                                            variant={ButtonVariant.OUTLINE}
+                                            iconLeft={IconName.INFO}
+                                        >
+                                            {item.label}
+                                        </Button>
+                                    </Tooltip>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Toast Triggers</p>
+                            <div class="flex flex-wrap gap-2">
+                                {TOAST_VARIANTS.map((variant) => (
+                                    <Button
+                                        key={variant}
+                                        variant={ButtonVariant.SECONDARY}
+                                        iconLeft={getStatusVariantIcon(variant)}
+                                        onClick={() =>
+                                            controller.triggerToastWithIcon(variant)
+                                        }
+                                    >
+                                        {TOAST_LABEL[variant]}
+                                    </Button>
+                                ))}
+                                <Button
+                                    variant={ButtonVariant.PRIMARY}
+                                    iconLeft={IconName.ADD}
+                                    onClick={controller.triggerToastBurst}
+                                >
+                                    Trigger Stack (3)
+                                </Button>
+                                <Button
+                                    variant={ButtonVariant.ACCENT}
+                                    iconLeft={IconName.WARNING}
+                                    onClick={() =>
+                                        controller.triggerPersistentToast(ToastVariant.WARNING)
+                                    }
+                                >
+                                    Persistent Warning
+                                </Button>
+                                <Button
+                                    variant={ButtonVariant.GHOST}
+                                    iconLeft={IconName.CLOSE}
+                                    onClick={controller.clearAllToasts}
+                                >
+                                    Clear Toasts
+                                </Button>
+                            </div>
+                            <p class="text-body">
+                                Active toasts: <span class="font-data">{toasts.length}</span>
+                            </p>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.ACCORDION_BULLETS}
+                    title="Accordion & Bullets"
+                    description="Nested accordion behavior and list rendering variations."
+                    open={sectionVisibility[SHOWCASE_SECTION.ACCORDION_BULLETS]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Accordion (Nested Usage)</p>
+                            <Accordion items={accordionItems} allowMultiple={false} />
+                        </div>
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Bullets Variations</p>
+                            <Bullets
+                                items={[
+                                    ResourceKey.FIELD_LABEL_NAME,
+                                    ResourceKey.FIELD_LABEL_EMAIL,
+                                    ResourceKey.FIELD_LABEL_PASSWORD,
+                                ]}
+                            />
+                            <Bullets
+                                ordered
+                                items={[
+                                    ResourceKey.FIELD_LABEL_TITLE,
+                                    ResourceKey.FIELD_LABEL_MESSAGE,
+                                    ResourceKey.FIELD_LABEL_DATE,
+                                ]}
+                            />
+                        </div>
+                    </div>
+                </ShowcaseSection>
             </div>
 
             <Modal
@@ -1047,14 +1579,31 @@ export function SandboxPage(): JSX.Element {
                 scrollMode={modalState.scrollMode}
                 onClose={handleCloseModal}
                 footer={
-                    <>
-                        <Button variant={ButtonVariant.GHOST} onClick={handleCloseModal}>Cancel</Button>
-                        <Button variant={ButtonVariant.PRIMARY} onClick={() => { controller.triggerToast(ToastVariant.SUCCESS); handleCloseModal(); }}>Confirm</Button>
-                    </>
+                    modalState.showFooter ? (
+                        <>
+                            <Button variant={ButtonVariant.GHOST} onClick={handleCloseModal}>
+                                Close
+                            </Button>
+                            <Button
+                                variant={ButtonVariant.PRIMARY}
+                                iconLeft={IconName.CHECK}
+                                onClick={() => {
+                                    controller.triggerToastWithIcon(ToastVariant.SUCCESS);
+                                    handleCloseModal();
+                                }}
+                            >
+                                Confirm
+                            </Button>
+                        </>
+                    ) : undefined
                 }
             >
                 <div class="space-y-3">
-                    {MODAL_PARAGRAPHS.map((paragraph) => <p key={paragraph} class="text-body leading-relaxed">{paragraph}</p>)}
+                    {controller.getModalParagraphs().map((paragraph) => (
+                        <p key={paragraph} class="text-body">
+                            {paragraph}
+                        </p>
+                    ))}
                 </div>
             </Modal>
 
