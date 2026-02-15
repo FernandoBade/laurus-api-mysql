@@ -440,8 +440,9 @@ export function SandboxPage(): JSX.Element {
                                 <h3 class="text-sm font-semibold">With Icon</h3>
                                 <Alert icon={IconName.INFO}>12 unread messages. Tap to see.</Alert>
                                 <Alert variant={AlertVariant.SUCCESS} icon={IconName.CHECK}>Your purchase has been confirmed!</Alert>
+                                <Alert variant={AlertVariant.SUCCESS} icon={IconName.CHECK}>Your purchase has been confirmed!</Alert>
                                 <Alert variant={AlertVariant.WARNING} icon={IconName.WARNING}>Warning: Invalid email address!</Alert>
-                                <Alert variant={AlertVariant.ERROR} icon={IconName.CLOSE}>Error! Task failed successfully.</Alert>
+                                <Alert variant={AlertVariant.ERROR} icon={IconName.ERROR}>Error! Task failed successfully.</Alert>
                             </div>
 
                             <div class={`space-y-3 ${DEMO_PANEL_CLASS}`}>

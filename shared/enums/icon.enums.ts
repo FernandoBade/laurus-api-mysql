@@ -15,5 +15,6 @@ export enum IconName {
     SAVE = "save",
     CHEVRON_DOWN = "chevron_down",
     CHEVRON_LEFT = "chevron_left",
+    ERROR = "error",
     CHEVRON_RIGHT = "chevron_right",
 }

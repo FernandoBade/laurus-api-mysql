@@ -63,7 +63,7 @@ export function Input({
 
                 <label class={classNames("input input-bordered flex w-full min-w-0 items-center gap-2", error ? "input-error" : undefined)}>
                     {leftSlot}
-                    {icon && iconPosition === IconPosition.LEFT ? <Icon name={icon} size={16} /> : null}
+                    {icon && iconPosition === IconPosition.LEFT ? <Icon name={icon} weight="fill" size={20} /> : null}
                     <input
                         id={id}
                         class="min-w-0 grow bg-transparent outline-none"

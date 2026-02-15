@@ -50,10 +50,10 @@ export function Button({
             onClick={onClick}
         >
             {loading ? <span class="loading loading-spinner loading-xs" aria-hidden="true" /> : null}
-            {!loading && iconLeft ? <Icon name={iconLeft} size={16} /> : null}
+            {!loading && iconLeft ? <Icon name={iconLeft} size={20} /> : null}
             {label ? <span>{t(label)}</span> : null}
             {!label && hasCustomContent ? <span>{children}</span> : null}
-            {!loading && iconRight ? <Icon name={iconRight} size={16} /> : null}
+            {!loading && iconRight ? <Icon name={iconRight} size={20} /> : null}
         </button>
     );
 }

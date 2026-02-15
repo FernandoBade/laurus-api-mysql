@@ -159,7 +159,7 @@ export function Alert({
             role="alert"
             ref={alertRef}
         >
-            {shouldRenderIcon && resolvedIcon ? <Icon name={resolvedIcon} size={18} /> : null}
+            {shouldRenderIcon && resolvedIcon ? <Icon name={resolvedIcon} size={20} /> : null}
             {content ? <div class={classNames(actions ? "flex-1" : undefined, isVerticalLayout ? "w-full" : undefined)}>{content}</div> : null}
             {actions ? (
                 <div
