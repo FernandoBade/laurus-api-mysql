@@ -103,7 +103,7 @@ const MODAL_PARAGRAPHS: readonly string[] = [
     "Press Escape, click the backdrop, or use the close icon to validate close behavior.",
     "The page intentionally avoids business workflows and external API requests.",
     "This long content block helps verify both inside-scroll and body-scroll rendering.",
-    "Theme colors and spacing should remain stable in both Light and Dark (Dracula) modes.",
+    "Theme colors and spacing should remain stable in both Light and Dark modes.",
     "All samples are designed for responsive testing in narrow viewport widths.",
 ];
 

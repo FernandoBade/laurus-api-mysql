@@ -14,26 +14,26 @@ module.exports = {
         themes: [
             {
                 light: {
-                    "base-100": "oklch(100% 0 0)",
-                    "base-200": "oklch(98% 0.003 247.858)",
-                    "base-300": "oklch(92% 0.003 48.717)",
-                    "base-content": "oklch(37% 0.01 67.558)",
-                    primary: "oklch(85% 0.138 181.071)",
-                    "primary-content": "oklch(37% 0.01 67.558)",
-                    secondary: "oklch(92% 0.003 48.717)",
-                    "secondary-content": "oklch(37% 0.01 67.558)",
-                    accent: "oklch(86% 0.127 207.078)",
-                    "accent-content": "oklch(37% 0.01 67.558)",
-                    neutral: "oklch(37% 0.01 67.558)",
-                    "neutral-content": "oklch(98% 0.003 247.858)",
-                    info: "oklch(78% 0.115 274.713)",
-                    "info-content": "oklch(37% 0.01 67.558)",
-                    success: "oklch(85% 0.138 181.071)",
-                    "success-content": "oklch(37% 0.01 67.558)",
-                    warning: "oklch(82% 0.189 84.429)",
-                    "warning-content": "oklch(37% 0.01 67.558)",
-                    error: "oklch(81% 0.117 11.638)",
-                    "error-content": "oklch(37% 0.01 67.558)",
+                    "base-100": "oklch(98% 0.001 106.423)",         //stone-50
+                    "base-200": "oklch(97% 0.001 106.424)",         //stone-100
+                    "base-300": "oklch(92% 0.003 48.717)",          //stone-200
+                    "base-content": "oklch(37% 0.01 67.558)",       //stone-700
+                    primary: "oklch(85% 0.138 181.071)",            //teal-300
+                    "primary-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    secondary: "oklch(92% 0.003 48.717)",           //stone-200
+                    "secondary-content": "oklch(37% 0.01 67.558)",  //stone-700
+                    accent: "oklch(78% 0.115 274.713)",             //indigo-300
+                    "accent-content": "oklch(37% 0.01 67.558)",     //stone-700
+                    neutral: "oklch(37% 0.01 67.558)",              //stone-700
+                    "neutral-content": "oklch(98% 0.001 106.423)",  //stone-50
+                    info: "oklch(86% 0.127 207.078)",               //sky-300
+                    "info-content": "oklch(37% 0.01 67.558)",       //stone-700
+                    success: "oklch(85% 0.138 181.071)",            //teal-300
+                    "success-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    warning: "oklch(82% 0.189 84.429)",             //amber-300
+                    "warning-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    error: "oklch(81% 0.117 11.638)",               //rose-300
+                    "error-content": "oklch(37% 0.01 67.558)",      //stone-700
                     "radius-selector": "0.5rem",
                     "radius-field": "1rem",
                     "radius-box": "0.5rem",
@@ -46,26 +46,26 @@ module.exports = {
             },
             {
                 dark: {
-                    "base-100": "oklch(20% 0 0)",
-                    "base-200": "oklch(26% 0 0)",
-                    "base-300": "oklch(32% 0.01 67.558)",
-                    "base-content": "oklch(92% 0.003 48.717)",
-                    primary: "oklch(85% 0.138 181.071)",
-                    "primary-content": "oklch(37% 0.01 67.558)",
-                    secondary: "oklch(92% 0.003 48.717)",
-                    "secondary-content": "oklch(37% 0.01 67.558)",
-                    accent: "oklch(86% 0.127 207.078)",
-                    "accent-content": "oklch(37% 0.01 67.558)",
-                    neutral: "oklch(37% 0.01 67.558)",
-                    "neutral-content": "oklch(92% 0.003 48.717)",
-                    info: "oklch(78% 0.115 274.713)",
-                    "info-content": "oklch(37% 0.01 67.558)",
-                    success: "oklch(85% 0.138 181.071)",
-                    "success-content": "oklch(37% 0.01 67.558)",
-                    warning: "oklch(82% 0.189 84.429)",
-                    "warning-content": "oklch(37% 0.01 67.558)",
-                    error: "oklch(81% 0.117 11.638)",
-                    "error-content": "oklch(37% 0.01 67.558)",
+                    "base-100": "oklch(14% 0.004 49.25)",           //stone-950
+                    "base-200": "oklch(21% 0.006 56.043)",          //stone-900
+                    "base-300": "oklch(26% 0.007 34.298)",          //stone-800
+                    "base-content": "oklch(92% 0.003 48.717)",      //stone-200
+                    primary: "oklch(85% 0.138 181.071)",            //teal-300
+                    "primary-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    secondary: "oklch(92% 0.003 48.717)",           //stone-200
+                    "secondary-content": "oklch(37% 0.01 67.558)",  //stone-700
+                    accent: "oklch(86% 0.127 207.078)",             //sky-300
+                    "accent-content": "oklch(37% 0.01 67.558)",     //stone-700
+                    neutral: "oklch(37% 0.01 67.558)",              //stone-700
+                    "neutral-content": "oklch(92% 0.003 48.717)",   //stone-200
+                    info: "oklch(78% 0.115 274.713)",               //indigo-300
+                    "info-content": "oklch(37% 0.01 67.558)",       //stone-700
+                    success: "oklch(85% 0.138 181.071)",            //teal-300
+                    "success-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    warning: "oklch(82% 0.189 84.429)",             //amber-300
+                    "warning-content": "oklch(37% 0.01 67.558)",    //stone-700
+                    error: "oklch(81% 0.117 11.638)",               //rose-300
+                    "error-content": "oklch(37% 0.01 67.558)",      //stone-700
                     "radius-selector": "0.5rem",
                     "radius-field": "1rem",
                     "radius-box": "0.5rem",

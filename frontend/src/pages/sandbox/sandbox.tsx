@@ -496,7 +496,7 @@ export function SandboxPage(): JSX.Element {
                                 <p class="text-body text-base-content/70">
                                     Current:{" "}
                                     <span class="font-data">
-                                        {theme === Theme.DARK ? "Dark (Dracula)" : "Light"}
+                                        {theme === Theme.DARK ? "Dark" : "Light"}
                                     </span>
                                 </p>
                                 <div class="w-full sm:w-auto [&>button]:w-full sm:[&>button]:w-auto">
