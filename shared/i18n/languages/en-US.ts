@@ -1,7 +1,7 @@
 import { LanguageResource } from '../resourceTypes';
 
 const enUS: LanguageResource = {
-    appName: "Laurus",
+    appName: "Zinero",
     accountNotFound: "Account not found",
     categoryNotFound: "Category not found",
     categoryNotFoundOrInactive: "Category not found or inactive",

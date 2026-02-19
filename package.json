@@ -1,5 +1,5 @@
 {
-    "name": "laurus",
+    "name": "zinero",
     "private": true,
     "workspaces": [
         "backend",

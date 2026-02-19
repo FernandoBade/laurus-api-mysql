@@ -1,7 +1,7 @@
 import { LanguageResource } from '../resourceTypes';
 
 const ptBR: LanguageResource = {
-    appName: "Laurus",
+    appName: "Zinero",
     accountNotFound: "Conta não encontrada",
     categoryNotFound: "Categoria não encontrada",
     categoryNotFoundOrInactive: "Categoria não encontrada ou inativa",

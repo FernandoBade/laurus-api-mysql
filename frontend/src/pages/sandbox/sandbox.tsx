@@ -1,5 +1,5 @@
 /**
- * @summary Living documentation page for the Laurus Core UI Kit.
+ * @summary Living documentation page for the Zinero Core UI Kit.
  */
 
 import type { ComponentChildren, JSX } from "preact";
@@ -23,6 +23,12 @@ import {
     TooltipPosition,
 } from "@shared/enums/ui.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
+import brandDarkHorizontal from "@shared/assets/images/ZINERO_dark_horizontal.png";
+import brandDarkSymbol from "@shared/assets/images/ZINERO_dark_symbol.png";
+import brandDarkVertical from "@shared/assets/images/ZINERO_dark_vertical.png";
+import brandTransparentHorizontal from "@shared/assets/images/ZINERO_transparent_horizontal.png";
+import brandTransparentSymbol from "@shared/assets/images/ZINERO_transparent_symbol.png";
+import brandTransparentVertical from "@shared/assets/images/ZINERO_transparent_vertical.png";
 import type { AccordionItem } from "@/components/accordion/accordion.types";
 import { Accordion } from "@/components/accordion/accordion";
 import { Alert } from "@/components/alert/alert";
@@ -188,6 +194,57 @@ const TOOLTIP_ITEMS: readonly {
     },
 ];
 
+const BRAND_LOGO_ITEMS: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly variant: string;
+    readonly source: string;
+    readonly filename: string;
+}[] = [
+    {
+        id: "logo-dark-horizontal",
+        label: "ZINERO Dark Horizontal",
+        variant: "Dark / Horizontal",
+        source: brandDarkHorizontal,
+        filename: "ZINERO_dark_horizontal.png",
+    },
+    {
+        id: "logo-dark-vertical",
+        label: "ZINERO Dark Vertical",
+        variant: "Dark / Vertical",
+        source: brandDarkVertical,
+        filename: "ZINERO_dark_vertical.png",
+    },
+    {
+        id: "logo-dark-symbol",
+        label: "ZINERO Dark Symbol",
+        variant: "Dark / Symbol",
+        source: brandDarkSymbol,
+        filename: "ZINERO_dark_symbol.png",
+    },
+    {
+        id: "logo-transparent-horizontal",
+        label: "ZINERO Transparent Horizontal",
+        variant: "Transparent / Horizontal",
+        source: brandTransparentHorizontal,
+        filename: "ZINERO_transparent_horizontal.png",
+    },
+    {
+        id: "logo-transparent-vertical",
+        label: "ZINERO Transparent Vertical",
+        variant: "Transparent / Vertical",
+        source: brandTransparentVertical,
+        filename: "ZINERO_transparent_vertical.png",
+    },
+    {
+        id: "logo-transparent-symbol",
+        label: "ZINERO Transparent Symbol",
+        variant: "Transparent / Symbol",
+        source: brandTransparentSymbol,
+        filename: "ZINERO_transparent_symbol.png",
+    },
+];
+
 const SHOWCASE_SECTION = {
     TYPOGRAPHY: "typography",
     BUTTONS: "buttons",
@@ -197,6 +254,7 @@ const SHOWCASE_SECTION = {
     TABLES_DATA: "tables-data",
     FILTER_BAR: "filter-bar",
     CARD_LAYOUT: "card-layout",
+    BRAND_LOGO_ASSETS: "brand-logo-assets",
     TOOLTIP_TOAST: "tooltip-toast",
     ACCORDION_BULLETS: "accordion-bullets",
 } as const;
@@ -251,6 +309,11 @@ const SECTION_DEFINITIONS: readonly ShowcaseSectionDefinition[] = [
         description: "Card composition, nested cards, PageContainer, and AppLayout examples.",
     },
     {
+        id: SHOWCASE_SECTION.BRAND_LOGO_ASSETS,
+        title: "Brand & Logo Assets",
+        description: "Canonical brand files imported from shared/assets/images.",
+    },
+    {
         id: SHOWCASE_SECTION.TOOLTIP_TOAST,
         title: "Tooltip & Toast",
         description: "Tooltip positions and interactive toast triggering with stack behavior.",
@@ -274,6 +337,7 @@ function createSectionVisibility(open: boolean): SectionVisibility {
         [SHOWCASE_SECTION.TABLES_DATA]: open,
         [SHOWCASE_SECTION.FILTER_BAR]: open,
         [SHOWCASE_SECTION.CARD_LAYOUT]: open,
+        [SHOWCASE_SECTION.BRAND_LOGO_ASSETS]: open,
         [SHOWCASE_SECTION.TOOLTIP_TOAST]: open,
         [SHOWCASE_SECTION.ACCORDION_BULLETS]: open,
     };
@@ -337,12 +401,12 @@ export function SandboxPage(): JSX.Element {
     const [toasts, setToasts] = useState(getToasts());
 
     const [textInputValue, setTextInputValue] = useState<string>("Design system baseline");
-    const [emailInputValue, setEmailInputValue] = useState<string>("sandbox@laurus.dev");
+    const [emailInputValue, setEmailInputValue] = useState<string>("sandbox@zinero.dev");
     const [passwordInputValue, setPasswordInputValue] = useState<string>("safe-password");
     const [searchInputValue, setSearchInputValue] = useState<string>("");
     const [numberInputValue, setNumberInputValue] = useState<string>("12840.55");
     const [telInputValue, setTelInputValue] = useState<string>("+1 212 555 0142");
-    const [urlInputValue, setUrlInputValue] = useState<string>("https://laurus.dev");
+    const [urlInputValue, setUrlInputValue] = useState<string>("https://zinero.dev");
     const [hintInputValue, setHintInputValue] = useState<string>("Automated nightly snapshot");
     const [errorInputValue, setErrorInputValue] = useState<string>("broken-email-format");
     const [prefixedInputValue, setPrefixedInputValue] = useState<string>("250");
@@ -482,7 +546,7 @@ export function SandboxPage(): JSX.Element {
                 <section class={SECTION_SURFACE_CLASS}>
                     <div class="space-y-4 p-4 sm:p-5">
                         <div class="space-y-2">
-                            <h1 class="text-page-title">Laurus UI Design System</h1>
+                            <h1 class="text-page-title">Zinero UI Design System</h1>
                             <p class="text-body text-base-content/80">
                                 Living documentation and visual validation surface for the Core UI
                                 Kit. Each section is interactive, collapsible, and optimized for
@@ -1459,6 +1523,63 @@ export function SandboxPage(): JSX.Element {
                                     </AppLayout>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
+                    id={SHOWCASE_SECTION.BRAND_LOGO_ASSETS}
+                    title="Brand & Logo Assets"
+                    description="Canonical logo assets from the shared image catalog."
+                    open={sectionVisibility[SHOWCASE_SECTION.BRAND_LOGO_ASSETS]}
+                    onToggle={handleSectionToggle}
+                >
+                    <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Asset Source</p>
+                            <p class="text-body">
+                                All previews in this section are imported from{" "}
+                                <span class="font-data">shared/assets/images</span>.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            {BRAND_LOGO_ITEMS.map((logo) => (
+                                <div key={logo.id} class={DEMO_CARD_CLASS}>
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-label">{logo.label}</p>
+                                            <p class="text-caption text-base-content/70">{logo.variant}</p>
+                                        </div>
+                                        <p class="font-data text-caption">{logo.filename}</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <div class="space-y-2 rounded-lg border border-base-300 bg-base-100 p-3">
+                                            <p class="text-caption">Base 100 Surface</p>
+                                            <div class="h-24 rounded-md border border-base-300 bg-base-100 p-3">
+                                                <img
+                                                    src={logo.source}
+                                                    alt={logo.label}
+                                                    class="h-full w-full object-contain"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2 rounded-lg border border-base-300 bg-base-200 p-3">
+                                            <p class="text-caption">Base 200 Surface</p>
+                                            <div class="h-24 rounded-md border border-base-300 bg-base-200 p-3">
+                                                <img
+                                                    src={logo.source}
+                                                    alt={`${logo.label} on base 200`}
+                                                    class="h-full w-full object-contain"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </ShowcaseSection>

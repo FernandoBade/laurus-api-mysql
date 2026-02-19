@@ -697,7 +697,7 @@ describe('UserService', () => {
             process.env.FTP_PORT = '21';
             process.env.FTP_USER = 'ftp-user';
             process.env.FTP_PASSWORD = 'ftp-pass';
-            process.env.FTP_UPLOAD_PATH = '/public_html/laurus/users';
+            process.env.FTP_UPLOAD_PATH = '/public_html/zinero/users';
 
             ftpClientMock.access.mockResolvedValue(undefined);
             ftpClientMock.ensureDir.mockResolvedValue(undefined);
@@ -735,7 +735,7 @@ describe('UserService', () => {
             jest.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(user);
             const updateSpy = jest.spyOn(UserRepository.prototype, 'update').mockResolvedValue({
                 ...user,
-                avatarUrl: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png',
+                avatarUrl: 'https://zinero.bade.digital/zinero/users/7/avatar/avatar.png',
             });
 
             const service = new UserService();
@@ -752,14 +752,14 @@ describe('UserService', () => {
                 user: 'ftp-user',
                 password: 'ftp-pass',
             });
-            expect(ftpClientMock.ensureDir).toHaveBeenCalledWith('/public_html/laurus/users/7/avatar');
+            expect(ftpClientMock.ensureDir).toHaveBeenCalledWith('/public_html/zinero/users/7/avatar');
             expect(ftpClientMock.uploadFrom).toHaveBeenCalledWith(expect.any(Object), 'avatar.png');
             expect(updateSpy).toHaveBeenCalledWith(7, {
-                avatarUrl: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png',
+                avatarUrl: 'https://zinero.bade.digital/zinero/users/7/avatar/avatar.png',
             });
             expect(result).toEqual({
                 success: true,
-                data: { url: 'https://laurus.bade.digital/laurus/users/7/avatar/avatar.png' },
+                data: { url: 'https://zinero.bade.digital/zinero/users/7/avatar/avatar.png' },
             });
         });
 

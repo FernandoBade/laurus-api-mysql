@@ -11,7 +11,7 @@ import { TokenService } from './tokenService';
 import { sendEmailVerificationEmail } from '../utils/email/authEmail';
 import type { CreateUserInput, SanitizedUser, UpdateUserInput, UserEntity } from '../../../shared/domains/user/user.types';
 
-const AVATAR_PUBLIC_BASE_URL = 'https://laurus.bade.digital/laurus/users';
+const AVATAR_PUBLIC_BASE_URL = 'https://zinero.bade.digital/zinero/users';
 const AVATAR_FILE_BASE = 'avatar';
 const AVATAR_BACKUP_BASE = 'avatar_old';
 

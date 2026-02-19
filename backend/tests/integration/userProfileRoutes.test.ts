@@ -51,7 +51,7 @@ describe('User routes integration', () => {
     });
 
     it('uploads avatar via POST /users/upload/avatar', async () => {
-        const payload = { url: 'https://bade.digital/laurus/users/1/avatar/avatar.jpg' };
+        const payload = { url: 'https://bade.digital/zinero/users/1/avatar/avatar.jpg' };
         jest.spyOn(UserService.prototype, 'uploadAvatar').mockResolvedValue({ success: true, data: payload });
 
         const app = buildApp();

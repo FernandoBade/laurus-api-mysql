@@ -787,3 +787,64 @@ Forbidden examples:
 - [ ] Numeric and financial content uses `font-data`/numeric semantic classes
 - [ ] No hardcoded palette/absolute color utilities in class strings
 - [ ] Typography behavior is identical across light and dark themes (color-only changes)
+
+---
+
+## Collapsible Surface Standardization (New)
+
+This rule is mandatory for all collapsible UI surfaces across frontend pages.
+
+### Single Source of Truth for Collapse Behavior
+
+- All new collapsible surfaces must use `src/components/collapse/collapse.tsx` as the shared base primitive.
+- `Accordion` must remain a composition on top of `Collapse`, not an independent animation implementation.
+- Page-level collapsible wrappers (for example showcase/documentation sections) must compose `Collapse` instead of reimplementing `details`/`summary` behavior.
+
+### Forbidden Patterns
+
+- Do not implement ad-hoc `details`/`summary` transitions in pages.
+- Do not duplicate collapse animation logic in multiple components.
+- Do not create alternative animation timings for similar collapse interactions unless explicitly justified as a `NECESSARY DIFFERENCE`.
+
+### Motion Consistency Rules
+
+- Collapse open/close motion must keep the same timing/easing profile used by the shared `Collapse` primitive.
+- Chevron rotation, content reveal, and height expansion must feel consistent across `Accordion` and page collapsible sections.
+- Any change to collapse interaction behavior must be done in the shared primitive first.
+
+---
+
+## Brand and Logo Asset Policy (New)
+
+Brand assets are now available and mandatory for logo usage.
+
+### Canonical Logo Source
+
+- All logos must come from `shared/assets/images/`.
+- Frontend pages/components must not use ad-hoc logo files outside `shared/assets/images/`.
+- Do not duplicate logo files inside `frontend/src/assets/` or page-local folders.
+
+### Allowed Usage
+
+- Use existing files from `shared/assets/images/` (for example: horizontal, vertical, symbol, dark, transparent variants).
+- Prefer using transparent ones, even in dark enviroments, or else, pick logo variants by context (theme/background/placement) but keep the file source centralized in shared assets.
+
+### Forbidden Usage
+
+- Do not recreate or export new logo files in frontend unless explicitly approved.
+- Do not embed logo markup as inline SVG when a shared image asset already exists.
+- Do not hardcode temporary logos from external URLs.
+
+### Import and Naming Guidance
+
+- Prefer explicit imports from `@shared/assets/images/...` or equivalent monorepo-resolved path used by the build.
+- Keep semantic naming in code (for example `brandLogoHorizontalDark`) and avoid ambiguous names like `logo1`.
+
+---
+
+## PR Checklist Additions (Mandatory)
+
+- [ ] All new collapsible UIs use the shared `Collapse` primitive (no ad-hoc `details` transitions).
+- [ ] `Accordion` and page collapsible sections keep consistent motion behavior.
+- [ ] All logo usage points to files from `shared/assets/images/`.
+- [ ] No duplicated logo files were added inside frontend folders.

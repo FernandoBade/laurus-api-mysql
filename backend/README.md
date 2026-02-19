@@ -1,49 +1,86 @@
-<div align=center>
-  
-![Gemini_Generated_Image_bc7199bc7199bc71 (1)](https://github.com/user-attachments/assets/89b02cd0-cd45-447d-9caf-5ec1aeb1a06b)
-
+<div align="center">
+  <img src="../shared/assets/images/ZINERO_dark_horizontal.png" alt="Zinero" width="320" />
 </div>
 
-# 🍀 Laurus – Spending wisely, dreaming freely  
+# Zinero API
 
-**Laurus** is an open-source **Node.js API**, currently in active development, designed to provide users with a powerful and intuitive solution for **personal finance management**. By enabling detailed tracking of expenses and income across customizable categories, Laurus offers clear insights into spending habits, allowing users to **monitor their accounts, track investments, control budgets, and visualize financial data**.  
+Backend API do projeto **Zinero** para gestao financeira pessoal.
 
-With a strong focus on **performance, modularity, and scalability**, Laurus ensures a seamless experience by leveraging modern development practices and efficient data management techniques. Our latest enhancements include a **custom-built ORM layer**, eliminating the need for manual database queries while maintaining high flexibility and performance.
+## Overview
 
-## ✨ Features  
+A **Zinero API** e uma API Node.js + TypeScript focada em:
 
-- **Expense and Income Tracking** – Log all financial transactions with detailed categorizations.  
-- **Customizable Categories** – Define personalized **categories and subcategories** to better organize your finances.  
-- **Multi-Account Management** – Monitor balances across multiple accounts with ease.  
-- **Investment Tracking** – Keep track of investment portfolios and analyze their performance.  
-- **Spending Insights & Budgeting** – Identify areas of **excessive spending**, set savings goals, and optimize financial habits.  
-- **Data Visualization** – Generate **charts and reports** for an intuitive financial overview.  
+- controle de receitas e despesas
+- organizacao por categorias, subcategorias e tags
+- acompanhamento de contas e cartoes
+- autenticacao e sessao de usuario
+- feedback, logs e rastreabilidade
 
-## ⚙️ Technology Stack  
+## Arquitetura
 
-- **Node.js** – JavaScript runtime for scalable backend development.  
-- **TypeScript** – Strongly typed JavaScript for enhanced maintainability and reliability.  
-- **MySQL** – Relational database management system for structured financial data storage.  
-- **Custom ORM (Object-Relational Mapping)** – A **lightweight, performance-optimized ORM** developed specifically for Laurus, offering:  
-  - **Automatic Table Creation & Updates** – Tables are generated and updated dynamically, removing the need for manual database migrations.  
-  - **Schema Defined in Code** – Database structures are fully defined within the codebase, ensuring consistency and eliminating the need for direct SQL table creation.  
-  - **Data Validation & Schema Enforcement** – Strict validation mechanisms ensure data integrity and prevent inconsistencies.  
-  - **Dynamic Query Building** – Allows **automatic query generation**, eliminating the need for manual SQL queries unless explicitly required.  
-  - **Optimized Transactions** – Efficient handling of bulk operations and financial calculations for better performance.  
+O backend segue arquitetura em camadas:
 
-### 📖 Logging & Monitoring  
+- `src/routes` -> definicao de rotas HTTP
+- `src/controller` -> orquestracao de request/response
+- `src/service` -> regras de negocio
+- `src/repositories` -> acesso e persistencia de dados
+- `src/db` -> cliente, migracao e schemas
+- `src/utils` -> utilitarios cross-cutting
 
-- **Comprehensive Logging System** – Every critical action within Laurus is logged, providing full visibility into **transactions, user interactions, and API requests**.  
-- **Error Tracking & Debugging** – Logs help diagnose issues quickly, improving system reliability and maintainability.  
-- **Audit Trails** – Ensuring transparency by tracking changes and actions performed in the system.  
+## Dominios atuais
 
----
+- auth
+- users
+- accounts
+- credit cards
+- categories
+- subcategories
+- tags
+- transactions
+- feedback
+- logs
 
-With **Laurus**, users can take full control of their finances, **spend wisely, save smarter, and dream freely**. 🚀
+## Stack tecnica
 
-## Frontend Structure
+- Node.js
+- TypeScript
+- Express
+- MySQL
+- Drizzle ORM
+- Jest
+- ESLint
 
-- `frontend/src/features/<domain>` holds domain modules (auth, users, accounts, credit-cards, categories, subcategories, transactions, tags, feedback).
-- `frontend/src/components` is the shared UI component library (forms, tables, modals, alerts, etc.).
-- `frontend/src/shared` contains app-wide contexts, hooks, and utilities.
-- `frontend/src/app/(public)` contains public routes (login, register, verify-email); `frontend/src/app/(admin)` contains authenticated app routes.
+## Estrutura do repositorio (monorepo)
+
+- `backend/` -> API Zinero (fonte de verdade de regras de dominio)
+- `shared/` -> contratos compartilhados (types, enums, i18n, DTOs)
+- `frontend/` -> app Preact + Vite consumindo os contratos compartilhados
+
+## Scripts principais (backend)
+
+Executar dentro de `backend/`:
+
+- `npm run dev` -> sobe API em modo desenvolvimento
+- `npm run build` -> testes CI + build TypeScript
+- `npm run start` -> executa build em `dist`
+- `npm run lint` -> lint do backend
+- `npm run test` -> testes
+- `npm run test:coverage` -> cobertura de testes
+- `npm run db:generate` -> gera artefatos do Drizzle
+- `npm run db:migrate` -> executa migracoes
+- `npm run db:sync` -> generate + migrate
+- `npm run seed` -> seed padrao
+- `npm run seed:10|100|1000` -> seeds com volume
+
+## Variaveis de ambiente
+
+Consulte `backend/.env` para os valores necessarios. Em especial:
+
+- banco (`DB_*`)
+- JWT/session
+- email provider
+- FTP/avatar storage
+
+## Observacoes
+
+- A API usa contratos compartilhados em `@shared/*` para manter consistencia com frontend.

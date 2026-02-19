@@ -118,7 +118,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_001",
         name: "Ada Lovelace",
-        email: "ada@laurus.dev",
+        email: "ada@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
         monthlyBudget: 1250.0,
         balance: 8920.54,
@@ -127,7 +127,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_002",
         name: "Grace Hopper",
-        email: "grace@laurus.dev",
+        email: "grace@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
         monthlyBudget: 980.75,
         balance: 2140.13,
@@ -136,7 +136,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_003",
         name: "Margaret Hamilton",
-        email: "margaret@laurus.dev",
+        email: "margaret@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
         monthlyBudget: 1730.25,
         balance: 10440.9,
@@ -145,7 +145,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_004",
         name: "Katherine Johnson",
-        email: "katherine@laurus.dev",
+        email: "katherine@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
         monthlyBudget: 2200.0,
         balance: 15620.42,
@@ -154,7 +154,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_005",
         name: "Alan Turing",
-        email: "alan@laurus.dev",
+        email: "alan@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
         monthlyBudget: 640.5,
         balance: 880.21,
@@ -163,7 +163,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_006",
         name: "Linus Torvalds",
-        email: "linus@laurus.dev",
+        email: "linus@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
         monthlyBudget: 3050.0,
         balance: 17320.75,
@@ -172,7 +172,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_007",
         name: "Hedy Lamarr",
-        email: "hedy@laurus.dev",
+        email: "hedy@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
         monthlyBudget: 1899.99,
         balance: 9420.6,
@@ -181,7 +181,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_008",
         name: "Dorothy Vaughan",
-        email: "dorothy@laurus.dev",
+        email: "dorothy@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
         monthlyBudget: 730.0,
         balance: 1304.55,
