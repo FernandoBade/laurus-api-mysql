@@ -18,9 +18,8 @@ import { createLog, sendErrorResponse, requestTimer } from './utils/commons';
 import { HTTPStatus } from '../../shared/enums/http-status.enums';
 import { LogCategory, LogOperation, LogType } from '../../shared/enums/log.enums';
 import { ServerEnvKey, ServerHeaderValue, ServerHttpMethod, ServerRequestHeader, ServerResponseHeader, ServerRoutePath, ServerToken } from '../../shared/enums/server.enums';
-import { Language } from '../../shared/enums/user.enums';
-import { LanguageCode } from '../../shared/i18n/resourceTypes';
 import { ResourceKey as Resource } from '../../shared/i18n/resource.keys';
+import { resolveRequestLanguage } from './utils/language';
 
 // #endregion Imports
 
@@ -67,9 +66,7 @@ app.use(cookieParser());
 
 // Middleware to resolve language from Accept-Language header
 app.use((req: Request, res: Response, next: NextFunction) => {
-    const acceptedLanguages: LanguageCode[] = [Language.EN_US, Language.PT_BR, Language.ES_ES];
-    const lang = req.headers[ServerRequestHeader.ACCEPT_LANGUAGE] as LanguageCode;
-    req.language = acceptedLanguages.includes(lang) ? lang : Language.EN_US;
+    req.language = resolveRequestLanguage(req.headers[ServerRequestHeader.ACCEPT_LANGUAGE]);
     next();
 });
 

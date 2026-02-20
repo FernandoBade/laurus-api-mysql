@@ -15,6 +15,13 @@
       "when": 1771118404927,
       "tag": "0001_typical_lyja",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1771612798372,
+      "tag": "0002_worthless_skaar",
+      "breakpoints": true
     }
   ]
 }

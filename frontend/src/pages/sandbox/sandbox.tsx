@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
-import { Language } from "@shared/enums/language.enums";
 import { Theme } from "@shared/enums/theme.enums";
 import {
     AlertDirection,
@@ -62,7 +61,6 @@ import {
     type SandboxFilters,
     type SandboxModalState,
 } from "@/pages/sandbox/sandbox.controller";
-import { getLocale, setLocale } from "@/state/locale.store";
 import { getToasts, removeToast, subscribeToasts } from "@/state/toast.store";
 
 const PAGE_SIZE = 4;
@@ -489,15 +487,6 @@ export function SandboxPage(): JSX.Element {
     );
 
     useEffect(() => subscribeToasts((nextToasts) => setToasts(nextToasts)), []);
-
-    useEffect(() => {
-        const previousLocale = getLocale();
-        setLocale(Language.EN_US);
-
-        return (): void => {
-            setLocale(previousLocale);
-        };
-    }, []);
 
     const areAllExpanded = SECTION_DEFINITIONS.every(
         (section) => sectionVisibility[section.id]

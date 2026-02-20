@@ -198,7 +198,7 @@ export function answerAPI(
     if (res.headersSent) return;
 
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
-    const language = req.language ?? Language.EN_US;
+    const language = req.language ?? Language.PT_BR;
     const elapsedTime = getDurationMs(res);
 
     const response: Record<string, unknown> = {

@@ -33,7 +33,7 @@ import { AccountType } from '../../../../shared/enums/account.enums';
 import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
 import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
 import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
-import { Currency, DateFormat, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
+import { Currency, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
 
 const lang = Language.EN_US;
 const t = (resource: Resource) => translateResource(resource, lang);
@@ -127,7 +127,6 @@ describe('validateRequest', () => {
                     theme: Theme.DARK,
                     language: Language.EN_US,
                     currency: Currency.BRL,
-                    dateFormat: DateFormat.DD_MM_YYYY,
                     profile: Profile.STARTER,
                     hideValues: true,
                     active: true,
@@ -143,6 +142,23 @@ describe('validateRequest', () => {
             expect(result.data.hideValues).toBe(true);
             expect(result.data.active).toBe(true);
         });
+
+        it('does not require language when omitted', () => {
+            const result = validateCreateUser(
+                {
+                    firstName: 'Ana',
+                    lastName: 'Silva',
+                    email: 'user@example.com',
+                    password: '123456',
+                },
+                lang
+            );
+
+            expect(result.success).toBe(true);
+            if (!result.success) return;
+            expect(result.data.language).toBeUndefined();
+        });
+
     });
 
     describe('validateUpdateUser', () => {

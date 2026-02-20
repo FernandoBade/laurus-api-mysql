@@ -1,4 +1,4 @@
-import type { Currency, DateFormat, Language, Profile, Theme } from './user.enums';
+import type { Currency, Language, Profile, Theme } from './user.enums';
 import type { FileUpload } from '../../types/file.types';
 import type { ISODateString } from '../../types/format.types';
 import type { PaginationInput, PaginatedResult } from '../../types/pagination.types';
@@ -34,7 +34,6 @@ export interface UserEntity {
     theme: Theme;
     language: Language;
     currency: Currency;
-    dateFormat: DateFormat;
     profile: Profile;
     hideValues: boolean;
     active: boolean;
@@ -57,7 +56,6 @@ export interface CreateUserInput {
     theme?: Theme;
     language?: Language;
     currency?: Currency;
-    dateFormat?: DateFormat;
     profile?: Profile;
     hideValues?: boolean;
     active?: boolean;
@@ -74,7 +72,6 @@ export interface UpdateUserInput {
     theme?: Theme;
     language?: Language;
     currency?: Currency;
-    dateFormat?: DateFormat;
     profile?: Profile;
     hideValues?: boolean;
     active?: boolean;

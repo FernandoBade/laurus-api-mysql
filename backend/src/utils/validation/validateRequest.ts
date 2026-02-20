@@ -4,7 +4,7 @@ import { AccountType } from '../../../../shared/enums/account.enums';
 import { CategoryType, CategoryColor } from '../../../../shared/enums/category.enums';
 import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
 import { TransactionType, TransactionSource } from '../../../../shared/enums/transaction.enums';
-import { Theme, Language, Currency, DateFormat, Profile } from '../../../../shared/enums/user.enums';
+import { Theme, Language, Currency, Profile } from '../../../../shared/enums/user.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../../shared/i18n/resourceTypes';
 import type { CreateAccountInput, UpdateAccountInput } from '../../../../shared/domains/account/account.types';
@@ -116,7 +116,7 @@ export function validateCreateUser(
     }
 
     if (body.birthDate !== undefined && !isISODateString(body.birthDate)) {
-        errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
+        errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_VALUE, lang)));
     }
 
     if (body.theme !== undefined && !isEnum(body.theme, Theme)) {
@@ -129,10 +129,6 @@ export function validateCreateUser(
 
     if (body.currency !== undefined && !isEnum(body.currency, Currency)) {
         errors.push(createValidationError('currency', translateResource(Resource.INVALID_CURRENCY_VALUE, lang)));
-    }
-
-    if (body.dateFormat !== undefined && !isEnum(body.dateFormat, DateFormat)) {
-        errors.push(createValidationError('dateFormat', translateResource(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
@@ -171,7 +167,6 @@ export function validateCreateUser(
             theme: body.theme as Theme | undefined,
             language: body.language as Language | undefined,
             currency: body.currency as Currency | undefined,
-            dateFormat: body.dateFormat as DateFormat | undefined,
             profile: body.profile as Profile | undefined,
             hideValues: body.hideValues as boolean | undefined,
             active: body.active as boolean | undefined,
@@ -242,7 +237,7 @@ export function validateUpdateUser(
 
     if (body.birthDate !== undefined && body.birthDate !== null) {
         if (!isISODateString(body.birthDate)) {
-            errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
+            errors.push(createValidationError('birthDate', translateResource(Resource.INVALID_DATE_VALUE, lang)));
         } else {
             result.birthDate = body.birthDate;
         }
@@ -264,12 +259,6 @@ export function validateUpdateUser(
         errors.push(createValidationError('currency', translateResource(Resource.INVALID_CURRENCY_VALUE, lang)));
     } else if (body.currency !== undefined) {
         result.currency = body.currency;
-    }
-
-    if (body.dateFormat !== undefined && !isEnum(body.dateFormat, DateFormat)) {
-        errors.push(createValidationError('dateFormat', translateResource(Resource.INVALID_DATE_FORMAT_VALUE, lang)));
-    } else if (body.dateFormat !== undefined) {
-        result.dateFormat = body.dateFormat;
     }
 
     if (body.profile !== undefined && !isEnum(body.profile, Profile)) {
@@ -1256,7 +1245,7 @@ export function validateCreateTransaction(
     }
 
     if (!isISODateString(body.date)) {
-        errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
+        errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_VALUE, lang)));
     }
 
     if (hasCategoryId && (!isNumber(body.categoryId) || body.categoryId <= 0)) {
@@ -1417,7 +1406,7 @@ export function validateUpdateTransaction(
 
     if (body.date !== undefined) {
         if (!isISODateString(body.date)) {
-            errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_FORMAT, lang)));
+            errors.push(createValidationError('date', translateResource(Resource.INVALID_DATE_VALUE, lang)));
         } else {
             result.date = body.date;
         }

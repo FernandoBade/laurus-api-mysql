@@ -17,12 +17,6 @@ export enum Currency {
     USD = "USD",
 }
 
-/** @summary Supported date formats for user preferences. */
-export enum DateFormat {
-    DD_MM_YYYY = "DD/MM/YYYY",
-    MM_DD_YYYY = "MM/DD/YYYY",
-}
-
 /** @summary Available subscription profiles. */
 export enum Profile {
     STARTER = "starter",

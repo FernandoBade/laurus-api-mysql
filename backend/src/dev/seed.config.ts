@@ -1,7 +1,7 @@
 import { AccountType } from '../../../shared/enums/account.enums';
 import { CategoryColor, CategoryType } from '../../../shared/enums/category.enums';
 import { CreditCardFlag } from '../../../shared/enums/creditCard.enums';
-import { Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums/user.enums';
+import { Currency, Language, Profile, Theme } from '../../../shared/enums/user.enums';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
 export type AccountTemplate = {
@@ -36,7 +36,6 @@ export type SeedConfig = {
         themes: Theme[];
         languages: Language[];
         currencies: Currency[];
-        dateFormats: DateFormat[];
         profiles: Profile[];
         phoneChance: number;
         birthDateChance: number;
@@ -86,14 +85,13 @@ export type SeedConfig = {
  * @summary Defines seed defaults, templates, and distributions for dev seeding.
  */
 export const seedConfig: SeedConfig = {
-    language: Language.EN_US,
+    language: Language.PT_BR,
     defaultPassword: 'DevSeed123!',
     emailDomain: 'example.com',
     userOptions: {
         themes: [Theme.DARK, Theme.LIGHT],
         languages: [Language.EN_US, Language.PT_BR],
         currencies: [Currency.BRL, Currency.USD],
-        dateFormats: [DateFormat.DD_MM_YYYY, DateFormat.MM_DD_YYYY],
         profiles: [Profile.STARTER, Profile.PRO, Profile.MASTER],
         phoneChance: 0.75,
         birthDateChance: 0.85,

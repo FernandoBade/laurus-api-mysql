@@ -1,32 +1,36 @@
 import { Language } from "@shared/enums/language.enums";
+import {
+    getUserLanguage,
+    setUserPreferences,
+    subscribeUserPreferences,
+} from "@/state/userPreferences.store";
 
-const SUPPORTED_LOCALES: readonly Language[] = [Language.EN_US, Language.ES_ES, Language.PT_BR];
-
-function resolveInitialLocale(): Language {
-    if (typeof navigator === "undefined") {
-        return Language.EN_US;
-    }
-
-    const browserLocale = navigator.language;
-    const resolved = SUPPORTED_LOCALES.find((locale) => locale === browserLocale);
-    return resolved ?? Language.EN_US;
-}
-
-let currentLocale: Language = resolveInitialLocale();
+type LocaleListener = (locale: Language) => void;
 
 /**
- * @summary Reads the active locale used in API Accept-Language headers.
+ * @summary Reads the active locale used by i18n and API headers.
  * @returns Current locale code.
  */
 export function getLocale(): Language {
-    return currentLocale;
+    return getUserLanguage();
 }
 
 /**
- * @summary Updates the active locale value.
+ * @summary Updates the active locale preference.
  * @param locale Locale code to apply.
  * @returns No return value.
  */
 export function setLocale(locale: Language): void {
-    currentLocale = locale;
+    setUserPreferences({ language: locale });
+}
+
+/**
+ * @summary Subscribes to locale updates emitted by user preferences state.
+ * @param listener Callback called when locale changes.
+ * @returns Unsubscribe function.
+ */
+export function subscribeLocale(listener: LocaleListener): () => void {
+    return subscribeUserPreferences((state) => {
+        listener(state.language);
+    });
 }

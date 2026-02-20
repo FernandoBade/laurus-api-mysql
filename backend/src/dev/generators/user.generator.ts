@@ -1,6 +1,6 @@
 import UserController from '../../controller/userController';
 import type { SanitizedUser } from '../../../../shared/domains/user/user.types';
-import { Currency, DateFormat, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
+import { Currency, Language, Profile, Theme } from '../../../../shared/enums/user.enums';
 import { SeedContext, SeedRegistry, executeController, randomDateBetween, slugify } from '../seed.utils';
 
 type UserRequestBody = {
@@ -13,7 +13,6 @@ type UserRequestBody = {
     theme?: Theme;
     language?: Language;
     currency?: Currency;
-    dateFormat?: DateFormat;
     profile?: Profile;
     hideValues?: boolean;
     active?: boolean;
@@ -41,7 +40,6 @@ export async function createUser(context: SeedContext, index: number): Promise<S
         theme: context.random.pickOne(context.config.userOptions.themes),
         language: context.random.pickOne(context.config.userOptions.languages),
         currency: context.random.pickOne(context.config.userOptions.currencies),
-        dateFormat: context.random.pickOne(context.config.userOptions.dateFormats),
         profile: context.random.pickOne(context.config.userOptions.profiles),
         hideValues: context.random.chance(context.config.userOptions.hideValuesChance),
         active: context.random.chance(context.config.userOptions.activeChance),

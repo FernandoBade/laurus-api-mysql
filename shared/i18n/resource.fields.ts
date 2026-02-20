@@ -13,7 +13,6 @@ export const fieldLabelKeys: Record<string, ResourceKey> = {
     creditCardId: ResourceKey.FIELD_LABEL_CREDIT_CARD_ID,
     currency: ResourceKey.FIELD_LABEL_CURRENCY,
     date: ResourceKey.FIELD_LABEL_DATE,
-    dateFormat: ResourceKey.FIELD_LABEL_DATE_FORMAT,
     email: ResourceKey.FIELD_LABEL_EMAIL,
     firstName: ResourceKey.FIELD_LABEL_FIRST_NAME,
     flag: ResourceKey.FIELD_LABEL_FLAG,

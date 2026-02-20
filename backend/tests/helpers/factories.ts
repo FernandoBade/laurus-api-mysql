@@ -1,7 +1,7 @@
 import { SelectUser, SelectAccount, SelectTransaction } from '../../src/db/schema';
 import { AccountType } from '../../../shared/enums/account.enums';
 import { TransactionType, TransactionSource } from '../../../shared/enums/transaction.enums';
-import { Currency, DateFormat, Language, Profile, Theme } from '../../../shared/enums/user.enums';
+import { Currency, Language, Profile, Theme } from '../../../shared/enums/user.enums';
 import type { AccountEntity } from '../../../shared/domains/account/account.types';
 import type { TransactionWithTags } from '../../../shared/domains/transaction/transaction.types';
 import type { SanitizedUser, UserEntity } from '../../../shared/domains/user/user.types';
@@ -42,7 +42,6 @@ export function makeDbUser(overrides: Partial<SelectUser> = {}): SelectUser {
         avatarUrl: overrides.avatarUrl ?? null,
         theme: overrides.theme ?? Theme.DARK,
         language: overrides.language ?? Language.EN_US,
-        dateFormat: overrides.dateFormat ?? DateFormat.DD_MM_YYYY,
         currency: overrides.currency ?? Currency.BRL,
         profile: overrides.profile ?? Profile.STARTER,
         hideValues: overrides.hideValues ?? false,
@@ -68,7 +67,6 @@ export function makeUser(overrides: Partial<UserEntity> = {}): UserEntity {
         avatarUrl: overrides.avatarUrl ?? null,
         theme: overrides.theme ?? Theme.DARK,
         language: overrides.language ?? Language.EN_US,
-        dateFormat: overrides.dateFormat ?? DateFormat.DD_MM_YYYY,
         currency: overrides.currency ?? Currency.BRL,
         profile: overrides.profile ?? Profile.STARTER,
         hideValues: overrides.hideValues ?? false,

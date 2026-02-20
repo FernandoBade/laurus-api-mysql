@@ -16,7 +16,7 @@ describe('resource.utils', () => {
     });
 
     it('falls back to default language for unknown language codes', () => {
-        const fallback = translateResource(Resource.VALIDATION_ERROR, Language.EN_US);
+        const fallback = translateResource(Resource.VALIDATION_ERROR, Language.PT_BR);
         const result = translateResource(Resource.VALIDATION_ERROR, 'fr-FR' as LanguageCode);
 
         expect(result).toBe(fallback);

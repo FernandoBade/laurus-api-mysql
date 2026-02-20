@@ -3,7 +3,7 @@ import { Language } from '../enums/language.enums';
 import { resourceMessages, type LanguageCode } from './resource.messages';
 import { fieldLabelKeys } from './resource.fields';
 
-const defaultLanguage: LanguageCode = Language.EN_US;
+const defaultLanguage: LanguageCode = Language.PT_BR;
 
 /** @summary Translate a resource key to a localized string. */
 export const translateResource = (key: ResourceKey, lang?: LanguageCode | string): string => {
