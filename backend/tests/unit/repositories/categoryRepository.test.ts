@@ -3,7 +3,7 @@ import { CategoryRepository } from '../../../src/repositories/categoryRepository
 import { db } from '../../../src/db';
 import { categories, SelectCategory } from '../../../src/db/schema';
 import { CategoryColor, CategoryType } from '../../../../shared/enums/category.enums';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeCategory = (overrides: Partial<SelectCategory> = {}): SelectCategory => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -147,7 +147,7 @@ describe('CategoryRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeCategory({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.ASC });
 
             expectSelectChain(select, from, categories);
             expect(query.orderBy).toHaveBeenCalledWith(asc(categories.name));
@@ -156,7 +156,7 @@ describe('CategoryRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeCategory({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.DESC });
 
             expectSelectChain(select, from, categories);
             expect(query.orderBy).toHaveBeenCalledWith(desc(categories.name));

@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { createLog } from '../commons';
-import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { EmailProvider } from '../../../../shared/enums/email.enums';
+import { LogCategory, LogEvent, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import type { LanguageCode } from '../../../../shared/i18n/resourceTypes';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
@@ -114,8 +115,8 @@ const logEmailError = async (error: unknown, userId?: number): Promise<void> => 
             LogOperation.CREATE,
             LogCategory.LOG,
             {
-                event: 'FEEDBACK_EMAIL_SEND_FAILED',
-                provider: 'resend',
+                event: LogEvent.FEEDBACK_EMAIL_SEND_FAILED,
+                provider: EmailProvider.RESEND,
                 error: formatEmailError(error),
             },
             userId

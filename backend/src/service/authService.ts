@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { TokenType } from '../../../shared/enums/auth.enums';
-import { LogCategory, LogType, LogOperation } from '../../../shared/enums/log.enums';
+import { LogCategory, LogEvent, LogType, LogOperation } from '../../../shared/enums/log.enums';
 import { TokenUtils } from '../utils/auth/tokenUtils';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { TokenService } from './tokenService';
@@ -129,7 +129,7 @@ export class AuthService {
                 LogType.ALERT,
                 LogOperation.UPDATE,
                 LogCategory.AUTH,
-                'REFRESH_REUSE_DETECTED',
+                LogEvent.REFRESH_REUSE_DETECTED,
                 storedToken.userId || undefined
             );
             return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
@@ -191,7 +191,7 @@ export class AuthService {
                     LogType.ALERT,
                     LogOperation.UPDATE,
                     LogCategory.AUTH,
-                    'REFRESH_REUSE_DETECTED',
+                    LogEvent.REFRESH_REUSE_DETECTED,
                     storedToken.userId || undefined
                 );
                 return { success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN };
@@ -223,7 +223,7 @@ export class AuthService {
                 LogType.ALERT,
                 LogOperation.LOGOUT,
                 LogCategory.AUTH,
-                'LOGOUT_TOKEN_NOT_FOUND',
+                LogEvent.LOGOUT_TOKEN_NOT_FOUND,
                 stored?.userId || undefined
             );
             return { success: false, error: Resource.TOKEN_NOT_FOUND };
@@ -235,7 +235,7 @@ export class AuthService {
             LogType.SUCCESS,
             LogOperation.LOGOUT,
             LogCategory.AUTH,
-            'LOGOUT_SUCCESS',
+            LogEvent.LOGOUT_SUCCESS,
             stored.userId || undefined
         );
 

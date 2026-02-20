@@ -1,10 +1,12 @@
 import { Resend } from 'resend';
 import { createLog } from '../commons';
-import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
+import { TokenType } from '../../../../shared/enums/auth.enums';
+import { EmailProvider } from '../../../../shared/enums/email.enums';
+import { LogCategory, LogEvent, LogOperation, LogType } from '../../../../shared/enums/log.enums';
 import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { translateResource } from '../../../../shared/i18n/resource.utils';
 
-type AuthEmailType = 'emailVerification' | 'passwordReset';
+type AuthEmailType = TokenType.EMAIL_VERIFICATION | TokenType.PASSWORD_RESET;
 
 type AuthEmailPayload = {
     type: AuthEmailType;
@@ -35,7 +37,7 @@ const buildAuthLink = (path: string, token: string): string => {
 };
 
 const buildAuthEmailContent = (type: AuthEmailType): AuthEmailContent => {
-    if (type === 'emailVerification') {
+    if (type === TokenType.EMAIL_VERIFICATION) {
         return {
             subject: translateResource(Resource.EMAIL_VERIFICATION_SUBJECT),
             body: translateResource(Resource.EMAIL_VERIFICATION_BODY),
@@ -117,8 +119,8 @@ const logEmailError = async (type: AuthEmailType, error: unknown, userId?: numbe
             LogOperation.CREATE,
             LogCategory.AUTH,
             {
-                event: 'AUTH_EMAIL_SEND_FAILED',
-                provider: 'resend',
+                event: LogEvent.AUTH_EMAIL_SEND_FAILED,
+                provider: EmailProvider.RESEND,
                 type,
                 error: formatEmailError(error),
             },
@@ -166,11 +168,11 @@ export const buildPasswordResetLink = (token: string): string => buildAuthLink('
 
 export async function sendEmailVerificationEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildEmailVerificationLink(token);
-    await sender({ type: 'emailVerification', to, link, userId });
+    await sender({ type: TokenType.EMAIL_VERIFICATION, to, link, userId });
 }
 
 export async function sendPasswordResetEmail(to: string, token: string, userId?: number, sender: AuthEmailSender = defaultSender): Promise<void> {
     const link = buildPasswordResetLink(token);
-    await sender({ type: 'passwordReset', to, link, userId });
+    await sender({ type: TokenType.PASSWORD_RESET, to, link, userId });
 }
 

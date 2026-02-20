@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { categories, SelectCategory, InsertCategory } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for category database operations.
@@ -37,7 +37,7 @@ export class CategoryRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectCategory;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         }
     ): Promise<SelectCategory[]> {
         let query = db.select().from(categories);
@@ -57,7 +57,7 @@ export class CategoryRepository {
         if (options?.sort) {
             const column = categories[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -147,6 +147,3 @@ export class CategoryRepository {
         await db.delete(categories).where(eq(categories.id, categoryId));
     }
 }
-
-
-

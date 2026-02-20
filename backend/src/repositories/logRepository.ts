@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { logs, SelectLog, InsertLog } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for log database operations.
@@ -36,7 +36,7 @@ export class LogRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectLog;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         }
     ): Promise<SelectLog[]> {
         let query = db.select().from(logs);
@@ -53,7 +53,7 @@ export class LogRepository {
         if (options?.sort) {
             const column = logs[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -112,6 +112,3 @@ export class LogRepository {
         return created;
     }
 }
-
-
-

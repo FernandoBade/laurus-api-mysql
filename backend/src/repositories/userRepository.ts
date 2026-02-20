@@ -1,7 +1,7 @@
 import { eq, like, and, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { users, SelectUser, InsertUser } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for user database operations.
@@ -37,7 +37,7 @@ export class UserRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectUser;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         }
     ): Promise<SelectUser[]> {
         let query = db.select().from(users);
@@ -61,7 +61,7 @@ export class UserRepository {
         if (options?.sort) {
             const column = users[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -155,6 +155,3 @@ export class UserRepository {
         await db.delete(users).where(eq(users.id, userId));
     }
 }
-
-
-

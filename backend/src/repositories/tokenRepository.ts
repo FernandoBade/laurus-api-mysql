@@ -2,7 +2,7 @@ import { eq, and, desc, asc, SQL, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { tokens, SelectToken, InsertToken } from '../db/schema';
 import { TokenType } from '../../../shared/enums/auth.enums';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for token database operations.
@@ -85,7 +85,7 @@ export class TokenRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectToken;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         }
     ): Promise<SelectToken[]> {
         let query = db.select().from(tokens);
@@ -103,7 +103,7 @@ export class TokenRepository {
         if (options?.sort) {
             const column = tokens[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -238,6 +238,3 @@ export class TokenRepository {
         await db.delete(tokens).where(and(eq(tokens.tokenHash, tokenHash), eq(tokens.type, type)));
     }
 }
-
-
-

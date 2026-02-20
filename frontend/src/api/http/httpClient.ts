@@ -1,6 +1,6 @@
 import { AuthEvent } from "@shared/enums/auth.enums";
 import { ApiRoutePath, AppRoutePath } from "@shared/enums/routes.enums";
-import { AuthScheme, FetchCredentialsMode } from "@shared/enums/http.enums";
+import { AuthScheme, FetchCredentialsMode, HttpHeaderName, HttpMethod } from "@shared/enums/http.enums";
 import { StorageKey } from "@shared/enums/storage.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import { APP_ENV } from "@/config/env";
@@ -9,15 +9,6 @@ import { replace } from "@/routes/navigation";
 import { getLocale } from "@/state/locale.store";
 import { emitAuthEvent, getAccessToken, setUnauthenticated } from "@/state/auth.store";
 import type { ApiResponse } from "./httpTypes";
-
-const HTTP_METHOD = {
-    GET: "GET",
-} as const;
-
-const HEADER_NAME = {
-    ACCEPT_LANGUAGE: "Accept-Language",
-    AUTHORIZATION: "Authorization",
-} as const;
 
 const AUTHORIZATION_SCHEME = {
     BEARER: AuthScheme.BEARER,
@@ -74,22 +65,22 @@ function buildRequestUrl(input: string): string {
 
 function buildRequestHeaders(init?: HeadersInit): Headers {
     const headers = new Headers(init);
-    headers.set(HEADER_NAME.ACCEPT_LANGUAGE, getLocale());
+    headers.set(HttpHeaderName.ACCEPT_LANGUAGE, getLocale());
 
     const accessToken = getAccessToken();
-    if (accessToken !== null && !headers.has(HEADER_NAME.AUTHORIZATION)) {
-        headers.set(HEADER_NAME.AUTHORIZATION, `${AUTHORIZATION_SCHEME.BEARER} ${accessToken}`);
+    if (accessToken !== null && !headers.has(HttpHeaderName.AUTHORIZATION)) {
+        headers.set(HttpHeaderName.AUTHORIZATION, `${AUTHORIZATION_SCHEME.BEARER} ${accessToken}`);
     }
 
     return headers;
 }
 
 function resolveMethod(init?: RequestInit): string {
-    return (init?.method ?? HTTP_METHOD.GET).toUpperCase();
+    return (init?.method ?? HttpMethod.GET).toUpperCase();
 }
 
 function isRetryableGetMethod(method: string): boolean {
-    return method === HTTP_METHOD.GET;
+    return method === HttpMethod.GET;
 }
 
 function computeBackoffMs(attempt: number): number {

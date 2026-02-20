@@ -70,7 +70,7 @@ export class AccountService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectAccount,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch {
@@ -123,7 +123,7 @@ export class AccountService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectAccount,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: accounts.map(account => this.toAccountEntity(account)) };
         } catch {
@@ -197,6 +197,7 @@ export class AccountService {
         }
     }
 }
+
 
 
 

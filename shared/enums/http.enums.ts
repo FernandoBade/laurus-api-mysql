@@ -13,3 +13,27 @@ export enum FetchCredentialsMode {
 export enum AuthScheme {
     BEARER = "Bearer",
 }
+
+/**
+ * @summary HTTP methods used by API clients and request helpers.
+ */
+export enum HttpMethod {
+    GET = "GET",
+    POST = "POST",
+}
+
+/**
+ * @summary Standard HTTP header names used by API clients.
+ */
+export enum HttpHeaderName {
+    ACCEPT_LANGUAGE = "Accept-Language",
+    AUTHORIZATION = "Authorization",
+    CONTENT_TYPE = "Content-Type",
+}
+
+/**
+ * @summary HTTP content type values used in API requests.
+ */
+export enum HttpContentType {
+    APPLICATION_JSON = "application/json",
+}

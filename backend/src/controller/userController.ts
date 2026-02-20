@@ -9,15 +9,8 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
-
-const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
-const ALLOWED_AVATAR_MIME_TYPES = new Set([
-    'image/jpeg',
-    'image/png',
-    'image/jpg',
-    'image/pjpeg',
-    'image/x-png',
-]);
+import { ALLOWED_IMAGE_MIME_TYPES } from '../../../shared/enums/upload.enums';
+import { UploadValidation } from '../utils/upload/upload.constants';
 
 class UserController {
     /** @summary Creates a new user using validated input from the request body.
@@ -289,18 +282,18 @@ class UserController {
                 field: 'avatar'
             })));
         } else {
-            if (!ALLOWED_AVATAR_MIME_TYPES.has(file.mimetype)) {
+            if (!ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype)) {
                 errors.push(createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'avatar',
-                    expected: 'image/jpeg, image/png',
+                    expected: UploadValidation.AVATAR_IMAGE_MIME_EXPECTED,
                     received: file.mimetype,
                 })));
             }
 
-            if (file.size > MAX_AVATAR_BYTES) {
+            if (file.size > UploadValidation.MAX_FILE_SIZE_BYTES) {
                 errors.push(createValidationError('avatar', translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'avatar',
-                    expected: 'file size <= 2MB',
+                    expected: UploadValidation.FILE_SIZE_EXPECTED,
                     received: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
                 })));
             }

@@ -3,7 +3,7 @@ import { TokenRepository } from '../../../src/repositories/tokenRepository';
 import { db } from '../../../src/db';
 import { tokens, SelectToken } from '../../../src/db/schema';
 import { TokenType } from '../../../../shared/enums/auth.enums';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeToken = (overrides: Partial<SelectToken> = {}): SelectToken => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -178,7 +178,7 @@ describe('TokenRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeToken({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'createdAt', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'createdAt', order: SortOrder.ASC });
 
             expectSelectChain(select, from, tokens);
             expect(query.orderBy).toHaveBeenCalledWith(asc(tokens.createdAt));
@@ -187,7 +187,7 @@ describe('TokenRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeToken({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'createdAt', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'createdAt', order: SortOrder.DESC });
 
             expectSelectChain(select, from, tokens);
             expect(query.orderBy).toHaveBeenCalledWith(desc(tokens.createdAt));

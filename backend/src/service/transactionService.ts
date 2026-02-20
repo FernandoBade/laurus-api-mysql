@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
-import { TransactionSource, TransactionType } from '../../../shared/enums/transaction.enums';
+import { TransactionSortField, TransactionSource, TransactionType } from '../../../shared/enums/transaction.enums';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { SelectTransaction, InsertTransaction, transactionTags } from '../db/schema';
 import { withTransaction, db } from '../db';
@@ -16,28 +16,6 @@ import { CreditCardService } from './creditCardService';
 import { SubcategoryService } from './subcategoryService';
 import type { AccountTransactions, CreateTransactionInput, TransactionWithTags, UpdateTransactionInput } from '../../../shared/domains/transaction/transaction.types';
 import type { MonetaryString } from '../../../shared/types/format.types';
-
-type TransactionFilters = {
-    accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
-    creditCardId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
-    categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
-    subcategoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
-    tagIds?: { operator: FilterOperator.IN; value: number[] };
-    transactionType?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionType | TransactionType[] };
-    transactionSource?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionSource | TransactionSource[] };
-    active?: { operator: FilterOperator.EQ; value: boolean };
-    date?: { operator: FilterOperator.BETWEEN; value: [Date | null, Date | null] };
-};
-
-type TransactionCountFilters = TransactionFilters;
-
-type TransactionMutationResult =
-    | { success: true; data: SelectTransaction }
-    | { success: false; error: Resource };
-
-type DeleteTransactionResult =
-    | { success: true; data: { id: number } }
-    | { success: false; error: Resource };
 
 /**
  * Service for transaction business logic.
@@ -126,7 +104,10 @@ export class TransactionService {
                 } as InsertTransaction, connection);
 
                 const delta = getSignedTransactionDelta(data.transactionType, data.transactionSource, data.value);
-                await this.applyBalanceDelta(connection, created, delta);
+                const applyDeltaResult = await this.applyBalanceDelta(connection, created, delta);
+                if (!applyDeltaResult.success) {
+                    throw applyDeltaResult.error;
+                }
 
                 if (tagIds) {
                     await this.replaceTransactionTags(connection, created.id, tagIds);
@@ -148,15 +129,25 @@ export class TransactionService {
      * @returns A list of all transaction records.
      */
     async getTransactions(
-        filters?: TransactionFilters,
+        filters?: {
+            accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            creditCardId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            subcategoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+            tagIds?: { operator: FilterOperator.IN; value: number[] };
+            transactionType?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionType | TransactionType[] };
+            transactionSource?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionSource | TransactionSource[] };
+            active?: { operator: FilterOperator.EQ; value: boolean };
+            date?: { operator: FilterOperator.BETWEEN; value: [Date | null, Date | null] };
+        },
         options?: QueryOptions<SelectTransaction>
     ): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
             const transactions = await this.transactionRepository.findMany(filters, {
                 limit: options?.limit,
                 offset: options?.offset,
-                sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                sort: (options?.sort as keyof SelectTransaction) || TransactionSortField.DATE,
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
@@ -171,7 +162,17 @@ export class TransactionService {
      * @summary Gets total count of transactions.
      * @returns Total transaction count.
      */
-    async countTransactions(filters?: TransactionCountFilters): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+    async countTransactions(filters?: {
+        accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+        creditCardId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+        categoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+        subcategoryId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
+        tagIds?: { operator: FilterOperator.IN; value: number[] };
+        transactionType?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionType | TransactionType[] };
+        transactionSource?: { operator: FilterOperator.EQ | FilterOperator.IN; value: TransactionSource | TransactionSource[] };
+        active?: { operator: FilterOperator.EQ; value: boolean };
+        date?: { operator: FilterOperator.BETWEEN; value: [Date | null, Date | null] };
+    }): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.transactionRepository.count(filters);
             return { success: true, data: count };
@@ -203,15 +204,18 @@ export class TransactionService {
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
-    async getTransactionsByAccount(accountId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
+    async getTransactionsByAccount(
+        accountId: number,
+        options?: QueryOptions<SelectTransaction>
+    ): Promise<{ success: true; data: TransactionWithTags[] } | { success: false; error: Resource }> {
         try {
             const transactions = await this.transactionRepository.findMany({
                 accountId: { operator: FilterOperator.EQ, value: accountId }
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
-                sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                sort: (options?.sort as keyof SelectTransaction) || TransactionSortField.DATE,
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             const withTags = await this.attachTags(transactions);
             return { success: true, data: withTags };
@@ -245,7 +249,10 @@ export class TransactionService {
      * @param userId - ID of the user.
      * @returns A list of grouped transactions by account.
      */
-    async getTransactionsByUser(userId: number, options?: QueryOptions<SelectTransaction>): Promise<{ success: true; data: AccountTransactions[] } | { success: false; error: Resource }> {
+    async getTransactionsByUser(
+        userId: number,
+        options?: QueryOptions<SelectTransaction>
+    ): Promise<{ success: true; data: AccountTransactions[] } | { success: false; error: Resource }> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -261,8 +268,8 @@ export class TransactionService {
             }, {
                 limit: options?.limit,
                 offset: options?.offset,
-                sort: (options?.sort as keyof SelectTransaction) || 'date',
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                sort: (options?.sort as keyof SelectTransaction) || TransactionSortField.DATE,
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
 
             const transactionsWithTags = await this.attachTags(allTransactions);
@@ -284,7 +291,9 @@ export class TransactionService {
      * @param userId - User ID.
      * @returns Count of transactions.
      */
-    async countTransactionsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
+    async countTransactionsByUser(
+        userId: number
+    ): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         const accountService = new AccountService();
         const userAccounts = await accountService.getAccountsByUser(userId);
 
@@ -312,7 +321,10 @@ export class TransactionService {
      * @param data - Partial transaction data to update.
      * @returns Updated transaction record.
      */
-    async updateTransaction(id: number, data: UpdateTransactionInput): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
+    async updateTransaction(
+        id: number,
+        data: UpdateTransactionInput
+    ): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         try {
             const txResult = await withTransaction((connection) => this.applyUpdateWithinTransaction(connection, id, data));
             if (!txResult.success) {
@@ -507,7 +519,7 @@ export class TransactionService {
         connection: typeof db,
         id: number,
         data: UpdateTransactionInput
-    ): Promise<TransactionMutationResult> {
+    ): Promise<{ success: true; data: SelectTransaction } | { success: false; error: Resource }> {
         const current = await this.transactionRepository.findByIdForUpdate(id, connection);
         if (!current) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
@@ -537,7 +549,11 @@ export class TransactionService {
         }
 
         const updated = await this.transactionRepository.update(id, dbUpdateData, connection);
-        await this.applyBalanceUpdate(connection, current, updated);
+        const applyUpdateResult = await this.applyBalanceUpdate(connection, current, updated);
+        if (!applyUpdateResult.success) {
+            throw applyUpdateResult.error;
+        }
+
         if (tagIds) {
             await this.replaceTransactionTags(connection, updated.id, tagIds);
         }
@@ -548,7 +564,7 @@ export class TransactionService {
     private async deleteTransactionWithinTransaction(
         connection: typeof db,
         id: number
-    ): Promise<DeleteTransactionResult> {
+    ): Promise<{ success: true; data: { id: number } } | { success: false; error: Resource }> {
         const existing = await this.transactionRepository.findByIdForUpdate(id, connection);
         if (!existing) {
             return { success: false, error: Resource.TRANSACTION_NOT_FOUND };
@@ -560,7 +576,10 @@ export class TransactionService {
         const delta = invertMonetaryDelta(
             getSignedTransactionDelta(existing.transactionType, existing.transactionSource, existing.value)
         );
-        await this.applyBalanceDelta(connection, existing, delta);
+        const applyDeltaResult = await this.applyBalanceDelta(connection, existing, delta);
+        if (!applyDeltaResult.success) {
+            throw applyDeltaResult.error;
+        }
 
         return { success: true, data: { id } };
     }
@@ -569,7 +588,7 @@ export class TransactionService {
         connection: typeof db,
         current: SelectTransaction,
         updated: SelectTransaction
-    ): Promise<void> {
+    ): Promise<{ success: true } | { success: false; error: Resource }> {
         const currentDelta = getSignedTransactionDelta(current.transactionType, current.transactionSource, current.value);
         const updatedDelta = getSignedTransactionDelta(updated.transactionType, updated.transactionSource, updated.value);
 
@@ -577,36 +596,54 @@ export class TransactionService {
         const sameAccount = current.accountId === updated.accountId;
         const sameCard = current.creditCardId === updated.creditCardId;
 
-        if (sameSource && ((current.transactionSource === TransactionSource.ACCOUNT && sameAccount) || (current.transactionSource === TransactionSource.CREDIT_CARD && sameCard)) && currentDelta === updatedDelta) {
-            return;
+        if (
+            sameSource
+            && (
+                (current.transactionSource === TransactionSource.ACCOUNT && sameAccount)
+                || (current.transactionSource === TransactionSource.CREDIT_CARD && sameCard)
+            )
+            && currentDelta === updatedDelta
+        ) {
+            return { success: true };
         }
 
-        await this.applyBalanceDelta(connection, current, invertMonetaryDelta(currentDelta));
-        await this.applyBalanceDelta(connection, updated, updatedDelta);
+        const revertCurrentResult = await this.applyBalanceDelta(connection, current, invertMonetaryDelta(currentDelta));
+        if (!revertCurrentResult.success) {
+            return revertCurrentResult;
+        }
+
+        const applyUpdatedResult = await this.applyBalanceDelta(connection, updated, updatedDelta);
+        if (!applyUpdatedResult.success) {
+            return applyUpdatedResult;
+        }
+
+        return { success: true };
     }
 
     private async applyBalanceDelta(
         connection: typeof db,
         transaction: SelectTransaction,
         delta: MonetaryString
-    ): Promise<void> {
+    ): Promise<{ success: true } | { success: false; error: Resource }> {
         if (isZeroMonetaryDelta(delta)) {
-            return;
+            return { success: true };
         }
 
         if (transaction.transactionSource === TransactionSource.ACCOUNT) {
             if (!transaction.accountId) {
-                throw new Error('BalanceInvariantViolation: accountId required.');
+                return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
             }
 
             await this.accountRepository.applyBalanceDelta(transaction.accountId, delta, connection);
-            return;
+            return { success: true };
         }
 
         if (!transaction.creditCardId) {
-            throw new Error('BalanceInvariantViolation: creditCardId required.');
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
         await this.creditCardRepository.applyCreditCardDelta(transaction.creditCardId, delta, connection);
+        return { success: true };
     }
 }
+

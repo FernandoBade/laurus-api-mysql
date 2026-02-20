@@ -1,5 +1,4 @@
-/** @summary Sort direction for list queries. */
-export type SortOrder = 'asc' | 'desc';
+import type { SortOrder as SharedSortOrder } from '../enums/operator.enums';
 
 /** @summary Pagination and sorting input parameters. */
 export interface PaginationInput {
@@ -8,7 +7,7 @@ export interface PaginationInput {
     limit?: number;
     offset?: number;
     sort?: string;
-    order?: SortOrder;
+    order?: SharedSortOrder;
 }
 
 /** @summary Pagination metadata for a list response. */
@@ -24,3 +23,4 @@ export interface PaginatedResult<T> {
     data: T[];
     meta: PaginationMeta;
 }
+

@@ -1,7 +1,7 @@
 import { eq, and, inArray, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { tags, SelectTag, InsertTag } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for tag database operations.
@@ -39,7 +39,7 @@ export class TagRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectTag;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         },
         connection: typeof db = db
     ): Promise<SelectTag[]> {
@@ -70,7 +70,7 @@ export class TagRepository {
         if (options?.sort) {
             const column = tags[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -161,5 +161,3 @@ export class TagRepository {
         await connection.delete(tags).where(eq(tags.id, tagId));
     }
 }
-
-

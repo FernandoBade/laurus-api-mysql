@@ -87,7 +87,7 @@ export class CreditCardService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCreditCard,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch {
@@ -140,7 +140,7 @@ export class CreditCardService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCreditCard,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: creditCards.map(card => this.toCreditCardEntity(card)) };
         } catch {
@@ -237,6 +237,7 @@ export class CreditCardService {
         }
     }
 }
+
 
 
 

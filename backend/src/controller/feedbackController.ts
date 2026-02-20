@@ -3,27 +3,15 @@ import { FeedbackService } from '../service/feedbackService';
 import { UserService } from '../service/userService';
 import { answerAPI, createLog, formatError } from '../utils/commons';
 import { HTTPStatus } from '../../../shared/enums/http-status.enums';
-import { LogCategory, LogOperation, LogType } from '../../../shared/enums/log.enums';
+import { LogCategory, LogEvent, LogOperation, LogType } from '../../../shared/enums/log.enums';
 import { validateFeedbackRequest } from '../utils/validation/validateRequest';
 import { createValidationError, ValidationError } from '../utils/validation/errors';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import type { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import type { FeedbackAttachmentInput } from '../utils/email/feedbackEmail';
 import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
-
-const ALLOWED_IMAGE_TYPES = new Set([
-    'image/jpeg',
-    'image/png',
-    'image/jpg',
-    'image/pjpeg',
-    'image/x-png',
-]);
-const ALLOWED_AUDIO_TYPES = new Set([
-    'audio/webm',
-    'audio/ogg',
-    'audio/mpeg',
-    'audio/mp4',
-]);
+import { ALLOWED_AUDIO_MIME_TYPES, ALLOWED_IMAGE_MIME_TYPES } from '../../../shared/enums/upload.enums';
+import { UploadValidation } from '../utils/upload/upload.constants';
 
 const getFileMap = (files: Request['files']) =>
     files as Record<string, Express.Multer.File[]> | undefined;
@@ -35,26 +23,26 @@ const validateAttachmentTypes = (
 ) => {
     const errors: ValidationError[] = [];
 
-    if (imageFile && !ALLOWED_IMAGE_TYPES.has(imageFile.mimetype)) {
+    if (imageFile && !ALLOWED_IMAGE_MIME_TYPES.has(imageFile.mimetype)) {
         errors.push(
             createValidationError(
                 'image',
                 translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'image',
-                    expected: 'image/png or image/jpeg',
+                    expected: UploadValidation.FEEDBACK_IMAGE_MIME_EXPECTED,
                     received: imageFile.mimetype,
                 })
             )
         );
     }
 
-    if (audioFile && !ALLOWED_AUDIO_TYPES.has(audioFile.mimetype)) {
+    if (audioFile && !ALLOWED_AUDIO_MIME_TYPES.has(audioFile.mimetype)) {
         errors.push(
             createValidationError(
                 'audio',
                 translateResourceWithParams(Resource.INVALID_TYPE, language, {
                     path: 'audio',
-                    expected: 'audio/webm, audio/ogg, audio/mpeg, audio/mp4',
+                    expected: UploadValidation.FEEDBACK_AUDIO_MIME_EXPECTED,
                     received: audioFile.mimetype,
                 })
             )
@@ -148,7 +136,7 @@ class FeedbackController {
                 LogOperation.CREATE,
                 LogCategory.LOG,
                 {
-                    event: 'FEEDBACK_SENT',
+                    event: LogEvent.FEEDBACK_SENT,
                     hasImage: Boolean(imageFile),
                     hasAudio: Boolean(audioFile),
                 },

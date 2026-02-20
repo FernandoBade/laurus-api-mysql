@@ -9,17 +9,23 @@ import { SelectUser, InsertUser } from '../db/schema';
 import { QueryOptions } from '../utils/pagination';
 import { TokenService } from './tokenService';
 import { sendEmailVerificationEmail } from '../utils/email/authEmail';
+import { PNG_MIME_TYPES, UploadFileExtension } from '../../../shared/enums/upload.enums';
 import type { CreateUserInput, SanitizedUser, UpdateUserInput, UserEntity } from '../../../shared/domains/user/user.types';
 
-const AVATAR_PUBLIC_BASE_URL = 'https://zinero.bade.digital/zinero/users';
-const AVATAR_FILE_BASE = 'avatar';
-const AVATAR_BACKUP_BASE = 'avatar_old';
+const USER_SERVICE_CONFIG = {
+    avatarPublicBaseUrl: process.env.AVATAR_PUBLIC_BASE_URL ?? 'https://zinero.bade.digital/zinero/users',
+    avatarDirectory: 'avatar',
+    avatarFileBase: 'avatar',
+    avatarBackupBase: 'avatar_old',
+    passwordHashRounds: 10,
+    defaultFtpPort: 21,
+} as const;
 
 const resolveAvatarExtension = (mimeType: string) => {
-    if (mimeType === 'image/png' || mimeType === 'image/x-png') {
-        return 'png';
+    if (PNG_MIME_TYPES.has(mimeType)) {
+        return UploadFileExtension.PNG;
     }
-    return 'jpg';
+    return UploadFileExtension.JPG;
 };
 
 /**
@@ -35,13 +41,6 @@ export class UserService {
         this.tokenService = new TokenService();
     }
 
-    /**
-     * Removes sensitive fields from the user object.
-     *
-     * @summary Sanitizes user data by removing password.
-     * @param data - Raw user object with sensitive fields.
-     * @returns User object without the password.
-     */
     private toIsoString(value: Date | null): string | null {
         if (!value) {
             return null;
@@ -88,7 +87,7 @@ export class UserService {
             return { success: false, error: Resource.EMAIL_IN_USE };
         }
 
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const hashedPassword = await bcrypt.hash(data.password, USER_SERVICE_CONFIG.passwordHashRounds);
         const insertData: InsertUser = {
             ...data,
             birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
@@ -136,7 +135,7 @@ export class UserService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === SortOrder.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return {
                 success: true,
@@ -195,7 +194,7 @@ export class UserService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === SortOrder.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return {
                 success: true,
@@ -222,7 +221,7 @@ export class UserService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectUser,
-                order: options?.order === SortOrder.DESC ? "desc" : "asc",
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return {
                 success: true,
@@ -241,22 +240,26 @@ export class UserService {
      * @returns User record if found, or error if not.
      */
     async findUserByEmailExact(email: string): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
-        const normalized = email.trim().toLowerCase();
-        const result = await this.userRepository.findMany({
-            email: { operator: FilterOperator.EQ, value: normalized }
-        }, {
-            limit: 2,
-        });
+        try {
+            const normalized = email.trim().toLowerCase();
+            const result = await this.userRepository.findMany({
+                email: { operator: FilterOperator.EQ, value: normalized }
+            }, {
+                limit: 2,
+            });
 
-        if (result.length === 0) {
-            return { success: false, error: Resource.USER_NOT_FOUND };
+            if (result.length === 0) {
+                return { success: false, error: Resource.USER_NOT_FOUND };
+            }
+
+            if (result.length > 1) {
+                return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
+            }
+
+            return { success: true, data: this.sanitizeUser(result[0]) };
+        } catch {
+            return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
-
-        if (result.length > 1) {
-            throw new Error('RepositoryInvariantViolation: multiple users found');
-        }
-
-        return { success: true, data: this.sanitizeUser(result[0]) };
     }
 
     /**
@@ -294,7 +297,7 @@ export class UserService {
         if (data.password && current.password) {
             const isSamePassword = await bcrypt.compare(data.password, current.password);
             if (!isSamePassword) {
-                data.password = await bcrypt.hash(data.password, 10);
+                data.password = await bcrypt.hash(data.password, USER_SERVICE_CONFIG.passwordHashRounds);
             } else {
                 delete data.password;
             }
@@ -385,18 +388,18 @@ export class UserService {
         const user = process.env.FTP_USER;
         const password = process.env.FTP_PASSWORD;
         const uploadPath = process.env.FTP_UPLOAD_PATH;
-        const portValue = Number(process.env.FTP_PORT ?? 21);
-        const port = Number.isFinite(portValue) ? portValue : 21;
+        const portValue = Number(process.env.FTP_PORT ?? USER_SERVICE_CONFIG.defaultFtpPort);
+        const port = Number.isFinite(portValue) ? portValue : USER_SERVICE_CONFIG.defaultFtpPort;
 
         if (!host || !user || !password || !uploadPath) {
             return { success: false, error: Resource.INTERNAL_SERVER_ERROR };
         }
 
         const extension = resolveAvatarExtension(file.mimetype);
-        const fileName = `${AVATAR_FILE_BASE}.${extension}`;
+        const fileName = `${USER_SERVICE_CONFIG.avatarFileBase}.${extension}`;
         const normalizedPath = uploadPath.replace(/\/$/, '');
-        const userAvatarPath = `${normalizedPath}/${userId}/avatar`;
-        const publicUrl = `${AVATAR_PUBLIC_BASE_URL}/${userId}/avatar/${fileName}`;
+        const userAvatarPath = `${normalizedPath}/${userId}/${USER_SERVICE_CONFIG.avatarDirectory}`;
+        const publicUrl = `${USER_SERVICE_CONFIG.avatarPublicBaseUrl}/${userId}/${USER_SERVICE_CONFIG.avatarDirectory}/${fileName}`;
         const ftpClient = new FtpClient();
 
         try {
@@ -409,7 +412,7 @@ export class UserService {
             await ftpClient.ensureDir(userAvatarPath);
             const files = await ftpClient.list();
             const existingBackups = files.filter((entry) =>
-                entry.name.startsWith(`${AVATAR_BACKUP_BASE}.`)
+                entry.name.startsWith(`${USER_SERVICE_CONFIG.avatarBackupBase}.`)
             );
             for (const backup of existingBackups) {
                 try {
@@ -419,11 +422,11 @@ export class UserService {
                 }
             }
             const existingAvatar = files.find((entry) =>
-                entry.name.startsWith(`${AVATAR_FILE_BASE}.`)
+                entry.name.startsWith(`${USER_SERVICE_CONFIG.avatarFileBase}.`)
             );
             if (existingAvatar) {
                 const currentExtension = path.extname(existingAvatar.name) || `.${extension}`;
-                const backupName = `${AVATAR_BACKUP_BASE}${currentExtension}`;
+                const backupName = `${USER_SERVICE_CONFIG.avatarBackupBase}${currentExtension}`;
                 try {
                     await ftpClient.rename(existingAvatar.name, backupName);
                 } catch {
@@ -440,6 +443,3 @@ export class UserService {
         }
     }
 }
-
-
-

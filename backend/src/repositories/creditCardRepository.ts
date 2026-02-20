@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { creditCards, SelectCreditCard, InsertCreditCard } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import type { MonetaryString } from '../../../shared/types/format.types';
 
 /**
@@ -39,7 +39,7 @@ export class CreditCardRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectCreditCard;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         },
         connection: typeof db = db
     ): Promise<SelectCreditCard[]> {
@@ -63,7 +63,7 @@ export class CreditCardRepository {
         if (options?.sort) {
             const column = creditCards[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -187,6 +187,3 @@ export class CreditCardRepository {
         await connection.delete(creditCards).where(eq(creditCards.id, creditCardId));
     }
 }
-
-
-

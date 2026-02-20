@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { TagRepository } from '../../../src/repositories/tagRepository';
 import { db } from '../../../src/db';
 import { tags, SelectTag } from '../../../src/db/schema';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeTag = (overrides: Partial<SelectTag> = {}): SelectTag => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -141,7 +141,7 @@ describe('TagRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeTag({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.ASC });
 
             expectSelectChain(select, from, tags);
             expect(query.orderBy).toHaveBeenCalledWith(asc(tags.name));
@@ -150,7 +150,7 @@ describe('TagRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeTag({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.DESC });
 
             expectSelectChain(select, from, tags);
             expect(query.orderBy).toHaveBeenCalledWith(desc(tags.name));

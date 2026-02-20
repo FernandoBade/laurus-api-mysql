@@ -12,6 +12,11 @@ export enum TransactionType {
     EXPENSE = "expense",
 }
 
+/** @summary Sortable transaction fields used as service defaults. */
+export enum TransactionSortField {
+    DATE = "date",
+}
+
 /** @summary Transaction-related error codes mapped to i18n resources. */
 export enum TransactionErrorCode {
     ValidationError = ResourceKey.VALIDATION_ERROR,

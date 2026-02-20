@@ -2,7 +2,7 @@ import { and, asc, between, desc, eq, inArray } from 'drizzle-orm';
 import { TransactionRepository } from '../../../src/repositories/transactionRepository';
 import { db } from '../../../src/db';
 import { transactions } from '../../../src/db/schema';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { TransactionSource, TransactionType } from '../../../../shared/enums/transaction.enums';
 import { makeDbTransaction } from '../../helpers/factories';
 
@@ -219,7 +219,7 @@ describe('TransactionRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'date', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'date', order: SortOrder.ASC });
 
             expectSelectChain(select, from, transactions);
             expect(query.orderBy).toHaveBeenCalledWith(asc(transactions.date));
@@ -228,7 +228,7 @@ describe('TransactionRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeDbTransaction({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'date', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'date', order: SortOrder.DESC });
 
             expectSelectChain(select, from, transactions);
             expect(query.orderBy).toHaveBeenCalledWith(desc(transactions.date));

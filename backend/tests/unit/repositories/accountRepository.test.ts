@@ -3,7 +3,7 @@ import { AccountRepository } from '../../../src/repositories/accountRepository';
 import { db } from '../../../src/db';
 import { accounts } from '../../../src/db/schema';
 import { AccountType } from '../../../../shared/enums/account.enums';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { makeDbAccount } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
@@ -134,7 +134,7 @@ describe('AccountRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.ASC });
 
             expectSelectChain(select, from, accounts);
             expect(query.orderBy).toHaveBeenCalledWith(asc(accounts.name));
@@ -143,7 +143,7 @@ describe('AccountRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeDbAccount({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.DESC });
 
             expectSelectChain(select, from, accounts);
             expect(query.orderBy).toHaveBeenCalledWith(desc(accounts.name));

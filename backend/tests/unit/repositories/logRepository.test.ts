@@ -3,7 +3,7 @@ import { LogRepository } from '../../../src/repositories/logRepository';
 import { db } from '../../../src/db';
 import { logs, SelectLog } from '../../../src/db/schema';
 import { LogCategory, LogOperation, LogType } from '../../../../shared/enums/log.enums';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeLog = (overrides: Partial<SelectLog> = {}): SelectLog => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -113,7 +113,7 @@ describe('LogRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeLog({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'createdAt', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'createdAt', order: SortOrder.ASC });
 
             expectSelectChain(select, from, logs);
             expect(query.orderBy).toHaveBeenCalledWith(asc(logs.createdAt));
@@ -122,7 +122,7 @@ describe('LogRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeLog({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'createdAt', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'createdAt', order: SortOrder.DESC });
 
             expectSelectChain(select, from, logs);
             expect(query.orderBy).toHaveBeenCalledWith(desc(logs.createdAt));

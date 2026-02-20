@@ -64,7 +64,7 @@ export class CategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch {
@@ -117,7 +117,7 @@ export class CategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectCategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: categories.map(category => this.toCategoryEntity(category)) };
         } catch {
@@ -191,6 +191,7 @@ export class CategoryService {
         }
     }
 }
+
 
 
 

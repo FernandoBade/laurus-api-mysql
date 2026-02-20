@@ -109,11 +109,11 @@ describe('userRoutes', () => {
   });
 
   describe('PUT', () => {
-    it('registers /:id? with verifyToken and updateUser', () => {
-      const route = getRoute('/:id?', 'put');
-      const handlers = getHandlers('/:id?', 'put');
+    it('registers /:id with verifyToken and updateUser', () => {
+      const route = getRoute('/:id', 'put');
+      const handlers = getHandlers('/:id', 'put');
 
-      expect(route.path).toBe('/:id?');
+      expect(route.path).toBe('/:id');
       expect(route.methods.put).toBe(true);
       expect(handlers).toHaveLength(2);
       expect(handlers[0]).toBe(verifyToken);
@@ -123,11 +123,11 @@ describe('userRoutes', () => {
   });
 
   describe('DELETE', () => {
-    it('registers /:id? with verifyToken and deleteUser', () => {
-      const route = getRoute('/:id?', 'delete');
-      const handlers = getHandlers('/:id?', 'delete');
+    it('registers /:id with verifyToken and deleteUser', () => {
+      const route = getRoute('/:id', 'delete');
+      const handlers = getHandlers('/:id', 'delete');
 
-      expect(route.path).toBe('/:id?');
+      expect(route.path).toBe('/:id');
       expect(route.methods.delete).toBe(true);
       expect(handlers).toHaveLength(2);
       expect(handlers[0]).toBe(verifyToken);

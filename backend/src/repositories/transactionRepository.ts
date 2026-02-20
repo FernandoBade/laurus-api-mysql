@@ -1,7 +1,7 @@
 import { eq, and, inArray, between, desc, asc, SQL, or, gte, lte } from 'drizzle-orm';
 import { db } from '../db';
 import { transactions, transactionTags, SelectTransaction, InsertTransaction } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import { TransactionSource, TransactionType } from '../../../shared/enums/transaction.enums';
 
 /**
@@ -64,7 +64,7 @@ export class TransactionRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectTransaction;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         },
         connection: typeof db = db
     ): Promise<SelectTransaction[]> {
@@ -161,7 +161,7 @@ export class TransactionRepository {
         if (options?.sort) {
             const column = transactions[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -335,6 +335,3 @@ export class TransactionRepository {
         await connection.delete(transactions).where(eq(transactions.id, transactionId));
     }
 }
-
-
-

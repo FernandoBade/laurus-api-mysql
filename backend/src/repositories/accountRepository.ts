@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, SQL, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { accounts, SelectAccount, InsertAccount } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 import type { MonetaryString } from '../../../shared/types/format.types';
 
 /**
@@ -38,7 +38,7 @@ export class AccountRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectAccount;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         },
         connection: typeof db = db
     ): Promise<SelectAccount[]> {
@@ -59,7 +59,7 @@ export class AccountRepository {
         if (options?.sort) {
             const column = accounts[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -179,6 +179,3 @@ export class AccountRepository {
         await connection.delete(accounts).where(eq(accounts.id, accountId));
     }
 }
-
-
-

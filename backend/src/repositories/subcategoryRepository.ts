@@ -1,7 +1,7 @@
 import { eq, and, inArray, desc, asc, SQL } from 'drizzle-orm';
 import { db } from '../db';
 import { subcategories, SelectSubcategory, InsertSubcategory } from '../db/schema';
-import { FilterOperator } from '../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../shared/enums/operator.enums';
 
 /**
  * Repository for subcategory database operations.
@@ -37,7 +37,7 @@ export class SubcategoryRepository {
             limit?: number;
             offset?: number;
             sort?: keyof SelectSubcategory;
-            order?: 'asc' | 'desc';
+            order?: SortOrder;
         }
     ): Promise<SelectSubcategory[]> {
         let query = db.select().from(subcategories);
@@ -64,7 +64,7 @@ export class SubcategoryRepository {
         if (options?.sort) {
             const column = subcategories[options.sort];
             if (column) {
-                query = query.orderBy(options.order === 'desc' ? desc(column) : asc(column)) as typeof query;
+                query = query.orderBy(options.order === SortOrder.DESC ? desc(column) : asc(column)) as typeof query;
             }
         }
 
@@ -158,6 +158,3 @@ export class SubcategoryRepository {
         await db.delete(subcategories).where(eq(subcategories.id, subcategoryId));
     }
 }
-
-
-

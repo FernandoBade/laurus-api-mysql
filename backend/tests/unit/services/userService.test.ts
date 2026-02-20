@@ -438,7 +438,7 @@ describe('UserService', () => {
             }
         });
 
-        it('throws when multiple users share the same email', async () => {
+        it('returns internal server error when multiple users share the same email', async () => {
             const users = [
                 makeDbUser({ id: 1, email: 'dup@example.com' }),
                 makeDbUser({ id: 2, email: 'dup@example.com' }),
@@ -446,17 +446,13 @@ describe('UserService', () => {
             jest.spyOn(UserRepository.prototype, 'findMany').mockResolvedValue(users);
 
             const service = new UserService();
-            let caught: unknown;
+            const result = await service.findUserByEmailExact('dup@example.com');
 
-            try {
-                await service.findUserByEmailExact('dup@example.com');
-            } catch (error) {
-                caught = error;
-            }
-
-            expect(caught).toBeInstanceOf(Error);
-            if (caught instanceof Error) {
-                expect(caught.message).toBe('RepositoryInvariantViolation: multiple users found');
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error).toBe(Resource.INTERNAL_SERVER_ERROR);
+                expect(translate(result.error)).toBe(translate(Resource.INTERNAL_SERVER_ERROR));
             }
         });
     });

@@ -48,7 +48,7 @@ export function parsePagination(query: QueryParams) {
     const offset = offsetValue ? parseQueryInt(offsetValue) : (page - 1) * pageSize;
     const sort = typeof sortValue === 'string' ? sortValue : undefined;
     const orderParam = typeof orderValue === 'string' ? orderValue.toLowerCase() : undefined;
-    const order = orderParam === 'desc' ? SortOrder.DESC : SortOrder.ASC;
+    const order = orderParam === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC;
     return { page, pageSize, limit, offset, sort, order };
 }
 
@@ -56,5 +56,6 @@ export function buildMeta({ page, pageSize, total }: { page: number; pageSize: n
     const pageCount = pageSize ? Math.ceil(total / pageSize) : 0;
     return { page, pageSize, total, pageCount };
 }
+
 
 

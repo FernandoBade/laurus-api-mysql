@@ -17,8 +17,8 @@ export enum FilterOperator {
  * @summary Sort direction tokens used in list and pagination queries.
  */
 export enum SortOrder {
-    ASC = "ASC",
-    DESC = "DESC",
+    ASC = "asc",
+    DESC = "desc",
 }
 
 /**
@@ -29,3 +29,4 @@ export enum SqlFunction {
     YEAR = "YEAR",
     MONTH = "MONTH",
 }
+

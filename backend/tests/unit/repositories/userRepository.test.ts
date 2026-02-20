@@ -2,7 +2,7 @@ import { and, asc, desc, eq, like } from 'drizzle-orm';
 import { UserRepository } from '../../../src/repositories/userRepository';
 import { db } from '../../../src/db';
 import { users } from '../../../src/db/schema';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 import { makeDbUser } from '../../helpers/factories';
 
 const makeSelectQuery = <T,>(result: T) => {
@@ -142,7 +142,7 @@ describe('UserRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'email', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'email', order: SortOrder.ASC });
 
             expectSelectChain(select, from, users);
             expect(query.orderBy).toHaveBeenCalledWith(asc(users.email));
@@ -151,7 +151,7 @@ describe('UserRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeDbUser({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'email', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'email', order: SortOrder.DESC });
 
             expectSelectChain(select, from, users);
             expect(query.orderBy).toHaveBeenCalledWith(desc(users.email));

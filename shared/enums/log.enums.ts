@@ -33,3 +33,15 @@ export enum LogOperation {
     LOGOUT = "logout",
     UPDATE = "update",
 }
+
+/** @summary Structured log event identifiers for backend telemetry payloads.
+ * @internal
+ */
+export enum LogEvent {
+    AUTH_EMAIL_SEND_FAILED = "AUTH_EMAIL_SEND_FAILED",
+    FEEDBACK_EMAIL_SEND_FAILED = "FEEDBACK_EMAIL_SEND_FAILED",
+    FEEDBACK_SENT = "FEEDBACK_SENT",
+    REFRESH_REUSE_DETECTED = "REFRESH_REUSE_DETECTED",
+    LOGOUT_TOKEN_NOT_FOUND = "LOGOUT_TOKEN_NOT_FOUND",
+    LOGOUT_SUCCESS = "LOGOUT_SUCCESS",
+}

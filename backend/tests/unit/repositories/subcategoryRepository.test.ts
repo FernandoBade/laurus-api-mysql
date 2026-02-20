@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { SubcategoryRepository } from '../../../src/repositories/subcategoryRepository';
 import { db } from '../../../src/db';
 import { subcategories, SelectSubcategory } from '../../../src/db/schema';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeSubcategory = (overrides: Partial<SelectSubcategory> = {}): SelectSubcategory => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -153,7 +153,7 @@ describe('SubcategoryRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.ASC });
 
             expectSelectChain(select, from, subcategories);
             expect(query.orderBy).toHaveBeenCalledWith(asc(subcategories.name));
@@ -162,7 +162,7 @@ describe('SubcategoryRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeSubcategory({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.DESC });
 
             expectSelectChain(select, from, subcategories);
             expect(query.orderBy).toHaveBeenCalledWith(desc(subcategories.name));

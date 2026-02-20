@@ -1,19 +1,8 @@
 import type { LoginInput, LoginOutput, RefreshOutput } from "@shared/domains/auth/auth.types";
+import { HttpContentType, HttpHeaderName, HttpMethod } from "@shared/enums/http.enums";
 import { ApiRoutePath } from "@shared/enums/routes.enums";
 import { request } from "@/api/http/httpClient";
 import type { ApiResponse } from "@/api/http/httpTypes";
-
-const HEADER_NAME = {
-  CONTENT_TYPE: "Content-Type",
-} as const;
-
-const CONTENT_TYPE = {
-  APPLICATION_JSON: "application/json",
-} as const;
-
-const HTTP_METHOD = {
-  POST: "POST",
-} as const;
 
 /**
  * @summary Authenticates the user with email and password credentials.
@@ -25,9 +14,9 @@ export async function login(email: string, password: string): Promise<ApiRespons
   const payload: LoginInput = { email, password };
 
   return request<LoginOutput>(ApiRoutePath.AUTH_LOGIN, {
-    method: HTTP_METHOD.POST,
+    method: HttpMethod.POST,
     headers: {
-      [HEADER_NAME.CONTENT_TYPE]: CONTENT_TYPE.APPLICATION_JSON,
+      [HttpHeaderName.CONTENT_TYPE]: HttpContentType.APPLICATION_JSON,
     },
     body: JSON.stringify(payload),
   });
@@ -39,9 +28,9 @@ export async function login(email: string, password: string): Promise<ApiRespons
  */
 export async function refresh(): Promise<ApiResponse<RefreshOutput>> {
   return request<RefreshOutput>(ApiRoutePath.AUTH_REFRESH, {
-    method: HTTP_METHOD.POST,
+    method: HttpMethod.POST,
     headers: {
-      [HEADER_NAME.CONTENT_TYPE]: CONTENT_TYPE.APPLICATION_JSON,
+      [HttpHeaderName.CONTENT_TYPE]: HttpContentType.APPLICATION_JSON,
     },
   });
 }
@@ -52,9 +41,9 @@ export async function refresh(): Promise<ApiResponse<RefreshOutput>> {
  */
 export async function logout(): Promise<ApiResponse<unknown>> {
   return request<unknown>(ApiRoutePath.AUTH_LOGOUT, {
-    method: HTTP_METHOD.POST,
+    method: HttpMethod.POST,
     headers: {
-      [HEADER_NAME.CONTENT_TYPE]: CONTENT_TYPE.APPLICATION_JSON,
+      [HttpHeaderName.CONTENT_TYPE]: HttpContentType.APPLICATION_JSON,
     },
   });
 }

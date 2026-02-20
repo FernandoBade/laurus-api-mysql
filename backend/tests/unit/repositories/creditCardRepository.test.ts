@@ -3,7 +3,7 @@ import { CreditCardRepository } from '../../../src/repositories/creditCardReposi
 import { db } from '../../../src/db';
 import { creditCards, SelectCreditCard } from '../../../src/db/schema';
 import { CreditCardFlag } from '../../../../shared/enums/creditCard.enums';
-import { FilterOperator } from '../../../../shared/enums/operator.enums';
+import { FilterOperator, SortOrder } from '../../../../shared/enums/operator.enums';
 
 const makeCreditCard = (overrides: Partial<SelectCreditCard> = {}): SelectCreditCard => {
     const now = new Date('2024-01-01T00:00:00Z');
@@ -162,7 +162,7 @@ describe('CreditCardRepository', () => {
         it('applies sorting asc', async () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'asc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.ASC });
 
             expectSelectChain(select, from, creditCards);
             expect(query.orderBy).toHaveBeenCalledWith(asc(creditCards.name));
@@ -171,7 +171,7 @@ describe('CreditCardRepository', () => {
         it('applies sorting desc', async () => {
             const { select, from, query } = makeSelectChain([makeCreditCard({ id: 1 })]);
 
-            await repo.findMany(undefined, { sort: 'name', order: 'desc' });
+            await repo.findMany(undefined, { sort: 'name', order: SortOrder.DESC });
 
             expectSelectChain(select, from, creditCards);
             expect(query.orderBy).toHaveBeenCalledWith(desc(creditCards.name));

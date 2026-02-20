@@ -70,7 +70,7 @@ export class SubcategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch {
@@ -108,7 +108,7 @@ export class SubcategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: subcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
         } catch {
@@ -173,7 +173,7 @@ export class SubcategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             void subcategories;
 
@@ -183,7 +183,7 @@ export class SubcategoryService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectSubcategory,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
 
             return { success: true, data: allSubcategories.map(subcategory => this.toSubcategoryEntity(subcategory)) };
@@ -272,6 +272,7 @@ export class SubcategoryService {
         }
     }
 }
+
 
 
 

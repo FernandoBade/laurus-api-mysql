@@ -74,7 +74,7 @@ export class TagService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectTag,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch {
@@ -127,7 +127,7 @@ export class TagService {
                 limit: options?.limit,
                 offset: options?.offset,
                 sort: options?.sort as keyof SelectTag,
-                order: options?.order === SortOrder.DESC ? 'desc' : 'asc',
+                order: options?.order === SortOrder.DESC ? SortOrder.DESC : SortOrder.ASC,
             });
             return { success: true, data: tags.map(tag => this.toTagEntity(tag)) };
         } catch {
@@ -221,6 +221,7 @@ export class TagService {
         }
     }
 }
+
 
 
 
