@@ -1,7 +1,8 @@
-import { eq, and, desc, asc, SQL } from 'drizzle-orm';
+import { eq, and, desc, asc, SQL, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { accounts, SelectAccount, InsertAccount } from '../db/schema';
 import { FilterOperator } from '../../../shared/enums/operator.enums';
+import type { MonetaryString } from '../../../shared/types/format.types';
 
 /**
  * Repository for account database operations.
@@ -132,6 +133,35 @@ export class AccountRepository {
      */
     async update(accountId: number, data: Partial<InsertAccount>, connection: typeof db = db): Promise<SelectAccount> {
         await connection.update(accounts).set(data).where(eq(accounts.id, accountId));
+        const updated = await this.findById(accountId, connection);
+        if (!updated) {
+            throw new Error('RepositoryInvariantViolation: updated record not found');
+        }
+        return updated;
+    }
+
+    /**
+     * Applies an atomic decimal delta to an account balance.
+     *
+     * @summary Mutates account balance with SQL arithmetic to avoid read-modify-write races.
+     * @param accountId - Account ID to update.
+     * @param delta - Monetary delta as a signed decimal string.
+     * @param connection - Optional transactional connection.
+     * @returns The updated account record.
+     */
+    async applyBalanceDelta(
+        accountId: number,
+        delta: MonetaryString,
+        connection: typeof db = db
+    ): Promise<SelectAccount> {
+        await connection
+            .update(accounts)
+            .set({
+                // SQL atomic delta keeps DECIMAL math in DB and avoids JS float/read-modify-write bugs.
+                balance: sql`${accounts.balance} + cast(${delta} as decimal(10,2))`,
+            })
+            .where(eq(accounts.id, accountId));
+
         const updated = await this.findById(accountId, connection);
         if (!updated) {
             throw new Error('RepositoryInvariantViolation: updated record not found');

@@ -521,6 +521,61 @@ describe('validateRequest', () => {
             if (!result.success) return;
             expect(result.data.value).toBe('111111.11');
         });
+
+        it('rejects imprecise numeric float input values', () => {
+            const result = validateCreateTransaction(
+                {
+                    value: 0.1 + 0.2,
+                    date: '2024-01-01T00:00:00.000Z',
+                    categoryId: 2,
+                    transactionType: TransactionType.EXPENSE,
+                    transactionSource: TransactionSource.ACCOUNT,
+                    isInstallment: false,
+                    isRecurring: false,
+                    accountId: 2,
+                },
+                lang
+            );
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual(
+                expect.arrayContaining([
+                    createValidationError('value', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
+                        path: 'value',
+                        expected: 'string',
+                        received: String(0.1 + 0.2)
+                    })),
+                ])
+            );
+        });
+
+        it('rejects zero values explicitly', () => {
+            const result = validateCreateTransaction(
+                {
+                    value: '0.00',
+                    date: '2024-01-01T00:00:00.000Z',
+                    categoryId: 2,
+                    transactionType: TransactionType.EXPENSE,
+                    transactionSource: TransactionSource.ACCOUNT,
+                    isInstallment: false,
+                    isRecurring: false,
+                    accountId: 2,
+                },
+                lang
+            );
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual(
+                expect.arrayContaining([
+                    createValidationError('value', translateResourceWithParams(Resource.TOO_SMALL, lang, {
+                        path: 'value',
+                        min: 1
+                    })),
+                ])
+            );
+        });
     });
 
     describe('validateUpdateTransaction', () => {
@@ -553,6 +608,27 @@ describe('validateRequest', () => {
             expect(result.data.tags).toEqual([3]);
             expect(result.data.isInstallment).toBe(false);
             expect(result.data.isRecurring).toBe(false);
+        });
+
+        it('rejects imprecise numeric float input values in updates', () => {
+            const result = validateUpdateTransaction(
+                {
+                    value: 0.1 + 0.2,
+                },
+                lang
+            );
+
+            expect(result.success).toBe(false);
+            if (result.success) return;
+            expect(result.errors).toEqual(
+                expect.arrayContaining([
+                    createValidationError('value', translateResourceWithParams(Resource.INVALID_TYPE, lang, {
+                        path: 'value',
+                        expected: 'string',
+                        received: String(0.1 + 0.2)
+                    })),
+                ])
+            );
         });
     });
 

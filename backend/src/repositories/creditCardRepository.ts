@@ -1,7 +1,8 @@
-import { eq, and, desc, asc, SQL } from 'drizzle-orm';
+import { eq, and, desc, asc, SQL, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { creditCards, SelectCreditCard, InsertCreditCard } from '../db/schema';
 import { FilterOperator } from '../../../shared/enums/operator.enums';
+import type { MonetaryString } from '../../../shared/types/format.types';
 
 /**
  * Repository for credit card database operations.
@@ -140,6 +141,35 @@ export class CreditCardRepository {
      */
     async update(creditCardId: number, data: Partial<InsertCreditCard>, connection: typeof db = db): Promise<SelectCreditCard> {
         await connection.update(creditCards).set(data).where(eq(creditCards.id, creditCardId));
+        const updated = await this.findById(creditCardId, connection);
+        if (!updated) {
+            throw new Error('RepositoryInvariantViolation: updated record not found');
+        }
+        return updated;
+    }
+
+    /**
+     * Applies an atomic decimal delta to a credit card balance.
+     *
+     * @summary Mutates credit card balance with SQL arithmetic to avoid read-modify-write races.
+     * @param creditCardId - Credit card ID to update.
+     * @param delta - Monetary delta as a signed decimal string.
+     * @param connection - Optional transactional connection.
+     * @returns The updated credit card record.
+     */
+    async applyCreditCardDelta(
+        creditCardId: number,
+        delta: MonetaryString,
+        connection: typeof db = db
+    ): Promise<SelectCreditCard> {
+        await connection
+            .update(creditCards)
+            .set({
+                // SQL atomic delta keeps DECIMAL math in DB and avoids JS float/read-modify-write bugs.
+                balance: sql`${creditCards.balance} + cast(${delta} as decimal(10,2))`,
+            })
+            .where(eq(creditCards.id, creditCardId));
+
         const updated = await this.findById(creditCardId, connection);
         if (!updated) {
             throw new Error('RepositoryInvariantViolation: updated record not found');

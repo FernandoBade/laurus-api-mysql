@@ -22,6 +22,25 @@ export class TransactionRepository {
     }
 
     /**
+     * Finds a transaction by ID and locks the selected row for update.
+     *
+     * @summary Retrieves and pessimistically locks a transaction row.
+     * @param transactionId - Transaction ID to search for.
+     * @param connection - Transactional connection that owns the lock scope.
+     * @returns Locked transaction record if found, null otherwise.
+     */
+    async findByIdForUpdate(transactionId: number, connection: typeof db = db): Promise<SelectTransaction | null> {
+        const result = await connection
+            .select()
+            .from(transactions)
+            .where(eq(transactions.id, transactionId))
+            .limit(1)
+            // InnoDB FOR UPDATE provides pessimistic row lock for update/delete transaction flows.
+            .for('update');
+        return result[0] || null;
+    }
+
+    /**
      * Finds multiple transactions with optional filters and pagination.
      *
      * @summary Retrieves a list of transactions with filtering and sorting.

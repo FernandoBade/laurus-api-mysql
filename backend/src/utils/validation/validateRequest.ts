@@ -53,6 +53,28 @@ function normalizeMonetaryValue(value: unknown): string | undefined {
     return normalizeMonetaryInput(value);
 }
 
+function isMonetaryNonNegative(value: string): boolean {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('-')) {
+        return false;
+    }
+    return true;
+}
+
+function isMonetaryGreaterThanZero(value: string): boolean {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('-')) {
+        return false;
+    }
+
+    const unsigned = trimmed.startsWith('+') ? trimmed.slice(1) : trimmed;
+    const [integerPart = '0', decimalPart = ''] = unsigned.split('.');
+    const normalizedInteger = integerPart.replace(/^0+/, '');
+    const normalizedDecimal = decimalPart.replace(/0/g, '');
+
+    return normalizedInteger.length > 0 || normalizedDecimal.length > 0;
+}
+
 /**
  * Validates user creation data.
  *
@@ -355,7 +377,7 @@ export function validateCreateAccount(
                     expected: 'string',
                     received: String(body.balance)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'balance',
                     min: 0
@@ -483,7 +505,7 @@ export function validateUpdateAccount(
                     expected: 'string',
                     received: String(body.balance)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'balance',
                     min: 0
@@ -861,7 +883,7 @@ export function validateCreateCreditCard(
                     expected: 'string',
                     received: String(body.balance)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'balance',
                     min: 0
@@ -885,7 +907,7 @@ export function validateCreateCreditCard(
                     expected: 'string',
                     received: String(body.limit)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('limit', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'limit',
                     min: 0
@@ -1003,7 +1025,7 @@ export function validateUpdateCreditCard(
                     expected: 'string',
                     received: String(body.balance)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('balance', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'balance',
                     min: 0
@@ -1028,7 +1050,7 @@ export function validateUpdateCreditCard(
                     expected: 'string',
                     received: String(body.limit)
                 })));
-            } else if (Number(candidate) < 0) {
+            } else if (!isMonetaryNonNegative(candidate)) {
                 errors.push(createValidationError('limit', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                     path: 'limit',
                     min: 0
@@ -1226,7 +1248,7 @@ export function validateCreateTransaction(
             expected: 'string',
             received: String(body.value)
         })));
-    } else if (Number(normalizedValue) <= 0) {
+    } else if (!isMonetaryGreaterThanZero(normalizedValue)) {
         errors.push(createValidationError('value', translateResourceWithParams(Resource.TOO_SMALL, lang, {
             path: 'value',
             min: 1
@@ -1383,7 +1405,7 @@ export function validateUpdateTransaction(
                 expected: 'string',
                 received: String(body.value)
             })));
-        } else if (Number(normalizedValue) <= 0) {
+        } else if (!isMonetaryGreaterThanZero(normalizedValue)) {
             errors.push(createValidationError('value', translateResourceWithParams(Resource.TOO_SMALL, lang, {
                 path: 'value',
                 min: 1
