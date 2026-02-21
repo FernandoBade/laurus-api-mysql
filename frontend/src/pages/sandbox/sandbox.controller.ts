@@ -107,21 +107,14 @@ const MODAL_PARAGRAPHS: readonly string[] = [
     "All samples are designed for responsive testing in narrow viewport widths.",
 ];
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-});
-
 const SANDBOX_RECORDS: readonly SandboxRecord[] = [
     {
         id: "usr_001",
         name: "Ada Lovelace",
         email: "ada@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
-        monthlyBudget: 1250.0,
-        balance: 8920.54,
+        monthlyBudget: "1250.00",
+        balance: "8920.54",
         note: "Handles strategic planning and reviews long-term goals with the finance committee.",
     },
     {
@@ -129,8 +122,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Grace Hopper",
         email: "grace@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
-        monthlyBudget: 980.75,
-        balance: 2140.13,
+        monthlyBudget: "980.75",
+        balance: "2140.13",
         note: "Pending profile review for a multi-department onboarding process with extended approvals.",
     },
     {
@@ -138,8 +131,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Margaret Hamilton",
         email: "margaret@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
-        monthlyBudget: 1730.25,
-        balance: 10440.9,
+        monthlyBudget: "1730.25",
+        balance: "10440.90",
         note: "Owns release readiness reviews and coordinates operational checklists every quarter.",
     },
     {
@@ -147,8 +140,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Katherine Johnson",
         email: "katherine@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
-        monthlyBudget: 2200.0,
-        balance: 15620.42,
+        monthlyBudget: "2200.00",
+        balance: "15620.42",
         note: "Maintains forecasting models with tabular numeric reports for monthly planning cycles.",
     },
     {
@@ -156,8 +149,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Alan Turing",
         email: "alan@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
-        monthlyBudget: 640.5,
-        balance: 880.21,
+        monthlyBudget: "640.50",
+        balance: "880.21",
         note: "Temporary access suspension while role permissions are reviewed by the operations team.",
     },
     {
@@ -165,8 +158,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Linus Torvalds",
         email: "linus@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
-        monthlyBudget: 3050.0,
-        balance: 17320.75,
+        monthlyBudget: "3050.00",
+        balance: "17320.75",
         note: "Collaborates on technical standards and validates large text content overflow in tables.",
     },
     {
@@ -174,8 +167,8 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Hedy Lamarr",
         email: "hedy@zinero.dev",
         status: SANDBOX_STATUS_FILTER.ACTIVE,
-        monthlyBudget: 1899.99,
-        balance: 9420.6,
+        monthlyBudget: "1899.99",
+        balance: "9420.60",
         note: "Reviews communication guidelines and confirms alert messaging clarity across states.",
     },
     {
@@ -183,46 +176,52 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
         name: "Dorothy Vaughan",
         email: "dorothy@zinero.dev",
         status: SANDBOX_STATUS_FILTER.INACTIVE,
-        monthlyBudget: 730.0,
-        balance: 1304.55,
+        monthlyBudget: "730.00",
+        balance: "1304.55",
         note: "Scheduled for profile migration and staged reactivation after data validation completes.",
     },
 ];
 
-const SANDBOX_TABLE_COLUMNS: readonly TableColumn<SandboxRecord>[] = [
-    {
-        key: "name",
-        header: ResourceKey.FIELD_LABEL_NAME,
-        render: (row) => row.name,
-    },
-    {
-        key: "email",
-        header: ResourceKey.FIELD_LABEL_EMAIL,
-        render: (row) => row.email,
-    },
-    {
-        key: "status",
-        header: ResourceKey.FIELD_LABEL_ACTIVE,
-        render: (row) => STATUS_LABEL[row.status],
-    },
-    {
-        key: "note",
-        header: ResourceKey.FIELD_LABEL_OBSERVATION,
-        render: (row) => row.note,
-    },
-    {
-        key: "monthlyBudget",
-        header: ResourceKey.FIELD_LABEL_VALUE,
-        render: (row) => CURRENCY_FORMATTER.format(row.monthlyBudget),
-        isNumeric: true,
-    },
-    {
-        key: "balance",
-        header: ResourceKey.FIELD_LABEL_BALANCE,
-        render: (row) => CURRENCY_FORMATTER.format(row.balance),
-        isNumeric: true,
-    },
-];
+type SandboxMoneyFormatter = (amount: string) => string;
+
+function buildSandboxTableColumns(
+    formatMoneyValue: SandboxMoneyFormatter
+): readonly TableColumn<SandboxRecord>[] {
+    return [
+        {
+            key: "name",
+            header: ResourceKey.FIELD_LABEL_NAME,
+            render: (row) => row.name,
+        },
+        {
+            key: "email",
+            header: ResourceKey.FIELD_LABEL_EMAIL,
+            render: (row) => row.email,
+        },
+        {
+            key: "status",
+            header: ResourceKey.FIELD_LABEL_ACTIVE,
+            render: (row) => STATUS_LABEL[row.status],
+        },
+        {
+            key: "note",
+            header: ResourceKey.FIELD_LABEL_OBSERVATION,
+            render: (row) => row.note,
+        },
+        {
+            key: "monthlyBudget",
+            header: ResourceKey.FIELD_LABEL_VALUE,
+            render: (row) => formatMoneyValue(row.monthlyBudget),
+            isNumeric: true,
+        },
+        {
+            key: "balance",
+            header: ResourceKey.FIELD_LABEL_BALANCE,
+            render: (row) => formatMoneyValue(row.balance),
+            isNumeric: true,
+        },
+    ];
+}
 
 export { SANDBOX_DATA_TABLE_MODE, SANDBOX_STATUS_FILTER };
 
@@ -238,8 +237,8 @@ export interface SandboxRecord {
     readonly name: string;
     readonly email: string;
     readonly status: SandboxStatusFilter;
-    readonly monthlyBudget: number;
-    readonly balance: number;
+    readonly monthlyBudget: string;
+    readonly balance: string;
     readonly note: string;
 }
 
@@ -255,7 +254,9 @@ export interface SandboxController {
     readonly getCurrentTheme: () => Theme;
     readonly applyTheme: (theme: Theme) => Theme;
     readonly getRecords: () => readonly SandboxRecord[];
-    readonly getTableColumns: () => readonly TableColumn<SandboxRecord>[];
+    readonly getTableColumns: (
+        formatMoneyValue: SandboxMoneyFormatter
+    ) => readonly TableColumn<SandboxRecord>[];
     readonly getDefaultFilters: () => SandboxFilters;
     readonly mergeFilters: (values: Partial<SandboxFilters>) => SandboxFilters;
     readonly getFilterFields: () => readonly FieldConfig<SandboxFilters>[];
@@ -278,7 +279,6 @@ export interface SandboxController {
     ) => SandboxModalState;
     readonly closeModal: (state: SandboxModalState) => SandboxModalState;
     readonly getModalParagraphs: () => readonly string[];
-    readonly formatCurrency: (amount: number) => string;
     readonly triggerToast: (variant: ToastVariant) => void;
     readonly triggerToastWithIcon: (variant: ToastVariant) => void;
     readonly triggerPersistentToast: (variant: ToastVariant) => void;
@@ -300,7 +300,9 @@ export function createSandboxController(): SandboxController {
 
     const getRecords = (): readonly SandboxRecord[] => SANDBOX_RECORDS;
 
-    const getTableColumns = (): readonly TableColumn<SandboxRecord>[] => SANDBOX_TABLE_COLUMNS;
+    const getTableColumns = (
+        formatMoneyValue: SandboxMoneyFormatter
+    ): readonly TableColumn<SandboxRecord>[] => buildSandboxTableColumns(formatMoneyValue);
 
     const getDefaultFilters = (): SandboxFilters => ({ ...DEFAULT_FILTERS });
 
@@ -386,8 +388,6 @@ export function createSandboxController(): SandboxController {
 
     const getModalParagraphs = (): readonly string[] => MODAL_PARAGRAPHS;
 
-    const formatCurrency = (amount: number): string => CURRENCY_FORMATTER.format(amount);
-
     const triggerToast = (variant: ToastVariant): void => {
         pushToast({
             variant,
@@ -451,7 +451,6 @@ export function createSandboxController(): SandboxController {
         openModal,
         closeModal,
         getModalParagraphs,
-        formatCurrency,
         triggerToast,
         triggerToastWithIcon,
         triggerPersistentToast,

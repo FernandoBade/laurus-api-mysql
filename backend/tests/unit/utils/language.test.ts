@@ -29,6 +29,11 @@ describe('resolveRequestLanguage', () => {
         expect(resolveRequestLanguage('*;q=0.4')).toBe(Language.PT_BR);
     });
 
+    it('falls back to pt-BR for malformed Accept-Language headers', () => {
+        expect(resolveRequestLanguage(';;;,q==abc')).toBe(Language.PT_BR);
+        expect(resolveRequestLanguage(',, ,')).toBe(Language.PT_BR);
+    });
+
     it('supports array header values', () => {
         expect(resolveRequestLanguage(['en-US;q=0.2', 'pt-BR;q=0.9'])).toBe(Language.PT_BR);
     });

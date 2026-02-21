@@ -8,6 +8,7 @@ import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
 import { Theme } from "@shared/enums/theme.enums";
+import { Currency, Language } from "@shared/enums/user.enums";
 import {
     AlertDirection,
     AlertStyle,
@@ -61,9 +62,25 @@ import {
     type SandboxFilters,
     type SandboxModalState,
 } from "@/pages/sandbox/sandbox.controller";
+import {
+    getUserPreferences,
+    setUserPreferences,
+    subscribeUserPreferences,
+    type UserPreferencesState,
+} from "@/state/userPreferences.store";
 import { getToasts, removeToast, subscribeToasts } from "@/state/toast.store";
+import { formatDate, type FormatDateInput } from "@/utils/intl/date";
+import { formatMoney } from "@/utils/intl/money";
+import { formatNumber, type FormatNumberInput } from "@/utils/intl/number";
 
 const PAGE_SIZE = 4;
+const SANDBOX_REFERENCE_DATE = new Date(Date.UTC(2026, 0, 31, 12, 0, 0));
+const SANDBOX_REFERENCE_DATE_OPTIONS: FormatDateInput["options"] = {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+};
 const CANVAS_CLASS = "space-y-6 rounded-3xl border border-base-300 bg-base-200/30 p-4 sm:p-6";
 const SECTION_SURFACE_CLASS = "overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm";
 const DEMO_CARD_CLASS = "space-y-3 rounded-xl border border-base-300 bg-base-200/40 p-4";
@@ -122,6 +139,20 @@ const TOAST_LABEL: Record<ToastVariant, string> = {
     [ToastVariant.ERROR]: "Error Toast",
 };
 
+const LANGUAGE_LABEL: Record<Language, string> = {
+    [Language.EN_US]: "English (US)",
+    [Language.ES_ES]: "Espanol (ES)",
+    [Language.PT_BR]: "Portugues (BR)",
+};
+
+const CURRENCY_LABEL: Record<Currency, string> = {
+    [Currency.ARS]: "ARS",
+    [Currency.BRL]: "BRL",
+    [Currency.COP]: "COP",
+    [Currency.EUR]: "EUR",
+    [Currency.USD]: "USD",
+};
+
 const BUTTON_VARIANTS: readonly ButtonVariant[] = [
     ButtonVariant.PRIMARY,
     ButtonVariant.SECONDARY,
@@ -145,6 +176,16 @@ const TOAST_VARIANTS: readonly ToastVariant[] = [
     ToastVariant.SUCCESS,
     ToastVariant.WARNING,
     ToastVariant.ERROR,
+];
+
+const LANGUAGE_OPTIONS: readonly Language[] = [Language.EN_US, Language.ES_ES, Language.PT_BR];
+
+const CURRENCY_OPTIONS: readonly Currency[] = [
+    Currency.ARS,
+    Currency.BRL,
+    Currency.COP,
+    Currency.EUR,
+    Currency.USD,
 ];
 
 const MODAL_SIZES: readonly ModalSize[] = [ModalSize.SM, ModalSize.MD, ModalSize.LG, ModalSize.XL];
@@ -385,6 +426,7 @@ export function SandboxPage(): JSX.Element {
     const controller = useMemo(() => createSandboxController(), []);
 
     const [theme, setTheme] = useState<Theme>(controller.getCurrentTheme());
+    const [preferences, setPreferences] = useState<UserPreferencesState>(getUserPreferences());
     const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>(() =>
         createSectionVisibility(true)
     );
@@ -414,7 +456,34 @@ export function SandboxPage(): JSX.Element {
     const [selectValue, setSelectValue] = useState<string>(SANDBOX_STATUS_FILTER.ACTIVE);
     const [selectErrorValue, setSelectErrorValue] = useState<string>("");
 
-    const tableColumns = controller.getTableColumns();
+    const formatSandboxMoney = useMemo(
+        () => (amount: string): string =>
+            formatMoney(amount, {
+                locale: preferences.language,
+                currency: preferences.currency,
+            }),
+        [preferences.currency, preferences.language]
+    );
+    const formatSandboxNumber = useMemo(
+        () => (value: number, options?: FormatNumberInput["options"]): string =>
+            formatNumber(value, {
+                locale: preferences.language,
+                options,
+            }),
+        [preferences.language]
+    );
+    const formattedSandboxDate = useMemo(
+        () =>
+            formatDate(SANDBOX_REFERENCE_DATE, {
+                locale: preferences.language,
+                options: SANDBOX_REFERENCE_DATE_OPTIONS,
+            }),
+        [preferences.language]
+    );
+    const tableColumns = useMemo(
+        () => controller.getTableColumns(formatSandboxMoney),
+        [controller, formatSandboxMoney]
+    );
     const filterFields = controller.getFilterFields();
     const filterOptions = controller.getFilterOptions();
     const records = controller.getRecords();
@@ -487,6 +556,10 @@ export function SandboxPage(): JSX.Element {
     );
 
     useEffect(() => subscribeToasts((nextToasts) => setToasts(nextToasts)), []);
+    useEffect(
+        () => subscribeUserPreferences((nextPreferences) => setPreferences(nextPreferences)),
+        []
+    );
 
     const areAllExpanded = SECTION_DEFINITIONS.every(
         (section) => sectionVisibility[section.id]
@@ -498,6 +571,14 @@ export function SandboxPage(): JSX.Element {
     const toggleTheme = (): void => {
         const nextTheme = theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT;
         setTheme(controller.applyTheme(nextTheme));
+    };
+
+    const applyLanguage = (language: Language): void => {
+        setUserPreferences({ language });
+    };
+
+    const applyCurrency = (currency: Currency): void => {
+        setUserPreferences({ currency });
     };
 
     const setAllSections = (open: boolean): void => {
@@ -543,7 +624,7 @@ export function SandboxPage(): JSX.Element {
                             </p>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
                             <div class={DEMO_CARD_CLASS}>
                                 <p class="text-label">Theme</p>
                                 <p class="text-body text-base-content/70">
@@ -566,6 +647,73 @@ export function SandboxPage(): JSX.Element {
                                             ? "Switch to Light Mode"
                                             : "Switch to Dark Mode"}
                                     </Button>
+                                </div>
+                            </div>
+
+                            <div class={DEMO_CARD_CLASS}>
+                                <p class="text-label">Locale & Currency</p>
+                                <p class="text-body text-base-content/70">
+                                    Locale:
+                                    {" "}
+                                    <span class="font-data">
+                                        {preferences.language}
+                                    </span>
+                                    {" "} | Currency:{" "}
+                                    <span class="font-data">{preferences.currency}</span>
+                                </p>
+                                <p class="text-caption text-base-content/70">
+                                    Sample Date:{" "}
+                                    <span class="font-data">{formattedSandboxDate}</span>
+                                </p>
+                                <p class="text-caption text-base-content/70">
+                                    Sample Number:{" "}
+                                    <span class="font-data">
+                                        {formatSandboxNumber(98760.11, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        })}
+                                    </span>
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="space-y-2">
+                                        <p class="text-caption">Language</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            {LANGUAGE_OPTIONS.map((language) => (
+                                                <Button
+                                                    key={language}
+                                                    variant={
+                                                        preferences.language === language
+                                                            ? ButtonVariant.PRIMARY
+                                                            : ButtonVariant.OUTLINE
+                                                    }
+                                                    size={ButtonSize.SM}
+                                                    onClick={() => applyLanguage(language)}
+                                                >
+                                                    {LANGUAGE_LABEL[language]}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <p class="text-caption">Currency</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            {CURRENCY_OPTIONS.map((currency) => (
+                                                <Button
+                                                    key={currency}
+                                                    variant={
+                                                        preferences.currency === currency
+                                                            ? ButtonVariant.SECONDARY
+                                                            : ButtonVariant.OUTLINE
+                                                    }
+                                                    size={ButtonSize.SM}
+                                                    onClick={() => applyCurrency(currency)}
+                                                >
+                                                    {CURRENCY_LABEL[currency]}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -630,11 +778,20 @@ export function SandboxPage(): JSX.Element {
 
                         <div class={DEMO_CARD_CLASS}>
                             <p class="text-label">IBM Plex Mono (Data Layer)</p>
-                            <p class="text-kpi text-right">98,760</p>
-                            <p class="text-money text-right">
-                                {controller.formatCurrency(12840.55)}
+                            <p class="text-kpi text-right">
+                                {formatSandboxNumber(98760, {
+                                    maximumFractionDigits: 0,
+                                })}
                             </p>
-                            <p class="text-table-number text-right">2,770.11</p>
+                            <p class="text-money text-right">
+                                {formatSandboxMoney("12840.55")}
+                            </p>
+                            <p class="text-table-number text-right">
+                                {formatSandboxNumber(2770.11, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
+                            </p>
                             <Input
                                 label={ResourceKey.FIELD_LABEL_VALUE}
                                 type={InputType.NUMBER}
@@ -652,7 +809,7 @@ export function SandboxPage(): JSX.Element {
                                     </div>
                                     <div class="text-right">
                                         <p class="text-money">
-                                            {controller.formatCurrency(2840.55)}
+                                            {formatSandboxMoney("2840.55")}
                                         </p>
                                         <p class="font-data text-table-number">txn_2026_0042</p>
                                     </div>

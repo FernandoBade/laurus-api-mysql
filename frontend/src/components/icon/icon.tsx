@@ -55,13 +55,8 @@ export function Icon({ name, size = 20, weight = "duotone", mirrored = false }: 
     }
 
     return (
-        <IconComponent
-            size={size}
-            weight={weight}
-            mirrored={mirrored}
-            className="icon-phosphor"
-            data-icon-weight={weight}
-            aria-hidden="true"
-        />
+        <span class="icon-phosphor" data-icon-weight={weight} aria-hidden="true">
+            <IconComponent size={size} weight={weight} mirrored={mirrored} />
+        </span>
     );
 }

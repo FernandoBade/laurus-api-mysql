@@ -203,7 +203,10 @@ export function answerAPI(
 
     const response: Record<string, unknown> = {
         success,
-        ...(resource && { message: translateResource(resource, language) })
+        ...(resource && {
+            resource,
+            message: translateResource(resource, language)
+        })
     };
 
     if (data !== undefined) {
@@ -297,6 +300,7 @@ export function sendErrorResponse(
     const language = req.language ?? Language.PT_BR;
     return res.status(status).json({
         success: false,
+        resource,
         message: translateResource(resource, language),
         ...(error ? { error: formatError(error) } : {}),
         elapsedTime: getDurationMs(res)

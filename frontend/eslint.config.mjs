@@ -32,6 +32,35 @@ export default [
     },
 
     {
+        files: ["src/pages/**/*.{ts,tsx}", "src/services/**/*.{ts,tsx}"],
+        rules: {
+            "no-restricted-syntax": [
+                "error",
+                {
+                    selector: "MemberExpression[object.name='Intl']",
+                    message:
+                        "Do not use Intl directly in pages/services. Use src/utils/intl instead.",
+                },
+                {
+                    selector: "CallExpression[callee.property.name='toLocaleString']",
+                    message:
+                        "Do not use toLocaleString directly in pages/services. Use src/utils/intl instead.",
+                },
+                {
+                    selector: "CallExpression[callee.property.name='toLocaleDateString']",
+                    message:
+                        "Do not use toLocaleDateString directly in pages/services. Use src/utils/intl instead.",
+                },
+                {
+                    selector: "CallExpression[callee.property.name='toLocaleTimeString']",
+                    message:
+                        "Do not use toLocaleTimeString directly in pages/services. Use src/utils/intl instead.",
+                },
+            ],
+        },
+    },
+
+    {
         files: [
             "*.config.{js,cjs,mjs}",
             "tailwind.config.cjs",

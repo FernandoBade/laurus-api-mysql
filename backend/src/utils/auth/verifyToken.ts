@@ -8,7 +8,7 @@ import { UserService } from '../../service/userService';
 
 /**
  * Middleware to validate the access token from the Authorization header.
- * If valid, injects the user ID into `req.user`.
+ * If valid, injects the authenticated user id/profile into `req.user`.
  * Responds with 401 if the token is missing, invalid, or expired.
  *
  * @param req - Incoming request with optional Authorization header.
@@ -36,7 +36,10 @@ export async function verifyToken(req: Request, res: Response, next: NextFunctio
             return;
         }
 
-        req.user = { id: tokenData.id };
+        req.user = {
+            id: tokenData.id,
+            profile: userResult.data.profile,
+        };
         next();
     } catch {
         answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);

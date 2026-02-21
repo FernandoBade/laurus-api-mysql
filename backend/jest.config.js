@@ -24,7 +24,7 @@ module.exports = {
         '!src/db/**',
     ],
 
-    coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/tests/'],
+    coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/tests/', '/@types/'],
 
     coverageThreshold: {
         global: {

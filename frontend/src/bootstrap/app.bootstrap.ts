@@ -15,7 +15,7 @@ export function bootstrapApp(): void {
         return;
     }
 
-    initializeUserPreferencesStore();
+    void initializeUserPreferencesStore();
     initializeThemeStore();
     initializeAuthService();
 

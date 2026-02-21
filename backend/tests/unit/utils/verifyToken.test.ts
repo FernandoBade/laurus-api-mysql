@@ -1,5 +1,6 @@
 import { verifyToken } from '../../../src/utils/auth/verifyToken';
 import { HTTPStatus } from '../../../../shared/enums/http-status.enums';
+import { Profile } from '../../../../shared/enums/user.enums';
 import { TokenUtils } from '../../../src/utils/auth/tokenUtils';
 import { createMockRequest, createMockResponse, createNext } from '../../helpers/mockExpress';
 import { UserService } from '../../../src/service/userService';
@@ -7,7 +8,7 @@ import { makeUser } from '../../helpers/factories';
 
 declare module 'express-serve-static-core' {
     interface Request {
-        user?: { id: number };
+        user?: { id: number; profile?: Profile };
     }
 }
 
@@ -55,7 +56,7 @@ describe('verifyToken middleware', () => {
         await verifyToken(req, res, next);
 
         expect(verifyAccessTokenMock).toHaveBeenCalledWith('validtoken');
-        expect(req.user).toEqual({ id: 42 });
+        expect(req.user).toEqual({ id: 42, profile: Profile.STARTER });
         expect(res.status).not.toHaveBeenCalled();
         expect(res.json).not.toHaveBeenCalled();
         expect(next).toHaveBeenCalledTimes(1);

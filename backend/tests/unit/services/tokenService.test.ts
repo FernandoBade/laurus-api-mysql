@@ -183,9 +183,27 @@ describe('TokenService', () => {
                 expect(result.data.expiresAt).toEqual(expect.any(Date));
             }
         });
+
+        it('returns internal server error when repository create fails', async () => {
+            jest.spyOn(TokenRepository.prototype, 'create').mockRejectedValue(new Error('db-unavailable'));
+
+            const service = new TokenService();
+            const result = await service.createEmailVerificationToken(12);
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+        });
     });
 
     describe('verifyEmailVerificationToken', () => {
+        it('returns invalid token when token does not exist', async () => {
+            jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(null);
+
+            const service = new TokenService();
+            const result = await service.verifyEmailVerificationToken('missing-token');
+
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+
         it('returns user id when token is valid', async () => {
             const tokenRecord = makeToken({
                 id: 4,
@@ -238,6 +256,24 @@ describe('TokenService', () => {
             expect(deleteSpy).toHaveBeenCalledWith(tokenRecord.id);
             expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
         });
+
+        it('returns invalid token when revoke operation affects zero rows', async () => {
+            const tokenRecord = makeToken({
+                id: 8,
+                type: TokenType.EMAIL_VERIFICATION,
+                revokedAt: null,
+                expiresAt: new Date('2099-01-01T00:00:00Z'),
+            });
+            const findSpy = jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(tokenRecord);
+            const revokeSpy = jest.spyOn(TokenRepository.prototype, 'markTokenRevoked').mockResolvedValue(0);
+
+            const service = new TokenService();
+            const result = await service.verifyEmailVerificationToken('raw-token');
+
+            expect(findSpy).toHaveBeenCalledWith(expect.any(String), TokenType.EMAIL_VERIFICATION);
+            expect(revokeSpy).toHaveBeenCalledWith(tokenRecord.id, expect.any(Date));
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
     });
 
     describe('createPasswordResetToken', () => {
@@ -264,9 +300,27 @@ describe('TokenService', () => {
                 expect(result.data.expiresAt).toEqual(expect.any(Date));
             }
         });
+
+        it('returns internal server error when repository create fails', async () => {
+            jest.spyOn(TokenRepository.prototype, 'create').mockRejectedValue(new Error('db-unavailable'));
+
+            const service = new TokenService();
+            const result = await service.createPasswordResetToken(15);
+
+            expect(result).toEqual({ success: false, error: Resource.INTERNAL_SERVER_ERROR });
+        });
     });
 
     describe('verifyPasswordResetToken', () => {
+        it('returns invalid token when token does not exist', async () => {
+            jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(null);
+
+            const service = new TokenService();
+            const result = await service.verifyPasswordResetToken('missing-token');
+
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+
         it('returns user id when token is valid', async () => {
             const tokenRecord = makeToken({
                 id: 6,
@@ -296,6 +350,44 @@ describe('TokenService', () => {
             const service = new TokenService();
             const result = await service.verifyPasswordResetToken('raw-token');
 
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+
+        it('returns invalid token and deletes record when token is expired', async () => {
+            const tokenRecord = makeToken({
+                id: 8,
+                type: TokenType.PASSWORD_RESET,
+                revokedAt: null,
+                expiresAt: new Date('2000-01-01T00:00:00Z'),
+            });
+            const findSpy = jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(tokenRecord);
+            const deleteSpy = jest.spyOn(TokenRepository.prototype, 'delete').mockResolvedValue(1);
+            const revokeSpy = jest.spyOn(TokenRepository.prototype, 'markTokenRevoked');
+
+            const service = new TokenService();
+            const result = await service.verifyPasswordResetToken('raw-token');
+
+            expect(findSpy).toHaveBeenCalledWith(expect.any(String), TokenType.PASSWORD_RESET);
+            expect(deleteSpy).toHaveBeenCalledWith(tokenRecord.id);
+            expect(revokeSpy).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
+        });
+
+        it('returns invalid token when revoke operation affects zero rows', async () => {
+            const tokenRecord = makeToken({
+                id: 9,
+                type: TokenType.PASSWORD_RESET,
+                revokedAt: null,
+                expiresAt: new Date('2099-01-01T00:00:00Z'),
+            });
+            const findSpy = jest.spyOn(TokenRepository.prototype, 'findByTokenHashAndType').mockResolvedValue(tokenRecord);
+            const revokeSpy = jest.spyOn(TokenRepository.prototype, 'markTokenRevoked').mockResolvedValue(0);
+
+            const service = new TokenService();
+            const result = await service.verifyPasswordResetToken('raw-token');
+
+            expect(findSpy).toHaveBeenCalledWith(expect.any(String), TokenType.PASSWORD_RESET);
+            expect(revokeSpy).toHaveBeenCalledWith(tokenRecord.id, expect.any(Date));
             expect(result).toEqual({ success: false, error: Resource.EXPIRED_OR_INVALID_TOKEN });
         });
     });
@@ -521,6 +613,19 @@ describe('TokenService', () => {
 
             expect(deleteSpy).toHaveBeenCalledWith(9, TokenType.REFRESH);
             expect(result).toBe(3);
+        });
+    });
+
+    describe('findLatestByUserIdAndType', () => {
+        it('returns latest token for user and type', async () => {
+            const latest = makeToken({ id: 30, userId: 99, type: TokenType.PASSWORD_RESET });
+            const findSpy = jest.spyOn(TokenRepository.prototype, 'findLatestByUserIdAndType').mockResolvedValue(latest);
+
+            const service = new TokenService();
+            const result = await service.findLatestByUserIdAndType(99, TokenType.PASSWORD_RESET);
+
+            expect(findSpy).toHaveBeenCalledWith(99, TokenType.PASSWORD_RESET);
+            expect(result).toEqual(latest);
         });
     });
 });

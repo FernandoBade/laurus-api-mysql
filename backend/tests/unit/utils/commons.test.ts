@@ -131,6 +131,7 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
+            expect(response.resource).toBe(Resource.INVALID_TYPE);
             expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, Language.PT_BR));
             expect(response.error).toEqual({ reason: 'x' });
             expect(typeof response.elapsedTime).toBe('number');
@@ -243,6 +244,7 @@ describe('commons utils', () => {
             const response = (res.json as jest.Mock).mock.calls[0][0];
             expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
             expect(response.success).toBe(false);
+            expect(response.resource).toBe(Resource.INVALID_TYPE);
             expect(response.message).toBe(translateResource(Resource.INVALID_TYPE, Language.EN_US));
             expect(response.error).toEqual(expect.objectContaining({ message: 'boom', name: 'Error' }));
             expect(typeof response.elapsedTime).toBe('number');

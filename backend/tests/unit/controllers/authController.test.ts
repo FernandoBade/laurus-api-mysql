@@ -38,6 +38,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
+                    resource: Resource.INVALID_CREDENTIALS,
                     message: translateResource(Resource.INVALID_CREDENTIALS, 'en-US'),
                 })
             );
@@ -61,6 +62,7 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
+                    resource: Resource.INVALID_CREDENTIALS,
                     message: translateResource(Resource.INVALID_CREDENTIALS, 'en-US'),
                 })
             );
@@ -83,9 +85,9 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
+                    resource: Resource.EMAIL_NOT_VERIFIED,
                     message: translateResource(Resource.EMAIL_NOT_VERIFIED, 'en-US'),
                     error: expect.objectContaining({
-                        code: Resource.EMAIL_NOT_VERIFIED,
                         email: 'user@example.com',
                         canResend: true,
                         verificationSent: true,
@@ -436,9 +438,9 @@ describe('AuthController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: false,
+                    resource: Resource.EMAIL_VERIFICATION_COOLDOWN,
                     message: translateResource(Resource.EMAIL_VERIFICATION_COOLDOWN, 'en-US'),
                     error: expect.objectContaining({
-                        code: Resource.EMAIL_VERIFICATION_COOLDOWN,
                         cooldownSeconds: 30,
                     }),
                 })

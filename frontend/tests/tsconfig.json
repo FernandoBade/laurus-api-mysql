@@ -1,0 +1,11 @@
+{
+    "extends": "../tsconfig.test.json",
+    "compilerOptions": {
+        "paths": {
+            "@/*": ["../src/*"],
+            "@shared/*": ["../../shared/*"]
+        },
+        "types": ["vitest/globals", "node"]
+    },
+    "include": ["./**/*", "../src/vite-env.d.ts"]
+}

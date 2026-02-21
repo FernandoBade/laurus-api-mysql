@@ -129,5 +129,163 @@ describe('feedbackEmail utils', () => {
             7
         );
     });
+
+    it('returns false and logs configuration errors when resend credentials are missing', async () => {
+        const { module, createLog } = await loadFeedbackEmail({
+            RESEND_API_KEY: undefined,
+            RESEND_FROM_EMAIL: undefined,
+        }, true);
+
+        await expect(module.sendFeedbackEmail({
+            userId: 18,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+        })).resolves.toEqual({ success: false });
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.LOG,
+            expect.objectContaining({
+                event: 'FEEDBACK_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                error: expect.objectContaining({ message: 'Resend configuration missing' }),
+            }),
+            18
+        );
+    });
+
+    it('returns false and logs provider response errors with status code', async () => {
+        const { module, resendSend, createLog } = await loadFeedbackEmail({
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockResolvedValue({
+            error: {
+                message: 'provider failed token=private-token',
+                status: 502,
+            },
+        });
+
+        await expect(module.sendFeedbackEmail({
+            userId: 23,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+        })).resolves.toEqual({ success: false });
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.LOG,
+            expect.objectContaining({
+                event: 'FEEDBACK_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                error: expect.objectContaining({
+                    message: expect.stringContaining('token=[REDACTED]'),
+                    code: 502,
+                }),
+            }),
+            23
+        );
+    });
+
+    it('falls back to generic provider message when resend error object has no message', async () => {
+        const { module, resendSend, createLog } = await loadFeedbackEmail({
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockResolvedValue({
+            error: {
+                statusCode: 500,
+            },
+        });
+
+        await expect(module.sendFeedbackEmail({
+            userId: 29,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+        })).resolves.toEqual({ success: false });
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.LOG,
+            expect.objectContaining({
+                event: 'FEEDBACK_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                error: expect.objectContaining({
+                    message: 'Email provider error',
+                    code: 500,
+                }),
+            }),
+            29
+        );
+    });
+
+    it('logs primitive resend failures and keeps token values redacted', async () => {
+        const { module, resendSend, createLog } = await loadFeedbackEmail({
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockRejectedValue('timeout token=unsafe');
+
+        await expect(module.sendFeedbackEmail({
+            userId: 31,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+        })).resolves.toEqual({ success: false });
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.LOG,
+            expect.objectContaining({
+                event: 'FEEDBACK_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                error: expect.objectContaining({
+                    message: expect.stringContaining('token=[REDACTED]'),
+                }),
+            }),
+            31
+        );
+    });
+
+    it('sends feedback without attachments when no attachment list is provided', async () => {
+        const { module, resendSend } = await loadFeedbackEmail({
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        });
+
+        await expect(module.sendFeedbackEmail({
+            userId: 40,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+            language: Language.EN_US,
+        })).resolves.toEqual({ success: true });
+
+        const payload = resendSend.mock.calls[0][0] as Record<string, unknown>;
+        expect(payload.attachments).toBeUndefined();
+    });
+
+    it('swallows logging failures while handling resend errors', async () => {
+        const { module, resendSend, createLog } = await loadFeedbackEmail({
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockRejectedValue(new Error('provider down'));
+        (createLog as jest.Mock).mockRejectedValue(new Error('log failure'));
+
+        await expect(module.sendFeedbackEmail({
+            userId: 52,
+            userEmail: 'user@example.com',
+            title: 'Title',
+            message: 'Message',
+        })).resolves.toEqual({ success: false });
+    });
 });
 

@@ -1,9 +1,20 @@
 import { StorageKey } from "@shared/enums/storage.enums";
 import { Currency, Language } from "@shared/enums/user.enums";
 import { storage } from "@/platform/storage/storage";
+import { getAccessToken, subscribeAuthState } from "@/state/auth.store";
+import {
+    fetchUserPreferences,
+    type UserPreferencesSnapshot,
+} from "@/services/user/userPreferences.service";
 
 const DEFAULT_LANGUAGE = Language.PT_BR;
 const DEFAULT_CURRENCY = Currency.USD;
+
+const LANGUAGE_PREFIX_BY_LOCALE: Readonly<Record<Language, string>> = {
+    [Language.EN_US]: Language.EN_US.slice(0, 2).toLowerCase(),
+    [Language.ES_ES]: Language.ES_ES.slice(0, 2).toLowerCase(),
+    [Language.PT_BR]: Language.PT_BR.slice(0, 2).toLowerCase(),
+};
 
 type UserPreferencesListener = (state: UserPreferencesState) => void;
 
@@ -15,6 +26,10 @@ export interface UserPreferencesState {
 const listeners = new Set<UserPreferencesListener>();
 
 let initialized = false;
+let initializationPromise: Promise<void> | null = null;
+let authSubscriptionInitialized = false;
+let authenticatedUserId: number | null = null;
+let authReconciliationSequence = 0;
 let state: UserPreferencesState = {
     language: DEFAULT_LANGUAGE,
     currency: DEFAULT_CURRENCY,
@@ -34,41 +49,6 @@ function isCurrency(value: unknown): value is Currency {
     );
 }
 
-function resolveLanguageFromLocaleTag(locale: string): Language {
-    const normalized = locale.trim().toLowerCase();
-
-    if (normalized === Language.EN_US.toLowerCase()) {
-        return Language.EN_US;
-    }
-    if (normalized === Language.ES_ES.toLowerCase()) {
-        return Language.ES_ES;
-    }
-    if (normalized === Language.PT_BR.toLowerCase()) {
-        return Language.PT_BR;
-    }
-
-    const primarySubtag = normalized.split("-")[0];
-    if (primarySubtag === "en") {
-        return Language.EN_US;
-    }
-    if (primarySubtag === "es") {
-        return Language.ES_ES;
-    }
-    if (primarySubtag === "pt") {
-        return Language.PT_BR;
-    }
-
-    return DEFAULT_LANGUAGE;
-}
-
-function resolveBrowserLanguage(): Language {
-    if (typeof navigator === "undefined") {
-        return DEFAULT_LANGUAGE;
-    }
-
-    return resolveLanguageFromLocaleTag(navigator.language);
-}
-
 function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     if (typeof value !== "object" || value === null) {
         return false;
@@ -78,17 +58,31 @@ function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     return isLanguage(candidate.language) && isCurrency(candidate.currency);
 }
 
-function applyLanguageToDocument(language: Language): void {
-    if (typeof document === "undefined") {
-        return;
+function resolveLanguageFromLocaleTag(localeTag: string): Language {
+    const normalizedTag = localeTag.trim().toLowerCase();
+    const supportedLanguageList = Object.values(Language) as readonly Language[];
+
+    const exactLanguage = supportedLanguageList.find(
+        (language) => language.toLowerCase() === normalizedTag
+    );
+    if (exactLanguage !== undefined) {
+        return exactLanguage;
     }
 
-    document.documentElement.setAttribute("lang", language);
+    const primarySubtag = normalizedTag.split("-")[0];
+    const prefixMatch = supportedLanguageList.find(
+        (language) => LANGUAGE_PREFIX_BY_LOCALE[language] === primarySubtag
+    );
+
+    return prefixMatch ?? DEFAULT_LANGUAGE;
 }
 
-function notifyListeners(): void {
-    const snapshot = getUserPreferences();
-    listeners.forEach((listener) => listener(snapshot));
+function resolveBrowserLanguage(): Language {
+    if (typeof navigator === "undefined") {
+        return DEFAULT_LANGUAGE;
+    }
+
+    return resolveLanguageFromLocaleTag(navigator.language);
 }
 
 function loadPersistedPreferences(): UserPreferencesState | null {
@@ -100,52 +94,225 @@ function loadPersistedPreferences(): UserPreferencesState | null {
     return persisted;
 }
 
+function applyLanguageToDocument(language: Language): void {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    document.documentElement.setAttribute("lang", language);
+}
+
 function persistPreferences(): void {
     storage.set<UserPreferencesState>(StorageKey.USER_PREFERENCES, state);
 }
 
-/**
- * @summary Initializes user preferences using storage cache and browser locale defaults.
- * @returns No return value.
- */
-export function initializeUserPreferencesStore(): void {
-    if (initialized) {
+function getStateSnapshot(): UserPreferencesState {
+    return { ...state };
+}
+
+function notifyListeners(): void {
+    const snapshot = getStateSnapshot();
+    listeners.forEach((listener) => listener(snapshot));
+}
+
+function arePreferencesEqual(left: UserPreferencesState, right: UserPreferencesState): boolean {
+    return left.language === right.language && left.currency === right.currency;
+}
+
+function applyState(nextState: UserPreferencesState, notify: boolean): void {
+    const shouldNotify = notify && !arePreferencesEqual(state, nextState);
+    state = nextState;
+    applyLanguageToDocument(state.language);
+
+    if (shouldNotify) {
+        notifyListeners();
+    }
+}
+
+function decodeBase64Url(base64UrlValue: string): string | null {
+    if (typeof globalThis.atob !== "function") {
+        return null;
+    }
+
+    const normalizedValue = base64UrlValue.replace(/-/g, "+").replace(/_/g, "/");
+    const paddingLength = (4 - (normalizedValue.length % 4)) % 4;
+    const paddedValue = `${normalizedValue}${"=".repeat(paddingLength)}`;
+
+    try {
+        return globalThis.atob(paddedValue);
+    } catch {
+        return null;
+    }
+}
+
+function readAccessTokenUserId(token: string): number | null {
+    const tokenParts = token.split(".");
+    if (tokenParts.length < 2) {
+        return null;
+    }
+
+    const decodedPayload = decodeBase64Url(tokenParts[1]);
+    if (decodedPayload === null) {
+        return null;
+    }
+
+    try {
+        const parsedPayload = JSON.parse(decodedPayload) as { id?: unknown };
+        const numericId =
+            typeof parsedPayload.id === "string" ? Number(parsedPayload.id) : parsedPayload.id;
+
+        return typeof numericId === "number" && Number.isInteger(numericId) && numericId > 0
+            ? numericId
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function reconcilePreferences(
+    backendPreferences: UserPreferencesSnapshot
+): UserPreferencesState {
+    return {
+        language: backendPreferences.language,
+        currency: backendPreferences.currency,
+    };
+}
+
+function resolveAuthenticatedUserId(): number | null {
+    const accessToken = getAccessToken();
+    if (typeof accessToken !== "string" || accessToken.length === 0) {
+        return null;
+    }
+
+    return readAccessTokenUserId(accessToken);
+}
+
+async function hydrateFromBackend(userId: number, reconciliationSequence: number): Promise<void> {
+    const backendPreferences = await fetchUserPreferences(userId);
+    if (backendPreferences === null) {
         return;
     }
 
-    const persisted = loadPersistedPreferences();
-    if (persisted !== null) {
-        state = persisted;
-    } else {
-        state = {
+    const latestAuthenticatedUserId = resolveAuthenticatedUserId();
+    if (
+        reconciliationSequence !== authReconciliationSequence
+        || latestAuthenticatedUserId !== userId
+    ) {
+        return;
+    }
+
+    applyState(reconcilePreferences(backendPreferences), true);
+}
+
+function applyLoggedOutPreferences(): void {
+    const fallbackPreferences: UserPreferencesState = {
+        language: resolveBrowserLanguage(),
+        currency: DEFAULT_CURRENCY,
+    };
+    applyState(fallbackPreferences, true);
+    persistPreferences();
+}
+
+async function handleAuthStateTransition(): Promise<void> {
+    const nextAuthenticatedUserId = resolveAuthenticatedUserId();
+    if (nextAuthenticatedUserId === authenticatedUserId) {
+        return;
+    }
+
+    authenticatedUserId = nextAuthenticatedUserId;
+    authReconciliationSequence += 1;
+    const reconciliationSequence = authReconciliationSequence;
+
+    if (nextAuthenticatedUserId === null) {
+        applyLoggedOutPreferences();
+        return;
+    }
+
+    try {
+        await hydrateFromBackend(nextAuthenticatedUserId, reconciliationSequence);
+    } catch {
+        // Keep deterministic local state when backend reconciliation fails.
+    }
+
+    persistPreferences();
+}
+
+function ensureAuthStateSubscription(): void {
+    if (authSubscriptionInitialized) {
+        return;
+    }
+
+    subscribeAuthState(() => {
+        void handleAuthStateTransition();
+    });
+    authSubscriptionInitialized = true;
+}
+
+async function runInitialization(): Promise<void> {
+    const persistedPreferences = loadPersistedPreferences();
+    const hydratedPreferences: UserPreferencesState =
+        persistedPreferences ?? {
             language: resolveBrowserLanguage(),
             currency: DEFAULT_CURRENCY,
         };
-        persistPreferences();
+
+    applyState(hydratedPreferences, true);
+    ensureAuthStateSubscription();
+
+    authenticatedUserId = resolveAuthenticatedUserId();
+    authReconciliationSequence += 1;
+    const reconciliationSequence = authReconciliationSequence;
+
+    if (authenticatedUserId !== null) {
+        try {
+            await hydrateFromBackend(authenticatedUserId, reconciliationSequence);
+        } catch {
+            // Keep deterministic local hydration when backend reconciliation fails.
+        }
     }
 
-    applyLanguageToDocument(state.language);
+    persistPreferences();
     initialized = true;
 }
 
 /**
- * @summary Returns a snapshot of current user preferences.
- * @returns Immutable user preference values.
+ * @summary Initializes language/currency preferences from storage and authenticated backend state.
+ * @returns Promise resolved when hydration and reconciliation finish.
  */
-export function getUserPreferences(): UserPreferencesState {
-    return { ...state };
+export async function initializeUserPreferencesStore(): Promise<void> {
+    if (initialized) {
+        return;
+    }
+
+    if (initializationPromise !== null) {
+        return initializationPromise;
+    }
+
+    initializationPromise = runInitialization().finally(() => {
+        initializationPromise = null;
+    });
+
+    return initializationPromise;
 }
 
 /**
- * @summary Returns current user language preference.
- * @returns Active language enum value.
+ * @summary Returns an immutable snapshot of current user preferences.
+ * @returns Current language and currency values.
  */
-export function getUserLanguage(): Language {
+export function getUserPreferences(): UserPreferencesState {
+    return getStateSnapshot();
+}
+
+/**
+ * @summary Reads the active locale derived from user language preference.
+ * @returns Active locale enum value.
+ */
+export function getUserLocale(): Language {
     return state.language;
 }
 
 /**
- * @summary Returns current user currency preference.
+ * @summary Reads the active currency preference.
  * @returns Active currency enum value.
  */
 export function getUserCurrency(): Currency {
@@ -153,8 +320,8 @@ export function getUserCurrency(): Currency {
 }
 
 /**
- * @summary Applies a partial user preference update, persists it, and notifies subscribers.
- * @param patch Partial preference values to merge.
+ * @summary Applies a partial preferences patch, synchronizes `<html lang>`, persists, and notifies.
+ * @param patch Partial preference values to merge into current state.
  * @returns No return value.
  */
 export function setUserPreferences(patch: Partial<UserPreferencesState>): void {
@@ -163,24 +330,22 @@ export function setUserPreferences(patch: Partial<UserPreferencesState>): void {
         currency: patch.currency ?? state.currency,
     };
 
-    if (nextState.language === state.language && nextState.currency === state.currency) {
+    if (arePreferencesEqual(state, nextState)) {
         return;
     }
 
-    state = nextState;
-    applyLanguageToDocument(state.language);
+    applyState(nextState, true);
     persistPreferences();
-    notifyListeners();
 }
 
 /**
- * @summary Subscribes to preference updates.
- * @param listener Callback invoked with latest preference snapshot.
- * @returns Unsubscribe function.
+ * @summary Subscribes to preference updates and emits current snapshot immediately.
+ * @param listener Callback executed after every preference transition.
+ * @returns Unsubscribe function for the provided listener.
  */
 export function subscribeUserPreferences(listener: UserPreferencesListener): () => void {
     listeners.add(listener);
-    listener(getUserPreferences());
+    listener(getStateSnapshot());
 
     return (): void => {
         listeners.delete(listener);

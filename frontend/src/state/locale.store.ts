@@ -1,6 +1,6 @@
 import { Language } from "@shared/enums/language.enums";
 import {
-    getUserLanguage,
+    getUserLocale,
     setUserPreferences,
     subscribeUserPreferences,
 } from "@/state/userPreferences.store";
@@ -12,7 +12,7 @@ type LocaleListener = (locale: Language) => void;
  * @returns Current locale code.
  */
 export function getLocale(): Language {
-    return getUserLanguage();
+    return getUserLocale();
 }
 
 /**

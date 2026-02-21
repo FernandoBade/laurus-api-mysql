@@ -38,7 +38,6 @@ export class AuthController {
                 }
                 if (!result.success && result.error === Resource.EMAIL_NOT_VERIFIED) {
                     return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, {
-                        code: Resource.EMAIL_NOT_VERIFIED,
                         email,
                         canResend: true,
                         verificationSent: true
@@ -90,7 +89,7 @@ export class AuthController {
      * @returns HTTP 200 with new access token or appropriate error.
      */
     static async refresh(req: Request, res: Response, next: NextFunction) {
-        const token = req.cookies?.refreshToken;
+        const token = req.cookies?.[TokenCookie.name];
 
         if (!token) {
             return answerAPI(req, res, HTTPStatus.UNAUTHORIZED, undefined, Resource.EXPIRED_OR_INVALID_TOKEN);
@@ -128,7 +127,7 @@ export class AuthController {
      * @returns HTTP 200 on successful logout or appropriate error.
      */
     static async logout(req: Request, res: Response, next: NextFunction) {
-        const token = req.cookies?.refreshToken;
+        const token = req.cookies?.[TokenCookie.name];
 
         if (!token) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.TOKEN_NOT_FOUND);
@@ -218,7 +217,6 @@ export class AuthController {
             if (!result.success) {
                 if (result.error === Resource.EMAIL_VERIFICATION_COOLDOWN) {
                     return answerAPI(req, res, HTTPStatus.TOO_MANY_REQUESTS, {
-                        code: Resource.EMAIL_VERIFICATION_COOLDOWN,
                         cooldownSeconds: result.data?.cooldownSeconds ?? 0
                     }, Resource.EMAIL_VERIFICATION_COOLDOWN);
                 }

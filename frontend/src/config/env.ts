@@ -5,7 +5,11 @@ export interface AppEnv {
     readonly mode: string;
 }
 
-function getEnvVariable(key: keyof ImportMetaEnv): string {
+type StringEnvKey = {
+    [Key in keyof ImportMetaEnv]: ImportMetaEnv[Key] extends string ? Key : never;
+}[keyof ImportMetaEnv];
+
+function getEnvVariable(key: StringEnvKey): string {
     const value = import.meta.env[key];
 
     if (!value) {

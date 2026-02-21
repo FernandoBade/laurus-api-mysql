@@ -3,6 +3,7 @@ import { UserService } from '../service/userService';
 import { buildLogDelta, createLog, answerAPI, formatError, sanitizeLogDetail } from '../utils/commons';
 import { HTTPStatus } from '../../../shared/enums/http-status.enums';
 import { LogCategory, LogOperation, LogType } from '../../../shared/enums/log.enums';
+import { Profile } from '../../../shared/enums/user.enums';
 import { validateCreateUser, validateUpdateUser } from '../utils/validation/validateRequest';
 import { createValidationError, ValidationError } from '../utils/validation/errors';
 import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
@@ -11,6 +12,17 @@ import { parsePagination, buildMeta } from '../utils/pagination';
 import { translateResourceWithParams } from '../../../shared/i18n/resource.utils';
 import { ALLOWED_IMAGE_MIME_TYPES } from '../../../shared/enums/upload.enums';
 import { UploadValidation } from '../utils/upload/upload.constants';
+
+function canAccessRequestedUser(
+    requester: Request['user'] | undefined,
+    requestedUserId: number
+): boolean {
+    if (!requester) {
+        return false;
+    }
+
+    return requester.id === requestedUserId || requester.profile === Profile.MASTER;
+}
 
 class UserController {
     /** @summary Creates a new user using validated input from the request body.
@@ -42,7 +54,6 @@ class UserController {
             if (!newUser.success) {
                 if (newUser.error === Resource.EMAIL_NOT_VERIFIED) {
                     return answerAPI(req, res, HTTPStatus.BAD_REQUEST, {
-                        code: Resource.EMAIL_NOT_VERIFIED,
                         email: parseResult.data.email,
                         canResend: true,
                         verificationSent: true
@@ -104,7 +115,7 @@ class UserController {
 
     /**
      * Retrieves a specific user by ID.
-     * Validates the ID, fetches the user, and handles missing or invalid input.
+     * Validates ownership/admin access, then fetches the user.
      *
      * @param req - Express request containing user ID in the URL.
      * @param res - Express response returning the user or an error.
@@ -115,6 +126,10 @@ class UserController {
         const userId = Number(req.params.id);
         if (isNaN(userId) || userId <= 0) {
             return answerAPI(req, res, HTTPStatus.BAD_REQUEST, undefined, Resource.INVALID_USER_ID);
+        }
+
+        if (!canAccessRequestedUser(req.user, userId)) {
+            return answerAPI(req, res, HTTPStatus.FORBIDDEN, undefined, Resource.UNAUTHORIZED_OPERATION);
         }
 
         const userService = new UserService();

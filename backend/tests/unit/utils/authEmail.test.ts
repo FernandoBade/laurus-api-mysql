@@ -189,5 +189,129 @@ describe('authEmail utils', () => {
         expect(JSON.stringify(detail)).not.toContain('reset-token');
         expect(JSON.stringify(detail)).not.toContain('user@example.com');
     });
+
+    it('logs configuration errors when resend credentials are missing', async () => {
+        const { module, createLog } = await loadAuthEmail({
+            FRONTEND_BASE_URL: 'https://app.example.com',
+            RESEND_API_KEY: undefined,
+            RESEND_FROM_EMAIL: undefined,
+        }, true);
+
+        await expect(module.sendEmailVerificationEmail('user@example.com', 'verify-token', 15)).resolves.toBeUndefined();
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.AUTH,
+            expect.objectContaining({
+                event: 'AUTH_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                type: 'emailVerification',
+                error: expect.objectContaining({ message: 'Resend configuration missing' }),
+            }),
+            15
+        );
+    });
+
+    it('logs structured resend response errors with sanitized token and status code', async () => {
+        const { module, resendSend, createLog } = await loadAuthEmail({
+            FRONTEND_BASE_URL: 'https://app.example.com',
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockResolvedValue({
+            error: {
+                message: 'provider failed token=secret-value',
+                statusCode: 422,
+            },
+        });
+
+        await expect(module.sendPasswordResetEmail('user@example.com', 'reset-token', 33)).resolves.toBeUndefined();
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.AUTH,
+            expect.objectContaining({
+                event: 'AUTH_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                type: 'passwordReset',
+                error: expect.objectContaining({
+                    message: expect.stringContaining('token=[REDACTED]'),
+                    code: 422,
+                }),
+            }),
+            33
+        );
+    });
+
+    it('falls back to a generic provider error message when resend returns an object without message', async () => {
+        const { module, resendSend, createLog } = await loadAuthEmail({
+            FRONTEND_BASE_URL: 'https://app.example.com',
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockResolvedValue({
+            error: {
+                status: 503,
+            },
+        });
+
+        await expect(module.sendPasswordResetEmail('user@example.com', 'reset-token', 44)).resolves.toBeUndefined();
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.AUTH,
+            expect.objectContaining({
+                event: 'AUTH_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                type: 'passwordReset',
+                error: expect.objectContaining({
+                    message: 'Email provider error',
+                    code: 503,
+                }),
+            }),
+            44
+        );
+    });
+
+    it('logs primitive resend failures using sanitized string fallback', async () => {
+        const { module, resendSend, createLog } = await loadAuthEmail({
+            FRONTEND_BASE_URL: 'https://app.example.com',
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockRejectedValue('provider timeout token=unsafe');
+
+        await expect(module.sendEmailVerificationEmail('user@example.com', 'verify-token', 25)).resolves.toBeUndefined();
+
+        expect(createLog).toHaveBeenCalledWith(
+            LogType.ERROR,
+            LogOperation.CREATE,
+            LogCategory.AUTH,
+            expect.objectContaining({
+                event: 'AUTH_EMAIL_SEND_FAILED',
+                provider: 'resend',
+                type: 'emailVerification',
+                error: expect.objectContaining({
+                    message: expect.stringContaining('token=[REDACTED]'),
+                }),
+            }),
+            25
+        );
+    });
+
+    it('swallows logging failures while handling resend errors', async () => {
+        const { module, resendSend, createLog } = await loadAuthEmail({
+            FRONTEND_BASE_URL: 'https://app.example.com',
+            RESEND_API_KEY: 'test-key',
+            RESEND_FROM_EMAIL: 'no-reply@example.com',
+        }, true);
+        resendSend.mockRejectedValue(new Error('resend failed'));
+        (createLog as jest.Mock).mockRejectedValue(new Error('log failed'));
+
+        await expect(module.sendPasswordResetEmail('user@example.com', 'reset-token', 77)).resolves.toBeUndefined();
+    });
 });
 

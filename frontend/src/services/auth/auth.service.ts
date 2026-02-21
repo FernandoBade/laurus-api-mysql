@@ -1,17 +1,26 @@
 import { AuthEvent } from "@shared/enums/auth.enums";
 import { ResourceKey } from "@shared/i18n/resource.keys";
 import * as authApi from "@/api/auth/auth.api";
+import type { ApiResponse } from "@/api/http/httpTypes";
 import { setAuthRefreshHandler } from "@/api/http/httpClient";
 import { emitAuthEvent, setAuthenticated, setRefreshing, setUnauthenticated } from "@/state/auth.store";
 
 const resourceKeySet = new Set<ResourceKey>(Object.values(ResourceKey));
 
-function toResourceKey(value?: string): ResourceKey | undefined {
-    if (!value) {
+function toResourceKey(value: unknown): ResourceKey | undefined {
+    if (typeof value !== "string" || value.length === 0) {
         return undefined;
     }
 
     return resourceKeySet.has(value as ResourceKey) ? (value as ResourceKey) : undefined;
+}
+
+function resolveResponseResource<T>(response: ApiResponse<T>): ResourceKey | undefined {
+    if (response.resource) {
+        return response.resource;
+    }
+
+    return toResourceKey(response.message);
 }
 
 export interface AuthLoginResult {
@@ -29,7 +38,7 @@ export interface AuthLoginResult {
 export async function login(email: string, password: string): Promise<AuthLoginResult> {
     const response = await authApi.login(email, password);
     const token = response.data?.token;
-    const messageKey = toResourceKey(response.message);
+    const messageKey = resolveResponseResource(response);
 
     if (response.success && typeof token === "string" && token.length > 0) {
         setAuthenticated(token);
