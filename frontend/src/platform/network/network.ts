@@ -1,9 +1,10 @@
 type OnlineChangeCallback = (isCurrentlyOnline: boolean) => void;
 
 /**
- * @summary Reports current online status based on browser network state.
+ * @summary Returns current browser network connectivity status.
  * @returns True when browser reports online, otherwise false.
  */
+
 export function isOnline(): boolean {
     if (typeof navigator === "undefined") {
         return true;
@@ -13,10 +14,11 @@ export function isOnline(): boolean {
 }
 
 /**
- * @summary Subscribes to online/offline browser events.
+ * @summary Subscribes to browser connectivity changes and emits online state updates.
  * @param callback Handler invoked with the latest connectivity status.
  * @returns Unsubscribe function that removes event listeners.
  */
+
 export function onOnlineChange(callback: OnlineChangeCallback): () => void {
     if (typeof window === "undefined") {
         return () => undefined;

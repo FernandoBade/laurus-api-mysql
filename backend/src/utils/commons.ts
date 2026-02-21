@@ -16,6 +16,9 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
     *
     * @module logger
     */
+/**
+ * @summary Lazily resolves the log service to avoid eager circular imports during bootstrap.
+ */
 async function getLogService() {
     const { LogService } = await import('../service/logService');
     return new LogService();
@@ -65,6 +68,9 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     return Boolean(value) && typeof value === 'object' && value?.constructor === Object;
 }
 
+/**
+ * @summary Detects paginated payload shape used by standardized API response envelopes.
+ */
 function isPaginatedData(value: unknown): value is { data: unknown; meta: Record<string, unknown> } {
     if (!isPlainObject(value)) {
         return false;
@@ -179,15 +185,14 @@ export async function createLog(
 
 // #region API Response Helpers
 /**
- * Sends a standardized and translated JSON response to the client.
- * Automatically formats the payload according to success or failure, and includes a localized message if available.
- *
+ * @summary Builds standardized translated API responses with optional pagination metadata.
  * @param req - Express request, used to detect the user's language preference.
  * @param res - Express response object.
  * @param status - HTTP status code to send.
  * @param data - Optional response payload (success: data, error: details).
  * @param resource - Optional resource key for localized message.
  */
+
 export function answerAPI(
     req: Request,
     res: Response,
@@ -242,12 +247,11 @@ export function answerAPI(
 }
 
 /**
- * Normalizes different types of thrown errors (Error, object, or primitive)
- * into a consistent and serializable format for logging or display.
- *
+ * @summary Normalizes unknown thrown values into serializable error payloads.
  * @param error - Unknown error object.
  * @returns A structured object with message, name and stack trace (if applicable).
  */
+
 export function formatError(error: unknown): Record<string, unknown> {
     if (error instanceof Error) {
 
@@ -281,9 +285,7 @@ export function formatError(error: unknown): Record<string, unknown> {
 
 
 /**
- * Sends a localized error response to the client, following the same structure
- * as successful API responses, but explicitly marking success as false.
- *
+ * @summary Sends a standardized translated error response payload.
  * @param req - Express request, used to determine language for translation.
  * @param res - Express response to write the error into.
  * @param status - HTTP status code to return.
@@ -291,6 +293,7 @@ export function formatError(error: unknown): Record<string, unknown> {
  * @param error - Optional raw error object to include in the payload.
  * @returns The formatted error response in JSON format.
  */
+
 export function sendErrorResponse(
     req: Request,
     res: Response,
@@ -309,6 +312,9 @@ export function sendErrorResponse(
     });
 }
 
+/**
+ * @summary Registers middleware that captures request start time for elapsed-time metrics.
+ */
 export function requestTimer() {
     return (_req: Request, res: Response, next: NextFunction) => {
         res.locals._startNs = process.hrtime.bigint();
@@ -316,6 +322,9 @@ export function requestTimer() {
     };
 }
 
+/**
+ * @summary Computes elapsed request time in milliseconds from requestTimer middleware metadata.
+ */
 function getDurationMs(res: Response): number {
     const start: bigint | undefined = res.locals?._startNs;
     if (!start) return 0;

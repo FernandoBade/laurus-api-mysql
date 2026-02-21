@@ -17,6 +17,9 @@ export class TagService {
         this.tagRepository = new TagRepository();
     }
 
+        /**
+     * @summary Maps tag rows to API entities with ISO timestamp serialization.
+     */
     private toTagEntity(data: SelectTag): TagEntity {
         return {
             ...data,
@@ -61,13 +64,12 @@ export class TagService {
         }
     }
 
-    /**
-     * Retrieves all tags in the database.
-     *
-     * @summary Gets all tags with optional pagination and sorting.
+        /**
+     * @summary Retrieves tags with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all tags.
      */
+
     async getTags(options?: QueryOptions<SelectTag>): Promise<{ success: true; data: TagEntity[] } | { success: false; error: Resource }> {
         try {
             const tags = await this.tagRepository.findMany(undefined, {
@@ -82,12 +84,11 @@ export class TagService {
         }
     }
 
-    /**
-     * Counts all tags.
-     *
-     * @summary Gets total count of tags.
+        /**
+     * @summary Counts tags.
      * @returns Total tag count.
      */
+
     async countTags(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.tagRepository.count();
@@ -97,13 +98,12 @@ export class TagService {
         }
     }
 
-    /**
-     * Retrieves a tag by its ID.
-     *
-     * @summary Gets a tag by ID.
+        /**
+     * @summary Retrieves a tag by ID.
      * @param id - ID of the tag.
      * @returns Tag record if found.
      */
+
     async getTagById(id: number): Promise<{ success: true; data: TagEntity } | { success: false; error: Resource }> {
         const tag = await this.tagRepository.findById(id);
         if (!tag) {
@@ -112,13 +112,12 @@ export class TagService {
         return { success: true, data: this.toTagEntity(tag) };
     }
 
-    /**
-     * Retrieves all tags associated with a given user ID.
-     *
-     * @summary Gets all tags for a user.
+        /**
+     * @summary Retrieves tags for a user.
      * @param userId - ID of the user.
      * @returns A list of tags owned by the user.
      */
+
     async getTagsByUser(userId: number, options?: QueryOptions<SelectTag>): Promise<{ success: true; data: TagEntity[] } | { success: false; error: Resource }> {
         try {
             const tags = await this.tagRepository.findMany({
@@ -135,13 +134,12 @@ export class TagService {
         }
     }
 
-    /**
-     * Counts tags associated with a user.
-     *
-     * @summary Gets count of tags for a user.
+        /**
+     * @summary Counts tags for a user.
      * @param userId - User ID.
      * @returns Count of user's tags.
      */
+
     async countTagsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.tagRepository.count({

@@ -30,9 +30,10 @@ class MemoryStorageDriver implements KeyValueStorage {
 }
 
 /**
- * @summary Builds an in-memory key-value storage driver.
+ * @summary Creates an in-memory key-value storage driver for tests and fallback flows.
  * @returns Storage driver backed by an in-memory map.
  */
+
 export function createMemoryStorageDriver(): KeyValueStorage {
     return new MemoryStorageDriver();
 }

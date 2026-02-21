@@ -7,11 +7,12 @@ export interface FormatDateInput {
 }
 
 /**
- * @summary Formats a date-like value using cached Intl.DateTimeFormat instances.
+ * @summary Formats date-like values using locale-aware Intl.DateTimeFormat options.
  * @param value Date value as Date instance, ISO string, or timestamp.
  * @param input Locale and optional date formatter options.
  * @returns Localized date string or empty output when value is invalid.
  */
+
 export function formatDate(
     value: Date | string | number | null | undefined,
     input: FormatDateInput

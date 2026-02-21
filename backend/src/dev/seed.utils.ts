@@ -37,11 +37,17 @@ class MockResponse<T> {
     statusCode?: number;
     payload?: ControllerPayload<T>;
 
+    /**
+     * @summary Stores the mocked HTTP status code for controller execution tests.
+     */
     status(code: number) {
         this.statusCode = code;
         return this;
     }
 
+        /**
+     * @summary Stores the mocked JSON payload and marks the response as sent.
+     */
     json(data: ControllerPayload<T>) {
         this.payload = data;
         this.headersSent = true;
@@ -78,6 +84,9 @@ export async function executeController<T>(
     const res = new MockResponse<T>();
     let nextError: unknown;
 
+    /**
+     * @summary Captures controller errors passed through Express next.
+     */
     const next: NextFunction = (error?: unknown) => {
         if (error) {
             nextError = error;
@@ -214,11 +223,17 @@ export function suppressNonSeedOutput(): () => void {
         /SeedInvariantViolation/,
     ];
 
+    /**
+     * @summary Allows only seed-relevant output chunks to pass through stdout/stderr.
+     */
     const shouldAllow = (chunk: unknown) => {
         const text = stripAnsi(bufferToString(chunk));
         return allowedPatterns.some(pattern => pattern.test(text));
     };
 
+    /**
+     * @summary Writes output chunks only when they match allowed seed logging patterns.
+     */
     const writeFiltered = (
         originalWrite: typeof process.stdout.write,
         chunk: unknown,

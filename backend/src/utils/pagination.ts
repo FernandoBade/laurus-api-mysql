@@ -3,6 +3,9 @@ import { SortOrder } from '../../../shared/enums/operator.enums';
 type QueryParamValue = string | string[] | number | undefined;
 type QueryParams = Record<string, unknown>;
 
+/**
+ * @summary Safely extracts a query value as scalar pagination input.
+ */
 const getQueryValue = (query: QueryParams, key: string): QueryParamValue => {
     const raw = query[key];
     if (typeof raw === 'string' || typeof raw === 'number' || raw === undefined) {
@@ -17,6 +20,9 @@ const getQueryValue = (query: QueryParams, key: string): QueryParamValue => {
     return undefined;
 };
 
+/**
+ * @summary Parses numeric pagination parameters from string or numeric query values.
+ */
 const parseQueryInt = (value: QueryParamValue): number => {
     if (typeof value === 'number') {
         return value;
@@ -34,6 +40,9 @@ export type QueryOptions<T = Record<string, unknown>> = {
     order?: SortOrder;
 };
 
+/**
+ * @summary Parses pagination and sorting parameters from request query values.
+ */
 export function parsePagination(query: QueryParams) {
     const pageValue = getQueryValue(query, 'page');
     const pageSizeValue = getQueryValue(query, 'pageSize');
@@ -52,6 +61,9 @@ export function parsePagination(query: QueryParams) {
     return { page, pageSize, limit, offset, sort, order };
 }
 
+/**
+ * @summary Builds pagination metadata payload from page, size, and total values.
+ */
 export function buildMeta({ page, pageSize, total }: { page: number; pageSize: number; total: number }) {
     const pageCount = pageSize ? Math.ceil(total / pageSize) : 0;
     return { page, pageSize, total, pageCount };

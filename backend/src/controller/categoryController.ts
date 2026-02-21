@@ -8,7 +8,7 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 
-/** @summary Handles HTTP requests for category resources. */
+/** @summary Orchestrates HTTP request flows for category resource endpoints. */
 class CategoryController {
     /** @summary Creates a new category using validated input from the request body.
      * Logs the result and returns the created category on success.

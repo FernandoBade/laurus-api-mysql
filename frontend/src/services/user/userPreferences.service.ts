@@ -7,16 +7,12 @@ export interface UserPreferencesSnapshot {
     readonly currency: Currency;
 }
 
-/**
- * @summary Returns whether language.
- */
+
 function isLanguage(value: unknown): value is Language {
     return value === Language.EN_US || value === Language.ES_ES || value === Language.PT_BR;
 }
 
-/**
- * @summary Returns whether currency.
- */
+
 function isCurrency(value: unknown): value is Currency {
     return (
         value === Currency.ARS
@@ -28,10 +24,11 @@ function isCurrency(value: unknown): value is Currency {
 }
 
 /**
- * @summary Resolves language and currency preferences for an authenticated user.
+ * @summary Loads persisted user language and currency preferences from the API.
  * @param userId User identifier to query in backend.
  * @returns Typed preference snapshot or null when unavailable.
  */
+
 export async function fetchUserPreferences(userId: UserId): Promise<UserPreferencesSnapshot | null> {
     const response = await getUserById(userId);
     const language = response.data?.language;

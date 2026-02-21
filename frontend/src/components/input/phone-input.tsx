@@ -25,9 +25,7 @@ const DEFAULT_ERROR_BY_VALIDATION: Readonly<Record<PhoneInputValidationError, Re
     [PhoneInputValidationError.INCOMPLETE]: ResourceKey.PHONE_NUMBER_INCOMPLETE,
 };
 
-/**
- * @summary Gets flag from country code.
- */
+
 function getFlagFromCountryCode(countryCode: CountryCode): string {
     return countryCode
         .split("")
@@ -35,9 +33,7 @@ function getFlagFromCountryCode(countryCode: CountryCode): string {
         .join("");
 }
 
-/**
- * @summary Formats country option label.
- */
+
 function formatCountryOptionLabel(countryCode: CountryCode): string {
     const countryOption = getPhoneCountryOptions().find((option) => option.code === countryCode);
     if (countryOption === undefined) {
@@ -47,9 +43,7 @@ function formatCountryOptionLabel(countryCode: CountryCode): string {
     return `${getFlagFromCountryCode(countryOption.code)} ${t(countryOption.nameKey)} +${countryOption.dialCode}`;
 }
 
-/**
- * @summary Formats phone display.
- */
+
 function formatPhoneDisplay(canonicalValue: string, countryCode: CountryCode): string {
     if (canonicalValue.trim().length === 0) {
         return "";
@@ -58,9 +52,7 @@ function formatPhoneDisplay(canonicalValue: string, countryCode: CountryCode): s
     return normalizePhoneValue(canonicalValue, countryCode).displayValue;
 }
 
-/**
- * @summary Resolves validation error key.
- */
+
 function resolveValidationErrorKey(
     displayValue: string,
     canonicalValue: string,
@@ -88,9 +80,7 @@ function resolveValidationErrorKey(
     return props.validationResourceKeys?.[validationError] ?? DEFAULT_ERROR_BY_VALIDATION[validationError];
 }
 
-/**
- * @summary Creates value change.
- */
+
 function createValueChange(
     canonicalValue: string,
     displayValue: string,
@@ -103,9 +93,7 @@ function createValueChange(
     };
 }
 
-/**
- * @summary Synchronizes input element value.
- */
+
 function syncInputElementValue(inputElement: HTMLInputElement | null, nextDisplayValue: string): void {
     if (!inputElement) {
         return;
@@ -122,9 +110,7 @@ interface PhoneDraftState {
     readonly canonicalValue: string;
 }
 
-/**
- * @summary Builds phone draft state.
- */
+
 function buildPhoneDraftState(rawValue: string, countryCode: CountryCode): PhoneDraftState {
     const digitsOnly = normalizePhoneInputDigits(rawValue, countryCode);
     const nextDraft = parsePhoneDraft(digitsOnly, countryCode);
@@ -136,9 +122,7 @@ function buildPhoneDraftState(rawValue: string, countryCode: CountryCode): Phone
     };
 }
 
-/**
- * @summary Builds phone draft state from canonical.
- */
+
 function buildPhoneDraftStateFromCanonical(
     canonicalValue: string,
     countryCode: CountryCode
@@ -150,10 +134,11 @@ function buildPhoneDraftStateFromCanonical(
 }
 
 /**
- * @summary Renders an international phone input with country selector and canonical E.164 output.
+ * @summary Renders an international phone input with country selection and canonical E.164 output.
  * @param props Phone input configuration.
  * @returns Phone input component.
  */
+
 export function PhoneInput({
     canonicalValue,
     language,

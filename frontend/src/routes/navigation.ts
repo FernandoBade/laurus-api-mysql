@@ -10,19 +10,21 @@ export const SANDBOX_ROUTE_PATH = "/sandbox" as const;
 type NavigationPath = AppRoutePath | typeof SANDBOX_ROUTE_PATH;
 
 /**
- * @summary Navigates to the given route by pushing a new history entry.
+ * @summary Pushes a new route using the centralized navigation API.
  * @param path Target typed route path.
  * @returns No return value.
  */
+
 export function navigate(path: NavigationPath): void {
   navigateWithHistory(path);
 }
 
 /**
- * @summary Navigates to the given route by replacing the current history entry.
+ * @summary Replaces the current route entry using the centralized navigation API.
  * @param path Target typed route path.
  * @returns No return value.
  */
+
 export function replace(path: NavigationPath): void {
   navigateWithHistory(path, { replace: true });
 }

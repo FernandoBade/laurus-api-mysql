@@ -20,11 +20,12 @@ export interface AuthLoginResult {
 }
 
 /**
- * @summary Authenticates the user and stores the resulting access token.
+ * @summary Authenticates credentials and updates auth store with the returned access token.
  * @param email User email.
  * @param password User password.
  * @returns Login operation result with normalized success and error fields.
  */
+
 export async function login(email: string, password: string): Promise<AuthLoginResult> {
     const response = await authApi.login(email, password);
     const token = response.data?.token;
@@ -47,9 +48,10 @@ export async function login(email: string, password: string): Promise<AuthLoginR
 }
 
 /**
- * @summary Refreshes the access token using backend refresh cookies.
+ * @summary Refreshes the access token and updates auth state according to refresh outcome.
  * @returns True when refresh succeeds and token is updated, otherwise false.
  */
+
 export async function refresh(): Promise<boolean> {
     setRefreshing();
 
@@ -66,9 +68,10 @@ export async function refresh(): Promise<boolean> {
 }
 
 /**
- * @summary Logs out current session and clears local auth state.
+ * @summary Invalidates the current session and clears authentication state.
  * @returns True when backend logout succeeds, otherwise false.
  */
+
 export async function logout(): Promise<boolean> {
     const response = await authApi.logout();
     setUnauthenticated();
@@ -77,9 +80,10 @@ export async function logout(): Promise<boolean> {
 }
 
 /**
- * @summary Registers auth service runtime hooks required by the HTTP layer.
+ * @summary Wires auth refresh integration between the HTTP client and auth service.
  * @returns No return value.
  */
+
 export function initializeAuthService(): void {
     setAuthRefreshHandler(refresh);
 }

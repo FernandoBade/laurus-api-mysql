@@ -121,13 +121,12 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Retrieves all transaction records in the system.
-     *
-     * @summary Gets all transactions with optional pagination and sorting.
+        /**
+     * @summary Retrieves transactions with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all transaction records.
      */
+
     async getTransactions(
         filters?: {
             accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
@@ -156,12 +155,11 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Counts all transactions.
-     *
-     * @summary Gets total count of transactions.
+        /**
+     * @summary Counts transactions.
      * @returns Total transaction count.
      */
+
     async countTransactions(filters?: {
         accountId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
         creditCardId?: { operator: FilterOperator.EQ | FilterOperator.IN; value: number | number[] };
@@ -181,13 +179,12 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Retrieves a single transaction by its ID.
-     *
-     * @summary Gets a transaction by ID.
+        /**
+     * @summary Retrieves a transaction by ID.
      * @param id - ID of the transaction.
      * @returns Transaction record if found.
      */
+
     async getTransactionById(id: number): Promise<{ success: true; data: TransactionWithTags } | { success: false; error: Resource }> {
         const transaction = await this.transactionRepository.findById(id);
         if (!transaction) {
@@ -197,13 +194,12 @@ export class TransactionService {
         return { success: true, data: withTags };
     }
 
-    /**
-     * Retrieves all transactions associated with a specific account.
-     *
-     * @summary Gets all transactions for an account.
+        /**
+     * @summary Retrieves transactions for an account.
      * @param accountId - ID of the account.
      * @returns A list of transactions linked to the account.
      */
+
     async getTransactionsByAccount(
         accountId: number,
         options?: QueryOptions<SelectTransaction>
@@ -224,13 +220,12 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Counts transactions for a specific account.
-     *
-     * @summary Gets count of transactions for an account.
+        /**
+     * @summary Counts transactions for an account.
      * @param accountId - Account ID.
      * @returns Count of transactions.
      */
+
     async countTransactionsByAccount(accountId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.transactionRepository.count({
@@ -242,13 +237,12 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Retrieves all transactions for a given user, grouped by their accounts.
-     *
-     * @summary Gets all transactions for a user grouped by account.
+        /**
+     * @summary Retrieves transactions for a user grouped by account.
      * @param userId - ID of the user.
      * @returns A list of grouped transactions by account.
      */
+
     async getTransactionsByUser(
         userId: number,
         options?: QueryOptions<SelectTransaction>
@@ -284,13 +278,12 @@ export class TransactionService {
         }
     }
 
-    /**
-     * Counts transactions across all accounts for a specific user.
-     *
-     * @summary Gets count of transactions for a user.
+        /**
+     * @summary Counts transactions for a user.
      * @param userId - User ID.
      * @returns Count of transactions.
      */
+
     async countTransactionsByUser(
         userId: number
     ): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
@@ -353,6 +346,9 @@ export class TransactionService {
         }
     }
 
+        /**
+     * @summary Maps transaction rows to API payloads with ISO dates and attached tag ids.
+     */
     private toTransactionWithTags(transaction: SelectTransaction, tags: number[]): TransactionWithTags {
         return {
             ...transaction,
@@ -363,12 +359,18 @@ export class TransactionService {
         };
     }
 
+        /**
+     * @summary Deduplicates incoming tag ids while preserving insertion order.
+     */
     private normalizeTagIds(tags?: number[]): number[] | undefined {
         if (!tags) return undefined;
         const unique = new Set(tags);
         return Array.from(unique);
     }
 
+        /**
+     * @summary Ensures category and subcategory references are active and consistent for classification.
+     */
     private async validateTransactionClassification(
         categoryId: number | null | undefined,
         subcategoryId: number | null | undefined
@@ -394,6 +396,9 @@ export class TransactionService {
         return null;
     }
 
+        /**
+     * @summary Validates that all informed tags are active and owned by the target user.
+     */
     private async validateTagsByUser(
         userId: number,
         tagIds: number[],
@@ -410,6 +415,9 @@ export class TransactionService {
         return existing.length === tagIds.length;
     }
 
+        /**
+     * @summary Replaces transaction-tag relations within the active database transaction.
+     */
     private async replaceTransactionTags(
         connection: typeof db,
         transactionId: number,
@@ -427,6 +435,9 @@ export class TransactionService {
         );
     }
 
+        /**
+     * @summary Hydrates transaction rows with their related tag identifiers.
+     */
     private async attachTags(
         transactions: SelectTransaction[],
         connection: typeof db = db
@@ -453,6 +464,9 @@ export class TransactionService {
         );
     }
 
+        /**
+     * @summary Normalizes transaction update payloads and resolves ownership constraints by source.
+     */
     private async normalizeUpdateInput(
         current: SelectTransaction,
         data: UpdateTransactionInput
@@ -515,6 +529,9 @@ export class TransactionService {
         return { updateData, ownerUserId: creditCard.data.userId };
     }
 
+        /**
+     * @summary Executes transactional updates with balance recalculation and tag synchronization.
+     */
     private async applyUpdateWithinTransaction(
         connection: typeof db,
         id: number,
@@ -561,6 +578,9 @@ export class TransactionService {
         return { success: true, data: updated };
     }
 
+        /**
+     * @summary Deletes a transaction and reverts its monetary impact atomically.
+     */
     private async deleteTransactionWithinTransaction(
         connection: typeof db,
         id: number
@@ -584,6 +604,9 @@ export class TransactionService {
         return { success: true, data: { id } };
     }
 
+        /**
+     * @summary Recalculates source balances when transaction identity or value changes.
+     */
     private async applyBalanceUpdate(
         connection: typeof db,
         current: SelectTransaction,
@@ -620,6 +643,9 @@ export class TransactionService {
         return { success: true };
     }
 
+        /**
+     * @summary Applies a signed monetary delta to account or credit-card balances.
+     */
     private async applyBalanceDelta(
         connection: typeof db,
         transaction: SelectTransaction,

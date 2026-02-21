@@ -15,8 +15,9 @@ export interface MulterUploadErrorConfig {
 }
 
 /**
- * @summary Handles multer upload errors with a consistent API validation response.
+ * @summary Converts Multer upload failures into standardized validation responses.
  */
+
 export function handleMulterUploadError(
     req: Request,
     res: Response,

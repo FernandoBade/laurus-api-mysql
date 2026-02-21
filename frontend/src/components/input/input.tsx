@@ -17,10 +17,11 @@ const inputTypeMap: Partial<Record<InputType, JSX.InputHTMLAttributes<HTMLInputE
 };
 
 /**
- * @summary Renders a typed input with semantic error/hint and icon slots.
+ * @summary Renders the base text input with shared validation, adornments, and slots.
  * @param props Input configuration.
  * @returns Input field component.
  */
+
 export function Input({
     label,
     placeholder,

@@ -9,8 +9,9 @@ export interface DashboardController {
 }
 
 /**
- * @summary Creates dashboard controller.
+ * @summary Builds dashboard view-model data and action handlers for the page.
  */
+
 export function createDashboardController(): DashboardController {
   const getCurrentTheme = (): Theme => getTheme();
 

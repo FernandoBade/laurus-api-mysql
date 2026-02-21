@@ -13,6 +13,9 @@ type FeedbackInput = {
 };
 
 export class FeedbackService {
+        /**
+     * @summary Sends feedback content through the configured email provider and normalizes the response.
+     */
     async sendFeedback(
         payload: FeedbackInput
     ): Promise<{ success: true; data: SendFeedbackOutput } | { success: false; error: Resource }> {

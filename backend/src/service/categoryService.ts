@@ -17,6 +17,9 @@ export class CategoryService {
         this.categoryRepository = new CategoryRepository();
     }
 
+        /**
+     * @summary Maps category rows to API entities with ISO timestamp serialization.
+     */
     private toCategoryEntity(data: SelectCategory): CategoryEntity {
         return {
             ...data,
@@ -51,13 +54,12 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Retrieves all category records from the database.
-     *
-     * @summary Gets all categories with optional pagination and sorting.
+        /**
+     * @summary Retrieves categories with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all categories.
      */
+
     async getCategories(options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: CategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const categories = await this.categoryRepository.findMany(undefined, {
@@ -72,12 +74,11 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Counts all categories.
-     *
-     * @summary Gets total count of categories.
+        /**
+     * @summary Counts categories.
      * @returns Total category count.
      */
+
     async countCategories(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.categoryRepository.count();
@@ -87,13 +88,12 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Retrieves a category by its ID.
-     *
-     * @summary Gets a category by ID.
+        /**
+     * @summary Retrieves a category by ID.
      * @param id - ID of the category.
      * @returns The category if found.
      */
+
     async getCategoryById(id: number): Promise<{ success: true; data: CategoryEntity } | { success: false; error: Resource }> {
         const category = await this.categoryRepository.findById(id);
         if (!category) {
@@ -102,13 +102,12 @@ export class CategoryService {
         return { success: true, data: this.toCategoryEntity(category) };
     }
 
-    /**
-     * Retrieves all categories linked to a specific user.
-     *
-     * @summary Gets all categories for a user.
+        /**
+     * @summary Retrieves categories for a user.
      * @param userId - ID of the user.
      * @returns A list of categories owned by the user.
      */
+
     async getCategoriesByUser(userId: number, options?: QueryOptions<SelectCategory>): Promise<{ success: true; data: CategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const categories = await this.categoryRepository.findMany({
@@ -125,13 +124,12 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Counts categories belonging to a specific user.
-     *
-     * @summary Gets count of categories for a user.
+        /**
+     * @summary Counts categories for a user.
      * @param userId - User ID.
      * @returns Count of user's categories.
      */
+
     async countCategoriesByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.categoryRepository.count({

@@ -7,24 +7,36 @@ export const EMAIL_VERIFICATION_TTL_MINUTES = 15;
 export const PASSWORD_RESET_TTL_MINUTES = 15;
 export const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
 
+/**
+ * @summary Builds the expiration timestamp for persisted refresh tokens.
+ */
 export const buildPersistedTokenExpiresAt = (from: Date = new Date()): Date => {
     const expiresAt = new Date(from);
     expiresAt.setDate(expiresAt.getDate() + PERSISTED_TOKEN_TTL_DAYS);
     return expiresAt;
 };
 
+/**
+ * @summary Builds the absolute expiration timestamp for refresh sessions.
+ */
 export const buildSessionExpiresAt = (from: Date = new Date()): Date => {
     const expiresAt = new Date(from);
     expiresAt.setDate(expiresAt.getDate() + SESSION_TTL_DAYS);
     return expiresAt;
 };
 
+/**
+ * @summary Builds the expiration timestamp for email verification tokens.
+ */
 export const buildEmailVerificationExpiresAt = (from: Date = new Date()): Date => {
     const expiresAt = new Date(from);
     expiresAt.setMinutes(expiresAt.getMinutes() + EMAIL_VERIFICATION_TTL_MINUTES);
     return expiresAt;
 };
 
+/**
+ * @summary Builds the expiration timestamp for password reset tokens.
+ */
 export const buildPasswordResetExpiresAt = (from: Date = new Date()): Date => {
     const expiresAt = new Date(from);
     expiresAt.setMinutes(expiresAt.getMinutes() + PASSWORD_RESET_TTL_MINUTES);

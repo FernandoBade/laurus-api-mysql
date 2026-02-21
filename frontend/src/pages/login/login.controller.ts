@@ -14,8 +14,9 @@ export interface LoginController {
 }
 
 /**
- * @summary Creates login controller.
+ * @summary Builds login submit flow with validation, auth calls, and navigation.
  */
+
 export function createLoginController(dependencies: LoginControllerDependencies): LoginController {
     const onSubmit = async (email: string, password: string): Promise<void> => {
         dependencies.setError(null);

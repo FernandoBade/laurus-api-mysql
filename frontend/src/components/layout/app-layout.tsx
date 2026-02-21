@@ -2,10 +2,11 @@ import type { JSX } from "preact";
 import type { AppLayoutProps } from "@/components/layout/app-layout.types";
 
 /**
- * @summary Responsive shell wrapper for application pages.
+ * @summary Renders the application shell with optional header and footer slots.
  * @param props Layout configuration.
  * @returns Layout component.
  */
+
 export function AppLayout({ children, header, footer }: AppLayoutProps): JSX.Element {
     return (
         <div class="min-h-screen bg-base-100 font-ui text-base-content">

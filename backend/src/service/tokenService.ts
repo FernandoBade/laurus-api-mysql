@@ -11,10 +11,16 @@ import { buildEmailVerificationExpiresAt, buildPasswordResetExpiresAt } from '..
 
 const ONE_TIME_TOKEN_BYTES = 32;
 
+/**
+ * @summary Generates a cryptographically secure one-time token using URL-safe encoding.
+ */
 const generateOneTimeToken = (): string => {
     return crypto.randomBytes(ONE_TIME_TOKEN_BYTES).toString('base64url');
 };
 
+/**
+ * @summary Hashes one-time tokens before persistence to avoid storing raw token values.
+ */
 const hashOneTimeToken = (token: string): string => {
     return crypto.createHash('sha256').update(token).digest('hex');
 };
@@ -30,24 +36,22 @@ export class TokenService {
         this.tokenRepository = new TokenRepository();
     }
 
-    /**
-     * Finds a token by ID.
-     *
-     * @summary Gets a token by ID.
+        /**
+     * @summary Retrieves a token by ID.
      * @param id - token ID.
      * @returns token if found, null otherwise.
      */
+
     async findById(id: number): Promise<SelectToken | null> {
         return await this.tokenRepository.findById(id);
     }
 
-    /**
-     * Finds a token by token hash.
-     *
-     * @summary Gets a token by token hash.
+        /**
+     * @summary Retrieves a token by token hash.
      * @param tokenHash - Token hash.
      * @returns token if found, or error.
      */
+
     async findByTokenHash(tokenHash: string): Promise<{ success: true; data: SelectToken } | { success: false; error: Resource }> {
         const tokenRecord = await this.tokenRepository.findByTokenHash(tokenHash);
         if (!tokenRecord) {
@@ -262,14 +266,13 @@ export class TokenService {
         await this.tokenRepository.deleteByTokenHashAndType(tokenHash, type);
     }
 
-    /**
-     * Finds the most recent token for a user and type.
-     *
-     * @summary Gets latest token by user and type.
+        /**
+     * @summary Retrieves latest token by user and type.
      * @param userId - User ID.
      * @param type - Token type.
      * @returns Latest token record or null.
      */
+
     async findLatestByUserIdAndType(userId: number, type: TokenType): Promise<SelectToken | null> {
         return await this.tokenRepository.findLatestByUserIdAndType(userId, type);
     }

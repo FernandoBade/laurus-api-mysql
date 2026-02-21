@@ -85,6 +85,8 @@ app.use(ServerRoutePath.FEEDBACK, feedbackRoutes);
 /**
  * Global error handler to catch unhandled exceptions.
  *
+ * @summary Normalizes uncaught request errors into translated API error responses.
+ *
  * @param error - Any unhandled error.
  * @param req - Express request object.
  * @param res - Express response object.
@@ -107,6 +109,8 @@ app.use(errorHandler as unknown as express.ErrorRequestHandler);
 /**
  * Starts the Express server.
  * Logs the active port to the console.
+ *
+ * @summary Boots the HTTP server and emits the startup log entry.
  */
 function startServer() {
     app.listen(port, () => {

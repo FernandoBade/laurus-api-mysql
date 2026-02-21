@@ -17,6 +17,9 @@ export class SubcategoryService {
         this.subcategoryRepository = new SubcategoryRepository();
     }
 
+        /**
+     * @summary Maps subcategory rows to API entities with ISO timestamp serialization.
+     */
     private toSubcategoryEntity(data: SelectSubcategory): SubcategoryEntity {
         return {
             ...data,
@@ -57,13 +60,12 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Retrieves all subcategories from the database.
-     *
-     * @summary Gets all subcategories with optional pagination and sorting.
+        /**
+     * @summary Retrieves subcategories with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all subcategories.
      */
+
     async getSubcategories(options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const subcategories = await this.subcategoryRepository.findMany(undefined, {
@@ -78,12 +80,11 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Counts all subcategories.
-     *
-     * @summary Gets total count of subcategories.
+        /**
+     * @summary Counts subcategories.
      * @returns Total subcategory count.
      */
+
     async countSubcategories(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.subcategoryRepository.count();
@@ -93,13 +94,12 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Retrieves all subcategories for a given category ID.
-     *
-     * @summary Gets all subcategories for a category.
+        /**
+     * @summary Retrieves subcategories for a category.
      * @param categoryId - ID of the parent category.
      * @returns A list of subcategories under the specified category.
      */
+
     async getSubcategoriesByCategory(categoryId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         try {
             const subcategories = await this.subcategoryRepository.findMany({
@@ -116,13 +116,12 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Counts subcategories for a specific category.
-     *
-     * @summary Gets count of subcategories for a category.
+        /**
+     * @summary Counts subcategories for a category.
      * @param categoryId - Category ID.
      * @returns Count of subcategories.
      */
+
     async countSubcategoriesByCategory(categoryId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.subcategoryRepository.count({
@@ -134,13 +133,12 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Retrieves a subcategory by its ID.
-     *
-     * @summary Gets a subcategory by ID.
+        /**
+     * @summary Retrieves a subcategory by ID.
      * @param id - ID of the subcategory.
      * @returns Subcategory record if found.
      */
+
     async getSubcategoryById(id: number): Promise<{ success: true; data: SubcategoryEntity } | { success: false; error: Resource }> {
         const subcategory = await this.subcategoryRepository.findById(id);
         if (!subcategory) {
@@ -149,13 +147,12 @@ export class SubcategoryService {
         return { success: true, data: this.toSubcategoryEntity(subcategory) };
     }
 
-    /**
-     * Retrieves all subcategories linked to any category of a specific user.
-     *
-     * @summary Gets all subcategories for a user's categories.
+        /**
+     * @summary Retrieves subcategories for a user's categories.
      * @param userId - ID of the user whose subcategories are being requested.
      * @returns A list of subcategories across all categories owned by the user.
      */
+
     async getSubcategoriesByUser(userId: number, options?: QueryOptions<SelectSubcategory>): Promise<{ success: true; data: SubcategoryEntity[] } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
         const userCategories = await categoryService.getCategoriesByUser(userId);
@@ -192,13 +189,12 @@ export class SubcategoryService {
         }
     }
 
-    /**
-     * Counts subcategories belonging to categories of a specific user.
-     *
-     * @summary Gets count of subcategories for a user's categories.
+        /**
+     * @summary Counts subcategories for a user's categories.
      * @param userId - User ID.
      * @returns Count of subcategories.
      */
+
     async countSubcategoriesByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         const categoryService = new CategoryService();
         const userCategories = await categoryService.getCategoriesByUser(userId);

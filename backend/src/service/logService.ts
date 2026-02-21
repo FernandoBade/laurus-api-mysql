@@ -159,14 +159,12 @@ export class LogService {
         }
     }
 
-    /**
-     * Retrieves all logs associated with a given user ID.
-     * Validates the input before executing the query.
-     *
-     * @summary Gets all logs for a user.
+        /**
+     * @summary Retrieves logs for a user.
      * @param userId - User ID to filter logs by.
      * @returns Array of logs or error if ID is invalid.
      */
+
     async getLogsByUser(userId: number | null): Promise<{ success: true; data: SelectLog[] } | { success: false; error: Resource }> {
         if (userId === null || isNaN(userId) || userId <= 0) {
             return { success: false, error: Resource.INVALID_USER_ID };

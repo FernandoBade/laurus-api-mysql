@@ -6,9 +6,7 @@ type DateFormatterOptions = Intl.DateTimeFormatOptions | undefined;
 const numberFormatterCache = new Map<string, Intl.NumberFormat>();
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
-/**
- * @summary Creates options cache key.
- */
+
 function createOptionsCacheKey(
     options: Intl.NumberFormatOptions | Intl.DateTimeFormatOptions | undefined
 ): string {
@@ -22,9 +20,7 @@ function createOptionsCacheKey(
     return JSON.stringify(sortedEntries);
 }
 
-/**
- * @summary Creates formatter key.
- */
+
 function createFormatterKey(
     locale: Language,
     options: Intl.NumberFormatOptions | Intl.DateTimeFormatOptions | undefined
@@ -33,11 +29,12 @@ function createFormatterKey(
 }
 
 /**
- * @summary Returns a cached Intl.NumberFormat instance for a locale/options tuple.
+ * @summary Returns a cached Intl.NumberFormat instance for the requested locale and options.
  * @param locale Language enum used as locale.
  * @param options Optional Intl number format options.
  * @returns Cached or newly created number formatter.
  */
+
 export function getCachedNumberFormatter(
     locale: Language,
     options?: NumberFormatterOptions
@@ -54,11 +51,12 @@ export function getCachedNumberFormatter(
 }
 
 /**
- * @summary Returns a cached Intl.DateTimeFormat instance for a locale/options tuple.
+ * @summary Returns a cached Intl.DateTimeFormat instance for the requested locale and options.
  * @param locale Language enum used as locale.
  * @param options Optional Intl date format options.
  * @returns Cached or newly created date formatter.
  */
+
 export function getCachedDateFormatter(
     locale: Language,
     options?: DateFormatterOptions

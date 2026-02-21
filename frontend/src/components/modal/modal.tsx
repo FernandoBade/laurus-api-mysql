@@ -31,10 +31,11 @@ const contentScrollMap: Record<ModalScrollMode, string> = {
 };
 
 /**
- * @summary Renders a dialog-based modal using DaisyUI method 1 structure.
+ * @summary Renders an accessible modal dialog with typed size, position, and footer slots.
  * @param props Modal configuration.
  * @returns Modal dialog component.
  */
+
 export function Modal({
     open,
     title,

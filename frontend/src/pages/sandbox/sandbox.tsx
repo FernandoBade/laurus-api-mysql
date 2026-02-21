@@ -374,9 +374,7 @@ const SECTION_DEFINITIONS: readonly ShowcaseSectionDefinition[] = [
 
 type SectionVisibility = Record<ShowcaseSectionId, boolean>;
 
-/**
- * @summary Creates section visibility.
- */
+
 function createSectionVisibility(open: boolean): SectionVisibility {
     return {
         [SHOWCASE_SECTION.TYPOGRAPHY]: open,
@@ -402,9 +400,7 @@ interface ShowcaseSectionProps {
     readonly children: ComponentChildren;
 }
 
-/**
- * @summary Renders one collapsible sandbox showcase section.
- */
+
 function ShowcaseSection({
     id,
     title,
@@ -433,9 +429,10 @@ function ShowcaseSection({
 }
 
 /**
- * @summary Renders the living Design System showcase page for all core UI components.
+ * @summary Renders the design-system sandbox used for component behavior validation.
  * @returns Sandbox page component.
  */
+
 export function SandboxPage(): JSX.Element {
     const controller = useMemo(() => createSandboxController(), []);
 

@@ -21,6 +21,9 @@ const USER_SERVICE_CONFIG = {
     defaultFtpPort: 21,
 } as const;
 
+/**
+ * @summary Resolves avatar file extension based on the uploaded MIME type.
+ */
 const resolveAvatarExtension = (mimeType: string) => {
     if (PNG_MIME_TYPES.has(mimeType)) {
         return UploadFileExtension.PNG;
@@ -41,6 +44,9 @@ export class UserService {
         this.tokenService = new TokenService();
     }
 
+        /**
+     * @summary Converts nullable Date values to nullable ISO-8601 strings.
+     */
     private toIsoString(value: Date | null): string | null {
         if (!value) {
             return null;
@@ -48,6 +54,9 @@ export class UserService {
         return value.toISOString();
     }
 
+        /**
+     * @summary Maps user rows to API entities with normalized date fields.
+     */
     private toUserEntity(data: SelectUser): UserEntity {
         return {
             ...data,
@@ -58,6 +67,9 @@ export class UserService {
         };
     }
 
+        /**
+     * @summary Removes sensitive fields from user entities before returning responses.
+     */
     private sanitizeUser(data: SelectUser): SanitizedUser {
         const { password, ...safeUser } = this.toUserEntity(data);
         void password;
@@ -95,6 +107,9 @@ export class UserService {
         };
         const created = await this.userRepository.create(insertData);
 
+        /**
+         * @summary Removes the newly created user when downstream onboarding steps fail.
+         */
         const rollbackUser = async () => {
             try {
                 await this.userRepository.delete(created.id);
@@ -122,13 +137,12 @@ export class UserService {
         };
     }
 
-    /**
-     * Retrieves a list of all users in the database.
-     *
-     * @summary Gets all users with optional pagination and sorting.
+        /**
+     * @summary Retrieves users with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns List of user records.
      */
+
     async getUsers(options?: QueryOptions<SelectUser>): Promise<{ success: true; data: SanitizedUser[] } | { success: false; error: Resource }> {
         try {
             const users = await this.userRepository.findMany(undefined, {
@@ -146,12 +160,11 @@ export class UserService {
         }
     }
 
-    /**
-     * Counts all users.
-     *
-     * @summary Gets total count of users.
+        /**
+     * @summary Counts users.
      * @returns Total user count.
      */
+
     async countUsers(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.userRepository.count();
@@ -161,13 +174,12 @@ export class UserService {
         }
     }
 
-    /**
-     * Retrieves a user by their unique ID.
-     *
-     * @summary Gets a single user by ID.
+        /**
+     * @summary Retrieves a single user by ID.
      * @param id - ID of the user.
      * @returns User record if found, or error if not.
      */
+
     async getUserById(id: number): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         const user = await this.userRepository.findById(id);
         if (!user) {
@@ -205,13 +217,12 @@ export class UserService {
         }
     }
 
-    /**
-     * Retrieves users by exact email match.
-     *
-     * @summary Gets users with exact email match.
+        /**
+     * @summary Retrieves users with exact email match.
      * @param email - Email to match exactly.
      * @returns List of users matching the exact email.
      */
+
     async getUserByEmailExact(email: string, options?: QueryOptions<SelectUser>): Promise<{ success: true; data: SanitizedUser[] } | { success: false; error: Resource }> {
         try {
             const normalized = email.trim().toLowerCase();
@@ -232,13 +243,12 @@ export class UserService {
         }
     }
 
-    /**
-     * Retrieves a user by exact email match.
-     *
-     * @summary Gets a single user by exact email.
+        /**
+     * @summary Retrieves a single user by exact email.
      * @param email - Email to match exactly.
      * @returns User record if found, or error if not.
      */
+
     async findUserByEmailExact(email: string): Promise<{ success: true; data: SanitizedUser } | { success: false; error: Resource }> {
         try {
             const normalized = email.trim().toLowerCase();
@@ -262,13 +272,12 @@ export class UserService {
         }
     }
 
-    /**
-     * Counts users matching an email term.
-     *
-     * @summary Gets count of users matching email pattern.
+        /**
+     * @summary Counts users matching email pattern.
      * @param emailTerm - Email search term.
      * @returns Count of matching users.
      */
+
     async countUsersByEmail(emailTerm: string): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.userRepository.count({
@@ -320,7 +329,7 @@ export class UserService {
     /**
      * Marks a user's email as verified.
      *
-     * @summary Sets emailVerifiedAt timestamp for the user.
+     * @summary Marks the user email as verified by setting the verification timestamp.
      * @param userId - User ID.
      * @returns Updated user or error.
      */
@@ -355,13 +364,12 @@ export class UserService {
         return { success: true, data: { id } };
     }
 
-    /**
-     * Finds a user by ID (internal method for compatibility).
-     *
-     * @summary Gets user by ID without sanitization.
+        /**
+     * @summary Retrieves user by ID without sanitization.
      * @param id - User ID.
      * @returns User record or error.
      */
+
     async findOne(id: number): Promise<{ success: true; data: UserEntity } | { success: false; error: Resource }> {
         const user = await this.userRepository.findById(id);
         if (!user) {

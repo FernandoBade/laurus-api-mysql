@@ -24,9 +24,7 @@ const DEFAULT_ERROR_BY_VALIDATION: Readonly<Record<NumericInputValidationError, 
     [NumericInputValidationError.GREATER_THAN_ZERO]: ResourceKey.VALUE_MUST_BE_GREATER_THAN_ZERO,
 };
 
-/**
- * @summary Formats integer display.
- */
+
 function formatIntegerDisplay(canonicalValue: string, language: IntegerInputProps["language"]): string {
     if (canonicalValue.trim().length === 0) {
         return "";
@@ -38,17 +36,13 @@ function formatIntegerDisplay(canonicalValue: string, language: IntegerInputProp
     });
 }
 
-/**
- * @summary Converts integer canonical.
- */
+
 function toIntegerCanonical(maskedValue: string, language: IntegerInputProps["language"]): string {
     const canonicalValue = maskedValueToCanonical(maskedValue, language, INTEGER_SCALE);
     return canonicalValue.split(".")[0] ?? canonicalValue;
 }
 
-/**
- * @summary Resolves validation error key.
- */
+
 function resolveValidationErrorKey(
     canonicalValue: string,
     props: Pick<IntegerInputProps, "required" | "min" | "max" | "validationResourceKeys">
@@ -66,9 +60,7 @@ function resolveValidationErrorKey(
     return props.validationResourceKeys?.[validationError] ?? DEFAULT_ERROR_BY_VALIDATION[validationError];
 }
 
-/**
- * @summary Creates value change.
- */
+
 function createValueChange(
     canonicalValue: string,
     displayValue: string,
@@ -82,10 +74,11 @@ function createValueChange(
 }
 
 /**
- * @summary Renders a locale-aware integer input with canonical digit output and typed validations.
+ * @summary Renders a locale-aware integer input that emits canonical digit values.
  * @param props Integer input configuration.
  * @returns Integer input component.
  */
+
 export function IntegerInput({
     canonicalValue,
     language,

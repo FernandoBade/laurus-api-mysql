@@ -20,6 +20,9 @@ interface ParsedLanguageRange {
     position: number;
 }
 
+/**
+ * @summary Parses q-factor values and clamps them to the valid Accept-Language quality range.
+ */
 function parseQuality(value: string): number {
     const parsed = Number.parseFloat(value);
     if (!Number.isFinite(parsed)) {
@@ -34,6 +37,9 @@ function parseQuality(value: string): number {
     return parsed;
 }
 
+/**
+ * @summary Parses a single Accept-Language range entry into normalized tag and quality metadata.
+ */
 function parseLanguageRange(range: string, position: number): ParsedLanguageRange | null {
     const trimmed = range.trim();
     if (!trimmed) {
@@ -63,6 +69,9 @@ function parseLanguageRange(range: string, position: number): ParsedLanguageRang
     };
 }
 
+/**
+ * @summary Parses and sorts Accept-Language ranges by quality and declaration order.
+ */
 function parseAcceptLanguage(value: string): ParsedLanguageRange[] {
     return value
         .split(',')
@@ -76,6 +85,9 @@ function parseAcceptLanguage(value: string): ParsedLanguageRange[] {
         });
 }
 
+/**
+ * @summary Resolves a requested language tag to a supported application locale.
+ */
 function resolveSupportedLanguage(tag: string): Language | null {
     if (tag === '*') {
         return DEFAULT_LANGUAGE;

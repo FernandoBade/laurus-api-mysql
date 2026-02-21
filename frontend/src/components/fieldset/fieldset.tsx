@@ -3,10 +3,11 @@ import type { FieldsetProps } from "@/components/fieldset/fieldset.types";
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Groups related form elements with optional legend and description.
+ * @summary Renders grouped form fields with legend and optional description.
  * @param props Fieldset configuration.
  * @returns Fieldset component.
  */
+
 export function Fieldset({ legend, description, children }: FieldsetProps): JSX.Element {
     return (
         <fieldset class="rounded-box border border-base-300 p-4">

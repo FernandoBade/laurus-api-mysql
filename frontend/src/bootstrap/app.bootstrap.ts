@@ -7,9 +7,10 @@ import { t } from "@/utils/i18n/translate";
 let bootstrapped = false;
 
 /**
- * @summary Initializes application runtime contracts before first render.
+ * @summary Initializes app stores and mounts the root Preact application.
  * @returns No return value.
  */
+
 export function bootstrapApp(): void {
     if (bootstrapped) {
         return;

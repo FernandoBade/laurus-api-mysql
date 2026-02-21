@@ -20,18 +20,17 @@ let state: AuthState = {
     accessToken: initialToken,
 };
 
-/**
- * @summary Notifies listeners about state listeners.
- */
+
 function notifyStateListeners(): void {
     authStateListeners.forEach((listener) => listener(state));
 }
 
 /**
- * @summary Marks session as authenticated and persists the access token.
+ * @summary Stores the access token and marks auth state as authenticated.
  * @param token Access token returned by auth endpoints.
  * @returns No return value.
  */
+
 export function setAuthenticated(token: string): void {
     state = {
         status: AuthStatus.AUTHENTICATED,
@@ -42,9 +41,10 @@ export function setAuthenticated(token: string): void {
 }
 
 /**
- * @summary Clears authentication state and removes persisted token.
+ * @summary Clears auth credentials and marks auth state as unauthenticated.
  * @returns No return value.
  */
+
 export function setUnauthenticated(): void {
     state = {
         status: AuthStatus.UNAUTHENTICATED,
@@ -55,9 +55,10 @@ export function setUnauthenticated(): void {
 }
 
 /**
- * @summary Marks auth state as refreshing while keeping current token snapshot.
+ * @summary Marks auth state as refreshing while token renewal is in progress.
  * @returns No return value.
  */
+
 export function setRefreshing(): void {
     state = {
         status: AuthStatus.REFRESHING,
@@ -67,34 +68,38 @@ export function setRefreshing(): void {
 }
 
 /**
- * @summary Reads current access token from in-memory auth state.
+ * @summary Returns the current access token snapshot.
  * @returns Access token or null when not authenticated.
  */
+
 export function getAccessToken(): string | null {
     return state.accessToken;
 }
 
 /**
- * @summary Checks whether the app is currently authenticated.
+ * @summary Returns whether current auth status is authenticated.
  * @returns True when user is authenticated with a token.
  */
+
 export function isAuthenticated(): boolean {
     return state.status === AuthStatus.AUTHENTICATED && state.accessToken !== null;
 }
 
 /**
- * @summary Reads the current auth lifecycle status.
+ * @summary Returns the current authentication status snapshot.
  * @returns Current authentication status enum.
  */
+
 export function getAuthStatus(): AuthStatus {
     return state.status;
 }
 
 /**
- * @summary Subscribes to auth state changes.
+ * @summary Subscribes to authentication state updates.
  * @param listener Callback invoked after auth state updates.
  * @returns Unsubscribe function for the provided listener.
  */
+
 export function subscribeAuthState(listener: AuthStateListener): () => void {
     authStateListeners.add(listener);
     return (): void => {
@@ -103,19 +108,21 @@ export function subscribeAuthState(listener: AuthStateListener): () => void {
 }
 
 /**
- * @summary Emits a typed auth event to registered listeners.
+ * @summary Broadcasts a typed authentication lifecycle event.
  * @param event Auth event value to dispatch.
  * @returns No return value.
  */
+
 export function emitAuthEvent(event: AuthEvent): void {
     authEventListeners.forEach((listener) => listener(event));
 }
 
 /**
- * @summary Subscribes to auth event dispatches.
+ * @summary Subscribes to authentication lifecycle events.
  * @param listener Callback invoked for each emitted auth event.
  * @returns Unsubscribe function for the provided listener.
  */
+
 export function subscribeAuthEvent(listener: AuthEventListener): () => void {
     authEventListeners.add(listener);
     return (): void => {

@@ -37,17 +37,13 @@ export interface FormatCanonicalDecimalOptions {
     readonly maximumFractionDigits?: number;
 }
 
-/**
- * @summary Normalizes integer part.
- */
+
 function normalizeIntegerPart(value: string): string {
     const trimmed = value.replace(/^0+(?=\d)/, "");
     return trimmed.length > 0 ? trimmed : "0";
 }
 
-/**
- * @summary Clamps fraction digits.
- */
+
 function clampFractionDigits(value: number | undefined, fallback: number): number {
     if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
         return fallback;
@@ -56,9 +52,7 @@ function clampFractionDigits(value: number | undefined, fallback: number): numbe
     return Math.min(Math.trunc(value), MAX_ALLOWED_FRACTION_DIGITS);
 }
 
-/**
- * @summary Parses canonical decimal parts.
- */
+
 function parseCanonicalDecimalParts(value: string): CanonicalDecimalParts | null {
     const trimmedValue = value.trim();
     if (!CANONICAL_DECIMAL_PATTERN.test(trimmedValue)) {
@@ -80,9 +74,7 @@ function parseCanonicalDecimalParts(value: string): CanonicalDecimalParts | null
     };
 }
 
-/**
- * @summary Normalizes canonical with fraction digits.
- */
+
 function normalizeCanonicalWithFractionDigits(
     canonicalValue: string,
     fractionDigits: number
@@ -106,10 +98,11 @@ function normalizeCanonicalWithFractionDigits(
 }
 
 /**
- * @summary Resolves the decimal separator for a locale used by numeric masks.
+ * @summary Returns the decimal separator used by the provided locale.
  * @param locale Locale used to parse user input.
  * @returns Locale decimal separator token (`.` or `,`).
  */
+
 export function getLocaleDecimalSeparator(locale: Language): DecimalSeparator {
     if (locale === Language.PT_BR || locale === Language.ES_ES) {
         return ",";
@@ -119,12 +112,13 @@ export function getLocaleDecimalSeparator(locale: Language): DecimalSeparator {
 }
 
 /**
- * @summary Parses a locale-formatted decimal string into sanitized display and canonical values.
+ * @summary Parses typed locale decimal input into sanitized display and canonical draft values.
  * @param input Raw typed input value.
  * @param locale Active locale for decimal separator behavior.
  * @param options Parser options with fraction truncation.
  * @returns Sanitized draft payload.
  */
+
 export function parseLocaleDecimalDraft(
     input: string,
     locale: Language,
@@ -213,12 +207,13 @@ export function parseLocaleDecimalDraft(
 }
 
 /**
- * @summary Parses locale decimal input into canonical decimal format.
+ * @summary Converts locale-formatted decimal input into canonical dot-decimal representation.
  * @param input Raw typed input value.
  * @param locale Active locale for decimal separator behavior.
  * @param options Parser options with fraction truncation.
  * @returns Canonical decimal string with dot separator or null when no digits exist.
  */
+
 export function parseLocaleDecimalToCanonical(
     input: string,
     locale: Language,
@@ -228,11 +223,12 @@ export function parseLocaleDecimalToCanonical(
 }
 
 /**
- * @summary Pads or truncates canonical decimals to an exact fraction size.
+ * @summary Normalizes a canonical decimal to an exact number of fraction digits.
  * @param value Canonical decimal value.
  * @param fractionDigits Target number of fraction digits.
  * @returns Canonical decimal with exact fraction length, or null when input is invalid.
  */
+
 export function toCanonicalWithFixedFraction(
     value: string,
     fractionDigits: number
@@ -241,21 +237,23 @@ export function toCanonicalWithFixedFraction(
 }
 
 /**
- * @summary Checks whether a value matches canonical decimal format.
+ * @summary Checks whether a value matches the canonical decimal format.
  * @param value Candidate decimal string.
  * @returns True when value is canonical.
  */
+
 export function isCanonicalDecimal(value: string): boolean {
     return parseCanonicalDecimalParts(value) !== null;
 }
 
 /**
- * @summary Formats canonical decimal strings using locale separators while preserving precision.
+ * @summary Formats canonical decimal values for display using locale-aware separators.
  * @param value Canonical decimal value.
  * @param locale Active locale.
  * @param options Optional minimum/maximum fraction constraints for display.
  * @returns Localized decimal display value.
  */
+
 export function formatCanonicalDecimal(
     value: string,
     locale: Language,
@@ -317,11 +315,12 @@ export function formatCanonicalDecimal(
 }
 
 /**
- * @summary Compares two canonical decimal values without float precision loss.
+ * @summary Compares two canonical decimal values without floating-point precision loss.
  * @param left Left canonical value.
  * @param right Right canonical value.
  * @returns 1 when left > right, -1 when left < right, 0 when equal, null when invalid input.
  */
+
 export function compareCanonicalDecimal(left: string, right: string): -1 | 0 | 1 | null {
     const leftParts = parseCanonicalDecimalParts(left);
     const rightParts = parseCanonicalDecimalParts(right);
@@ -347,11 +346,12 @@ export function compareCanonicalDecimal(left: string, right: string): -1 | 0 | 1
 }
 
 /**
- * @summary Validates canonical decimal values against required/min/max/greater-than-zero rules.
+ * @summary Validates canonical decimal values against required, range, and positivity rules.
  * @param value Canonical decimal value.
  * @param rules Validation rule set.
  * @returns Matching validation error code or null when valid.
  */
+
 export function validateCanonicalDecimal(
     value: string,
     rules: DecimalValidationRules

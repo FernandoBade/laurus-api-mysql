@@ -8,7 +8,7 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
-/** @summary Handles HTTP requests for tag resources. */
+/** @summary Orchestrates HTTP request flows for tag resource endpoints. */
 class TagController {
     /** @summary Creates a new tag using validated input. */
     static async createTag(req: Request, res: Response, next: NextFunction) {

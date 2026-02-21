@@ -17,6 +17,9 @@ export class AccountService {
         this.accountRepository = new AccountRepository();
     }
 
+        /**
+     * @summary Maps account rows to API entities with ISO timestamp serialization.
+     */
     private toAccountEntity(data: SelectAccount): AccountEntity {
         return {
             ...data,
@@ -57,13 +60,12 @@ export class AccountService {
         }
     }
 
-    /**
-     * Retrieves all financial accounts from the database.
-     *
-     * @summary Gets all accounts with optional pagination and sorting.
+        /**
+     * @summary Retrieves accounts with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all account records.
      */
+
     async getAccounts(options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: AccountEntity[] } | { success: false; error: Resource }> {
         try {
             const accounts = await this.accountRepository.findMany(undefined, {
@@ -78,12 +80,11 @@ export class AccountService {
         }
     }
 
-    /**
-     * Counts all financial accounts in the database.
-     *
-     * @summary Gets total count of accounts.
+        /**
+     * @summary Counts accounts.
      * @returns Total account count.
      */
+
     async countAccounts(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.accountRepository.count();
@@ -93,13 +94,12 @@ export class AccountService {
         }
     }
 
-    /**
-     * Retrieves a single account by its ID.
-     *
-     * @summary Gets an account by ID.
+        /**
+     * @summary Retrieves an account by ID.
      * @param id - ID of the account.
      * @returns Account record if found.
      */
+
     async getAccountById(id: number): Promise<{ success: true; data: AccountEntity } | { success: false; error: Resource }> {
         const account = await this.accountRepository.findById(id);
         if (!account) {
@@ -108,13 +108,12 @@ export class AccountService {
         return { success: true, data: this.toAccountEntity(account) };
     }
 
-    /**
-     * Retrieves all accounts associated with a given user ID.
-     *
-     * @summary Gets all accounts for a user.
+        /**
+     * @summary Retrieves accounts for a user.
      * @param userId - ID of the user.
      * @returns A list of accounts owned by the user.
      */
+
     async getAccountsByUser(userId: number, options?: QueryOptions<SelectAccount>): Promise<{ success: true; data: AccountEntity[] } | { success: false; error: Resource }> {
         try {
             const accounts = await this.accountRepository.findMany({
@@ -131,13 +130,12 @@ export class AccountService {
         }
     }
 
-    /**
-     * Counts accounts associated with a user.
-     *
-     * @summary Gets count of accounts for a user.
+        /**
+     * @summary Counts accounts for a user.
      * @param userId - User ID.
      * @returns Count of user's accounts.
      */
+
     async countAccountsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.accountRepository.count({

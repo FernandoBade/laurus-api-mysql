@@ -9,15 +9,14 @@ import { recordLoginFailure, recordRefreshFailure, resetLoginRateLimit, resetRef
 import { isString, isValidEmail, hasMinLength } from '../utils/validation/guards';
 
 export class AuthController {
-    /**
-     * Authenticates a user using email and password credentials.
-     * If valid, generates an access token and sets a token cookie for rotation.
-     *
+        /**
+     * @summary Authenticates user credentials and returns a fresh access token with refresh-cookie rotation.
      * @param req - Express request containing email and password.
      * @param res - Express response used to return the access token.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with access token or appropriate error.
      */
+
     static async login(req: Request, res: Response, next: NextFunction) {
         const email = (req.body?.email ?? '').toString().trim().toLowerCase();
         const password = req.body?.password as string | undefined;
@@ -79,15 +78,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Issues a new access token and rotates the token cookie.
-     * If the token is missing or invalid, responds with HTTP 401 Unauthorized.
-     *
+        /**
+     * @summary Validates the refresh cookie and rotates the session with a new access token.
      * @param req - Express request containing the token in cookies.
      * @param res - Express response used to return the new access token.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with new access token or appropriate error.
      */
+
     static async refresh(req: Request, res: Response, next: NextFunction) {
         const token = req.cookies?.[TokenCookie.name];
 
@@ -117,15 +115,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Logs out the user by removing the token from the database and clearing the cookie.
-     * Logs the operation and handles invalid or missing token cases gracefully.
-     *
+        /**
+     * @summary Revokes the active refresh session and clears authentication cookies.
      * @param req - Express request containing the token.
      * @param res - Express response confirming logout.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on successful logout or appropriate error.
      */
+
     static async logout(req: Request, res: Response, next: NextFunction) {
         const token = req.cookies?.[TokenCookie.name];
 
@@ -160,14 +157,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Verifies an email using a verification token.
-     *
+        /**
+     * @summary Validates an email verification token and activates the user email when applicable.
      * @param req - Express request containing the verification token.
      * @param res - Express response indicating verification result.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on success or appropriate error.
      */
+
     static async verifyEmail(req: Request, res: Response, next: NextFunction) {
         const token = req.body?.token;
 
@@ -194,14 +191,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Resends an email verification token.
-     *
+        /**
+     * @summary Requests a new email verification token respecting cooldown constraints.
      * @param req - Express request containing the email address.
      * @param res - Express response confirming request.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on success or appropriate error.
      */
+
     static async resendVerificationEmail(req: Request, res: Response, next: NextFunction) {
         const email = req.body?.email;
 
@@ -230,14 +227,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Requests a password reset token.
-     *
+        /**
+     * @summary Creates a password reset request for a valid user email.
      * @param req - Express request containing the email address.
      * @param res - Express response confirming request.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on success or appropriate error.
      */
+
     static async forgotPassword(req: Request, res: Response, next: NextFunction) {
         const email = req.body?.email;
 
@@ -261,14 +258,14 @@ export class AuthController {
         }
     }
 
-    /**
-     * Resets a password using a valid reset token.
-     *
+        /**
+     * @summary Consumes a password reset token and updates the user password.
      * @param req - Express request containing token and new password.
      * @param res - Express response indicating reset status.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 on success or appropriate error.
      */
+
     static async resetPassword(req: Request, res: Response, next: NextFunction) {
         const token = req.body?.token;
         const password = req.body?.password;

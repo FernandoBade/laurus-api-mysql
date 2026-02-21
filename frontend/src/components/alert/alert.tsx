@@ -60,10 +60,11 @@ const ALERT_DIRECTION_FALLBACK_CLASS_MAP: Record<AlertDirection, string> = {
 const RESPONSIVE_HORIZONTAL_MIN_WIDTH = 420;
 
 /**
- * @summary Renders a typed alert that supports DaisyUI style and layout options.
+ * @summary Renders status feedback with variant styling, iconography, and optional actions.
  * @param props Alert configuration.
  * @returns Alert component.
  */
+
 export function Alert({
     variant,
     style = AlertStyle.SOLID,

@@ -8,7 +8,7 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
-/** @summary Handles HTTP requests for account resources. */
+/** @summary Orchestrates HTTP request flows for account resource endpoints. */
 class AccountController {
     /** @summary Creates a new financial account using validated input.
      * Logs the result and returns the created account on success.

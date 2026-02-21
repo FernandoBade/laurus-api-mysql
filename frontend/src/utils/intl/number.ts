@@ -7,11 +7,12 @@ export interface FormatNumberInput {
 }
 
 /**
- * @summary Formats numeric values with a cached Intl.NumberFormat instance.
+ * @summary Formats numeric values using locale-specific grouping and fraction rules.
  * @param value Number or bigint value to format.
  * @param input Locale and optional Intl number format options.
  * @returns Localized numeric output.
  */
+
 export function formatNumber(value: number | bigint, input: FormatNumberInput): string {
     const formatter = getCachedNumberFormatter(input.locale, input.options);
     return formatter.format(value);

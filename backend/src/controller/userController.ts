@@ -13,6 +13,9 @@ import { translateResourceWithParams } from '../../../shared/i18n/resource.utils
 import { ALLOWED_IMAGE_MIME_TYPES } from '../../../shared/enums/upload.enums';
 import { UploadValidation } from '../utils/upload/upload.constants';
 
+/**
+ * @summary Checks whether the requester can access the target user resource.
+ */
 function canAccessRequestedUser(
     requester: Request['user'] | undefined,
     requestedUserId: number
@@ -77,14 +80,14 @@ class UserController {
         }
     }
 
-    /**
-     * Retrieves a list of all users in the database.
-     *
+        /**
+     * @summary Returns paginated users using query-based sorting and pagination metadata.
      * @param req - Express request object.
      * @param res - Express response returning the user list or an error.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with user array or appropriate error. May be empty.
      */
+
     static async getUsers(req: Request, res: Response, next: NextFunction) {
         const userService = new UserService();
 
@@ -113,15 +116,14 @@ class UserController {
         }
     }
 
-    /**
-     * Retrieves a specific user by ID.
-     * Validates ownership/admin access, then fetches the user.
-     *
+        /**
+     * @summary Returns a user by id after ownership or privileged-access checks.
      * @param req - Express request containing user ID in the URL.
      * @param res - Express response returning the user or an error.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with user data or appropriate error.
      */
+
     static async getUserById(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
         if (isNaN(userId) || userId <= 0) {
@@ -147,15 +149,14 @@ class UserController {
         }
     }
 
-    /**
-     * Searches users by partial email using a LIKE filter.
-     * Requires a minimum of 3 characters for the search term.
-     *
+        /**
+     * @summary Searches users by partial email and returns paginated results.
      * @param req - Express request with email in the query string.
      * @param res - Express response returning matched users.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with result set or appropriate error. May be empty.
      */
+
     static async getUsersByEmail(req: Request, res: Response, next: NextFunction) {
         const searchTerm = req.query.email as string;
 
@@ -232,15 +233,14 @@ class UserController {
         }
     }
 
-    /**
-     * Deletes a user by their unique ID.
-     * Validates the ID and logs the result upon successful deletion.
-     *
+        /**
+     * @summary Deletes a user by id and records an audit snapshot when available.
      * @param req - Express request with the ID of the user to delete.
      * @param res - Express response confirming deletion.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with deleted ID or appropriate error.
      */
+
     static async deleteUser(req: Request, res: Response, next: NextFunction) {
         const userId = Number(req.params.id);
 
@@ -273,15 +273,14 @@ class UserController {
         }
     }
 
-    /**
-     * Uploads an avatar image for the authenticated user.
-     * Validates file presence, type, and size before uploading.
-     *
+        /**
+     * @summary Validates avatar upload constraints and persists the user profile image URL.
      * @param req - Express request containing avatar file.
      * @param res - Express response with uploaded URL.
      * @param next - Express next function for error handling.
      * @returns HTTP 200 with avatar URL or appropriate error.
      */
+
     static async uploadAvatar(req: Request, res: Response, next: NextFunction) {
         const userId = req.user?.id;
         if (!userId) {

@@ -15,9 +15,7 @@ export interface FormatMoneyInput {
 
 const CANONICAL_NUMBER_PATTERN = /^-?\d+(?:\.\d+)?$/;
 
-/**
- * @summary Parses canonical decimal strings into sign, integer, and fraction parts.
- */
+
 function parseCanonicalNumber(value: string): ParsedCanonicalNumber | null {
     const normalizedValue = value.trim();
     if (!CANONICAL_NUMBER_PATTERN.test(normalizedValue)) {
@@ -35,9 +33,7 @@ function parseCanonicalNumber(value: string): ParsedCanonicalNumber | null {
     };
 }
 
-/**
- * @summary Resolves the locale decimal separator using Intl format parts.
- */
+
 function resolveDecimalSeparator(locale: Language): string {
     const parts = getCachedNumberFormatter(locale, {
         style: "decimal",
@@ -48,9 +44,7 @@ function resolveDecimalSeparator(locale: Language): string {
     return parts.find((part) => part.type === "decimal")?.value ?? ".";
 }
 
-/**
- * @summary Resolves minimum fraction digits from options or currency defaults.
- */
+
 function getDefaultMinimumFractionDigits(
     locale: Language,
     currency: Currency,
@@ -68,9 +62,7 @@ function getDefaultMinimumFractionDigits(
     }).resolvedOptions().minimumFractionDigits ?? 0;
 }
 
-/**
- * @summary Pads or preserves fractional digits according to minimum fraction requirements.
- */
+
 function buildFractionPart(fractionPart: string, minimumFractionDigits: number): string {
     if (fractionPart.length === 0 && minimumFractionDigits === 0) {
         return "";
@@ -83,9 +75,7 @@ function buildFractionPart(fractionPart: string, minimumFractionDigits: number):
     return fractionPart.padEnd(minimumFractionDigits, "0");
 }
 
-/**
- * @summary Formats only the integer/currency scaffold used for safe fraction injection.
- */
+
 function formatCurrencyIntegerParts(
     parsedValue: ParsedCanonicalNumber,
     input: FormatMoneyInput
@@ -105,9 +95,7 @@ function formatCurrencyIntegerParts(
     }).formatToParts(signedInteger);
 }
 
-/**
- * @summary Injects the computed fractional part into localized currency parts.
- */
+
 function injectFractionPart(
     parts: readonly Intl.NumberFormatPart[],
     fractionPart: string,
@@ -135,11 +123,12 @@ function injectFractionPart(
 }
 
 /**
- * @summary Formats canonical decimal strings as localized money values without float parsing.
+ * @summary Formats canonical monetary values using locale and currency preferences.
  * @param value Canonical decimal string (e.g. "1234.56").
  * @param input Locale/currency context and optional Intl overrides.
  * @returns Localized currency string or empty output for invalid input.
  */
+
 export function formatMoney(value: string, input: FormatMoneyInput): string {
     const parsedValue = parseCanonicalNumber(value);
     if (parsedValue === null) {

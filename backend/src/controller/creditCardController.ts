@@ -8,7 +8,7 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { parsePagination, buildMeta } from '../utils/pagination';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 
-/** @summary Handles HTTP requests for credit card resources. */
+/** @summary Orchestrates HTTP request flows for credit-card resource endpoints. */
 class CreditCardController {
     /** @summary Creates a credit card using validated input. */
     static async createCreditCard(req: Request, res: Response, next: NextFunction) {

@@ -39,44 +39,32 @@ interface PhoneMaskPattern {
     readonly separators: readonly string[];
 }
 
-/**
- * @summary Converts lib country code.
- */
+
 function toLibCountryCode(countryCode: CountryCode): LibCountryCode {
     return countryCode as LibCountryCode;
 }
 
-/**
- * @summary Returns whether digit.
- */
+
 function hasDigit(value: string): boolean {
     return /\d/.test(value);
 }
 
-/**
- * @summary Sanitize phone digits helper function.
- */
+
 function sanitizePhoneDigits(value: string): string {
     return value.replace(/\D/g, "");
 }
 
-/**
- * @summary Resolves country dial code.
- */
+
 function resolveCountryDialCode(countryCode: CountryCode): string {
     return PHONE_COUNTRY_OPTIONS.find((option) => option.code === countryCode)?.dialCode ?? "";
 }
 
-/**
- * @summary Resolves country placeholder.
- */
+
 function resolveCountryPlaceholder(countryCode: CountryCode): string {
     return PHONE_COUNTRY_OPTIONS.find((option) => option.code === countryCode)?.placeholderExample ?? "";
 }
 
-/**
- * @summary Resolves country max digits from shared.
- */
+
 function resolveCountryMaxDigitsFromShared(countryCode: CountryCode): number | null {
     const maxDigits = PHONE_COUNTRY_OPTIONS.find((option) => option.code === countryCode)?.maxDigits;
     if (typeof maxDigits !== "number" || Number.isNaN(maxDigits) || maxDigits <= 0) {
@@ -86,9 +74,7 @@ function resolveCountryMaxDigitsFromShared(countryCode: CountryCode): number | n
     return Math.trunc(maxDigits);
 }
 
-/**
- * @summary Builds phone mask pattern.
- */
+
 function buildPhoneMaskPattern(countryCode: CountryCode): PhoneMaskPattern | null {
     const placeholder = resolveCountryPlaceholder(countryCode);
     if (placeholder.length === 0) {
@@ -110,9 +96,7 @@ function buildPhoneMaskPattern(countryCode: CountryCode): PhoneMaskPattern | nul
     };
 }
 
-/**
- * @summary Formats digits by pattern.
- */
+
 function formatDigitsByPattern(digits: string, pattern: PhoneMaskPattern): string {
     if (digits.length === 0) {
         return "";
@@ -149,23 +133,17 @@ function formatDigitsByPattern(digits: string, pattern: PhoneMaskPattern): strin
     return output.trim();
 }
 
-/**
- * @summary Returns whether visible phone mask.
- */
+
 function hasVisiblePhoneMask(displayValue: string, digitsOnly: string): boolean {
     return displayValue.length > digitsOnly.length;
 }
 
-/**
- * @summary Returns whether stable as you type digits.
- */
+
 function hasStableAsYouTypeDigits(displayValue: string, digitsOnly: string): boolean {
     return sanitizePhoneDigits(displayValue) === digitsOnly;
 }
 
-/**
- * @summary Resolves country max national digits.
- */
+
 function resolveCountryMaxNationalDigits(countryCode: CountryCode): number {
     const sharedMaxDigits = resolveCountryMaxDigitsFromShared(countryCode);
     if (sharedMaxDigits !== null) {
@@ -187,9 +165,7 @@ function resolveCountryMaxNationalDigits(countryCode: CountryCode): number {
     return Math.max(maxDigits, 1);
 }
 
-/**
- * @summary Trims to country length.
- */
+
 function trimToCountryLength(value: string, countryCode: CountryCode): string {
     let boundedDigits = value;
 
@@ -209,9 +185,7 @@ function trimToCountryLength(value: string, countryCode: CountryCode): string {
     return boundedDigits;
 }
 
-/**
- * @summary Normalizes phone digits.
- */
+
 function normalizePhoneDigits(rawValue: string, countryCode: CountryCode): string {
     const digitsOnly = sanitizePhoneDigits(rawValue);
     if (digitsOnly.length === 0) {
@@ -229,9 +203,7 @@ function normalizePhoneDigits(rawValue: string, countryCode: CountryCode): strin
     return trimmedToMetadataLimit.slice(0, maxNationalDigits);
 }
 
-/**
- * @summary Gets validated e164.
- */
+
 function getValidatedE164(
     value: string,
     countryCode: CountryCode
@@ -245,18 +217,20 @@ function getValidatedE164(
 }
 
 /**
- * @summary Lists shared phone country options used by country selectors.
+ * @summary Returns available phone country metadata used by country selectors.
  * @returns Immutable phone country options list.
  */
+
 export function getPhoneCountryOptions(): readonly PhoneCountryOption[] {
     return PHONE_COUNTRY_OPTIONS;
 }
 
 /**
- * @summary Resolves dial code metadata for a country option.
+ * @summary Returns phone country metadata for a specific ISO country code.
  * @param countryCode ISO country code.
  * @returns Shared country option or undefined when not found.
  */
+
 export function getPhoneCountryOption(
     countryCode: CountryCode
 ): PhoneCountryOption | undefined {
@@ -264,20 +238,22 @@ export function getPhoneCountryOption(
 }
 
 /**
- * @summary Resolves default phone country from language preference.
+ * @summary Maps a language preference to its default phone country.
  * @param language Active user language.
  * @returns ISO country code used by phone parser and mask.
  */
+
 export function resolvePhoneCountryFromLanguage(language: Language): CountryCode {
     return COUNTRY_BY_LANGUAGE[language] ?? DEFAULT_PHONE_COUNTRY;
 }
 
 /**
- * @summary Formats phone typing progressively and emits canonical E.164 when valid.
+ * @summary Formats typed phone digits and emits canonical E.164 when the number is valid.
  * @param rawValue Raw typed value.
  * @param countryCode Selected country code.
  * @returns Display value and canonical E.164 when valid.
  */
+
 export function parsePhoneDraft(
     rawValue: string,
     countryCode: CountryCode
@@ -309,11 +285,12 @@ export function parsePhoneDraft(
 }
 
 /**
- * @summary Normalizes phone value on blur and keeps canonical E.164 only when valid.
+ * @summary Normalizes phone input into display and canonical forms with validity metadata.
  * @param value Input value to normalize.
  * @param countryCode Selected country code.
  * @returns Normalized display/canonical payload with validity flags.
  */
+
 export function normalizePhoneValue(
     value: string,
     countryCode: CountryCode
@@ -376,10 +353,11 @@ export function normalizePhoneValue(
 }
 
 /**
- * @summary Reprocesses display/canonical values when phone country changes.
+ * @summary Recomputes phone display and canonical values when the selected country changes.
  * @param input Existing display/canonical pair and next country code.
  * @returns Reprocessed display/canonical values for the new country.
  */
+
 export function reprocessPhoneCountry(input: {
     readonly displayValue: string;
     readonly canonicalValue: string;
@@ -398,10 +376,11 @@ export function reprocessPhoneCountry(input: {
 }
 
 /**
- * @summary Validates phone display/canonical values against required, invalid, and incomplete states.
+ * @summary Validates phone input for required, invalid, and incomplete scenarios.
  * @param input Display/canonical values and validation context.
  * @returns Validation error code or null when valid.
  */
+
 export function validatePhoneValue(input: {
     readonly displayValue: string;
     readonly canonicalValue: string;
@@ -460,20 +439,22 @@ export function validatePhoneValue(input: {
 }
 
 /**
- * @summary Returns the locale-country maximum national digit count based on libphonenumber metadata.
+ * @summary Returns the maximum national digit length configured for a country.
  * @param countryCode Selected country code.
  * @returns Maximum digits accepted for national numbers in that country.
  */
+
 export function getPhoneMaxNationalDigits(countryCode: CountryCode): number {
     return resolveCountryMaxNationalDigits(countryCode);
 }
 
 /**
- * @summary Normalizes raw phone input into bounded national digits for the selected country.
+ * @summary Sanitizes raw phone input and enforces the country national digit limit.
  * @param rawValue User-provided value (typed or pasted).
  * @param countryCode Selected country code.
  * @returns Sanitized national digits limited by metadata.
  */
+
 export function normalizePhoneInputDigits(rawValue: string, countryCode: CountryCode): string {
     return normalizePhoneDigits(rawValue, countryCode);
 }

@@ -5,11 +5,12 @@ import { request } from "@/api/http/httpClient";
 import type { ApiResponse } from "@/api/http/httpTypes";
 
 /**
- * @summary Authenticates the user with email and password credentials.
+ * @summary Calls the authentication login endpoint with user credentials.
  * @param email User email.
  * @param password User password.
  * @returns API response containing access token when successful.
  */
+
 export async function login(email: string, password: string): Promise<ApiResponse<LoginOutput>> {
   const payload: LoginInput = { email, password };
 
@@ -23,9 +24,10 @@ export async function login(email: string, password: string): Promise<ApiRespons
 }
 
 /**
- * @summary Requests a refreshed access token using the refresh cookie session.
+ * @summary Requests a fresh access token using the server refresh session.
  * @returns API response containing a new access token when successful.
  */
+
 export async function refresh(): Promise<ApiResponse<RefreshOutput>> {
   return request<RefreshOutput>(ApiRoutePath.AUTH_REFRESH, {
     method: HttpMethod.POST,
@@ -36,9 +38,10 @@ export async function refresh(): Promise<ApiResponse<RefreshOutput>> {
 }
 
 /**
- * @summary Invalidates the active session in the backend.
+ * @summary Calls the logout endpoint to invalidate the current server session.
  * @returns API response for logout operation.
  */
+
 export async function logout(): Promise<ApiResponse<unknown>> {
   return request<unknown>(ApiRoutePath.AUTH_LOGOUT, {
     method: HttpMethod.POST,

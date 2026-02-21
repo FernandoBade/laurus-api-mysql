@@ -17,10 +17,16 @@ import type { CreateTransactionInput, UpdateTransactionInput } from '../../../..
 import type { CreateUserInput, UpdateUserInput } from '../../../../shared/domains/user/user.types';
 import { translateResource, translateResourceWithParams } from '../../../../shared/i18n/resource.utils';
 
+/**
+ * @summary Detects string values that are empty after trimming whitespace.
+ */
 function isBlankString(value: unknown): boolean {
     return typeof value === 'string' && value.trim().length === 0;
 }
 
+/**
+ * @summary Normalizes localized monetary text into canonical dot-decimal numeric format.
+ */
 function normalizeMonetaryInput(value: string): string {
     const trimmed = value.trim();
     const cleaned = trimmed.replace(/\s+/g, '');
@@ -43,6 +49,9 @@ function normalizeMonetaryInput(value: string): string {
     return normalized;
 }
 
+/**
+ * @summary Normalizes unknown monetary inputs into canonical string values when possible.
+ */
 function normalizeMonetaryValue(value: unknown): string | undefined {
     if (typeof value === 'number' && Number.isFinite(value)) {
         return String(value);
@@ -53,6 +62,9 @@ function normalizeMonetaryValue(value: unknown): string | undefined {
     return normalizeMonetaryInput(value);
 }
 
+/**
+ * @summary Validates that canonical monetary input does not represent a negative value.
+ */
 function isMonetaryNonNegative(value: string): boolean {
     const trimmed = value.trim();
     if (trimmed.startsWith('-')) {
@@ -61,6 +73,9 @@ function isMonetaryNonNegative(value: string): boolean {
     return true;
 }
 
+/**
+ * @summary Validates that canonical monetary input represents a value strictly above zero.
+ */
 function isMonetaryGreaterThanZero(value: string): boolean {
     const trimmed = value.trim();
     if (trimmed.startsWith('-')) {

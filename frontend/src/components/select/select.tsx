@@ -16,10 +16,11 @@ const iconPlacementMap: Record<IconPosition, string> = {
 };
 
 /**
- * @summary Renders a typed select input with translated labels/options.
+ * @summary Renders a typed select field with placeholder, icon, and validation support.
  * @param props Select configuration.
  * @returns Select field component.
  */
+
 export function Select({
     label,
     placeholder,

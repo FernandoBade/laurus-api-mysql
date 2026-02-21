@@ -5,10 +5,11 @@ import type { CollapseProps } from "@/components/collapse/collapse.types";
 import { classNames } from "@/utils/classNames";
 
 /**
- * @summary Renders a reusable animated collapse with controlled open state.
+ * @summary Renders an accessible collapsible surface with animated content expansion.
  * @param props Collapse configuration.
  * @returns Collapse component.
  */
+
 export function Collapse({
     id,
     title,

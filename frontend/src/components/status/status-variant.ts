@@ -18,19 +18,21 @@ const statusVariantIconMap: Record<StatusVariant, IconName> = {
 };
 
 /**
- * @summary Resolves DaisyUI status alert class for alert/toast variants.
+ * @summary Maps a status variant to the corresponding semantic CSS class token.
  * @param variant Typed status variant.
  * @returns DaisyUI variant class name.
  */
+
 export function getStatusVariantClass(variant: StatusVariant): string {
     return statusVariantClassMap[variant];
 }
 
 /**
- * @summary Resolves semantic status icon for alert/toast variants.
+ * @summary Maps a status variant to the corresponding icon name.
  * @param variant Typed status variant.
  * @returns Semantic icon enum.
  */
+
 export function getStatusVariantIcon(variant: StatusVariant): IconName {
     return statusVariantIconMap[variant];
 }

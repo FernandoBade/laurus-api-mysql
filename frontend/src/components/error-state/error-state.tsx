@@ -8,10 +8,11 @@ import type { ErrorStateProps } from "@/components/error-state/error-state.types
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Renders a reusable translated error-state block.
+ * @summary Renders standardized error messaging with optional recovery action.
  * @param props Error-state configuration.
  * @returns Error-state component.
  */
+
 export function ErrorState({
     title,
     description,

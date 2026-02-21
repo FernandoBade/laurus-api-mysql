@@ -12,10 +12,11 @@ const positionMap: Record<TooltipPosition, string> = {
 };
 
 /**
- * @summary Wraps content with a typed DaisyUI tooltip.
+ * @summary Renders contextual tooltip content around an interactive trigger.
  * @param props Tooltip configuration.
  * @returns Tooltip wrapper.
  */
+
 export function Tooltip({ content, position = TooltipPosition.TOP, children }: TooltipProps): JSX.Element {
     return (
         <div class={classNames("tooltip font-ui text-tooltip", positionMap[position])} data-tip={t(content)}>

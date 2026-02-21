@@ -2,10 +2,11 @@ import type { JSX } from "preact";
 import type { FormProps } from "@/components/form/form.types";
 
 /**
- * @summary Wraps native form behavior with typed submit orchestration.
+ * @summary Wraps form submission and delegates submit handling without page reload.
  * @param props Form configuration.
  * @returns Form component.
  */
+
 export function Form({
     children,
     onSubmit,

@@ -9,17 +9,13 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 let toasts: ToastItem[] = [];
 
-/**
- * @summary Notifies listeners about listeners.
- */
+
 function notifyListeners(): void {
     const snapshot = [...toasts];
     listeners.forEach((listener) => listener(snapshot));
 }
 
-/**
- * @summary Clears timer.
- */
+
 function clearTimer(id: string): void {
     const timer = timers.get(id);
     if (!timer) {
@@ -30,9 +26,7 @@ function clearTimer(id: string): void {
     timers.delete(id);
 }
 
-/**
- * @summary Schedules toast removal.
- */
+
 function scheduleToastRemoval(item: ToastItem): void {
     const duration = item.durationMs ?? DEFAULT_TOAST_DURATION_MS;
 
@@ -48,18 +42,20 @@ function scheduleToastRemoval(item: ToastItem): void {
 }
 
 /**
- * @summary Returns a snapshot of active toasts.
+ * @summary Returns the current toast queue snapshot.
  * @returns Active toast list.
  */
+
 export function getToasts(): readonly ToastItem[] {
     return [...toasts];
 }
 
 /**
- * @summary Adds a toast to UI state and schedules auto-removal.
+ * @summary Appends a toast to the queue and schedules auto-dismiss when configured.
  * @param payload Toast payload.
  * @returns Generated toast identifier.
  */
+
 export function pushToast(payload: ToastPayload): string {
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     const item: ToastItem = { id, ...payload };
@@ -72,10 +68,11 @@ export function pushToast(payload: ToastPayload): string {
 }
 
 /**
- * @summary Removes a toast by identifier.
+ * @summary Removes a toast by id and clears its pending timer.
  * @param id Toast identifier.
  * @returns No return value.
  */
+
 export function removeToast(id: string): void {
     clearTimer(id);
     toasts = toasts.filter((toast) => toast.id !== id);
@@ -83,9 +80,10 @@ export function removeToast(id: string): void {
 }
 
 /**
- * @summary Clears all toasts and pending timers.
+ * @summary Clears all toasts and cancels their scheduled timers.
  * @returns No return value.
  */
+
 export function clearToasts(): void {
     timers.forEach((timer) => clearTimeout(timer));
     timers.clear();
@@ -94,10 +92,11 @@ export function clearToasts(): void {
 }
 
 /**
- * @summary Subscribes to toast state updates.
+ * @summary Subscribes to toast queue state updates.
  * @param listener Listener called with the latest toast list.
  * @returns Unsubscribe callback.
  */
+
 export function subscribeToasts(listener: ToastListener): () => void {
     listeners.add(listener);
     listener([...toasts]);

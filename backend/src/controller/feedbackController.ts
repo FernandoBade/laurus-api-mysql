@@ -13,9 +13,15 @@ import { translateResourceWithParams } from '../../../shared/i18n/resource.utils
 import { ALLOWED_AUDIO_MIME_TYPES, ALLOWED_IMAGE_MIME_TYPES } from '../../../shared/enums/upload.enums';
 import { UploadValidation } from '../utils/upload/upload.constants';
 
+/**
+ * @summary Normalizes the multer files payload into a field-to-files map.
+ */
 const getFileMap = (files: Request['files']) =>
     files as Record<string, Express.Multer.File[]> | undefined;
 
+/**
+ * @summary Validates optional feedback attachment MIME types and returns field-level errors.
+ */
 const validateAttachmentTypes = (
     imageFile: Express.Multer.File | undefined,
     audioFile: Express.Multer.File | undefined,
@@ -52,6 +58,9 @@ const validateAttachmentTypes = (
     return errors;
 };
 
+/**
+ * @summary Maps a multer file into email attachment payload expected by the sender layer.
+ */
 const mapAttachment = (
     file: Express.Multer.File | undefined
 ): FeedbackAttachmentInput | undefined => {
@@ -66,6 +75,9 @@ const mapAttachment = (
 };
 
 class FeedbackController {
+        /**
+     * @summary Validates feedback input and dispatches support email delivery for the authenticated user.
+     */
     static async sendFeedback(req: Request, res: Response, next: NextFunction) {
         const feedbackService = new FeedbackService();
         const userService = new UserService();

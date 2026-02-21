@@ -19,6 +19,9 @@ export class CreditCardService {
         this.creditCardRepository = new CreditCardRepository();
     }
 
+        /**
+     * @summary Maps credit-card rows to API entities with ISO timestamp serialization.
+     */
     private toCreditCardEntity(data: SelectCreditCard): CreditCardEntity {
         return {
             ...data,
@@ -74,13 +77,12 @@ export class CreditCardService {
         }
     }
 
-    /**
-     * Retrieves all credit cards.
-     *
-     * @summary Gets all credit cards with optional pagination and sorting.
+        /**
+     * @summary Retrieves credit cards with optional pagination and sorting.
      * @param options - Query options for pagination and sorting.
      * @returns A list of all credit cards.
      */
+
     async getCreditCards(options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: CreditCardEntity[] } | { success: false; error: Resource }> {
         try {
             const creditCards = await this.creditCardRepository.findMany(undefined, {
@@ -95,12 +97,11 @@ export class CreditCardService {
         }
     }
 
-    /**
-     * Counts all credit cards.
-     *
-     * @summary Gets total count of credit cards.
+        /**
+     * @summary Counts credit cards.
      * @returns Total credit card count.
      */
+
     async countCreditCards(): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.creditCardRepository.count();
@@ -110,13 +111,12 @@ export class CreditCardService {
         }
     }
 
-    /**
-     * Retrieves a credit card by its ID.
-     *
-     * @summary Gets a credit card by ID.
+        /**
+     * @summary Retrieves a credit card by ID.
      * @param id - ID of the credit card.
      * @returns Credit card record if found.
      */
+
     async getCreditCardById(id: number): Promise<{ success: true; data: CreditCardEntity } | { success: false; error: Resource }> {
         const creditCard = await this.creditCardRepository.findById(id);
         if (!creditCard) {
@@ -125,13 +125,12 @@ export class CreditCardService {
         return { success: true, data: this.toCreditCardEntity(creditCard) };
     }
 
-    /**
-     * Retrieves all credit cards for a user.
-     *
-     * @summary Gets all credit cards for a user.
+        /**
+     * @summary Retrieves credit cards for a user.
      * @param userId - User ID.
      * @returns A list of credit cards owned by the user.
      */
+
     async getCreditCardsByUser(userId: number, options?: QueryOptions<SelectCreditCard>): Promise<{ success: true; data: CreditCardEntity[] } | { success: false; error: Resource }> {
         try {
             const creditCards = await this.creditCardRepository.findMany({
@@ -148,13 +147,12 @@ export class CreditCardService {
         }
     }
 
-    /**
-     * Counts credit cards for a user.
-     *
-     * @summary Gets count of credit cards for a user.
+        /**
+     * @summary Counts credit cards for a user.
      * @param userId - User ID.
      * @returns Count of user's credit cards.
      */
+
     async countCreditCardsByUser(userId: number): Promise<{ success: true; data: number } | { success: false; error: Resource }> {
         try {
             const count = await this.creditCardRepository.count({

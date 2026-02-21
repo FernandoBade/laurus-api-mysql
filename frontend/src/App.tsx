@@ -4,8 +4,9 @@ import { AppRouter } from "@/routes/router";
 import { subscribeLocale } from "@/state/locale.store";
 
 /**
- * @summary Renders the root application component.
+ * @summary Mounts global listeners and renders the application router.
  */
+
 export function App() {
   const [, setLocaleVersion] = useState<number>(0);
 

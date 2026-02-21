@@ -9,10 +9,11 @@ const columnMap: Record<FormGridColumns, string> = {
 };
 
 /**
- * @summary Provides a mobile-first responsive grid for form controls.
+ * @summary Renders responsive form field grids using typed column presets.
  * @param props Grid configuration.
  * @returns Grid container.
  */
+
 export function FormGrid({ columns = 2, children }: FormGridProps): JSX.Element {
     return <div class={classNames("grid grid-cols-1 gap-4", columnMap[columns])}>{children}</div>;
 }

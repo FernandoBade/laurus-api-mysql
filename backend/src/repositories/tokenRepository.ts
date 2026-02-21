@@ -178,7 +178,7 @@ export class TokenRepository {
     /**
      * Marks a token as revoked when it has already been rotated.
      *
-     * @summary Sets the revokedAt timestamp for a token.
+     * @summary Marks a token as revoked by writing its revokedAt timestamp.
      * @param tokenId - Token ID to revoke.
      * @param revokedAt - Timestamp to store.
      * @returns Total rows affected.

@@ -12,6 +12,9 @@ import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 // #endregion Imports
 
+/**
+ * @summary Parses comma-separated query values into a positive numeric ID list.
+ */
 const parseIdList = (value: unknown): number[] => {
     if (!value) {
         return [];
@@ -23,6 +26,9 @@ const parseIdList = (value: unknown): number[] => {
         .filter((item) => !Number.isNaN(item) && item > 0);
 };
 
+/**
+ * @summary Parses date query values and returns null for invalid date inputs.
+ */
 const parseDateParam = (value: unknown): Date | null => {
     if (!value) {
         return null;
@@ -34,7 +40,7 @@ const parseDateParam = (value: unknown): Date | null => {
     return date;
 };
 
-/** @summary Handles HTTP requests for transaction resources. */
+/** @summary Orchestrates HTTP request flows for transaction resource endpoints. */
 class TransactionController {
     /** @summary Creates a new transaction using validated input from the request body.
      * Logs the result and returns the created transaction on success.

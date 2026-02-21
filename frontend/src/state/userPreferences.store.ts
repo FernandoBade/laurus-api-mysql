@@ -35,16 +35,12 @@ let state: UserPreferencesState = {
     currency: DEFAULT_CURRENCY,
 };
 
-/**
- * @summary Returns whether language.
- */
+
 function isLanguage(value: unknown): value is Language {
     return value === Language.EN_US || value === Language.ES_ES || value === Language.PT_BR;
 }
 
-/**
- * @summary Returns whether currency.
- */
+
 function isCurrency(value: unknown): value is Currency {
     return (
         value === Currency.ARS
@@ -55,9 +51,7 @@ function isCurrency(value: unknown): value is Currency {
     );
 }
 
-/**
- * @summary Returns whether user preferences state.
- */
+
 function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     if (typeof value !== "object" || value === null) {
         return false;
@@ -67,9 +61,7 @@ function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     return isLanguage(candidate.language) && isCurrency(candidate.currency);
 }
 
-/**
- * @summary Resolves language from locale tag.
- */
+
 function resolveLanguageFromLocaleTag(localeTag: string): Language {
     const normalizedTag = localeTag.trim().toLowerCase();
     const supportedLanguageList = Object.values(Language) as readonly Language[];
@@ -89,9 +81,7 @@ function resolveLanguageFromLocaleTag(localeTag: string): Language {
     return prefixMatch ?? DEFAULT_LANGUAGE;
 }
 
-/**
- * @summary Resolves browser language.
- */
+
 function resolveBrowserLanguage(): Language {
     if (typeof navigator === "undefined") {
         return DEFAULT_LANGUAGE;
@@ -100,9 +90,7 @@ function resolveBrowserLanguage(): Language {
     return resolveLanguageFromLocaleTag(navigator.language);
 }
 
-/**
- * @summary Loads persisted preferences.
- */
+
 function loadPersistedPreferences(): UserPreferencesState | null {
     const persisted = storage.get<unknown>(StorageKey.USER_PREFERENCES);
     if (!isUserPreferencesState(persisted)) {
@@ -112,9 +100,7 @@ function loadPersistedPreferences(): UserPreferencesState | null {
     return persisted;
 }
 
-/**
- * @summary Applies language to document.
- */
+
 function applyLanguageToDocument(language: Language): void {
     if (typeof document === "undefined") {
         return;
@@ -123,38 +109,28 @@ function applyLanguageToDocument(language: Language): void {
     document.documentElement.setAttribute("lang", language);
 }
 
-/**
- * @summary Persist preferences helper function.
- */
+
 function persistPreferences(): void {
     storage.set<UserPreferencesState>(StorageKey.USER_PREFERENCES, state);
 }
 
-/**
- * @summary Gets state snapshot.
- */
+
 function getStateSnapshot(): UserPreferencesState {
     return { ...state };
 }
 
-/**
- * @summary Notifies listeners about listeners.
- */
+
 function notifyListeners(): void {
     const snapshot = getStateSnapshot();
     listeners.forEach((listener) => listener(snapshot));
 }
 
-/**
- * @summary Are preferences equal helper function.
- */
+
 function arePreferencesEqual(left: UserPreferencesState, right: UserPreferencesState): boolean {
     return left.language === right.language && left.currency === right.currency;
 }
 
-/**
- * @summary Applies state.
- */
+
 function applyState(nextState: UserPreferencesState, notify: boolean): void {
     const shouldNotify = notify && !arePreferencesEqual(state, nextState);
     state = nextState;
@@ -165,9 +141,7 @@ function applyState(nextState: UserPreferencesState, notify: boolean): void {
     }
 }
 
-/**
- * @summary Decodes base64 url.
- */
+
 function decodeBase64Url(base64UrlValue: string): string | null {
     if (typeof globalThis.atob !== "function") {
         return null;
@@ -184,9 +158,7 @@ function decodeBase64Url(base64UrlValue: string): string | null {
     }
 }
 
-/**
- * @summary Reads access token user id.
- */
+
 function readAccessTokenUserId(token: string): number | null {
     const tokenParts = token.split(".");
     if (tokenParts.length < 2) {
@@ -211,9 +183,7 @@ function readAccessTokenUserId(token: string): number | null {
     }
 }
 
-/**
- * @summary Reconcile preferences helper function.
- */
+
 function reconcilePreferences(
     backendPreferences: UserPreferencesSnapshot
 ): UserPreferencesState {
@@ -223,9 +193,7 @@ function reconcilePreferences(
     };
 }
 
-/**
- * @summary Resolves authenticated user id.
- */
+
 function resolveAuthenticatedUserId(): number | null {
     const accessToken = getAccessToken();
     if (typeof accessToken !== "string" || accessToken.length === 0) {
@@ -252,9 +220,7 @@ async function hydrateFromBackend(userId: number, reconciliationSequence: number
     applyState(reconcilePreferences(backendPreferences), true);
 }
 
-/**
- * @summary Applies logged out preferences.
- */
+
 function applyLoggedOutPreferences(): void {
     const fallbackPreferences: UserPreferencesState = {
         language: resolveBrowserLanguage(),
@@ -288,9 +254,7 @@ async function handleAuthStateTransition(): Promise<void> {
     persistPreferences();
 }
 
-/**
- * @summary Ensures auth state subscription.
- */
+
 function ensureAuthStateSubscription(): void {
     if (authSubscriptionInitialized) {
         return;
@@ -330,9 +294,10 @@ async function runInitialization(): Promise<void> {
 }
 
 /**
- * @summary Initializes language/currency preferences from storage and authenticated backend state.
+ * @summary Initializes user preference state from storage, browser locale, and auth context.
  * @returns Promise resolved when hydration and reconciliation finish.
  */
+
 export async function initializeUserPreferencesStore(): Promise<void> {
     if (initialized) {
         return;
@@ -350,34 +315,38 @@ export async function initializeUserPreferencesStore(): Promise<void> {
 }
 
 /**
- * @summary Returns an immutable snapshot of current user preferences.
+ * @summary Returns the current user preference snapshot.
  * @returns Current language and currency values.
  */
+
 export function getUserPreferences(): UserPreferencesState {
     return getStateSnapshot();
 }
 
 /**
- * @summary Reads the active locale derived from user language preference.
+ * @summary Returns the effective locale from user preferences.
  * @returns Active locale enum value.
  */
+
 export function getUserLocale(): Language {
     return state.language;
 }
 
 /**
- * @summary Reads the active currency preference.
+ * @summary Returns the effective currency from user preferences.
  * @returns Active currency enum value.
  */
+
 export function getUserCurrency(): Currency {
     return state.currency;
 }
 
 /**
- * @summary Applies a partial preferences patch, synchronizes `<html lang>`, persists, and notifies.
+ * @summary Merges and persists user preference updates.
  * @param patch Partial preference values to merge into current state.
  * @returns No return value.
  */
+
 export function setUserPreferences(patch: Partial<UserPreferencesState>): void {
     const nextState: UserPreferencesState = {
         language: patch.language ?? state.language,
@@ -393,10 +362,11 @@ export function setUserPreferences(patch: Partial<UserPreferencesState>): void {
 }
 
 /**
- * @summary Subscribes to preference updates and emits current snapshot immediately.
+ * @summary Subscribes to user preference state updates.
  * @param listener Callback executed after every preference transition.
  * @returns Unsubscribe function for the provided listener.
  */
+
 export function subscribeUserPreferences(listener: UserPreferencesListener): () => void {
     listeners.add(listener);
     listener(getStateSnapshot());

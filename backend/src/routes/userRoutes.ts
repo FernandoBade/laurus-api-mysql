@@ -13,6 +13,9 @@ const avatarUpload = multer({
     limits: { fileSize: UploadValidation.MAX_FILE_SIZE_BYTES },
 });
 
+/**
+ * @summary Applies avatar upload parsing and normalizes multer failures for API responses.
+ */
 const handleAvatarUpload = (req: Request, res: Response, next: NextFunction) => {
     avatarUpload.single('avatar')(req, res, (error: unknown) => {
         const handled = handleMulterUploadError(req, res, error, {

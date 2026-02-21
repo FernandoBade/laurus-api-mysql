@@ -6,9 +6,7 @@ import type { PaginationProps } from "@/components/pagination/pagination.types";
 
 type PaginationItem = number | "ellipsis-start" | "ellipsis-end";
 
-/**
- * @summary Gets pagination items.
- */
+
 function getPaginationItems(currentPage: number, totalPages: number): readonly PaginationItem[] {
     if (totalPages <= 7) {
         return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -37,10 +35,11 @@ function getPaginationItems(currentPage: number, totalPages: number): readonly P
 }
 
 /**
- * @summary Renders generic pagination controls.
+ * @summary Renders page navigation controls for bounded page ranges.
  * @param props Pagination configuration.
  * @returns Pagination component.
  */
+
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps): JSX.Element | null {
     if (totalPages <= 1) {
         return null;

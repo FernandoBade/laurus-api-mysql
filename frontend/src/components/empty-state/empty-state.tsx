@@ -8,10 +8,11 @@ import type { EmptyStateProps } from "@/components/empty-state/empty-state.types
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Renders a reusable empty-state block.
+ * @summary Renders a reusable empty-state block with optional action.
  * @param props Empty state configuration.
  * @returns Empty state component.
  */
+
 export function EmptyState({
     title,
     description,

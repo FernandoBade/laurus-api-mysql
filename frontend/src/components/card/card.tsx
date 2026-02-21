@@ -4,10 +4,11 @@ import { classNames } from "@/utils/classNames";
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Renders a reusable DaisyUI card container.
+ * @summary Renders a semantic card container with optional heading and compact mode.
  * @param props Card configuration.
  * @returns Card component.
  */
+
 export function Card({ title, description, children, compact = false }: CardProps): JSX.Element {
     return (
         <article class="card overflow-hidden border border-base-300 bg-base-100 shadow-sm">

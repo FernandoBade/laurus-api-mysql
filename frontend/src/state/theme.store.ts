@@ -5,32 +5,27 @@ import { storage } from "@/platform/storage/storage";
 let currentTheme: Theme = Theme.LIGHT;
 let initialized = false;
 
-/**
- * @summary Returns whether theme.
- */
+
 function isTheme(value: string | null): value is Theme {
     return value === Theme.LIGHT || value === Theme.DARK;
 }
 
-/**
- * @summary Applies theme.
- */
+
 function applyTheme(theme: Theme): void {
     document.documentElement.setAttribute("data-theme", theme);
 }
 
-/**
- * @summary Loads persisted theme.
- */
+
 function loadPersistedTheme(): Theme {
     const value = storage.get<string>(StorageKey.THEME);
     return isTheme(value) ? value : Theme.LIGHT;
 }
 
 /**
- * @summary Initializes theme state from persisted storage and applies it to the document root.
+ * @summary Loads persisted theme and applies it to the document root.
  * @returns No return value.
  */
+
 export function initializeThemeStore(): void {
     if (initialized || typeof window === "undefined") {
         return;
@@ -42,18 +37,20 @@ export function initializeThemeStore(): void {
 }
 
 /**
- * @summary Reads the currently active application theme.
+ * @summary Returns the current UI theme from store state.
  * @returns Active theme mode.
  */
+
 export function getTheme(): Theme {
     return currentTheme;
 }
 
 /**
- * @summary Applies and persists a new application theme.
+ * @summary Persists and applies the requested UI theme.
  * @param theme Target theme mode.
  * @returns No return value.
  */
+
 export function setTheme(theme: Theme): void {
     currentTheme = theme;
     applyTheme(theme);
@@ -61,9 +58,10 @@ export function setTheme(theme: Theme): void {
 }
 
 /**
- * @summary Toggles between light and dark themes.
+ * @summary Switches between light and dark theme values.
  * @returns No return value.
  */
+
 export function toggleTheme(): void {
     const nextTheme = currentTheme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT;
     setTheme(nextTheme);

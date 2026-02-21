@@ -10,10 +10,11 @@ const sizeMap: Record<LoaderSize, string> = {
 };
 
 /**
- * @summary Renders a reusable loading spinner.
+ * @summary Renders the shared loading indicator in configured sizes.
  * @param props Loader configuration.
  * @returns Loader spinner.
  */
+
 export function Loader({ size = LoaderSize.MD }: LoaderProps): JSX.Element {
     return <span class={classNames("loading loading-spinner", sizeMap[size])} aria-hidden="true" />;
 }

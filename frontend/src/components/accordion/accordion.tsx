@@ -4,26 +4,23 @@ import type { AccordionItem, AccordionProps } from "@/components/accordion/accor
 import { Collapse } from "@/components/collapse/collapse";
 import { t } from "@/utils/i18n/translate";
 
-/**
- * @summary Resolves default open item.
- */
+
 function resolveDefaultOpenItem(items: readonly AccordionItem[]): string | null {
     const firstOpen = items.find((item) => item.openByDefault);
     return firstOpen ? firstOpen.id : null;
 }
 
-/**
- * @summary Resolves default open items.
- */
+
 function resolveDefaultOpenItems(items: readonly AccordionItem[]): readonly string[] {
     return items.filter((item) => item.openByDefault).map((item) => item.id);
 }
 
 /**
- * @summary Renders a typed accordion with optional single-open behavior.
+ * @summary Renders collapsible items with optional single-open behavior.
  * @param props Accordion configuration.
  * @returns Accordion component.
  */
+
 export function Accordion({ items, allowMultiple = true }: AccordionProps): JSX.Element | null {
     const [openItemId, setOpenItemId] = useState<string | null>(resolveDefaultOpenItem(items));
     const [openItemIds, setOpenItemIds] = useState<readonly string[]>(resolveDefaultOpenItems(items));

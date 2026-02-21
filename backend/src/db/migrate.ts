@@ -2,6 +2,9 @@ import 'dotenv/config';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
 import { db } from './client';
 
+/**
+ * @summary Executes all pending Drizzle migrations and exits with process status code.
+ */
 async function runMigrations() {
     try {
         await migrate(db, { migrationsFolder: './drizzle' });

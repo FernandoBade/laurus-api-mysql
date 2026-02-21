@@ -8,7 +8,7 @@ import { ResourceKey as Resource } from '../../../shared/i18n/resource.keys';
 import { LanguageCode } from '../../../shared/i18n/resourceTypes';
 import { parsePagination, buildMeta } from '../utils/pagination';
 
-/** @summary Handles HTTP requests for subcategory resources. */
+/** @summary Orchestrates HTTP request flows for subcategory resource endpoints. */
 class SubcategoryController {
     /** @summary Creates a new subcategory using validated input from the request body.
      * Validates the category before proceeding and logs the result.

@@ -26,9 +26,7 @@ const DEFAULT_ERROR_BY_VALIDATION: Readonly<Record<NumericInputValidationError, 
     [NumericInputValidationError.GREATER_THAN_ZERO]: ResourceKey.VALUE_MUST_BE_GREATER_THAN_ZERO,
 };
 
-/**
- * @summary Formats number display.
- */
+
 function formatNumberDisplay(canonicalValue: string, language: NumberInputProps["language"]): string {
     if (canonicalValue.trim().length === 0) {
         return "";
@@ -37,9 +35,7 @@ function formatNumberDisplay(canonicalValue: string, language: NumberInputProps[
     return canonicalToMaskedValue(canonicalValue, language);
 }
 
-/**
- * @summary Resolves validation error key.
- */
+
 function resolveValidationErrorKey(
     canonicalValue: string,
     props: Pick<NumberInputProps, "required" | "min" | "max" | "validationResourceKeys">
@@ -57,9 +53,7 @@ function resolveValidationErrorKey(
     return props.validationResourceKeys?.[validationError] ?? DEFAULT_ERROR_BY_VALIDATION[validationError];
 }
 
-/**
- * @summary Creates value change.
- */
+
 function createValueChange(
     canonicalValue: string,
     displayValue: string,
@@ -73,10 +67,11 @@ function createValueChange(
 }
 
 /**
- * @summary Renders a locale-aware decimal input with canonical value output and typed validations.
+ * @summary Renders a locale-aware decimal input that emits canonical numeric values.
  * @param props Number input configuration.
  * @returns Number input component.
  */
+
 export function NumberInput({
     canonicalValue,
     language,

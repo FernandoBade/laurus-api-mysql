@@ -38,6 +38,9 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
+/**
+ * @summary Resolves localized labels and subject text for feedback email templates.
+ */
 const buildFeedbackEmailContent = (language?: LanguageCode): FeedbackEmailContent => ({
     subject: translateResource(Resource.FEEDBACK_EMAIL_SUBJECT, language),
     intro: translateResource(Resource.FEEDBACK_EMAIL_INTRO, language),
@@ -47,6 +50,9 @@ const buildFeedbackEmailContent = (language?: LanguageCode): FeedbackEmailConten
     userEmailLabel: translateResource(Resource.FEEDBACK_EMAIL_USER_EMAIL_LABEL, language),
 });
 
+/**
+ * @summary Builds the HTML payload for feedback emails including user metadata and message body.
+ */
 const buildFeedbackEmailHtml = (
     content: FeedbackEmailContent,
     payload: FeedbackEmailPayload
@@ -74,6 +80,9 @@ const buildFeedbackEmailHtml = (
   </body>
 </html>`.trim();
 
+/**
+ * @summary Builds a plain-text fallback payload for feedback email delivery.
+ */
 const buildFeedbackEmailText = (
     content: FeedbackEmailContent,
     payload: FeedbackEmailPayload
@@ -89,8 +98,14 @@ const buildFeedbackEmailText = (
     `${content.messageLabel} ${payload.message}`,
 ].join('\n');
 
+/**
+ * @summary Redacts token query values before serializing URLs into logs.
+ */
 const redactTokens = (value: string): string => value.replace(/token=([^&\s]+)/gi, 'token=[REDACTED]');
 
+/**
+ * @summary Normalizes provider/runtime errors into a serializable feedback-email error payload.
+ */
 const formatEmailError = (error: unknown): Record<string, unknown> => {
     if (error instanceof Error) {
         return { name: error.name, message: redactTokens(error.message) };
@@ -108,6 +123,9 @@ const formatEmailError = (error: unknown): Record<string, unknown> => {
     return { message: redactTokens(String(error)) };
 };
 
+/**
+ * @summary Persists feedback email delivery failures with provider context and sanitized details.
+ */
 const logEmailError = async (error: unknown, userId?: number): Promise<void> => {
     try {
         await createLog(
@@ -126,10 +144,16 @@ const logEmailError = async (error: unknown, userId?: number): Promise<void> => 
     }
 };
 
+/**
+ * @summary Logs missing email-provider configuration for feedback delivery operations.
+ */
 const logConfigError = async (userId?: number): Promise<void> => {
     await logEmailError(new Error('Resend configuration missing'), userId);
 };
 
+/**
+ * @summary Sends feedback payloads through Resend and returns delivery success status.
+ */
 const defaultSender: FeedbackEmailSender = async (payload) => {
     if (!resend || !RESEND_FROM_EMAIL) {
         await logConfigError(payload.userId);
@@ -165,6 +189,9 @@ const defaultSender: FeedbackEmailSender = async (payload) => {
     }
 };
 
+/**
+ * @summary Sends a formatted feedback email with optional attachments.
+ */
 export async function sendFeedbackEmail(
     {
         userId,

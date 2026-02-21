@@ -27,9 +27,7 @@ const DEFAULT_ERROR_BY_VALIDATION: Readonly<Record<NumericInputValidationError, 
     [NumericInputValidationError.GREATER_THAN_ZERO]: ResourceKey.VALUE_MUST_BE_GREATER_THAN_ZERO,
 };
 
-/**
- * @summary Formats money display.
- */
+
 function formatMoneyDisplay(
     canonicalValue: string,
     language: MoneyInputProps["language"]
@@ -44,9 +42,7 @@ function formatMoneyDisplay(
     });
 }
 
-/**
- * @summary Resolves validation error key.
- */
+
 function resolveValidationErrorKey(
     canonicalValue: string,
     props: Pick<
@@ -68,9 +64,7 @@ function resolveValidationErrorKey(
     return props.validationResourceKeys?.[validationError] ?? DEFAULT_ERROR_BY_VALIDATION[validationError];
 }
 
-/**
- * @summary Creates value change.
- */
+
 function createValueChange(
     canonicalValue: string,
     displayValue: string,
@@ -84,10 +78,11 @@ function createValueChange(
 }
 
 /**
- * @summary Renders a locale-aware money input with canonical decimal output and typed validations.
+ * @summary Renders a locale-aware currency input that emits canonical decimal values.
  * @param props Money input configuration.
  * @returns Money input component.
  */
+
 export function MoneyInput({
     canonicalValue,
     language,

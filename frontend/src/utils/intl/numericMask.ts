@@ -29,9 +29,7 @@ export interface CanonicalMaskFormatOptions {
 
 export type NumericMaskInstance = InputMask<MaskedNumberOptions>;
 
-/**
- * @summary Clamps scale.
- */
+
 function clampScale(scale: number | undefined): number {
     if (typeof scale !== "number" || Number.isNaN(scale) || scale < 0) {
         return DEFAULT_SCALE;
@@ -40,9 +38,7 @@ function clampScale(scale: number | undefined): number {
     return Math.min(Math.trunc(scale), MAX_SCALE);
 }
 
-/**
- * @summary Normalizes thousands separator.
- */
+
 function normalizeThousandsSeparator(value: string): string {
     if (value.trim().length === 0) {
         return ",";
@@ -56,10 +52,11 @@ function normalizeThousandsSeparator(value: string): string {
 }
 
 /**
- * @summary Resolves locale-aware radix and thousands tokens used by numeric masks.
+ * @summary Resolves radix and thousands separators used by numeric masks for a locale.
  * @param language Active locale language.
  * @returns Locale numeric mask token set.
  */
+
 export function getNumericMaskLocaleTokens(language: Language): NumericMaskLocaleTokens {
     const parts = getCachedNumberFormatter(language, {
         useGrouping: true,
@@ -85,10 +82,11 @@ export function getNumericMaskLocaleTokens(language: Language): NumericMaskLocal
 }
 
 /**
- * @summary Builds IMask numeric options aligned to locale separators and input scale.
+ * @summary Builds IMask numeric options from typed numeric mask configuration.
  * @param config Numeric mask configuration.
  * @returns Typed IMask options for numeric masks.
  */
+
 export function createNumericMaskOptions(config: NumericMaskConfig): MaskedNumberOptions {
     const scale = clampScale(config.scale);
     const tokens = getNumericMaskLocaleTokens(config.language);
@@ -106,11 +104,12 @@ export function createNumericMaskOptions(config: NumericMaskConfig): MaskedNumbe
 }
 
 /**
- * @summary Attaches a locale-aware numeric IMask instance to a native input element.
+ * @summary Creates an IMask numeric instance bound to the provided input element.
  * @param element Input element target.
  * @param config Numeric mask configuration.
  * @returns Numeric mask instance.
  */
+
 export function createNumericMask(
     element: HTMLInputElement,
     config: NumericMaskConfig
@@ -119,12 +118,13 @@ export function createNumericMask(
 }
 
 /**
- * @summary Converts masked locale display values into canonical decimal strings.
+ * @summary Converts a masked numeric string into canonical dot-decimal representation.
  * @param maskedValue Current masked display value.
  * @param language Active locale language.
  * @param scale Maximum fraction scale accepted by the mask.
  * @returns Canonical decimal value with dot separator.
  */
+
 export function maskedValueToCanonical(
     maskedValue: string,
     language: Language,
@@ -136,12 +136,13 @@ export function maskedValueToCanonical(
 }
 
 /**
- * @summary Converts canonical decimal values into locale masked display strings.
+ * @summary Formats canonical numeric values into locale-aware masked display strings.
  * @param canonicalValue Canonical decimal value.
  * @param language Active locale language.
  * @param options Optional fraction constraints for display rendering.
  * @returns Locale-aware display string for masked inputs.
  */
+
 export function canonicalToMaskedValue(
     canonicalValue: string,
     language: Language,

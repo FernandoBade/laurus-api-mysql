@@ -16,8 +16,9 @@ const TOGGLE_THEME_LABEL = ResourceKey.FIELD_LABEL_THEME;
 const LOGIN_ROUTE_LABEL = ResourceKey.FIELD_LABEL_USER_ID;
 
 /**
- * @summary Renders the dashboard page layout and data sections.
+ * @summary Renders the dashboard page with KPI cards, alerts, and transactional tables.
  */
+
 export function DashboardPage(): JSX.Element {
     const controller = createDashboardController();
     const [theme, setTheme] = useState<Theme>(controller.getCurrentTheme());

@@ -114,7 +114,13 @@ export class AuthService {
 
         const storedToken = tokenResult.data;
         const now = new Date();
+        /**
+         * @summary Deletes the current persisted refresh token without propagating cleanup failures.
+         */
         const discardStoredToken = () => this.tokenService.deleteToken(storedToken.id).catch(() => undefined);
+        /**
+         * @summary Revokes the full refresh session when available, otherwise removes only the current token.
+         */
         const revokeSession = async () => {
             if (storedToken.sessionId) {
                 await this.tokenService.deleteBySessionId(storedToken.sessionId);

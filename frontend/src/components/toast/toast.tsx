@@ -9,10 +9,11 @@ import { classNames } from "@/utils/classNames";
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Renders a single toast message UI element.
+ * @summary Renders a single toast notification with variant styling and dismiss action.
  * @param props Toast configuration.
  * @returns Toast component.
  */
+
 export function Toast({ variant, message, icon, onClose }: ToastProps): JSX.Element {
     return (
         <div
@@ -42,10 +43,11 @@ export function Toast({ variant, message, icon, onClose }: ToastProps): JSX.Elem
 }
 
 /**
- * @summary Renders a toast stack container.
+ * @summary Renders and stacks active toast notifications.
  * @param props Toast container configuration.
  * @returns Toast container component.
  */
+
 export function ToastContainer({ toasts, onClose }: ToastContainerProps): JSX.Element | null {
     if (toasts.length === 0) {
         return null;

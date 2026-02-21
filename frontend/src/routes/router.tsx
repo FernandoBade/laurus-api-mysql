@@ -8,8 +8,9 @@ import { RequireAuth } from "@/routes/guards/requireAuth";
 import { SANDBOX_ROUTE_PATH } from "@/routes/navigation";
 
 /**
- * @summary Builds the application route tree and guarded routes.
+ * @summary Defines the application route tree with authenticated and public sections.
  */
+
 export function AppRouter() {
   return (
     <AppLayout>

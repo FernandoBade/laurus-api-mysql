@@ -38,16 +38,12 @@ type RefreshHandler = () => Promise<boolean>;
 let refreshPromise: Promise<boolean> | null = null;
 let refreshHandler: RefreshHandler | null = null;
 
-/**
- * @summary Returns whether absolute url.
- */
+
 function isAbsoluteUrl(value: string): boolean {
     return value.startsWith("http://") || value.startsWith("https://");
 }
 
-/**
- * @summary Resolves path.
- */
+
 function resolvePath(input: string): string {
     if (isAbsoluteUrl(input)) {
         return new URL(input).pathname;
@@ -56,9 +52,7 @@ function resolvePath(input: string): string {
     return input.startsWith("/") ? input : `/${input}`;
 }
 
-/**
- * @summary Builds request url.
- */
+
 function buildRequestUrl(input: string): string {
     if (isAbsoluteUrl(input)) {
         return input;
@@ -72,9 +66,7 @@ function buildRequestUrl(input: string): string {
     return `${normalizedBaseUrl}${normalizedPath}`;
 }
 
-/**
- * @summary Builds request headers.
- */
+
 function buildRequestHeaders(init?: HeadersInit): Headers {
     const headers = new Headers(init);
     headers.set(HttpHeaderName.ACCEPT_LANGUAGE, getLocale());
@@ -87,30 +79,22 @@ function buildRequestHeaders(init?: HeadersInit): Headers {
     return headers;
 }
 
-/**
- * @summary Resolves method.
- */
+
 function resolveMethod(init?: RequestInit): string {
     return (init?.method ?? HttpMethod.GET).toUpperCase();
 }
 
-/**
- * @summary Returns whether retryable get method.
- */
+
 function isRetryableGetMethod(method: string): boolean {
     return method === HttpMethod.GET;
 }
 
-/**
- * @summary Computes backoff ms.
- */
+
 function computeBackoffMs(attempt: number): number {
     return BASE_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
 }
 
-/**
- * @summary Returns whether network error.
- */
+
 function isNetworkError(error: unknown): boolean {
     return error instanceof TypeError;
 }
@@ -182,9 +166,7 @@ async function parseResponsePayload(response: Response): Promise<unknown> {
     }
 }
 
-/**
- * @summary Should run refresh flow helper function.
- */
+
 function shouldRunRefreshFlow(path: string, hasReplayedAfterRefresh: boolean): boolean {
     if (hasReplayedAfterRefresh) {
         return false;
@@ -207,9 +189,7 @@ async function runRefreshOnce(): Promise<boolean> {
     return refreshPromise;
 }
 
-/**
- * @summary Handles session expired.
- */
+
 function handleSessionExpired(): void {
     setUnauthenticated();
     storage.remove(StorageKey.ACCESS_TOKEN);
@@ -281,11 +261,12 @@ async function executeRequest<T>(
 }
 
 /**
- * @summary Executes an HTTP request with base URL, auth headers, retries, and refresh handling.
+ * @summary Executes an HTTP request with unified error normalization, retries, and auth refresh handling.
  * @param input Relative or absolute request URL.
  * @param init Optional request configuration.
  * @returns Standardized API response payload.
  */
+
 export async function request<T>(input: string, init?: RequestInit): Promise<ApiResponse<T>> {
     return executeRequest<T>(input, init, {
         attempt: 1,
@@ -294,10 +275,11 @@ export async function request<T>(input: string, init?: RequestInit): Promise<Api
 }
 
 /**
- * @summary Registers the auth refresh handler used by the global 401 flow.
+ * @summary Registers the refresh callback used when unauthorized responses require token renewal.
  * @param handler Refresh function from auth service.
  * @returns No return value.
  */
+
 export function setAuthRefreshHandler(handler: RefreshHandler): void {
     refreshHandler = handler;
 }

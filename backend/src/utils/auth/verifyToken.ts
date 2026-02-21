@@ -7,14 +7,12 @@ import { ResourceKey as Resource } from '../../../../shared/i18n/resource.keys';
 import { UserService } from '../../service/userService';
 
 /**
- * Middleware to validate the access token from the Authorization header.
- * If valid, injects the authenticated user id/profile into `req.user`.
- * Responds with 401 if the token is missing, invalid, or expired.
- *
+ * @summary Authenticates bearer tokens and populates request user context for protected routes.
  * @param req - Incoming request with optional Authorization header.
  * @param res - HTTP response used for error response.
  * @param next - Calls the next middleware if the token is valid.
  */
+
 export async function verifyToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
     const bearerPrefix = `${AuthScheme.BEARER} `;

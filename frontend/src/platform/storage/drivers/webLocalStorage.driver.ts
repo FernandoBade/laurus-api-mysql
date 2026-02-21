@@ -40,9 +40,10 @@ class WebLocalStorageDriver implements KeyValueStorage {
 }
 
 /**
- * @summary Builds a web localStorage-based key-value storage driver.
+ * @summary Creates a localStorage-backed key-value driver for web environments.
  * @returns Storage driver backed by browser localStorage.
  */
+
 export function createWebLocalStorageDriver(): KeyValueStorage {
   return new WebLocalStorageDriver();
 }

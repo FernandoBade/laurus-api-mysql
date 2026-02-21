@@ -184,9 +184,7 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
 
 type SandboxMoneyFormatter = (amount: string) => string;
 
-/**
- * @summary Builds sandbox table columns.
- */
+
 function buildSandboxTableColumns(
     formatMoneyValue: SandboxMoneyFormatter
 ): readonly TableColumn<SandboxRecord>[] {
@@ -290,9 +288,10 @@ export interface SandboxController {
 }
 
 /**
- * @summary Creates the sandbox controller used by the design-system showcase page.
+ * @summary Builds sandbox demo data, filters, and UI interaction handlers.
  * @returns Typed controller actions and showcase datasets.
  */
+
 export function createSandboxController(): SandboxController {
     const getCurrentTheme = (): Theme => getTheme();
 

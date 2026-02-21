@@ -4,10 +4,11 @@ import { classNames } from "@/utils/classNames";
 import { t } from "@/utils/i18n/translate";
 
 /**
- * @summary Renders a generic typed table structure.
+ * @summary Renders a generic table with typed columns, rows, and optional row actions.
  * @param props Table configuration.
  * @returns Table component.
  */
+
 export function Table<TRow>({
     columns,
     rows,

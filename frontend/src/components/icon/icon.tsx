@@ -51,8 +51,9 @@ const phosphorMap: Partial<Record<IconName, PhosphorIconComponent>> = {
 };
 
 /**
- * @summary Renders a semantic icon mapped to the Phosphor icon set.
+ * @summary Renders a Phosphor icon using typed names, weights, and sizing.
  */
+
 export function Icon({ name, size = 20, weight = "duotone", mirrored = false }: IconProps): JSX.Element | null {
     const IconComponent = phosphorMap[name];
 

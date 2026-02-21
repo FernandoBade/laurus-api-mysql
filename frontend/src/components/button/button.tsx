@@ -27,10 +27,11 @@ const sizeTypographyMap: Record<ButtonSize, string> = {
 };
 
 /**
- * @summary Renders a typed button with internal DaisyUI class mapping.
+ * @summary Renders the design-system button with typed variants, sizes, and loading state.
  * @param props Button configuration.
  * @returns Button component.
  */
+
 export function Button({
     label,
     children,

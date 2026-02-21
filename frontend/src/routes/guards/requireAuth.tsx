@@ -9,8 +9,9 @@ interface RequireAuthProps {
 }
 
 /**
- * @summary Guards private routes and redirects unauthenticated sessions.
+ * @summary Guards private routes and redirects unauthenticated sessions to login.
  */
+
 export function RequireAuth({ children }: RequireAuthProps) {
   const [authenticated, setAuthenticated] = useState<boolean>(isAuthenticated());
 

@@ -7,10 +7,11 @@ import { Table } from "@/components/table/table";
 import type { DataTableProps } from "@/components/data-table/data-table.types";
 
 /**
- * @summary Renders a generic data table with loading and empty-state handling.
+ * @summary Renders tabular data with loading, empty, and error states.
  * @param props Data table configuration.
  * @returns Data table component.
  */
+
 export function DataTable<TRow>({
     columns,
     rows,

@@ -14,6 +14,9 @@ const feedbackUpload = multer({
     limits: { fileSize: UploadValidation.MAX_FILE_SIZE_BYTES },
 });
 
+/**
+ * @summary Applies feedback multipart parsing and converts multer errors to validation responses.
+ */
 const handleFeedbackUpload = (req: Request, res: Response, next: NextFunction) => {
     feedbackUpload.fields([
         { name: 'image', maxCount: 1 },

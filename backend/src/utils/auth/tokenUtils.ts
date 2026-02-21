@@ -40,6 +40,8 @@ function ensureSecrets() {
 
 /**
  * Builds JWT sign options with optional issuer/audience.
+ *
+ * @summary Builds token-signing options with algorithm and optional issuer/audience constraints.
  */
 function buildSignOptions(expiresIn: jwt.SignOptions['expiresIn']): jwt.SignOptions {
     const options: jwt.SignOptions = { expiresIn, algorithm: JWT_ALGORITHM };
@@ -57,6 +59,8 @@ function buildSignOptions(expiresIn: jwt.SignOptions['expiresIn']): jwt.SignOpti
 
 /**
  * Builds JWT verify options with optional issuer/audience enforcement.
+ *
+ * @summary Builds token-verification options enforcing configured issuer/audience values.
  */
 function buildVerifyOptions(): jwt.VerifyOptions {
     const options: jwt.VerifyOptions = { algorithms: [JWT_ALGORITHM] };
@@ -73,60 +77,56 @@ function buildVerifyOptions(): jwt.VerifyOptions {
 }
 
 export const TokenUtils = {
-    /**
-     * Generates a JWT access token with 1-hour expiration.
-     * Throws if required secrets are missing.
-     *
+        /**
+     * @summary Signs a short-lived JWT access token for authenticated requests.
      * @param payload - Data to embed in the token (e.g. user ID).
      * @returns Signed access token.
      */
+
     generateAccessToken(payload: object): string {
         ensureSecrets();
         return jwt.sign(payload, ACCESS_SECRET!, buildSignOptions('1h'));
     },
 
-    /**
-     * Generates a JWT refresh token with a finite rotation lifetime.
-     * Throws if required secrets are missing.
-     *
+        /**
+     * @summary Signs a persisted JWT refresh token used for token rotation flows.
      * @param payload - Data to embed in the token.
      * @returns Signed refresh token.
      */
+
     generateRefreshToken(payload: object): string {
         ensureSecrets();
         return jwt.sign(payload, REFRESH_SECRET!, buildSignOptions(PERSISTED_TOKEN_EXPIRES_IN));
     },
 
-    /**
-     * Verifies the authenticity of an access token.
-     * Throws if invalid or expired.
-     *
+        /**
+     * @summary Verifies an access token signature and returns its decoded payload.
      * @param token - Access token to verify.
      * @returns Decoded payload.
      */
+
     verifyAccessToken(token: string) {
         ensureSecrets();
         return jwt.verify(token, ACCESS_SECRET!, buildVerifyOptions());
     },
 
-    /**
-     * Verifies the authenticity of a refresh token.
-     * Throws if invalid or expired.
-     *
+        /**
+     * @summary Verifies a refresh token signature and returns its decoded payload.
      * @param token - Refresh token to verify.
      * @returns Decoded payload.
      */
+
     verifyRefreshToken(token: string) {
         ensureSecrets();
         return jwt.verify(token, REFRESH_SECRET!, buildVerifyOptions());
     },
 
-    /**
-     * Hashes a refresh token using HMAC-SHA256.
-     *
+        /**
+     * @summary Hashes refresh tokens for secure persistence and comparison.
      * @param token - Refresh token to hash.
      * @returns HMAC-SHA256 hash in hex format.
      */
+
     hashRefreshToken(token: string): string {
         ensureSecrets();
         return crypto.createHmac('sha256', REFRESH_SECRET!).update(token).digest('hex');
