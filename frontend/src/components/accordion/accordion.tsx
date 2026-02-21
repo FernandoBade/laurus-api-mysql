@@ -4,11 +4,17 @@ import type { AccordionItem, AccordionProps } from "@/components/accordion/accor
 import { Collapse } from "@/components/collapse/collapse";
 import { t } from "@/utils/i18n/translate";
 
+/**
+ * @summary Resolves default open item.
+ */
 function resolveDefaultOpenItem(items: readonly AccordionItem[]): string | null {
     const firstOpen = items.find((item) => item.openByDefault);
     return firstOpen ? firstOpen.id : null;
 }
 
+/**
+ * @summary Resolves default open items.
+ */
 function resolveDefaultOpenItems(items: readonly AccordionItem[]): readonly string[] {
     return items.filter((item) => item.openByDefault).map((item) => item.id);
 }

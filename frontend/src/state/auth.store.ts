@@ -20,6 +20,9 @@ let state: AuthState = {
     accessToken: initialToken,
 };
 
+/**
+ * @summary Notifies listeners about state listeners.
+ */
 function notifyStateListeners(): void {
     authStateListeners.forEach((listener) => listener(state));
 }

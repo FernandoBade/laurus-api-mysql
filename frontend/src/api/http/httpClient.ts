@@ -38,10 +38,16 @@ type RefreshHandler = () => Promise<boolean>;
 let refreshPromise: Promise<boolean> | null = null;
 let refreshHandler: RefreshHandler | null = null;
 
+/**
+ * @summary Returns whether absolute url.
+ */
 function isAbsoluteUrl(value: string): boolean {
     return value.startsWith("http://") || value.startsWith("https://");
 }
 
+/**
+ * @summary Resolves path.
+ */
 function resolvePath(input: string): string {
     if (isAbsoluteUrl(input)) {
         return new URL(input).pathname;
@@ -50,6 +56,9 @@ function resolvePath(input: string): string {
     return input.startsWith("/") ? input : `/${input}`;
 }
 
+/**
+ * @summary Builds request url.
+ */
 function buildRequestUrl(input: string): string {
     if (isAbsoluteUrl(input)) {
         return input;
@@ -63,6 +72,9 @@ function buildRequestUrl(input: string): string {
     return `${normalizedBaseUrl}${normalizedPath}`;
 }
 
+/**
+ * @summary Builds request headers.
+ */
 function buildRequestHeaders(init?: HeadersInit): Headers {
     const headers = new Headers(init);
     headers.set(HttpHeaderName.ACCEPT_LANGUAGE, getLocale());
@@ -75,18 +87,30 @@ function buildRequestHeaders(init?: HeadersInit): Headers {
     return headers;
 }
 
+/**
+ * @summary Resolves method.
+ */
 function resolveMethod(init?: RequestInit): string {
     return (init?.method ?? HttpMethod.GET).toUpperCase();
 }
 
+/**
+ * @summary Returns whether retryable get method.
+ */
 function isRetryableGetMethod(method: string): boolean {
     return method === HttpMethod.GET;
 }
 
+/**
+ * @summary Computes backoff ms.
+ */
 function computeBackoffMs(attempt: number): number {
     return BASE_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
 }
 
+/**
+ * @summary Returns whether network error.
+ */
 function isNetworkError(error: unknown): boolean {
     return error instanceof TypeError;
 }
@@ -96,7 +120,18 @@ function isApiResponseShape<T>(value: unknown): value is ApiResponse<T> {
         return false;
     }
 
-    return "success" in value && typeof (value as { success: unknown }).success === "boolean";
+    if (!("success" in value) || typeof (value as { success: unknown }).success !== "boolean") {
+        return false;
+    }
+
+    if ((value as { success: boolean }).success === false) {
+        return (
+            typeof (value as { resource?: unknown }).resource === "string" &&
+            typeof (value as { message?: unknown }).message === "string"
+        );
+    }
+
+    return true;
 }
 
 function normalizeResponse<T>(response: Response, payload: unknown): ApiResponse<T> {
@@ -113,6 +148,7 @@ function normalizeResponse<T>(response: Response, payload: unknown): ApiResponse
 
     return {
         success: false,
+        resource: ERROR_MESSAGE_KEY.REQUEST_FAILED,
         message: ERROR_MESSAGE_KEY.REQUEST_FAILED,
         error: payload,
     };
@@ -121,6 +157,7 @@ function normalizeResponse<T>(response: Response, payload: unknown): ApiResponse
 function normalizeNetworkError<T>(error: unknown): ApiResponse<T> {
     return {
         success: false,
+        resource: ERROR_MESSAGE_KEY.NETWORK,
         message: ERROR_MESSAGE_KEY.NETWORK,
         error,
     };
@@ -145,6 +182,9 @@ async function parseResponsePayload(response: Response): Promise<unknown> {
     }
 }
 
+/**
+ * @summary Should run refresh flow helper function.
+ */
 function shouldRunRefreshFlow(path: string, hasReplayedAfterRefresh: boolean): boolean {
     if (hasReplayedAfterRefresh) {
         return false;
@@ -167,6 +207,9 @@ async function runRefreshOnce(): Promise<boolean> {
     return refreshPromise;
 }
 
+/**
+ * @summary Handles session expired.
+ */
 function handleSessionExpired(): void {
     setUnauthenticated();
     storage.remove(StorageKey.ACCESS_TOKEN);

@@ -4,6 +4,7 @@
 
 import type { ComponentChildren, JSX } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
+import { CountryCode } from "@shared/enums/country.enums";
 import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
 import { InputType } from "@shared/enums/input.enums";
@@ -44,6 +45,11 @@ import { Form } from "@/components/form/form";
 import { FormGrid } from "@/components/form-grid/form-grid";
 import { Icon } from "@/components/icon/icon";
 import { Input } from "@/components/input/input";
+import type { CanonicalInputValueChange } from "@/components/input/canonical-input.types";
+import { IntegerInput } from "@/components/input/integer-input";
+import { MoneyInput } from "@/components/input/money-input";
+import { NumberInput } from "@/components/input/number-input";
+import { PhoneInput } from "@/components/input/phone-input";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Loader } from "@/components/loader/loader";
 import { Modal } from "@/components/modal/modal";
@@ -72,6 +78,8 @@ import { getToasts, removeToast, subscribeToasts } from "@/state/toast.store";
 import { formatDate, type FormatDateInput } from "@/utils/intl/date";
 import { formatMoney } from "@/utils/intl/money";
 import { formatNumber, type FormatNumberInput } from "@/utils/intl/number";
+import { resolvePhoneCountryFromLanguage } from "@/utils/intl/phoneInput";
+import { t } from "@/utils/i18n/translate";
 
 const PAGE_SIZE = 4;
 const SANDBOX_REFERENCE_DATE = new Date(Date.UTC(2026, 0, 31, 12, 0, 0));
@@ -366,6 +374,9 @@ const SECTION_DEFINITIONS: readonly ShowcaseSectionDefinition[] = [
 
 type SectionVisibility = Record<ShowcaseSectionId, boolean>;
 
+/**
+ * @summary Creates section visibility.
+ */
 function createSectionVisibility(open: boolean): SectionVisibility {
     return {
         [SHOWCASE_SECTION.TYPOGRAPHY]: open,
@@ -391,6 +402,9 @@ interface ShowcaseSectionProps {
     readonly children: ComponentChildren;
 }
 
+/**
+ * @summary Renders one collapsible sandbox showcase section.
+ */
 function ShowcaseSection({
     id,
     title,
@@ -455,6 +469,26 @@ export function SandboxPage(): JSX.Element {
     const [requiredInputValue, setRequiredInputValue] = useState<string>("");
     const [selectValue, setSelectValue] = useState<string>(SANDBOX_STATUS_FILTER.ACTIVE);
     const [selectErrorValue, setSelectErrorValue] = useState<string>("");
+    const [moneyCanonicalValue, setMoneyCanonicalValue] = useState<string>("12840.55");
+    const [moneyDisplayValue, setMoneyDisplayValue] = useState<string>("");
+    const [moneyIconCanonicalValue, setMoneyIconCanonicalValue] = useState<string>("12.34");
+    const [moneyIconDisplayValue, setMoneyIconDisplayValue] = useState<string>("");
+    const [numberCanonicalValue, setNumberCanonicalValue] = useState<string>("445.30");
+    const [numberDisplayValue, setNumberDisplayValue] = useState<string>("");
+    const [numberIconCanonicalValue, setNumberIconCanonicalValue] = useState<string>("2048.00");
+    const [numberIconDisplayValue, setNumberIconDisplayValue] = useState<string>("");
+    const [integerCanonicalValue, setIntegerCanonicalValue] = useState<string>("2048");
+    const [integerDisplayValue, setIntegerDisplayValue] = useState<string>("");
+    const [integerIconCanonicalValue, setIntegerIconCanonicalValue] = useState<string>("4096");
+    const [integerIconDisplayValue, setIntegerIconDisplayValue] = useState<string>("");
+    const [phoneCountryCode, setPhoneCountryCode] = useState<CountryCode>(() =>
+        resolvePhoneCountryFromLanguage(preferences.language)
+    );
+    const [phoneCanonicalValue, setPhoneCanonicalValue] = useState<string>("+5511999999999");
+    const [phoneDisplayValue, setPhoneDisplayValue] = useState<string>("");
+    const [phoneIconCountryCode, setPhoneIconCountryCode] = useState<CountryCode>(CountryCode.US);
+    const [phoneIconCanonicalValue, setPhoneIconCanonicalValue] = useState<string>("");
+    const [phoneIconDisplayValue, setPhoneIconDisplayValue] = useState<string>("");
 
     const formatSandboxMoney = useMemo(
         () => (amount: string): string =>
@@ -560,6 +594,9 @@ export function SandboxPage(): JSX.Element {
         () => subscribeUserPreferences((nextPreferences) => setPreferences(nextPreferences)),
         []
     );
+    useEffect(() => {
+        setPhoneCountryCode(resolvePhoneCountryFromLanguage(preferences.language));
+    }, [preferences.language]);
 
     const areAllExpanded = SECTION_DEFINITIONS.every(
         (section) => sectionVisibility[section.id]
@@ -608,6 +645,64 @@ export function SandboxPage(): JSX.Element {
     const handleClearFilters = (): void => {
         setFilters(controller.getDefaultFilters());
         setCurrentPage(1);
+    };
+
+    const handleMoneyValueChange = (value: CanonicalInputValueChange): void => {
+        setMoneyCanonicalValue(value.canonicalValue);
+        setMoneyDisplayValue(value.displayValue);
+    };
+
+    const handleMoneyIconValueChange = (value: CanonicalInputValueChange): void => {
+        setMoneyIconCanonicalValue(value.canonicalValue);
+        setMoneyIconDisplayValue(value.displayValue);
+    };
+
+    const handleNumberValueChange = (value: CanonicalInputValueChange): void => {
+        setNumberCanonicalValue(value.canonicalValue);
+        setNumberDisplayValue(value.displayValue);
+    };
+
+    const handleNumberIconValueChange = (value: CanonicalInputValueChange): void => {
+        setNumberIconCanonicalValue(value.canonicalValue);
+        setNumberIconDisplayValue(value.displayValue);
+    };
+
+    const handleIntegerValueChange = (value: CanonicalInputValueChange): void => {
+        setIntegerCanonicalValue(value.canonicalValue);
+        setIntegerDisplayValue(value.displayValue);
+    };
+
+    const handleIntegerIconValueChange = (value: CanonicalInputValueChange): void => {
+        setIntegerIconCanonicalValue(value.canonicalValue);
+        setIntegerIconDisplayValue(value.displayValue);
+    };
+
+    const handlePhoneValueChange = (value: CanonicalInputValueChange): void => {
+        setPhoneCanonicalValue(value.canonicalValue);
+        setPhoneDisplayValue(value.displayValue);
+    };
+
+    const handlePhoneCountryChange = (
+        countryCode: CountryCode,
+        value: CanonicalInputValueChange
+    ): void => {
+        setPhoneCountryCode(countryCode);
+        setPhoneCanonicalValue(value.canonicalValue);
+        setPhoneDisplayValue(value.displayValue);
+    };
+
+    const handlePhoneIconValueChange = (value: CanonicalInputValueChange): void => {
+        setPhoneIconCanonicalValue(value.canonicalValue);
+        setPhoneIconDisplayValue(value.displayValue);
+    };
+
+    const handlePhoneIconCountryChange = (
+        countryCode: CountryCode,
+        value: CanonicalInputValueChange
+    ): void => {
+        setPhoneIconCountryCode(countryCode);
+        setPhoneIconCanonicalValue(value.canonicalValue);
+        setPhoneIconDisplayValue(value.displayValue);
     };
 
     return (
@@ -943,6 +1038,211 @@ export function SandboxPage(): JSX.Element {
                     onToggle={handleSectionToggle}
                 >
                     <div class="space-y-4">
+                        <div class={DEMO_CARD_CLASS}>
+                            <p class="text-label">Financial Input Gallery</p>
+                            <p class="text-body text-base-content/70">
+                                Each card demonstrates one real use case. Edit locale/currency above to validate display formatting and canonical persistence values.
+                            </p>
+                            <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Money: Required + Range Validation</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Use when persisting monetary amounts. Canonical is always dot-decimal and closes with 2 fraction digits on blur.
+                                    </p>
+                                    <MoneyInput
+                                        label={ResourceKey.FIELD_LABEL_VALUE}
+                                        canonicalValue={moneyCanonicalValue}
+                                        language={preferences.language}
+                                        currency={preferences.currency}
+                                        required
+                                        min="1.00"
+                                        max="100000.00"
+                                        greaterThanZero
+                                        onValueChange={handleMoneyValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{moneyCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{moneyDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Money: Icon + Error State</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Financial context with icon prefix and explicit error rendering using shared resource keys.
+                                    </p>
+                                    <MoneyInput
+                                        label={ResourceKey.FIELD_LABEL_CURRENCY}
+                                        canonicalValue={moneyIconCanonicalValue}
+                                        language={preferences.language}
+                                        currency={preferences.currency}
+                                        icon={IconName.CURRENCY}
+                                        error={ResourceKey.VALUE_ABOVE_MAXIMUM}
+                                        onValueChange={handleMoneyIconValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{moneyIconCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{moneyIconDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Number: Decimal Precision</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Use for non-currency decimal inputs. Precision is controlled by maxFractionDigits and canonical uses dot separator.
+                                    </p>
+                                    <NumberInput
+                                        label={ResourceKey.FIELD_LABEL_TOTAL_MONTHS}
+                                        canonicalValue={numberCanonicalValue}
+                                        language={preferences.language}
+                                        required
+                                        min="0.10"
+                                        max="10000.00"
+                                        maxFractionDigits={4}
+                                        onValueChange={handleNumberValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{numberCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{numberDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Number: Disabled + Icon</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Read-only decimal display with locale mask retained for audit and detail views.
+                                    </p>
+                                    <NumberInput
+                                        label={ResourceKey.FIELD_LABEL_LIMIT}
+                                        canonicalValue={numberIconCanonicalValue}
+                                        language={preferences.language}
+                                        icon={IconName.NUMBER}
+                                        disabled
+                                        onValueChange={handleNumberIconValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{numberIconCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{numberIconDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Integer: Business Range</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Recommended for day/month counters and other integer-only fields with min/max constraints.
+                                    </p>
+                                    <IntegerInput
+                                        label={ResourceKey.FIELD_LABEL_PAYMENT_DAY}
+                                        canonicalValue={integerCanonicalValue}
+                                        language={preferences.language}
+                                        required
+                                        min="1"
+                                        max="31"
+                                        onValueChange={handleIntegerValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{integerCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{integerDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Integer: Error + Icon</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Explicit error scenario for integer-only fields where backend-safe canonical must remain digits only.
+                                    </p>
+                                    <IntegerInput
+                                        label={ResourceKey.FIELD_LABEL_TOTAL_MONTHS}
+                                        canonicalValue={integerIconCanonicalValue}
+                                        language={preferences.language}
+                                        icon={IconName.NUMBER}
+                                        error={ResourceKey.INVALID_NUMBER_VALUE}
+                                        onValueChange={handleIntegerIconValueChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{integerIconCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{integerIconDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Phone: Country Selector + E.164</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Phone value is formatted as-you-type per selected country and persisted only as valid E.164 canonical value.
+                                    </p>
+                                    <PhoneInput
+                                        label={ResourceKey.FIELD_LABEL_PHONE}
+                                        canonicalValue={phoneCanonicalValue}
+                                        language={preferences.language}
+                                        countryCode={phoneCountryCode}
+                                        resetValueOnCountryChange
+                                        required
+                                        validateIncomplete
+                                        onValueChange={handlePhoneValueChange}
+                                        onCountryChange={handlePhoneCountryChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{phoneCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{phoneDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-4">
+                                    <p class="text-label">Phone: Icon + Invalid Example</p>
+                                    <p class="text-caption text-base-content/70">
+                                        Demonstrates visual invalid state while keeping canonical empty when E.164 cannot be generated.
+                                    </p>
+                                    <PhoneInput
+                                        label={ResourceKey.FIELD_LABEL_PHONE}
+                                        canonicalValue={phoneIconCanonicalValue}
+                                        language={preferences.language}
+                                        countryCode={phoneIconCountryCode}
+                                        resetValueOnCountryChange
+                                        icon={IconName.PHONE}
+                                        error={ResourceKey.PHONE_NUMBER_INVALID}
+                                        onValueChange={handlePhoneIconValueChange}
+                                        onCountryChange={handlePhoneIconCountryChange}
+                                    />
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_CANONICAL_VALUE)}:{" "}
+                                        <span class="font-data">{phoneIconCanonicalValue || "-"}</span>
+                                    </p>
+                                    <p class="text-caption text-base-content/70">
+                                        {t(ResourceKey.FIELD_LABEL_DISPLAY_VALUE)}:{" "}
+                                        <span class="font-data">{phoneIconDisplayValue || "-"}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class={DEMO_CARD_CLASS}>
                             <p class="text-label">Input Types</p>
                             <FormGrid columns={3}>

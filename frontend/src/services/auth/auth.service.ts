@@ -5,22 +5,12 @@ import type { ApiResponse } from "@/api/http/httpTypes";
 import { setAuthRefreshHandler } from "@/api/http/httpClient";
 import { emitAuthEvent, setAuthenticated, setRefreshing, setUnauthenticated } from "@/state/auth.store";
 
-const resourceKeySet = new Set<ResourceKey>(Object.values(ResourceKey));
-
-function toResourceKey(value: unknown): ResourceKey | undefined {
-    if (typeof value !== "string" || value.length === 0) {
-        return undefined;
+function resolveFailureResource<T>(response: ApiResponse<T>): ResourceKey {
+    if (!response.success) {
+        return response.resource ?? ResourceKey.UNEXPECTED_ERROR;
     }
 
-    return resourceKeySet.has(value as ResourceKey) ? (value as ResourceKey) : undefined;
-}
-
-function resolveResponseResource<T>(response: ApiResponse<T>): ResourceKey | undefined {
-    if (response.resource) {
-        return response.resource;
-    }
-
-    return toResourceKey(response.message);
+    return ResourceKey.UNEXPECTED_ERROR;
 }
 
 export interface AuthLoginResult {
@@ -38,21 +28,20 @@ export interface AuthLoginResult {
 export async function login(email: string, password: string): Promise<AuthLoginResult> {
     const response = await authApi.login(email, password);
     const token = response.data?.token;
-    const messageKey = resolveResponseResource(response);
 
     if (response.success && typeof token === "string" && token.length > 0) {
         setAuthenticated(token);
         emitAuthEvent(AuthEvent.LOGIN_SUCCESS);
         return {
             success: true,
-            messageKey,
+            messageKey: response.resource,
         };
     }
 
     setUnauthenticated();
     return {
         success: false,
-        messageKey,
+        messageKey: resolveFailureResource(response),
         error: response.error,
     };
 }

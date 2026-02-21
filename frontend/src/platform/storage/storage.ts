@@ -2,6 +2,9 @@ import { createMemoryStorageDriver } from "@/platform/storage/drivers/memoryStor
 import { createWebLocalStorageDriver } from "@/platform/storage/drivers/webLocalStorage.driver";
 import type { KeyValueStorage } from "@/platform/storage/storage.types";
 
+/**
+ * @summary Returns whether web local storage.
+ */
 function hasWebLocalStorage(): boolean {
   if (typeof window === "undefined") {
     return false;

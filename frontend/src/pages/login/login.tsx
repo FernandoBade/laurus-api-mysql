@@ -17,6 +17,9 @@ const LOGIN_EMAIL_LABEL = ResourceKey.FIELD_LABEL_EMAIL;
 const LOGIN_PASSWORD_LABEL = ResourceKey.FIELD_LABEL_PASSWORD;
 const LOGIN_SUBMIT_LABEL = ResourceKey.FIELD_LABEL_PROFILE;
 
+/**
+ * @summary Renders the login page with authentication form flows.
+ */
 export function LoginPage(): JSX.Element {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");

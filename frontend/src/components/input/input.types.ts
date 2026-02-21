@@ -1,4 +1,4 @@
-import type { ComponentChildren, JSX } from "preact";
+import type { ComponentChildren, HTMLAttributes, Ref } from "preact";
 import type { ResourceKey } from "@shared/i18n/resource.keys";
 import { IconPosition } from "@shared/enums/icon-position.enums";
 import { IconName } from "@shared/enums/icon.enums";
@@ -10,6 +10,7 @@ import { InputType } from "@shared/enums/input.enums";
 export interface InputProps {
     readonly label?: ResourceKey;
     readonly placeholder?: ResourceKey;
+    readonly placeholderText?: string;
     readonly hint?: ResourceKey;
     readonly type?: InputType;
     readonly value?: string;
@@ -28,7 +29,10 @@ export interface InputProps {
     readonly leftSlot?: ComponentChildren;
     readonly maxLength?: number;
     readonly minLength?: number;
-    readonly inputMode?: JSX.InputHTMLAttributes<HTMLInputElement>["inputMode"];
+    readonly inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
+    readonly inputRef?: Ref<HTMLInputElement>;
+    readonly onBeforeInput?: HTMLAttributes<HTMLInputElement>["onBeforeInput"];
+    readonly onPaste?: HTMLAttributes<HTMLInputElement>["onPaste"];
     readonly onChange?: (value: string) => void;
     readonly onBlur?: () => void;
 }

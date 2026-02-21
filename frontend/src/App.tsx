@@ -3,6 +3,9 @@ import { useEffect, useState } from "preact/hooks";
 import { AppRouter } from "@/routes/router";
 import { subscribeLocale } from "@/state/locale.store";
 
+/**
+ * @summary Renders the root application component.
+ */
 export function App() {
   const [, setLocaleVersion] = useState<number>(0);
 

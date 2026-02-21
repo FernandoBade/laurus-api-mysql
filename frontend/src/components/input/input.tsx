@@ -24,6 +24,7 @@ const inputTypeMap: Partial<Record<InputType, JSX.InputHTMLAttributes<HTMLInputE
 export function Input({
     label,
     placeholder,
+    placeholderText,
     hint,
     type = InputType.TEXT,
     value,
@@ -43,10 +44,14 @@ export function Input({
     maxLength,
     minLength,
     inputMode,
+    inputRef,
+    onBeforeInput,
+    onPaste,
     onChange,
     onBlur,
 }: InputProps): JSX.Element {
-    const usesNumericTypography = type === InputType.NUMBER;
+    const usesNumericTypography =
+        type === InputType.NUMBER || inputMode === "decimal" || inputMode === "numeric";
 
     const handleInput: JSX.GenericEventHandler<HTMLInputElement> = (event): void => {
         onChange?.(event.currentTarget.value);
@@ -79,10 +84,13 @@ export function Input({
                         disabled={disabled}
                         readOnly={readOnly}
                         autoComplete={autoComplete}
-                        placeholder={tOptional(placeholder)}
+                        placeholder={placeholderText ?? tOptional(placeholder)}
                         maxLength={maxLength}
                         minLength={minLength}
                         inputMode={inputMode}
+                        ref={inputRef}
+                        onBeforeInput={onBeforeInput}
+                        onPaste={onPaste}
                         onInput={handleInput}
                         onBlur={onBlur}
                     />

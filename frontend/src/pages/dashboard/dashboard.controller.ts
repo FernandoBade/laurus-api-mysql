@@ -8,6 +8,9 @@ export interface DashboardController {
   readonly onNavigateSandbox: () => void;
 }
 
+/**
+ * @summary Creates dashboard controller.
+ */
 export function createDashboardController(): DashboardController {
   const getCurrentTheme = (): Theme => getTheme();
 

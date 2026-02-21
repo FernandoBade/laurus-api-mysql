@@ -7,10 +7,16 @@ export interface UserPreferencesSnapshot {
     readonly currency: Currency;
 }
 
+/**
+ * @summary Returns whether language.
+ */
 function isLanguage(value: unknown): value is Language {
     return value === Language.EN_US || value === Language.ES_ES || value === Language.PT_BR;
 }
 
+/**
+ * @summary Returns whether currency.
+ */
 function isCurrency(value: unknown): value is Currency {
     return (
         value === Currency.ARS

@@ -5,14 +5,23 @@ import { storage } from "@/platform/storage/storage";
 let currentTheme: Theme = Theme.LIGHT;
 let initialized = false;
 
+/**
+ * @summary Returns whether theme.
+ */
 function isTheme(value: string | null): value is Theme {
     return value === Theme.LIGHT || value === Theme.DARK;
 }
 
+/**
+ * @summary Applies theme.
+ */
 function applyTheme(theme: Theme): void {
     document.documentElement.setAttribute("data-theme", theme);
 }
 
+/**
+ * @summary Loads persisted theme.
+ */
 function loadPersistedTheme(): Theme {
     const value = storage.get<string>(StorageKey.THEME);
     return isTheme(value) ? value : Theme.LIGHT;

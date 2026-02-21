@@ -102,7 +102,7 @@ export const seedConfig: SeedConfig = {
     creditCardsPerUser: { min: 0, max: 2 },
     creditCardLimitRange: { min: 800, max: 20000 },
     tagsPerUser: { min: 3, max: 8 },
-    transactionsPerUser: { min: 100, max: 1000 },
+    transactionsPerUser: { min: 10, max: 50 },
     transactionDistribution: {
         creditCardShare: { min: 0.2, max: 0.45 },
         minCreditCardTransactions: 15,

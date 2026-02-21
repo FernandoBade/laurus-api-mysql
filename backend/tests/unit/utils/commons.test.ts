@@ -137,6 +137,20 @@ describe('commons utils', () => {
             expect(typeof response.elapsedTime).toBe('number');
         });
 
+        it('injects default resource when an error response is sent without resource', () => {
+            const req = createMockRequest({ language: Language.EN_US });
+            const res = createMockResponse();
+
+            commons.answerAPI(req, res, HTTPStatus.BAD_REQUEST, { reason: 'x' });
+
+            const response = (res.json as jest.Mock).mock.calls[0][0];
+            expect(res.status).toHaveBeenCalledWith(HTTPStatus.BAD_REQUEST);
+            expect(response.success).toBe(false);
+            expect(response.resource).toBe(Resource.INTERNAL_SERVER_ERROR);
+            expect(response.message).toBe(translateResource(Resource.INTERNAL_SERVER_ERROR, Language.EN_US));
+            expect(response.error).toEqual({ reason: 'x' });
+        });
+
         it('handles pagination meta payloads', () => {
             const req = createMockRequest();
             const res = createMockResponse();

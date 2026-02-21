@@ -21,6 +21,9 @@ function withUpdatedField<TValues extends Record<string, unknown>, TKey extends 
     };
 }
 
+/**
+ * @summary Serialize fallback helper function.
+ */
 function serializeFallback(value: unknown): string {
     return typeof value === "string" ? value : "";
 }

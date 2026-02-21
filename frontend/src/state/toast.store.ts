@@ -9,11 +9,17 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 let toasts: ToastItem[] = [];
 
+/**
+ * @summary Notifies listeners about listeners.
+ */
 function notifyListeners(): void {
     const snapshot = [...toasts];
     listeners.forEach((listener) => listener(snapshot));
 }
 
+/**
+ * @summary Clears timer.
+ */
 function clearTimer(id: string): void {
     const timer = timers.get(id);
     if (!timer) {
@@ -24,6 +30,9 @@ function clearTimer(id: string): void {
     timers.delete(id);
 }
 
+/**
+ * @summary Schedules toast removal.
+ */
 function scheduleToastRemoval(item: ToastItem): void {
     const duration = item.durationMs ?? DEFAULT_TOAST_DURATION_MS;
 

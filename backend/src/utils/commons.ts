@@ -200,12 +200,13 @@ export function answerAPI(
     const success = status === HTTPStatus.OK || status === HTTPStatus.CREATED;
     const language = req.language ?? Language.PT_BR;
     const elapsedTime = getDurationMs(res);
+    const responseResource = success ? resource : (resource ?? Resource.INTERNAL_SERVER_ERROR);
 
     const response: Record<string, unknown> = {
         success,
-        ...(resource && {
-            resource,
-            message: translateResource(resource, language)
+        ...(responseResource && {
+            resource: responseResource,
+            message: translateResource(responseResource, language)
         })
     };
 

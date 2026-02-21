@@ -57,7 +57,7 @@ describe("auth.service", () => {
         expect(setUnauthenticatedMock).toHaveBeenCalledTimes(1);
     });
 
-    it("falls back to response.message when resource is absent", async () => {
+    it("returns unexpected error key when an error response has no resource", async () => {
         loginApiMock.mockResolvedValue({
             success: false,
             message: ResourceKey.INVALID_CREDENTIALS,
@@ -65,11 +65,11 @@ describe("auth.service", () => {
 
         const result = await login("user@example.com", "wrong");
 
-        expect(result.messageKey).toBe(ResourceKey.INVALID_CREDENTIALS);
+        expect(result.messageKey).toBe(ResourceKey.UNEXPECTED_ERROR);
         expect(setUnauthenticatedMock).toHaveBeenCalledTimes(1);
     });
 
-    it("does not treat translated message text as semantic key", async () => {
+    it("does not infer semantic key from translated message text", async () => {
         loginApiMock.mockResolvedValue({
             success: false,
             message: "Credenciais invalidas",
@@ -77,7 +77,7 @@ describe("auth.service", () => {
 
         const result = await login("user@example.com", "wrong");
 
-        expect(result.messageKey).toBeUndefined();
+        expect(result.messageKey).toBe(ResourceKey.UNEXPECTED_ERROR);
         expect(setUnauthenticatedMock).toHaveBeenCalledTimes(1);
     });
 

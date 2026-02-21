@@ -184,6 +184,9 @@ const SANDBOX_RECORDS: readonly SandboxRecord[] = [
 
 type SandboxMoneyFormatter = (amount: string) => string;
 
+/**
+ * @summary Builds sandbox table columns.
+ */
 function buildSandboxTableColumns(
     formatMoneyValue: SandboxMoneyFormatter
 ): readonly TableColumn<SandboxRecord>[] {

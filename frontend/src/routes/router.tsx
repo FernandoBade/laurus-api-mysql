@@ -7,6 +7,9 @@ import { SandboxPage } from "@/pages/sandbox/sandbox";
 import { RequireAuth } from "@/routes/guards/requireAuth";
 import { SANDBOX_ROUTE_PATH } from "@/routes/navigation";
 
+/**
+ * @summary Builds the application route tree and guarded routes.
+ */
 export function AppRouter() {
   return (
     <AppLayout>

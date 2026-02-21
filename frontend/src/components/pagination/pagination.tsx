@@ -6,6 +6,9 @@ import type { PaginationProps } from "@/components/pagination/pagination.types";
 
 type PaginationItem = number | "ellipsis-start" | "ellipsis-end";
 
+/**
+ * @summary Gets pagination items.
+ */
 function getPaginationItems(currentPage: number, totalPages: number): readonly PaginationItem[] {
     if (totalPages <= 7) {
         return Array.from({ length: totalPages }, (_, index) => index + 1);

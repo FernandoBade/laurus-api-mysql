@@ -13,6 +13,9 @@ export interface LoginController {
     readonly onSubmit: (email: string, password: string) => Promise<void>;
 }
 
+/**
+ * @summary Creates login controller.
+ */
 export function createLoginController(dependencies: LoginControllerDependencies): LoginController {
     const onSubmit = async (email: string, password: string): Promise<void> => {
         dependencies.setError(null);

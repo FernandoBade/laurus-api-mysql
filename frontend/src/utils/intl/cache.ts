@@ -6,6 +6,9 @@ type DateFormatterOptions = Intl.DateTimeFormatOptions | undefined;
 const numberFormatterCache = new Map<string, Intl.NumberFormat>();
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
+/**
+ * @summary Creates options cache key.
+ */
 function createOptionsCacheKey(
     options: Intl.NumberFormatOptions | Intl.DateTimeFormatOptions | undefined
 ): string {
@@ -19,6 +22,9 @@ function createOptionsCacheKey(
     return JSON.stringify(sortedEntries);
 }
 
+/**
+ * @summary Creates formatter key.
+ */
 function createFormatterKey(
     locale: Language,
     options: Intl.NumberFormatOptions | Intl.DateTimeFormatOptions | undefined

@@ -35,10 +35,16 @@ let state: UserPreferencesState = {
     currency: DEFAULT_CURRENCY,
 };
 
+/**
+ * @summary Returns whether language.
+ */
 function isLanguage(value: unknown): value is Language {
     return value === Language.EN_US || value === Language.ES_ES || value === Language.PT_BR;
 }
 
+/**
+ * @summary Returns whether currency.
+ */
 function isCurrency(value: unknown): value is Currency {
     return (
         value === Currency.ARS
@@ -49,6 +55,9 @@ function isCurrency(value: unknown): value is Currency {
     );
 }
 
+/**
+ * @summary Returns whether user preferences state.
+ */
 function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     if (typeof value !== "object" || value === null) {
         return false;
@@ -58,6 +67,9 @@ function isUserPreferencesState(value: unknown): value is UserPreferencesState {
     return isLanguage(candidate.language) && isCurrency(candidate.currency);
 }
 
+/**
+ * @summary Resolves language from locale tag.
+ */
 function resolveLanguageFromLocaleTag(localeTag: string): Language {
     const normalizedTag = localeTag.trim().toLowerCase();
     const supportedLanguageList = Object.values(Language) as readonly Language[];
@@ -77,6 +89,9 @@ function resolveLanguageFromLocaleTag(localeTag: string): Language {
     return prefixMatch ?? DEFAULT_LANGUAGE;
 }
 
+/**
+ * @summary Resolves browser language.
+ */
 function resolveBrowserLanguage(): Language {
     if (typeof navigator === "undefined") {
         return DEFAULT_LANGUAGE;
@@ -85,6 +100,9 @@ function resolveBrowserLanguage(): Language {
     return resolveLanguageFromLocaleTag(navigator.language);
 }
 
+/**
+ * @summary Loads persisted preferences.
+ */
 function loadPersistedPreferences(): UserPreferencesState | null {
     const persisted = storage.get<unknown>(StorageKey.USER_PREFERENCES);
     if (!isUserPreferencesState(persisted)) {
@@ -94,6 +112,9 @@ function loadPersistedPreferences(): UserPreferencesState | null {
     return persisted;
 }
 
+/**
+ * @summary Applies language to document.
+ */
 function applyLanguageToDocument(language: Language): void {
     if (typeof document === "undefined") {
         return;
@@ -102,23 +123,38 @@ function applyLanguageToDocument(language: Language): void {
     document.documentElement.setAttribute("lang", language);
 }
 
+/**
+ * @summary Persist preferences helper function.
+ */
 function persistPreferences(): void {
     storage.set<UserPreferencesState>(StorageKey.USER_PREFERENCES, state);
 }
 
+/**
+ * @summary Gets state snapshot.
+ */
 function getStateSnapshot(): UserPreferencesState {
     return { ...state };
 }
 
+/**
+ * @summary Notifies listeners about listeners.
+ */
 function notifyListeners(): void {
     const snapshot = getStateSnapshot();
     listeners.forEach((listener) => listener(snapshot));
 }
 
+/**
+ * @summary Are preferences equal helper function.
+ */
 function arePreferencesEqual(left: UserPreferencesState, right: UserPreferencesState): boolean {
     return left.language === right.language && left.currency === right.currency;
 }
 
+/**
+ * @summary Applies state.
+ */
 function applyState(nextState: UserPreferencesState, notify: boolean): void {
     const shouldNotify = notify && !arePreferencesEqual(state, nextState);
     state = nextState;
@@ -129,6 +165,9 @@ function applyState(nextState: UserPreferencesState, notify: boolean): void {
     }
 }
 
+/**
+ * @summary Decodes base64 url.
+ */
 function decodeBase64Url(base64UrlValue: string): string | null {
     if (typeof globalThis.atob !== "function") {
         return null;
@@ -145,6 +184,9 @@ function decodeBase64Url(base64UrlValue: string): string | null {
     }
 }
 
+/**
+ * @summary Reads access token user id.
+ */
 function readAccessTokenUserId(token: string): number | null {
     const tokenParts = token.split(".");
     if (tokenParts.length < 2) {
@@ -169,6 +211,9 @@ function readAccessTokenUserId(token: string): number | null {
     }
 }
 
+/**
+ * @summary Reconcile preferences helper function.
+ */
 function reconcilePreferences(
     backendPreferences: UserPreferencesSnapshot
 ): UserPreferencesState {
@@ -178,6 +223,9 @@ function reconcilePreferences(
     };
 }
 
+/**
+ * @summary Resolves authenticated user id.
+ */
 function resolveAuthenticatedUserId(): number | null {
     const accessToken = getAccessToken();
     if (typeof accessToken !== "string" || accessToken.length === 0) {
@@ -204,6 +252,9 @@ async function hydrateFromBackend(userId: number, reconciliationSequence: number
     applyState(reconcilePreferences(backendPreferences), true);
 }
 
+/**
+ * @summary Applies logged out preferences.
+ */
 function applyLoggedOutPreferences(): void {
     const fallbackPreferences: UserPreferencesState = {
         language: resolveBrowserLanguage(),
@@ -237,6 +288,9 @@ async function handleAuthStateTransition(): Promise<void> {
     persistPreferences();
 }
 
+/**
+ * @summary Ensures auth state subscription.
+ */
 function ensureAuthStateSubscription(): void {
     if (authSubscriptionInitialized) {
         return;
